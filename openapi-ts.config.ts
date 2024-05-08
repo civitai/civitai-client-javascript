@@ -8,4 +8,5 @@ export default defineConfig({
   lint: 'eslint',
   enums: 'javascript',
   name: 'GeneratedClient',
+  client: 'fetch',
 });
