@@ -1,107 +1,80 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Civitai Orchestration Consumer API",
-    "version": "v2"
+    "title": "Civitai Orchestration API",
+    "version": "v2",
+    "x-logo": {
+      "url": "https://wiki.civitai.com/images/1/17/Logo_%28Light%29.png",
+      "backgroundColor": "#FFFFFF"
+    }
   },
   "paths": {
-    "/v2/consumer/jobs/{jobId}": {
-      "get": {
+    "/v2/providers/configurations": {
+      "post": {
         "tags": [
-          "Jobs"
+          "Configurations"
         ],
-        "summary": "Get the status of an individual job",
-        "operationId": "GetJob",
-        "parameters": [
-          {
-            "name": "jobId",
-            "in": "path",
-            "description": "The id of the job to get status for",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "What aspects of the job to include in the result",
-            "schema": {
-              "$ref": "#/components/schemas/ResultInclusion"
-            }
-          },
-          {
-            "name": "wait",
-            "in": "query",
-            "description": "Whether to wait for the job to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the job to complete and the job does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the job.",
-            "schema": {
-              "type": "boolean"
+        "operationId": "CreateConfiguration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationOptions"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationOptions"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationOptions"
+              }
             }
           }
-        ],
+        },
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JobInfo"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CreateConfigurationResult"
                 }
               }
             }
           }
         }
       },
-      "put": {
+      "get": {
         "tags": [
-          "Jobs"
+          "Configurations"
         ],
-        "summary": "Updates a job. This can be used to taint a job or cancel it",
-        "operationId": "UpdateJob",
-        "parameters": [
-          {
-            "name": "jobId",
-            "in": "path",
-            "description": "The id of the job to update",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateJobRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateJobRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateJobRequest"
-              }
-            }
-          }
-        },
+        "operationId": "QueryConfigurations",
         "responses": {
-          "404": {
-            "description": "Not Found",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -110,80 +83,8 @@
               }
             }
           },
-          "202": {
-            "description": "Accepted"
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/consumer/jobs/{jobId}/events": {
-      "get": {
-        "tags": [
-          "Jobs"
-        ],
-        "summary": "Get events for a particular job",
-        "operationId": "GetJobEvents",
-        "parameters": [
-          {
-            "name": "jobId",
-            "in": "path",
-            "description": "The id of the job to get events for",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "description": "An optional cursor to continue querying from previous call",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "descending",
-            "in": "query",
-            "description": "Whether to query in ascending or descending form. Defaults to ascending",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "name": "startDate",
-            "in": "query",
-            "description": "The start date after or before which to receive events",
-            "schema": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            }
-          },
-          {
-            "name": "take",
-            "in": "query",
-            "description": "The number of events to receive",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 100
-            }
-          }
-        ],
-        "responses": {
-          "404": {
-            "description": "Not Found",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -197,7 +98,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CursedArrayOfStringAndJobEvent"
+                  "$ref": "#/components/schemas/ConfigurationStatus"
                 }
               }
             }
@@ -205,25 +106,15 @@
         }
       }
     },
-    "/v2/consumer/jobs/{requestId}/jobs/{jobId}": {
-      "delete": {
+    "/v2/providers/configurations/{configurationId}/options": {
+      "get": {
         "tags": [
-          "Jobs"
+          "Configurations"
         ],
-        "summary": "Deletes a job",
-        "operationId": "DeleteJob",
+        "operationId": "GetConfiguration",
         "parameters": [
           {
-            "name": "jobId",
-            "in": "path",
-            "description": "The id of the job to delete",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "requestId",
+            "name": "configurationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -232,6 +123,36 @@
           }
         ],
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationOptions"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -241,9 +162,59 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v2/providers/configurations/{configurationId}": {
+      "delete": {
+        "tags": [
+          "Configurations"
+        ],
+        "operationId": "DeleteConfiguration",
+        "parameters": [
+          {
+            "name": "configurationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           },
-          "202": {
-            "description": "Accepted"
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -251,7 +222,7 @@
     "/v2/models/{air}": {
       "get": {
         "tags": [
-          "Model"
+          "Models"
         ],
         "operationId": "GetModel",
         "parameters": [
@@ -290,7 +261,7 @@
       },
       "delete": {
         "tags": [
-          "Model"
+          "Models"
         ],
         "operationId": "InvalidateModel",
         "parameters": [
@@ -311,238 +282,55 @@
         }
       }
     },
-    "/v2/consumer/requests": {
-      "post": {
+    "/v2/providers/workers/{workerId}/jobs": {
+      "get": {
         "tags": [
-          "Requests"
+          "WorkerJobs"
         ],
-        "summary": "Submits jobs for processing",
-        "description": "Sample request:\r\n            \r\n    POST /v2/consumer/requests\r\n    {\r\n      \"$type\": \"textToImage\",\r\n      \"model\": \"urn:air:sdxl:checkpoint:civitai:4201@130072\",\r\n      \"params\": {\r\n          \"prompt\": \"A cat\",\r\n          \"negativePrompt\": \"A dog\",\r\n          \"scheduler\": \"EulerA\",\r\n          \"steps\": 30,\r\n          \"cfgScale\": 10,\r\n          \"width\": 1216,\r\n          \"height\": 832,\r\n          \"seed\": -1,\r\n          \"clipSkip\": 1\r\n      },\r\n      \"additionalNetworks\": {\r\n        \"civitai:58390@62833\": {\r\n          \"type\": \"Lora\",\r\n          \"strength\": 1\r\n        }\r\n      },\r\n      \"quantity\": 1\r\n    }",
-        "operationId": "SubmitRequest",
+        "operationId": "GetJobs",
         "parameters": [
           {
-            "name": "include",
-            "in": "query",
-            "description": "What aspects of the job to include in the result",
+            "name": "workerId",
+            "in": "path",
+            "required": true,
             "schema": {
-              "$ref": "#/components/schemas/ResultInclusion"
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
             }
           },
           {
             "name": "wait",
             "in": "query",
-            "description": "Whether to wait for the job to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the job to complete and the job does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the job.",
             "schema": {
-              "type": "boolean",
-              "default": false
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
             }
           },
           {
-            "name": "whatif",
+            "name": "claim",
             "in": "query",
-            "description": "Whether to actually submit the job or return an estimate on what would happen upon submission",
             "schema": {
               "type": "boolean",
               "default": false
             }
           }
         ],
-        "requestBody": {
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/JobTemplate"
-                }
-              },
-              "examples": {
-                "Simple SDXL job": {
-                  "value": {
-                    "quantity": 1,
-                    "model": "urn:air:sdxl:model:civitai:101055@128078",
-                    "additionalNetworks": {},
-                    "controlNets": [],
-                    "params": {
-                      "prompt": "A curious cat",
-                      "negativePrompt": "Blurred",
-                      "scheduler": "LMS",
-                      "steps": 30,
-                      "cfgScale": 10,
-                      "width": 1216,
-                      "height": 832,
-                      "seed": -1,
-                      "clipSkip": 2
-                    },
-                    "sequential": false,
-                    "priority": "Normal",
-                    "providers": []
-                  }
-                },
-                "Simple SDXL job with Lora and Textual Inversion applied": {
-                  "value": {
-                    "quantity": 1,
-                    "model": "urn:air:sdxl:model:civitai:101055@128078",
-                    "additionalNetworks": {
-                      "urn:air:unknown:unknown:civitai:120096@135931": {
-                        "strength": 1.5
-                      }
-                    },
-                    "controlNets": [],
-                    "params": {
-                      "prompt": "A curious cat",
-                      "negativePrompt": "Blurred",
-                      "scheduler": "LMS",
-                      "steps": 30,
-                      "cfgScale": 10,
-                      "width": 1216,
-                      "height": 832,
-                      "seed": -1,
-                      "clipSkip": 2
-                    },
-                    "sequential": false,
-                    "priority": "Normal",
-                    "providers": []
-                  }
-                }
-              }
-            },
-            "text/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/JobTemplate"
-                }
-              },
-              "examples": {
-                "Simple SDXL job": {
-                  "value": {
-                    "quantity": 1,
-                    "model": "urn:air:sdxl:model:civitai:101055@128078",
-                    "additionalNetworks": {},
-                    "controlNets": [],
-                    "params": {
-                      "prompt": "A curious cat",
-                      "negativePrompt": "Blurred",
-                      "scheduler": "LMS",
-                      "steps": 30,
-                      "cfgScale": 10,
-                      "width": 1216,
-                      "height": 832,
-                      "seed": -1,
-                      "clipSkip": 2
-                    },
-                    "sequential": false,
-                    "priority": "Normal",
-                    "providers": []
-                  }
-                },
-                "Simple SDXL job with Lora and Textual Inversion applied": {
-                  "value": {
-                    "quantity": 1,
-                    "model": "urn:air:sdxl:model:civitai:101055@128078",
-                    "additionalNetworks": {
-                      "urn:air:unknown:unknown:civitai:120096@135931": {
-                        "strength": 1.5
-                      }
-                    },
-                    "controlNets": [],
-                    "params": {
-                      "prompt": "A curious cat",
-                      "negativePrompt": "Blurred",
-                      "scheduler": "LMS",
-                      "steps": 30,
-                      "cfgScale": 10,
-                      "width": 1216,
-                      "height": 832,
-                      "seed": -1,
-                      "clipSkip": 2
-                    },
-                    "sequential": false,
-                    "priority": "Normal",
-                    "providers": []
-                  }
-                }
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/JobTemplate"
-                }
-              },
-              "examples": {
-                "Simple SDXL job": {
-                  "value": {
-                    "quantity": 1,
-                    "model": "urn:air:sdxl:model:civitai:101055@128078",
-                    "additionalNetworks": {},
-                    "controlNets": [],
-                    "params": {
-                      "prompt": "A curious cat",
-                      "negativePrompt": "Blurred",
-                      "scheduler": "LMS",
-                      "steps": 30,
-                      "cfgScale": 10,
-                      "width": 1216,
-                      "height": 832,
-                      "seed": -1,
-                      "clipSkip": 2
-                    },
-                    "sequential": false,
-                    "priority": "Normal",
-                    "providers": []
-                  }
-                },
-                "Simple SDXL job with Lora and Textual Inversion applied": {
-                  "value": {
-                    "quantity": 1,
-                    "model": "urn:air:sdxl:model:civitai:101055@128078",
-                    "additionalNetworks": {
-                      "urn:air:unknown:unknown:civitai:120096@135931": {
-                        "strength": 1.5
-                      }
-                    },
-                    "controlNets": [],
-                    "params": {
-                      "prompt": "A curious cat",
-                      "negativePrompt": "Blurred",
-                      "scheduler": "LMS",
-                      "steps": 30,
-                      "cfgScale": 10,
-                      "width": 1216,
-                      "height": 832,
-                      "seed": -1,
-                      "clipSkip": 2
-                    },
-                    "sequential": false,
-                    "priority": "Normal",
-                    "providers": []
-                  }
-                }
-              }
-            }
-          }
-        },
         "responses": {
-          "200": {
-            "description": "Success",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RequestInfo"
-                }
-              }
-            }
-          },
-          "202": {
-            "description": "Accepted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RequestInfo"
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -552,13 +340,186 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
           },
-          "400": {
-            "description": "Bad Request",
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/providers/workers": {
+      "post": {
+        "tags": [
+          "Workers"
+        ],
+        "operationId": "CreateWorker",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerRegistration"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerRegistration"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerRegistration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWorkerResult"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Workers"
+        ],
+        "operationId": "QueryWorkers",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkerDetails"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/providers/workers/{workerId}": {
+      "get": {
+        "tags": [
+          "Workers"
+        ],
+        "operationId": "GetWorker",
+        "parameters": [
+          {
+            "name": "workerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkerDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -569,66 +530,51 @@
           }
         }
       },
-      "get": {
+      "delete": {
         "tags": [
-          "Requests"
+          "Workers"
         ],
-        "summary": "Query for requests made by the consumer",
-        "operationId": "QueryRequests",
+        "operationId": "DeleteWorker",
         "parameters": [
           {
-            "name": "cursor",
-            "in": "query",
-            "description": "An optional cursor to continue querying requests from a previous query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "What aspects of the job to include in the result",
-            "schema": {
-              "$ref": "#/components/schemas/ResultInclusion"
-            }
-          },
-          {
-            "name": "take",
-            "in": "query",
-            "description": "How many requests to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 100
-            }
-          },
-          {
-            "name": "jobType",
-            "in": "query",
-            "description": "The type of job to filter on",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "query",
-            "in": "query",
-            "description": "An optional query that can further filter down the jobs",
+            "name": "workerId",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CursedArrayOfTelemetryCursorAndRequestInfo"
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -636,47 +582,49 @@
         }
       }
     },
-    "/v2/consumer/requests/{requestId}": {
+    "/v2/providers/workers/{workerId}/registration": {
       "get": {
         "tags": [
-          "Requests"
+          "Workers"
         ],
-        "summary": "Get the status of a request",
-        "operationId": "GetRequest",
+        "operationId": "GetRegistration",
         "parameters": [
           {
-            "name": "requestId",
+            "name": "workerId",
             "in": "path",
-            "description": "The id of the request to get status for",
             "required": true,
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "description": "What aspects of the job to include in the result",
-            "schema": {
-              "$ref": "#/components/schemas/ResultInclusion"
-            }
-          },
-          {
-            "name": "wait",
-            "in": "query",
-            "description": "Whether to wait for the job to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the job to complete and the job does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the job.",
-            "schema": {
-              "type": "boolean"
-            }
           }
         ],
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RequestInfo"
+                  "$ref": "#/components/schemas/WorkerRegistration"
                 }
               }
             }
@@ -695,13 +643,404 @@
       },
       "put": {
         "tags": [
-          "Requests"
+          "Workers"
         ],
-        "summary": "Updates a request. This can currently be used to cancel a request",
-        "operationId": "UpdateRequest",
+        "operationId": "UpdateWorkerRegistration",
         "parameters": [
           {
-            "name": "requestId",
+            "name": "workerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerRegistration"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerRegistration"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerRegistration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/providers/workers/{workerId}/registration/assets": {
+      "patch": {
+        "tags": [
+          "Workers"
+        ],
+        "operationId": "PatchWorkerAssets",
+        "parameters": [
+          {
+            "name": "workerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/WorkerModelStatus"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/WorkerModelStatus"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/WorkerModelStatus"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/workflows": {
+      "post": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Submit a workflow for processing",
+        "operationId": "SubmitWorkflow",
+        "parameters": [
+          {
+            "name": "wait",
+            "in": "query",
+            "description": "Whether to wait for the job to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "description": "Whether to actually submit the workflow or return an estimate on what would happen upon submission",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Workflow"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Workflow"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Workflow"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workflow"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workflow"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "callbacks": {
+          "WorkflowCallback": {
+            "{$request.query.callbackUrl}": {
+              "post": {
+                "requestBody": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/WorkflowCallback"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Your server implementation should return this HTTP status code if the data was received successfully"
+                  },
+                  "4XX": {
+                    "description": "If your server returns an HTTP status code indicating it does not understand the format of the payload the delivery will be treated as a failure. No retries are attempted."
+                  },
+                  "5XX": {
+                    "description": "If your server returns an HTTP status code indicating a server-side error the delivery will be treated as a failure. retries are attempted."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Query for workflows made by the user",
+        "operationId": "QueryWorkflows",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "An optional cursor to continue querying workflows from a previous query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "How many workflows to return",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          },
+          {
+            "name": "jobType",
+            "in": "query",
+            "description": "The type of job to filter on",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CursedArrayOfTelemetryCursorAndWorkflow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/workflows/{workflowId}": {
+      "get": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Get the status of a workflow",
+        "operationId": "GetWorkflow",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The id of the workflow to get status for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "wait",
+            "in": "query",
+            "description": "Whether to wait for the job to complete before returning or to return immediately\r\nThe workflow may return a 202 if the clients waits for the job to complete and the job does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the job.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workflow"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Updates a request. This can currently be used to cancel a request",
+        "operationId": "UpdateWorkflow",
+        "parameters": [
+          {
+            "name": "workflowId",
             "in": "path",
             "description": "The id of the request to update",
             "required": true,
@@ -715,22 +1054,45 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRequestRequest"
+                "$ref": "#/components/schemas/UpdateWorkflowRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRequestRequest"
+                "$ref": "#/components/schemas/UpdateWorkflowRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRequestRequest"
+                "$ref": "#/components/schemas/UpdateWorkflowRequest"
               }
             }
           }
         },
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -740,21 +1102,18 @@
                 }
               }
             }
-          },
-          "202": {
-            "description": "Accepted"
           }
         }
       },
       "delete": {
         "tags": [
-          "Requests"
+          "Workflows"
         ],
         "summary": "Deletes a request and all its jobs",
-        "operationId": "DeleteRequest",
+        "operationId": "DeleteWorkflow",
         "parameters": [
           {
-            "name": "requestId",
+            "name": "workflowId",
             "in": "path",
             "description": "The id of the request to delete",
             "required": true,
@@ -764,6 +1123,19 @@
           }
         ],
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -773,9 +1145,6 @@
                 }
               }
             }
-          },
-          "202": {
-            "description": "Accepted"
           }
         }
       }
@@ -783,44 +1152,68 @@
   },
   "components": {
     "schemas": {
-      "ComfyJobTemplate": {
+      "ConfigurationOptions": {
         "required": [
-          "params"
+          "selector",
+          "spec"
         ],
         "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/JobTemplate"
-          }
-        ],
         "properties": {
-          "params": {
-            "description": "A untyped set of parameters that are associated with this job"
+          "priority": {
+            "type": "integer",
+            "description": "Get or set the priority of this configuration if multiple configurations apply to the same worker",
+            "format": "int64"
           },
-          "$type": {
-            "type": "string",
-            "default": "comfy"
-          }
-        },
-        "additionalProperties": false
-      },
-      "CursedArrayOfStringAndJobEvent": {
-        "type": "object",
-        "properties": {
-          "next": {
-            "type": "string",
+          "selector": {
+            "$ref": "#/components/schemas/Expression"
+          },
+          "spec": {
+            "description": "Get or set the specification associated with this configuration",
             "nullable": true
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/JobEvent"
-            }
           }
         },
         "additionalProperties": false
       },
-      "CursedArrayOfTelemetryCursorAndRequestInfo": {
+      "ConfigurationStatus": {
+        "type": "object",
+        "properties": {
+          "configurationId": {
+            "type": "string"
+          },
+          "assigned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "targeted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "applied": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateConfigurationResult": {
+        "type": "object",
+        "properties": {
+          "configurationId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateWorkerResult": {
+        "type": "object",
+        "properties": {
+          "workerId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CursedArrayOfTelemetryCursorAndWorkflow": {
         "type": "object",
         "properties": {
           "next": {
@@ -829,7 +1222,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RequestInfo"
+              "$ref": "#/components/schemas/Workflow"
             }
           }
         },
@@ -845,6 +1238,124 @@
             "type": "string"
           },
           "defaultValue": {
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EchoInput": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EchoOutput": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EchoStep": {
+        "required": [
+          "$type",
+          "input"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          }
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Get or set the name of this step so that it can be referenced by other steps",
+            "nullable": true,
+            "readOnly": true
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "timeout": {
+            "type": "string",
+            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "nullable": true,
+            "readOnly": true,
+            "example": "00:00:00"
+          },
+          "retries": {
+            "type": "integer",
+            "description": "The max number of retries before we give up",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepJob"
+            },
+            "description": "Get the jobs generated by this step"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "input": {
+            "$ref": "#/components/schemas/EchoInput"
+          },
+          "output": {
+            "$ref": "#/components/schemas/EchoOutput"
+          },
+          "$type": {
+            "enum": [
+              "echo"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EcosystemElement": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/EcosystemElement"
+        }
+      },
+      "Expression": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Image": {
+        "type": "object",
+        "properties": {
+          "blobKey": {
+            "type": "string"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "blobUrl": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "blobUrlExpirationDate": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           }
         },
@@ -960,6 +1471,7 @@
       },
       "ImageResourceTrainingJob": {
         "required": [
+          "$type",
           "params",
           "trainingData"
         ],
@@ -1009,62 +1521,34 @@
             "description": "Rick: yeah i think for LoRA we need it to be 5-10 minutes.\r\nlora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer",
             "readOnly": true,
             "example": "00:00:00"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ImageResourceTrainingJobTemplate": {
-        "required": [
-          "model",
-          "params",
-          "trainingData"
-        ],
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/JobTemplate"
-          }
-        ],
-        "properties": {
-          "cost": {
-            "type": "number",
-            "description": "The cost of this job",
-            "format": "double"
-          },
-          "model": {
-            "minLength": 1,
-            "type": "string",
-            "description": "The primary model to train upon"
-          },
-          "trainingData": {
-            "type": "string",
-            "description": "A url referring data that needs to be trained upon",
-            "format": "uri"
-          },
-          "params": {
-            "type": "object",
-            "additionalProperties": {},
-            "description": "A untyped set of parameters that are associated with this job"
           },
           "$type": {
-            "type": "string",
-            "default": "imageResourceTraining"
+            "enum": [
+              "ImageResourceTrainingJob"
+            ],
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
       "ImageTransformer": {
         "enum": [
-          "Canny",
-          "DepthZoe",
-          "SoftedgePidinet",
-          "Rembg"
+          "canny",
+          "depthZoe",
+          "softedgePidinet",
+          "rembg"
         ],
         "type": "string"
       },
       "Job": {
+        "required": [
+          "$type"
+        ],
         "type": "object",
         "properties": {
+          "$type": {
+            "type": "string"
+          },
           "id": {
             "type": "string",
             "description": "A unique id for this job"
@@ -1123,6 +1607,11 @@
             "description": "Get or set the name of the consumer that issued this job",
             "nullable": true
           },
+          "version": {
+            "type": "integer",
+            "description": "Get or set the version of this job, this is used to track changes to the job schema",
+            "format": "int32"
+          },
           "claimDuration": {
             "type": "string",
             "description": "The total duration that the job can be claimed",
@@ -1130,229 +1619,33 @@
             "example": "00:00:00"
           }
         },
-        "additionalProperties": false
-      },
-      "JobEvent": {
-        "type": "object",
-        "properties": {
-          "jobId": {
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/JobEventType"
-          },
-          "dateTime": {
-            "type": "string",
-            "description": "Get the absolute datetime on which this event got created",
-            "format": "date-time"
-          },
-          "provider": {
-            "$ref": "#/components/schemas/Provider"
-          },
-          "workerId": {
-            "type": "string",
-            "description": "Get or set the workerId that is associated with this event",
-            "nullable": true
-          },
-          "context": {
-            "type": "object",
-            "additionalProperties": {},
-            "description": "An optional set of key/value pairs that can be used to provide additional context.",
-            "nullable": true
-          },
-          "claimDuration": {
-            "type": "string",
-            "description": "Get the duration since the claim of the job",
-            "nullable": true,
-            "example": "00:00:00"
-          },
-          "jobDuration": {
-            "type": "string",
-            "description": "Get the duration since the start of the job",
-            "example": "00:00:00"
-          },
-          "retryAttempt": {
-            "type": "integer",
-            "description": "The retry attempt of this job",
-            "format": "int32"
-          },
-          "cost": {
-            "type": "number",
-            "description": "The cost of the job associated with this event",
-            "format": "double"
-          },
-          "jobProperties": {
-            "type": "object",
-            "additionalProperties": {},
-            "description": "The properties of the job associated with this event",
-            "nullable": true
-          },
-          "jobType": {
-            "type": "string",
-            "description": "Get the type of the job",
-            "nullable": true
-          },
-          "jobPriority": {
-            "type": "integer",
-            "description": "The priority that is associated with this job",
-            "format": "int32"
-          },
-          "claimHasCompleted": {
-            "type": "boolean",
-            "description": "Get wether this event marks the completion of a claim",
-            "readOnly": true
-          },
-          "jobHasCompleted": {
-            "type": "boolean",
-            "description": "Get wether this event marks the completion of a job\r\nThis is determined based on the Civitai.Orchestration.Grains.Jobs.JobEvent.Type of this event",
-            "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "JobEventType": {
-        "enum": [
-          "Initialized",
-          "Claimed",
-          "Rejected",
-          "LateRejected",
-          "ClaimExpired",
-          "Updated",
-          "Failed",
-          "Succeeded",
-          "Expired",
-          "Canceled"
-        ],
-        "type": "string",
-        "nullable": true
-      },
-      "JobInfo": {
-        "required": [
-          "jobId",
-          "queuePosition",
-          "result",
-          "status"
-        ],
-        "type": "object",
-        "properties": {
-          "jobId": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/JobEventType"
-          },
-          "result": {
-            "nullable": true
-          },
-          "queuePosition": {
-            "$ref": "#/components/schemas/JobQueuePositionInfo"
-          },
-          "lastEvent": {
-            "$ref": "#/components/schemas/JobEvent"
-          },
-          "details": {
-            "$ref": "#/components/schemas/Job"
-          }
-        },
-        "additionalProperties": false
-      },
-      "JobQueuePositionInfo": {
-        "type": "object",
-        "properties": {
-          "support": {
-            "$ref": "#/components/schemas/JobSupport"
-          },
-          "precedingJob": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "estimatedStartDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "JobSupport": {
-        "enum": [
-          "Unsupported",
-          "Unavailable",
-          "Available"
-        ],
-        "type": "string"
-      },
-      "JobTemplate": {
-        "required": [
-          "$type"
-        ],
-        "type": "object",
-        "properties": {
-          "$type": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string",
-            "description": "Get or set the name of this job so that it can be referenced by other jobs",
-            "nullable": true
-          },
-          "priority": {
-            "$ref": "#/components/schemas/Priority"
-          },
-          "providers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Provider"
-            },
-            "description": "Get or set a list of service providers to target with this job\r\nIf not specified then all providers will be targeted"
-          },
-          "expireAt": {
-            "type": "string",
-            "description": "An optional expiration date for this job",
-            "format": "date-time",
-            "nullable": true
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "nullable": true
-            },
-            "description": "A dictionary of user defined properties that are associated with this job template",
-            "nullable": true
-          },
-          "callbackUrl": {
-            "type": "string",
-            "description": "Get or set a url that will be invoked upon completion of this job",
-            "format": "uri",
-            "nullable": true
-          },
-          "timeout": {
-            "type": "string",
-            "description": "The max amount of time to wait for a job to complete before timing out",
-            "nullable": true,
-            "example": "00:00:00"
-          },
-          "retries": {
-            "type": "integer",
-            "description": "The max number of retries before we give up",
-            "format": "int32",
-            "nullable": true
-          }
-        },
         "additionalProperties": false,
         "discriminator": {
           "propertyName": "$type",
           "mapping": {
-            "comfy": "#/components/schemas/ComfyJobTemplate",
-            "imageResourceTraining": "#/components/schemas/ImageResourceTrainingJobTemplate",
-            "textToImage": "#/components/schemas/TextToImageJobTemplate"
+            "ImageResourceTrainingJob": "#/components/schemas/ImageResourceTrainingJob",
+            "LLMPromptAugmentationJob": "#/components/schemas/LLMPromptAugmentationJob",
+            "SimilaritySearchJob": "#/components/schemas/SimilaritySearchJob",
+            "TextToImageJob": "#/components/schemas/TextToImageJob",
+            "TextToImageJobV2": "#/components/schemas/TextToImageJobV2"
           }
         }
       },
+      "JobSupport": {
+        "enum": [
+          "unsupported",
+          "unavailable",
+          "available"
+        ],
+        "type": "string"
+      },
+      "LLMPromptAugmentationCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
       "LLMPromptAugmentationJob": {
         "required": [
+          "$type",
           "model"
         ],
         "type": "object",
@@ -1383,6 +1676,12 @@
           "type": {
             "type": "string",
             "readOnly": true
+          },
+          "$type": {
+            "enum": [
+              "LLMPromptAugmentationJob"
+            ],
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -1422,9 +1721,9 @@
       },
       "Priority": {
         "enum": [
-          "High",
-          "Normal",
-          "Low"
+          "high",
+          "normal",
+          "low"
         ],
         "type": "string"
       },
@@ -1455,111 +1754,102 @@
         },
         "additionalProperties": {}
       },
-      "Provider": {
-        "enum": [
-          "Civitai",
-          "OctoML",
-          "SaladML",
-          "PicFinder",
-          "RunPods",
-          "ValdiAI",
-          "OctoMLNext",
-          "RunDiffusion",
-          "SaladShared",
-          "BaseTen",
-          "Cerebrium",
-          "Cloudflare"
-        ],
-        "type": "string",
-        "nullable": true
-      },
-      "RequestInfo": {
-        "required": [
-          "dateTime",
-          "id",
-          "jobs"
-        ],
+      "ProcessingStatistics": {
         "type": "object",
         "properties": {
-          "id": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "dateTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "jobs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/JobInfo"
-            }
-          },
-          "status": {
-            "$ref": "#/components/schemas/RequestStatus"
-          },
-          "transactionId": {
-            "type": "string",
-            "nullable": true
-          },
-          "transactionAmount": {
+          "totalJobsRequested": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int64"
+          },
+          "totalCostRequested": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalJobsSucceeded": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCostSucceeded": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalJobsRejected": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCostRejected": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalJobsLateRejected": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCostLateRejected": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalJobsExpired": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCostExpired": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalJobsFailed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCostFailed": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalJobsCompleted": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "totalCostCompleted": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
           }
         },
         "additionalProperties": false
       },
-      "RequestStatus": {
-        "enum": [
-          "Initialized",
-          "Processing",
-          "Failed",
-          "Succeeded",
-          "Expired",
-          "Canceled"
-        ],
-        "type": "string",
-        "nullable": true
-      },
-      "ResultInclusion": {
-        "enum": [
-          "Details",
-          "LastEvent"
-        ],
-        "type": "string"
-      },
       "Scheduler": {
         "enum": [
-          "EulerA",
-          "Euler",
-          "LMS",
-          "Heun",
-          "DPM2",
-          "DPM2A",
-          "DPM2SA",
-          "DPM2M",
-          "DPMSDE",
-          "DPMFast",
-          "DPMAdaptive",
-          "LMSKarras",
-          "DPM2Karras",
-          "DPM2AKarras",
-          "DPM2SAKarras",
-          "DPM2MKarras",
-          "DPMSDEKarras",
-          "DDIM",
-          "PLMS",
-          "UniPC",
-          "Undefined",
-          "LCM",
-          "DDPM",
-          "DEIS"
+          "eulerA",
+          "euler",
+          "lms",
+          "heun",
+          "dpm2",
+          "dpm2A",
+          "dpm2SA",
+          "dpm2M",
+          "dpmSDE",
+          "dpmFast",
+          "dpmAdaptive",
+          "lmsKarras",
+          "dpm2Karras",
+          "dpm2AKarras",
+          "dpm2SAKarras",
+          "dpm2MKarras",
+          "dpmsdeKarras",
+          "ddim",
+          "plms",
+          "uniPC",
+          "undefined",
+          "lcm",
+          "ddpm",
+          "deis"
         ],
         "type": "string"
       },
       "SimilaritySearchJob": {
         "required": [
+          "$type",
           "model",
           "nsfwFilter",
           "params",
@@ -1596,30 +1886,119 @@
           "type": {
             "type": "string",
             "readOnly": true
+          },
+          "$type": {
+            "enum": [
+              "SimilaritySearchJob"
+            ],
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
-      "TaintRequest": {
+      "Subscription": {
+        "type": "object",
+        "properties": {
+          "webhook": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TextToImageInput": {
         "required": [
-          "reason"
+          "height",
+          "model",
+          "width"
         ],
         "type": "object",
         "properties": {
-          "reason": {
-            "minLength": 1,
-            "type": "string"
+          "quantity": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Get or sets the number of images to generate in a batch",
+            "format": "int32"
           },
-          "context": {
+          "batchSize": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "The size of each batch",
+            "format": "int32"
+          },
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The AIR of the checkpoint model to use for generation"
+          },
+          "additionalNetworks": {
             "type": "object",
-            "additionalProperties": {},
-            "description": "An optional set of key/value pairs that can be used to provide additional context.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ImageJobNetworkParams"
+            },
+            "description": "Get or set a associative list of additional networks. Use the AIR of the network as the key."
+          },
+          "controlNets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageJobControlNet"
+            },
+            "description": "Get or set a associative list of additional networks."
+          },
+          "prompt": {
+            "type": "string",
             "nullable": true
+          },
+          "negativePrompt": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduler": {
+            "$ref": "#/components/schemas/Scheduler"
+          },
+          "steps": {
+            "maximum": 150,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "cfgScale": {
+            "maximum": 30,
+            "minimum": 1,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "width": {
+            "maximum": 2048,
+            "minimum": 64,
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "maximum": 2048,
+            "minimum": 64,
+            "type": "integer",
+            "format": "int32"
+          },
+          "seed": {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int64"
+          },
+          "clipSkip": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
       },
       "TextToImageJob": {
+        "required": [
+          "$type"
+        ],
         "type": "object",
         "allOf": [
           {
@@ -1674,6 +2053,12 @@
           "type": {
             "type": "string",
             "readOnly": true
+          },
+          "$type": {
+            "enum": [
+              "TextToImageJob"
+            ],
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -1691,63 +2076,10 @@
         },
         "additionalProperties": false
       },
-      "TextToImageJobTemplate": {
-        "required": [
-          "model",
-          "params"
-        ],
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/JobTemplate"
-          }
-        ],
-        "properties": {
-          "quantity": {
-            "maximum": 100,
-            "minimum": 1,
-            "type": "integer",
-            "description": "Get or sets the number of images to generate in a batch",
-            "format": "int32"
-          },
-          "batchSize": {
-            "maximum": 100,
-            "minimum": 1,
-            "type": "integer",
-            "description": "The size of each batch",
-            "format": "int32",
-            "nullable": true
-          },
-          "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string",
-            "description": "The AIR of the checkpoint model to use for generation"
-          },
-          "additionalNetworks": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/ImageJobNetworkParams"
-            },
-            "description": "Get or set a associative list of additional networks. Use the AIR of the network as the key."
-          },
-          "controlNets": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ImageJobControlNet"
-            },
-            "description": "Get or set a associative list of additional networks."
-          },
-          "params": {
-            "$ref": "#/components/schemas/ImageJobParams"
-          },
-          "$type": {
-            "type": "string",
-            "default": "textToImage"
-          }
-        },
-        "additionalProperties": false
-      },
       "TextToImageJobV2": {
+        "required": [
+          "$type"
+        ],
         "type": "object",
         "allOf": [
           {
@@ -1795,44 +2127,628 @@
           "type": {
             "type": "string",
             "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UpdateJobRequest": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/UpdateJobStatus"
           },
-          "taint": {
-            "$ref": "#/components/schemas/TaintRequest"
+          "$type": {
+            "enum": [
+              "TextToImageJobV2"
+            ],
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
-      "UpdateJobStatus": {
-        "enum": [
-          "Canceled"
-        ],
-        "type": "string",
-        "nullable": true
+      "TextToImageOutput": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Image"
+            }
+          }
+        },
+        "additionalProperties": false
       },
-      "UpdateRequestRequest": {
+      "TextToImageStep": {
+        "required": [
+          "$type",
+          "input"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          }
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Get or set the name of this step so that it can be referenced by other steps",
+            "nullable": true,
+            "readOnly": true
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "timeout": {
+            "type": "string",
+            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "nullable": true,
+            "readOnly": true,
+            "example": "00:00:00"
+          },
+          "retries": {
+            "type": "integer",
+            "description": "The max number of retries before we give up",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepJob"
+            },
+            "description": "Get the jobs generated by this step"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "input": {
+            "$ref": "#/components/schemas/TextToImageInput"
+          },
+          "output": {
+            "$ref": "#/components/schemas/TextToImageOutput"
+          },
+          "$type": {
+            "enum": [
+              "textToImage"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TransactionInfo": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "minLength": 1,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateWorkflowRequest": {
         "type": "object",
         "properties": {
           "status": {
-            "$ref": "#/components/schemas/UpdateRequestStatus"
+            "$ref": "#/components/schemas/UpdateWorkflowStatus"
           }
         },
         "additionalProperties": false
       },
-      "UpdateRequestStatus": {
+      "UpdateWorkflowStatus": {
         "enum": [
-          "Canceled"
+          "canceled"
         ],
         "type": "string",
         "nullable": true
+      },
+      "WorkerCapabilities": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "$ref": "#/components/schemas/WorkerImageCapabilities"
+          },
+          "media": {
+            "$ref": "#/components/schemas/WorkerMediaCapabilities"
+          },
+          "modelManagement": {
+            "$ref": "#/components/schemas/WorkerModelPreparationCapabilities"
+          },
+          "configurationManagement": {
+            "$ref": "#/components/schemas/WorkerConfigurationCapabilities"
+          },
+          "similaritySearch": {
+            "$ref": "#/components/schemas/WorkerSimilaritySearchCapabilities"
+          },
+          "llmPromptAugmentation": {
+            "$ref": "#/components/schemas/LLMPromptAugmentationCapabilities"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerConfigurationCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerDetails": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "activeJobs": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "queueSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "queueDepth": {
+            "type": "number",
+            "format": "double"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastRequestDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "statistics": {
+            "$ref": "#/components/schemas/ProcessingStatistics"
+          },
+          "succeededThroughputRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "failedThroughputRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "idleRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastSuccesfullyCompletedJobDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastJobUpdateDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "subscriptionSetDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "quarantineDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerImageCapabilities": {
+        "type": "object",
+        "properties": {
+          "textToImage": {
+            "$ref": "#/components/schemas/WorkerImageTextToImageCapabilities"
+          },
+          "imageToImage": {
+            "$ref": "#/components/schemas/WorkerImageImageToImageCapabilities"
+          },
+          "transform": {
+            "$ref": "#/components/schemas/WorkerImageTransformCapabilities"
+          },
+          "resourceTraining": {
+            "$ref": "#/components/schemas/WorkerImageResourceTrainingCapabilities"
+          },
+          "embedding": {
+            "$ref": "#/components/schemas/WorkerImageEmbeddingCapabilities"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerImageEmbeddingCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerImageImageToImageCapabilities": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "Max size supported (as square)",
+            "format": "int32"
+          },
+          "schedulers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Scheduler"
+            },
+            "description": "Schedulers supported"
+          },
+          "controlNet": {
+            "maximum": 10,
+            "minimum": 0,
+            "type": "integer",
+            "description": "The number of controlnets that can be used in tandem",
+            "format": "int32"
+          },
+          "inpainting": {
+            "type": "boolean",
+            "description": "Whether or not inpainting is supported"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerImageResourceTrainingCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerImageTextToImageCapabilities": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "description": "Max size supported (as square)",
+            "format": "int32"
+          },
+          "schedulers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Scheduler"
+            },
+            "description": "Schedulers supported"
+          },
+          "controlNet": {
+            "maximum": 10,
+            "minimum": 0,
+            "type": "integer",
+            "description": "The number of controlnets that can be used in tandem",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerImageTransformCapabilities": {
+        "type": "object",
+        "properties": {
+          "transformers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageTransformer"
+            },
+            "description": "Max size supported (as square)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerMediaCapabilities": {
+        "type": "object",
+        "properties": {
+          "wdTagging": {
+            "$ref": "#/components/schemas/WorkerMediaWDTaggingCapabilities"
+          },
+          "comfy": {
+            "$ref": "#/components/schemas/WorkerMediaComfyCapabilities"
+          },
+          "tagging": {
+            "$ref": "#/components/schemas/WorkerMediaTaggingCapabilities"
+          },
+          "movieRating": {
+            "$ref": "#/components/schemas/WorkerMediaMovieRatingCapabilities"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerMediaComfyCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerMediaMovieRatingCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerMediaTaggingCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerMediaWDTaggingCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerModelAvailability": {
+        "enum": [
+          "unknown",
+          "unsupported",
+          "unavailable",
+          "available",
+          "providerUnsupported"
+        ],
+        "type": "string"
+      },
+      "WorkerModelPreparationCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerModelStatus": {
+        "type": "object",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/WorkerModelAvailability"
+          },
+          "cost": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerRegistration": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "onDemandModelTypesAsArray": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "onDemandModelTypes": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/WorkerCapabilities"
+          },
+          "subscription": {
+            "$ref": "#/components/schemas/Subscription"
+          },
+          "type": {
+            "$ref": "#/components/schemas/WorkerType"
+          },
+          "concurrentLimit": {
+            "type": "integer",
+            "description": "How many requests you can handle at once",
+            "format": "int32"
+          },
+          "ecosystems": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EcosystemElement"
+            },
+            "description": "The ecosystems supported by this worker"
+          },
+          "models": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/WorkerModelStatus"
+            },
+            "description": "A list of assets that are currently unavailable by this worker\r\nThis is the counterpart of assets"
+          },
+          "cacheLevel": {
+            "type": "string",
+            "description": "The name of the closest cache level that this worker can interact with",
+            "nullable": true
+          },
+          "maxColdSwapQueueSize": {
+            "type": "integer",
+            "description": "The max queue size before we stop accepting requests that require cold swapping",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxPendingModelSize": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "consumeUnavailableJobs": {
+            "type": "boolean",
+            "description": "Wether the worker should consume jobs that are not yet available"
+          },
+          "nodeIdentifier": {
+            "type": "string",
+            "description": "An optional identified that uniquely identifies this worker",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkerSimilaritySearchCapabilities": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "WorkerType": {
+        "enum": [
+          "normal",
+          "deferred"
+        ],
+        "type": "string"
+      },
+      "Workflow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionInfo"
+            },
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {},
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStep"
+            }
+          },
+          "callbacks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowCallback"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowCallback": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "workflow:succeeded"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowStatus": {
+        "enum": [
+          "unassigned",
+          "preparing",
+          "scheduled",
+          "processing",
+          "succeeded",
+          "failed",
+          "expired",
+          "canceled"
+        ],
+        "type": "string"
+      },
+      "WorkflowStep": {
+        "required": [
+          "$type"
+        ],
+        "type": "object",
+        "properties": {
+          "$type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Get or set the name of this step so that it can be referenced by other steps",
+            "nullable": true,
+            "readOnly": true
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "timeout": {
+            "type": "string",
+            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "nullable": true,
+            "readOnly": true,
+            "example": "00:00:00"
+          },
+          "retries": {
+            "type": "integer",
+            "description": "The max number of retries before we give up",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepJob"
+            },
+            "description": "Get the jobs generated by this step"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "$type",
+          "mapping": {
+            "textToImage": "#/components/schemas/TextToImageStep",
+            "echo": "#/components/schemas/EchoStep"
+          }
+        }
+      },
+      "WorkflowStepJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cost": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "queuePosition": {
+            "$ref": "#/components/schemas/WorkflowStepJobQueuePosition"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkflowStepJobQueuePosition": {
+        "type": "object",
+        "properties": {
+          "support": {
+            "$ref": "#/components/schemas/JobSupport"
+          },
+          "precedingJobs": {
+            "type": "integer",
+            "description": "Get the number of jobs preceding the current job",
+            "format": "int32",
+            "nullable": true
+          },
+          "estimatedStartDate": {
+            "type": "string",
+            "description": "Get an estimation as to when this job will start",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -1847,6 +2763,29 @@
   "security": [
     {
       "ApiKey": []
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Models",
+      "tags": [
+        "Models"
+      ]
+    },
+    {
+      "name": "Consumer",
+      "tags": [
+        "Workflows"
+      ]
+    },
+    {
+      "name": "Provider",
+      "tags": [
+        "Providers",
+        "Workers",
+        "WorkerJobs",
+        "Configurations"
+      ]
     }
   ]
 }

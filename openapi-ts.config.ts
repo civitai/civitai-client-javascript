@@ -1,7 +1,7 @@
 import { defineConfig } from '@hey-api/openapi-ts';
 
 export default defineConfig({
-  input: 'https://orchestration-dev.civitai.com/swagger/consumer-v2/swagger.json',
+  input: 'https://orchestration-dev.civitai.com/openapi-specs/v2.json',
   // input: 'swagger.json',
   output: 'src/generated',
   format: 'prettier',

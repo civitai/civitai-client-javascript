@@ -1,7 +1,5 @@
-import { RequestsClient } from './RequestsClient';
 import { BaseHttpRequest } from '../generated/core/BaseHttpRequest';
 import { Interceptors, OpenAPIConfig } from '../generated/core/OpenAPI';
-import { JobsService, ModelService } from '../generated/services.gen';
 import { GeneratedClient } from '../generated/GeneratedClient';
 
 type ClientConfig = {
@@ -19,20 +17,10 @@ type ClientConfig = {
 // } & NonNullable<unknown>;
 
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
-type Service<T> = Omit<T, 'httpRequest'>;
-// type Client<T> = {
-//   [K in keyof T]: Prettify<Service<T[K]>>;
-// };
 
-// interface ICivitaiClient extends Client<Omit<GeneratedClient, 'request'>> {}
-
-export class CivitaiClient {
-  public readonly jobs: Service<JobsService>;
-  public readonly model: Service<ModelService>;
-  public readonly requests: RequestsClient;
-
+export class CivitaiClient extends GeneratedClient {
   constructor(config: ClientConfig, HttpRequest?: HttpRequestConstructor) {
-    const client = new GeneratedClient(
+    super(
       {
         BASE:
           config.env === 'dev'
@@ -46,12 +34,10 @@ export class CivitaiClient {
       },
       HttpRequest
     );
-
-    this.jobs = client.jobs;
-    this.model = client.model;
-    this.requests = new RequestsClient(client.request);
   }
 }
 
 // const test = new CivitaiClient({ auth: '' });
 // test.requests.submitRequest([{ $type: 'textToImage' }]);
+
+// test.workflows.submitRequest({requestBody: {} as TextToImageStep})
