@@ -1,4 +1,6 @@
-import { CivitaiClient } from 'src/client/CivitaiClient';
+import { CivitaiClient } from '../../src/client/CivitaiClient';
+import dotenv from 'dotenv';
+dotenv.config();
 
 describe('Query workflows', () => {
   let client: CivitaiClient;
