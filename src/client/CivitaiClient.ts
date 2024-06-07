@@ -25,7 +25,7 @@ export class CivitaiClient extends GeneratedClient {
         BASE:
           config.env === 'dev'
             ? 'https://orchestration-dev.civitai.com'
-            : 'https://orchestration.civitai.com', // TODO: Switch to orchestration.civitai.com once prod is back up and running
+            : 'https://orchestration.civitai.com',
         HEADERS: { Authorization: `Bearer ${config.auth}` },
         interceptors: {
           request: config?.interceptors?.request ?? new Interceptors(),
