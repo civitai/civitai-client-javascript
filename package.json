@@ -1,6 +1,6 @@
 {
   "name": "@civitai/client",
-  "version": "0.1.1-beta.0",
+  "version": "0.1.2-beta.0",
   "description": "Civitai's javascript client for generating ai content",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
