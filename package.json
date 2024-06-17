@@ -22,7 +22,8 @@
     "generate": "openapi-ts",
     "build": "tsc && eslint --fix dist",
     "test": "jest",
-    "prepublishOnly": "npm test && npm run build"
+    "prepublishOnly": "npm test && npm run build",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.42.1",
