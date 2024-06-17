@@ -54,5 +54,3 @@ typings/
 dist/
 .vercel
 
-# OpenAPI output
-generated/
