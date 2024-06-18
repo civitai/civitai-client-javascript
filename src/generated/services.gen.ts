@@ -424,7 +424,7 @@ export class WorkflowsService {
    * @param data The data for the request.
    * @param data.cursor An optional cursor to continue querying workflows from a previous query.
    * @param data.take How many workflows to return
-   * @param data.jobType The type of job to filter on.
+   * @param data.tags An optional list of tags to query by
    * @returns CursedArrayOfTelemetryCursorAndWorkflow Success
    * @throws ApiError
    */
@@ -437,7 +437,7 @@ export class WorkflowsService {
       query: {
         cursor: data.cursor,
         take: data.take,
-        jobType: data.jobType,
+        tags: data.tags,
       },
       errors: {
         401: 'Unauthorized',
@@ -475,9 +475,9 @@ export class WorkflowsService {
   }
 
   /**
-   * Updates a request. This can currently be used to cancel a request.
+   * Updates a worfklow. This can currently be used to cancel a worfklow.
    * @param data The data for the request.
-   * @param data.workflowId The id of the request to update.
+   * @param data.workflowId The id of the worfklow to update.
    * @param data.requestBody The details to update on the workflow.
    * @returns void No Content
    * @throws ApiError
@@ -518,6 +518,68 @@ export class WorkflowsService {
         workflowId: data.workflowId,
       },
       errors: {
+        401: 'Unauthorized',
+        404: 'Not Found',
+      },
+    });
+  }
+}
+
+export class WorkflowStepsService {
+  constructor(public readonly httpRequest: BaseHttpRequest) {}
+
+  /**
+   * Get the status of a workflow step
+   * @param data The data for the request.
+   * @param data.workflowId The id of the workflow to get status for
+   * @param data.stepName The name of the step within the workflow to get status for
+   * @returns WorkflowStep Success
+   * @throws ApiError
+   */
+  public getWorkflowStep(
+    data: $OpenApiTs['/v2/consumer/workflows/{workflowId}/steps/{stepName}']['get']['req']
+  ): CancelablePromise<
+    $OpenApiTs['/v2/consumer/workflows/{workflowId}/steps/{stepName}']['get']['res'][200]
+  > {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/v2/consumer/workflows/{workflowId}/steps/{stepName}',
+      path: {
+        workflowId: data.workflowId,
+        stepName: data.stepName,
+      },
+      errors: {
+        401: 'Unauthorized',
+        404: 'Not Found',
+      },
+    });
+  }
+
+  /**
+   * Updates a step within a particular workflow.
+   * @param data The data for the request.
+   * @param data.workflowId The id of the workflow to update.
+   * @param data.stepName The name of the step to update.
+   * @param data.requestBody The details to update on the workflow step.
+   * @returns void No Content
+   * @throws ApiError
+   */
+  public updateWorkflowStep(
+    data: $OpenApiTs['/v2/consumer/workflows/{workflowId}/steps/{stepName}']['put']['req']
+  ): CancelablePromise<
+    $OpenApiTs['/v2/consumer/workflows/{workflowId}/steps/{stepName}']['put']['res'][204]
+  > {
+    return this.httpRequest.request({
+      method: 'PUT',
+      url: '/v2/consumer/workflows/{workflowId}/steps/{stepName}',
+      path: {
+        workflowId: data.workflowId,
+        stepName: data.stepName,
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        400: 'Bad Request',
         401: 'Unauthorized',
         404: 'Not Found',
       },

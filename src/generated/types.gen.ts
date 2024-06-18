@@ -90,6 +90,12 @@ export type EchoStep = WorkflowStep & {
    * The date / time the step was completed. Null if not yet completed.
    */
   completedAt?: string | null;
+  /**
+   * A collection of user defined metadata for the workflow step.
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
   input: EchoInput;
   output?: EchoOutput;
   $type: 'echo';
@@ -400,6 +406,12 @@ export type ImageResourceTrainingStep = WorkflowStep & {
    * The date / time the step was completed. Null if not yet completed.
    */
   completedAt?: string | null;
+  /**
+   * A collection of user defined metadata for the workflow step.
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
   input: ImageResourceTrainingInput;
   output?: ImageResourceTrainingOutput;
   $type: 'imageResourceTraining';
@@ -856,6 +868,12 @@ export type TextToImageStep = WorkflowStep & {
    * The date / time the step was completed. Null if not yet completed.
    */
   completedAt?: string | null;
+  /**
+   * A collection of user defined metadata for the workflow step.
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
   input: TextToImageInput;
   output?: TextToImageOutput;
   $type: 'textToImage';
@@ -972,6 +990,12 @@ export type TranscodeStep = WorkflowStep & {
    * The date / time the step was completed. Null if not yet completed.
    */
   completedAt?: string | null;
+  /**
+   * A collection of user defined metadata for the workflow step.
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
   input: TranscodeInput;
   output?: TranscodeOutput;
   $type: 'transcode';
@@ -999,6 +1023,15 @@ export type UpdateWorkflowRequest = {
  * Available statuses for updating workflows.
  */
 export type UpdateWorkflowStatus = 'canceled';
+
+export type UpdateWorkflowStepRequest = {
+  /**
+   * An set of new properties to set on the workflow step.
+   */
+  metadata: {
+    [key: string]: unknown;
+  };
+};
 
 /**
  * Details of a worker's capabilities.
@@ -1344,6 +1377,10 @@ export type Workflow = {
    * An array of callback details for the workflow.
    */
   callbacks?: Array<WorkflowCallback>;
+  /**
+   * An optional list of tags for the workflow.
+   */
+  tags?: Array<string>;
 };
 
 /**
@@ -1438,6 +1475,12 @@ export type WorkflowStep = {
    * The date / time the step was completed. Null if not yet completed.
    */
   completedAt?: string | null;
+  /**
+   * A collection of user defined metadata for the workflow step.
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
 };
 
 /**
@@ -1540,6 +1583,12 @@ export type WorkflowStepTemplate = {
    * The maximum number of times this step should be retried.
    */
   retries?: number | null;
+  /**
+   * A collection of user defined metadata for the workflow step.
+   */
+  metadata?: {
+    [key: string]: unknown;
+  } | null;
 };
 
 /**
@@ -1547,11 +1596,17 @@ export type WorkflowStepTemplate = {
  */
 export type WorkflowTemplate = {
   /**
-   * A colletion of user defined metadata that can be used to store additional information about the workflow.
+   * A collection of user defined metadata that can be used to store additional information about the workflow.
    */
   metadata?: {
     [key: string]: unknown;
   } | null;
+  /**
+   * A list of tags associated with this workflow.
+   * Tags are indexed and can be used to search for workflows.
+   * At most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.
+   */
+  tags?: Array<string> | null;
   /**
    * An array of steps that compose this workflow.
    */
@@ -1980,9 +2035,9 @@ export type $OpenApiTs = {
          */
         cursor?: string;
         /**
-         * The type of job to filter on.
+         * An optional list of tags to query by
          */
-        jobType?: Array<string>;
+        tags?: Array<string>;
         /**
          * How many workflows to return
          */
@@ -2036,7 +2091,7 @@ export type $OpenApiTs = {
          */
         requestBody?: UpdateWorkflowRequest;
         /**
-         * The id of the request to update.
+         * The id of the worfklow to update.
          */
         workflowId: string;
       };
@@ -2071,6 +2126,68 @@ export type $OpenApiTs = {
          * No Content
          */
         204: void;
+        /**
+         * Unauthorized
+         */
+        401: ProblemDetails;
+        /**
+         * Not Found
+         */
+        404: ProblemDetails;
+      };
+    };
+  };
+  '/v2/consumer/workflows/{workflowId}/steps/{stepName}': {
+    get: {
+      req: {
+        /**
+         * The name of the step within the workflow to get status for
+         */
+        stepName: string;
+        /**
+         * The id of the workflow to get status for
+         */
+        workflowId: string;
+      };
+      res: {
+        /**
+         * Success
+         */
+        200: WorkflowStep;
+        /**
+         * Unauthorized
+         */
+        401: ProblemDetails;
+        /**
+         * Not Found
+         */
+        404: ProblemDetails;
+      };
+    };
+    put: {
+      req: {
+        /**
+         * The details to update on the workflow step.
+         */
+        requestBody?: UpdateWorkflowStepRequest;
+        /**
+         * The name of the step to update.
+         */
+        stepName: string;
+        /**
+         * The id of the workflow to update.
+         */
+        workflowId: string;
+      };
+      res: {
+        /**
+         * No Content
+         */
+        204: void;
+        /**
+         * Bad Request
+         */
+        400: ProblemDetails;
         /**
          * Unauthorized
          */

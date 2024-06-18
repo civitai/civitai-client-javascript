@@ -190,6 +190,12 @@ export const $EchoStep = {
       format: 'date-time',
       nullable: true,
     },
+    metadata: {
+      type: 'object',
+      additionalProperties: {},
+      description: 'A collection of user defined metadata for the workflow step.',
+      nullable: true,
+    },
     input: {
       $ref: '#/components/schemas/EchoInput',
     },
@@ -678,6 +684,12 @@ export const $ImageResourceTrainingStep = {
       type: 'string',
       description: 'The date / time the step was completed. Null if not yet completed.',
       format: 'date-time',
+      nullable: true,
+    },
+    metadata: {
+      type: 'object',
+      additionalProperties: {},
+      description: 'A collection of user defined metadata for the workflow step.',
       nullable: true,
     },
     input: {
@@ -1390,6 +1402,12 @@ export const $TextToImageStep = {
       format: 'date-time',
       nullable: true,
     },
+    metadata: {
+      type: 'object',
+      additionalProperties: {},
+      description: 'A collection of user defined metadata for the workflow step.',
+      nullable: true,
+    },
     input: {
       $ref: '#/components/schemas/TextToImageInput',
     },
@@ -1617,6 +1635,12 @@ export const $TranscodeStep = {
       format: 'date-time',
       nullable: true,
     },
+    metadata: {
+      type: 'object',
+      additionalProperties: {},
+      description: 'A collection of user defined metadata for the workflow step.',
+      nullable: true,
+    },
     input: {
       $ref: '#/components/schemas/TranscodeInput',
     },
@@ -1673,6 +1697,19 @@ export const $UpdateWorkflowStatus = {
   type: 'string',
   description: 'Available statuses for updating workflows.',
   nullable: true,
+} as const;
+
+export const $UpdateWorkflowStepRequest = {
+  required: ['metadata'],
+  type: 'object',
+  properties: {
+    metadata: {
+      type: 'object',
+      additionalProperties: {},
+      description: 'An set of new properties to set on the workflow step.',
+    },
+  },
+  additionalProperties: false,
 } as const;
 
 export const $WorkerCapabilities = {
@@ -2145,6 +2182,14 @@ export const $Workflow = {
       },
       description: 'An array of callback details for the workflow.',
     },
+    tags: {
+      uniqueItems: true,
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+      description: 'An optional list of tags for the workflow.',
+    },
   },
   additionalProperties: false,
   description: 'Details of a workflow.',
@@ -2278,6 +2323,12 @@ export const $WorkflowStep = {
       type: 'string',
       description: 'The date / time the step was completed. Null if not yet completed.',
       format: 'date-time',
+      nullable: true,
+    },
+    metadata: {
+      type: 'object',
+      additionalProperties: {},
+      description: 'A collection of user defined metadata for the workflow step.',
       nullable: true,
     },
   },
@@ -2446,6 +2497,12 @@ export const $WorkflowStepTemplate = {
       format: 'int32',
       nullable: true,
     },
+    metadata: {
+      type: 'object',
+      additionalProperties: {},
+      description: 'A collection of user defined metadata for the workflow step.',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: 'Details of a workflow step template.',
@@ -2468,7 +2525,19 @@ export const $WorkflowTemplate = {
       type: 'object',
       additionalProperties: {},
       description:
-        'A colletion of user defined metadata that can be used to store additional information about the workflow.',
+        'A collection of user defined metadata that can be used to store additional information about the workflow.',
+      nullable: true,
+    },
+    tags: {
+      maxItems: 10,
+      uniqueItems: true,
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+      description: `A list of tags associated with this workflow.
+Tags are indexed and can be used to search for workflows.
+At most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.`,
       nullable: true,
     },
     steps: {

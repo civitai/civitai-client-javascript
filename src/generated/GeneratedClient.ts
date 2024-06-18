@@ -9,6 +9,7 @@ import { ResourcesService } from './services.gen';
 import { WorkerJobsService } from './services.gen';
 import { WorkersService } from './services.gen';
 import { WorkflowsService } from './services.gen';
+import { WorkflowStepsService } from './services.gen';
 
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 
@@ -19,6 +20,7 @@ export class GeneratedClient {
   public readonly workerJobs: WorkerJobsService;
   public readonly workers: WorkersService;
   public readonly workflows: WorkflowsService;
+  public readonly workflowSteps: WorkflowStepsService;
 
   public readonly request: BaseHttpRequest;
 
@@ -48,5 +50,6 @@ export class GeneratedClient {
     this.workerJobs = new WorkerJobsService(this.request);
     this.workers = new WorkersService(this.request);
     this.workflows = new WorkflowsService(this.request);
+    this.workflowSteps = new WorkflowStepsService(this.request);
   }
 }
