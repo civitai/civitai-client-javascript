@@ -428,7 +428,7 @@ export const $ImageResourceTrainingInput = {
   properties: {
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_-/]+):)?(?:(?<type>[a-zA-Z0-9_-/]+):)?(?<source>[a-zA-Z0-9_-/]+):(?<id>[a-zA-Z0-9_-/.]+)(?:@(?<version>[a-zA-Z0-9_-.]+))?(?:.(?<format>[a-zA-Z0-9_-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'The primary model to train upon.',
     },
@@ -567,7 +567,7 @@ export const $ImageResourceTrainingJob = {
   properties: {
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_-/]+):)?(?:(?<type>[a-zA-Z0-9_-/]+):)?(?<source>[a-zA-Z0-9_-/]+):(?<id>[a-zA-Z0-9_-/.]+)(?:@(?<version>[a-zA-Z0-9_-.]+))?(?:.(?<format>[a-zA-Z0-9_-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'An AIR representing the model to use.',
     },
@@ -1001,7 +1001,7 @@ export const $ResourceInfo = {
   properties: {
     air: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_-/]+):)?(?:(?<type>[a-zA-Z0-9_-/]+):)?(?<source>[a-zA-Z0-9_-/]+):(?<id>[a-zA-Z0-9_-/.]+)(?:@(?<version>[a-zA-Z0-9_-.]+))?(?:.(?<format>[a-zA-Z0-9_-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'An AIR ID for the resource.',
     },
@@ -1088,7 +1088,7 @@ export const $SimilaritySearchJob = {
   properties: {
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_-/]+):)?(?:(?<type>[a-zA-Z0-9_-/]+):)?(?<source>[a-zA-Z0-9_-/]+):(?<id>[a-zA-Z0-9_-/.]+)(?:@(?<version>[a-zA-Z0-9_-.]+))?(?:.(?<format>[a-zA-Z0-9_-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'An AIR ID representing the primary model.',
     },
@@ -1161,7 +1161,7 @@ export const $TextToImageInput = {
     },
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_-/]+):)?(?:(?<type>[a-zA-Z0-9_-/]+):)?(?<source>[a-zA-Z0-9_-/]+):(?<id>[a-zA-Z0-9_-/.]+)(?:@(?<version>[a-zA-Z0-9_-.]+))?(?:.(?<format>[a-zA-Z0-9_-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'The AIR of the checkpoint model to use for generation.',
     },
@@ -1255,7 +1255,7 @@ export const $TextToImageJob = {
   properties: {
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_-/]+):)?(?:(?<type>[a-zA-Z0-9_-/]+):)?(?<source>[a-zA-Z0-9_-/]+):(?<id>[a-zA-Z0-9_-/.]+)(?:@(?<version>[a-zA-Z0-9_-.]+))?(?:.(?<format>[a-zA-Z0-9_-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'An AIR representing the model to use.',
     },
@@ -1454,7 +1454,7 @@ export const $TextToImageV2Job = {
   properties: {
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_-/]+):)?(?:(?<type>[a-zA-Z0-9_-/]+):)?(?<source>[a-zA-Z0-9_-/]+):(?<id>[a-zA-Z0-9_-/.]+)(?:@(?<version>[a-zA-Z0-9_-.]+))?(?:.(?<format>[a-zA-Z0-9_-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'An AIR representing the model to use.',
     },
@@ -2183,7 +2183,6 @@ export const $Workflow = {
       description: 'An array of callback details for the workflow.',
     },
     tags: {
-      uniqueItems: true,
       type: 'array',
       items: {
         type: 'string',

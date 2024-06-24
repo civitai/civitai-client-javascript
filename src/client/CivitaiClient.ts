@@ -1,43 +1,36 @@
-import { BaseHttpRequest } from '../generated/core/BaseHttpRequest';
-import { Interceptors, OpenAPIConfig } from '../generated/core/OpenAPI';
-import { GeneratedClient } from '../generated/GeneratedClient';
+import { createClient } from '@hey-api/client-fetch';
+import { ProblemDetails } from '../generated';
 
 type ClientConfig = {
   env?: 'dev' | 'prod';
   base?: string; // TODO - implement a base path override
   auth: string;
-  interceptors?: {
-    request?: Interceptors<RequestInit>;
-    response?: Interceptors<Response>;
-  };
 };
 
-// type Prettify<T> = {
-//   [K in keyof T]: T[K];
-// } & NonNullable<unknown>;
+export function createCivitaiClient(config: ClientConfig) {
+  const client = createClient({
+    baseUrl:
+      config.env === 'dev'
+        ? 'https://orchestration-dev.civitai.com'
+        : 'https://orchestration.civitai.com',
+    global: false,
+    headers: {
+      Authorization: `Bearer ${config.auth}`,
+    },
+  });
 
-type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
+  client.interceptors.response.use(async (response) => {
+    if (!response.ok && response.status === 500) {
+      const error = { status: response.status, detail: response.statusText } as ProblemDetails;
+      const newResponse = new Response(JSON.stringify(error), {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      return newResponse;
+    }
 
-export class CivitaiClient extends GeneratedClient {
-  constructor(config: ClientConfig, HttpRequest?: HttpRequestConstructor) {
-    super(
-      {
-        BASE:
-          config.env === 'dev'
-            ? 'https://orchestration-dev.civitai.com'
-            : 'https://orchestration.civitai.com',
-        HEADERS: { Authorization: `Bearer ${config.auth}` },
-        interceptors: {
-          request: config?.interceptors?.request ?? new Interceptors(),
-          response: config?.interceptors?.response ?? new Interceptors(),
-        },
-      },
-      HttpRequest
-    );
-  }
+    return response;
+  });
+
+  return client;
 }
-
-// const test = new CivitaiClient({ auth: '' });
-// test.requests.submitRequest([{ $type: 'textToImage' }]);
-
-// test.workflows.submitRequest({requestBody: {} as TextToImageStep})
