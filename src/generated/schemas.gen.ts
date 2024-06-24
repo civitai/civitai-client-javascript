@@ -140,7 +140,7 @@ export const $EchoOutput = {
 
 export const $EchoStep = {
   title: 'A workflow step that takes a message string and retuns it.',
-  required: ['$type', 'input'],
+  required: ['$type', 'input', 'name'],
   type: 'object',
   allOf: [
     {
@@ -149,9 +149,9 @@ export const $EchoStep = {
   ],
   properties: {
     name: {
+      minLength: 1,
       type: 'string',
       description: 'The name of the workflow step. Used to allow steps to refer to one another.',
-      nullable: true,
     },
     priority: {
       $ref: '#/components/schemas/Priority',
@@ -596,19 +596,15 @@ export const $ImageResourceTrainingJob = {
       description: 'An application provided output of the current status of this job',
       nullable: true,
     },
-    type: {
+    $type: {
+      enum: ['ImageResourceTrainingJob'],
       type: 'string',
-      description: 'The job type.',
     },
     claimDuration: {
       type: 'string',
       description: `Rick: yeah i think for LoRA we need it to be 5-10 minutes.
 lora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer`,
       example: '00:00:00',
-    },
-    $type: {
-      enum: ['ImageResourceTrainingJob'],
-      type: 'string',
     },
   },
   additionalProperties: false,
@@ -636,7 +632,7 @@ Assets are deprecated and require a different retrieval mechanism`,
 } as const;
 
 export const $ImageResourceTrainingStep = {
-  required: ['$type', 'input'],
+  required: ['$type', 'input', 'name'],
   type: 'object',
   allOf: [
     {
@@ -645,9 +641,9 @@ export const $ImageResourceTrainingStep = {
   ],
   properties: {
     name: {
+      minLength: 1,
       type: 'string',
       description: 'The name of the workflow step. Used to allow steps to refer to one another.',
-      nullable: true,
     },
     priority: {
       $ref: '#/components/schemas/Priority',
@@ -870,10 +866,6 @@ export const $LLMPromptAugmentationJob = {
       type: 'number',
       description: 'The temp.',
       format: 'double',
-    },
-    type: {
-      type: 'string',
-      description: 'The type.',
     },
     $type: {
       enum: ['LLMPromptAugmentationJob'],
@@ -1112,10 +1104,6 @@ export const $SimilaritySearchJob = {
       description: 'A value representing the cost of the job.',
       format: 'double',
     },
-    type: {
-      type: 'string',
-      description: 'The job type.',
-    },
     $type: {
       enum: ['SimilaritySearchJob'],
       type: 'string',
@@ -1303,10 +1291,6 @@ export const $TextToImageJob = {
       description: 'The duration for which this job can be claimed for.',
       example: '00:00:00',
     },
-    type: {
-      type: 'string',
-      description: 'The job type.',
-    },
     $type: {
       enum: ['TextToImageJob'],
       type: 'string',
@@ -1352,7 +1336,7 @@ export const $TextToImageOutput = {
 } as const;
 
 export const $TextToImageStep = {
-  required: ['$type', 'input'],
+  required: ['$type', 'input', 'name'],
   type: 'object',
   allOf: [
     {
@@ -1361,9 +1345,9 @@ export const $TextToImageStep = {
   ],
   properties: {
     name: {
+      minLength: 1,
       type: 'string',
       description: 'The name of the workflow step. Used to allow steps to refer to one another.',
-      nullable: true,
     },
     priority: {
       $ref: '#/components/schemas/Priority',
@@ -1494,10 +1478,6 @@ export const $TextToImageV2Job = {
       description: 'The duration for which this job can be claimed for.',
       example: '00:00:00',
     },
-    type: {
-      type: 'string',
-      description: 'The job type.',
-    },
     $type: {
       enum: ['TextToImageV2Job'],
       type: 'string',
@@ -1585,7 +1565,7 @@ export const $TranscodeOutput = {
 } as const;
 
 export const $TranscodeStep = {
-  required: ['$type', 'input'],
+  required: ['$type', 'input', 'name'],
   type: 'object',
   allOf: [
     {
@@ -1594,9 +1574,9 @@ export const $TranscodeStep = {
   ],
   properties: {
     name: {
+      minLength: 1,
       type: 'string',
       description: 'The name of the workflow step. Used to allow steps to refer to one another.',
-      nullable: true,
     },
     priority: {
       $ref: '#/components/schemas/Priority',
@@ -2276,16 +2256,16 @@ export const $WorkflowStatus = {
 } as const;
 
 export const $WorkflowStep = {
-  required: ['$type'],
+  required: ['$type', 'name'],
   type: 'object',
   properties: {
     $type: {
       type: 'string',
     },
     name: {
+      minLength: 1,
       type: 'string',
       description: 'The name of the workflow step. Used to allow steps to refer to one another.',
-      nullable: true,
     },
     priority: {
       $ref: '#/components/schemas/Priority',

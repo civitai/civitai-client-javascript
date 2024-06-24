@@ -72,7 +72,7 @@ export type EchoStep = WorkflowStep & {
   /**
    * The name of the workflow step. Used to allow steps to refer to one another.
    */
-  name?: string | null;
+  name: string;
   priority?: Priority;
   /**
    * The maximum time to wait for this step to complete.
@@ -363,16 +363,12 @@ export type ImageResourceTrainingJob = Job & {
    * An application provided output of the current status of this job
    */
   output?: string | null;
-  /**
-   * The job type.
-   */
-  type?: string;
+  $type: 'ImageResourceTrainingJob';
   /**
    * Rick: yeah i think for LoRA we need it to be 5-10 minutes.
    * lora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer
    */
   claimDuration?: string;
-  $type: 'ImageResourceTrainingJob';
 };
 
 export type $type2 = 'ImageResourceTrainingJob';
@@ -400,7 +396,7 @@ export type ImageResourceTrainingStep = WorkflowStep & {
   /**
    * The name of the workflow step. Used to allow steps to refer to one another.
    */
-  name?: string | null;
+  name: string;
   priority?: Priority;
   /**
    * The maximum time to wait for this step to complete.
@@ -558,10 +554,6 @@ export type LLMPromptAugmentationJob = Job & {
    * The temp.
    */
   temp?: number;
-  /**
-   * The type.
-   */
-  type?: string;
   $type: 'LLMPromptAugmentationJob';
 };
 
@@ -777,10 +769,6 @@ export type SimilaritySearchJob = Job & {
    * A value representing the cost of the job.
    */
   cost?: number;
-  /**
-   * The job type.
-   */
-  type?: string;
   $type: 'SimilaritySearchJob';
 };
 
@@ -900,10 +888,6 @@ export type TextToImageJob = Job & {
    * The duration for which this job can be claimed for.
    */
   claimDuration?: string;
-  /**
-   * The job type.
-   */
-  type?: string;
   $type: 'TextToImageJob';
 };
 
@@ -944,7 +928,7 @@ export type TextToImageStep = WorkflowStep & {
   /**
    * The name of the workflow step. Used to allow steps to refer to one another.
    */
-  name?: string | null;
+  name: string;
   priority?: Priority;
   /**
    * The maximum time to wait for this step to complete.
@@ -1017,10 +1001,6 @@ export type TextToImageV2Job = Job & {
    * The duration for which this job can be claimed for.
    */
   claimDuration?: string;
-  /**
-   * The job type.
-   */
-  type?: string;
   $type: 'TextToImageV2Job';
 };
 
@@ -1078,7 +1058,7 @@ export type TranscodeStep = WorkflowStep & {
   /**
    * The name of the workflow step. Used to allow steps to refer to one another.
    */
-  name?: string | null;
+  name: string;
   priority?: Priority;
   /**
    * The maximum time to wait for this step to complete.
@@ -1609,7 +1589,7 @@ export type WorkflowStep = {
   /**
    * The name of the workflow step. Used to allow steps to refer to one another.
    */
-  name?: string | null;
+  name: string;
   priority?: Priority;
   /**
    * The maximum time to wait for this step to complete.
