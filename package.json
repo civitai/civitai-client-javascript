@@ -1,6 +1,6 @@
 {
   "name": "@civitai/client",
-  "version": "0.1.5-beta.0",
+  "version": "0.1.7-beta.0",
   "description": "Civitai's javascript client for generating ai content",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,8 @@
     "build": "tsc && eslint --fix dist",
     "test": "jest",
     "prepublishOnly": "npm test && npm run build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "publish": "npm publish --tag beta"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.47.2",
