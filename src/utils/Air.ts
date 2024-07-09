@@ -4,7 +4,7 @@ const regex =
 type AirProps = {
   /** Type of the ecosystem (sd1, sd2, sdxl) */
   ecosystem: string;
-  /** Type of the resource (model, lora, embedding, hypernet) */
+  /** Type of the resource (model, lora, embedding, hypernet, controlnet, upscaler) */
   type: string;
   /**  Supported network source */
   source: string;

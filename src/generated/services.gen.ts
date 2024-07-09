@@ -2,6 +2,9 @@
 
 import { client, type Options } from '@hey-api/client-fetch';
 import type {
+  PutV2ProvidersBlobsByBlobKeyData,
+  PutV2ProvidersBlobsByBlobKeyError,
+  PutV2ProvidersBlobsByBlobKeyResponse,
   GetBlobData,
   CreateConfigurationData,
   CreateConfigurationError,
@@ -65,6 +68,18 @@ import type {
   UpdateWorkflowStepError,
   UpdateWorkflowStepResponse,
 } from './types.gen';
+
+export const putV2ProvidersBlobsByBlobKey = (
+  options: Options<PutV2ProvidersBlobsByBlobKeyData>
+) => {
+  return (options?.client ?? client).put<
+    PutV2ProvidersBlobsByBlobKeyResponse,
+    PutV2ProvidersBlobsByBlobKeyError
+  >({
+    ...options,
+    url: '/v2/providers/blobs/{blobKey}',
+  });
+};
 
 /**
  * Get blob by ID.
