@@ -1789,9 +1789,12 @@ export const $TextToImageV2Job = {
 } as const;
 
 export const $TransactionInfo = {
-  required: ['amount', 'id'],
+  required: ['amount', 'id', 'type'],
   type: 'object',
   properties: {
+    type: {
+      $ref: '#/components/schemas/TransactionType',
+    },
     amount: {
       type: 'integer',
       description: 'The transaction amount.',
@@ -1803,14 +1806,33 @@ export const $TransactionInfo = {
       description: 'The transaction ID.',
       nullable: true,
     },
-    isRefund: {
-      type: 'boolean',
-      description: 'Wether this transactions is a refund',
-      nullable: true,
-    },
   },
   additionalProperties: false,
   description: 'Transaction information.',
+} as const;
+
+export const $TransactionSummary = {
+  type: 'object',
+  properties: {
+    sum: {
+      type: 'integer',
+      description: 'Get the sum of all transactions',
+      format: 'int32',
+    },
+    list: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/TransactionInfo',
+      },
+      description: 'Get a list of individual transactions',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $TransactionType = {
+  enum: ['debit', 'credit'],
+  type: 'string',
 } as const;
 
 export const $TranscodeInput = {
@@ -2596,12 +2618,7 @@ export const $Workflow = {
       format: 'date-time',
     },
     transactions: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/TransactionInfo',
-      },
-      description: 'An array of transactions on this workflow.',
-      nullable: true,
+      $ref: '#/components/schemas/TransactionSummary',
     },
     metadata: {
       type: 'object',

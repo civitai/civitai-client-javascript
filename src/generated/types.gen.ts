@@ -1164,6 +1164,7 @@ export const $type10 = {
  * Transaction information.
  */
 export type TransactionInfo = {
+  type: TransactionType;
   /**
    * The transaction amount.
    */
@@ -1172,11 +1173,25 @@ export type TransactionInfo = {
    * The transaction ID.
    */
   id: string | null;
-  /**
-   * Wether this transactions is a refund
-   */
-  isRefund?: boolean | null;
 };
+
+export type TransactionSummary = {
+  /**
+   * Get the sum of all transactions
+   */
+  sum?: number;
+  /**
+   * Get a list of individual transactions
+   */
+  list?: Array<TransactionInfo>;
+};
+
+export type TransactionType = 'debit' | 'credit';
+
+export const TransactionType = {
+  DEBIT: 'debit',
+  CREDIT: 'credit',
+} as const;
 
 export type TranscodeInput = {
   sourceUrl: string;
@@ -1707,10 +1722,7 @@ export type Workflow = {
    * The date / time the workflow was created.
    */
   createdAt?: string;
-  /**
-   * An array of transactions on this workflow.
-   */
-  transactions?: Array<TransactionInfo> | null;
+  transactions?: TransactionSummary;
   /**
    * A collection of user defined metadata for the workflow.
    */
