@@ -23,7 +23,7 @@ export type Blob = {
   /**
    * Get the id of the job that is associated with this blob.
    */
-  jobId: string;
+  jobId?: string | null;
 };
 
 export type ComfyInput = {
@@ -41,13 +41,13 @@ export type ComfyInput = {
 
 export type ComfyNode = {
   classType: string;
-  inputs: {
-    [key: string]: string | number | boolean | [number, number];
-  };
   meta?: {
     [key: string]: string;
   } | null;
   isChanged?: string | null;
+  inputs: {
+    [key: string]: string | number | boolean | [number, number];
+  };
 };
 
 export type ComfyOutput = {
@@ -263,9 +263,7 @@ export type HumanoidImageMaskInput = {
 };
 
 export type HumanoidImageMaskOutput = {
-  blobKey: string;
-  exists: boolean;
-  previewUrl?: string | null;
+  blob: Blob;
 };
 
 export type HumanoidImageMaskStep = WorkflowStep & {
@@ -1262,8 +1260,9 @@ export type TranscodeStepTemplate = WorkflowStepTemplate & {
 export type TryOnUInput = {
   subjectUrl: string;
   garmentUrl: string;
-  subjectMaskUrl: string;
-  garmentDescription?: string | null;
+  subjectMaskUrl?: string;
+  subjectMaskBlobKey?: string;
+  garmentDescription?: string;
   maskSubject?: boolean;
   cropSubject?: boolean;
   steps?: number;
@@ -1271,9 +1270,7 @@ export type TryOnUInput = {
 };
 
 export type TryOnUOutput = {
-  blobKey: string;
-  exists: boolean;
-  previewUrl?: string | null;
+  blob: Blob;
 };
 
 export type TryOnUStep = WorkflowStep & {
