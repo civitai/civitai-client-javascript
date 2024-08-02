@@ -30,6 +30,9 @@ export const $Blob = {
       description: 'Get the id of the job that is associated with this blob.',
       nullable: true,
     },
+    nsfwLevel: {
+      $ref: '#/components/schemas/NSFWLevel',
+    },
   },
   additionalProperties: false,
   description: 'Represents a blob that gets produced as part of a specific job',
@@ -53,6 +56,11 @@ export const $ComfyInput = {
       description: 'The number of jobs to start with this workflow.',
       format: 'int32',
       default: 1,
+    },
+    imageMetadata: {
+      type: 'string',
+      description: 'External metadata that will be stored with the image',
+      nullable: true,
     },
   },
   additionalProperties: false,
@@ -881,16 +889,6 @@ export const $ImageResourceTrainingJob = {
       additionalProperties: {},
       description: 'A untyped set of parameters that are associated with this job',
     },
-    cost: {
-      type: 'number',
-      description: 'Get cost associated with this job',
-      format: 'double',
-    },
-    customCost: {
-      type: 'number',
-      description: 'Get or set a custom cost value for this job',
-      format: 'double',
-    },
     output: {
       type: 'string',
       description: 'An application provided output of the current status of this job',
@@ -1070,7 +1068,7 @@ export const $Job = {
     },
     cost: {
       type: 'number',
-      description: 'Get a cost estimate for this job',
+      description: 'Get a cost for this job',
       format: 'double',
     },
     maxRetryAttempt: {
@@ -1131,6 +1129,60 @@ export const $JobSupport = {
   description: 'Available levels of job support.',
 } as const;
 
+export const $JsonPatchDocument = {
+  type: 'array',
+  items: {
+    $ref: '#/components/schemas/JsonPatchOperation',
+  },
+  description: 'Array of operations to perform',
+} as const;
+
+export const $JsonPatchOperation = {
+  required: ['op', 'path'],
+  type: 'object',
+  properties: {
+    op: {
+      enum: ['add', 'remove', 'replace', 'move', 'copy', 'test'],
+      type: 'string',
+      description:
+        "The operation type. Allowed values: 'add', 'remove', 'replace', 'move', 'copy', 'test'.",
+    },
+    path: {
+      type: 'string',
+      description:
+        'The JSON Pointer path to the property in the target document where the operation is to be applied.',
+    },
+    from: {
+      type: 'string',
+      description: 'Should be a path, required when using move, copy',
+    },
+    value: {
+      anyOf: [
+        {
+          type: 'string',
+        },
+        {
+          type: 'number',
+        },
+        {
+          type: 'boolean',
+        },
+        {
+          type: 'object',
+        },
+        {
+          type: 'array',
+        },
+      ],
+      description:
+        "The value to apply for 'add', 'replace', or 'test' operations. Not required for 'remove', 'move', or 'copy'.",
+      nullable: true,
+    },
+  },
+  description:
+    'Describes a single operation in a JSON Patch document. Includes the operation type, the target property path, and the value to be used.',
+} as const;
+
 export const $LLMPromptAugmentationCapabilities = {
   type: 'object',
   additionalProperties: false,
@@ -1174,6 +1226,12 @@ export const $LLMPromptAugmentationJob = {
     },
   },
   additionalProperties: false,
+} as const;
+
+export const $NSFWLevel = {
+  enum: ['pg', 'pG13', 'r', 'x', 'xxx'],
+  type: 'string',
+  nullable: true,
 } as const;
 
 export const $Priority = {
@@ -1330,9 +1388,23 @@ export const $ResourceInfo = {
     },
     invalidateAt: {
       type: 'string',
-      description: 'A date time to invalidate at.',
+      description: 'The date time to invalidate at.',
       format: 'date-time',
       nullable: true,
+    },
+    earlyAccessEndsAt: {
+      type: 'string',
+      description: 'A DateTime representing when early access for the resource ends.',
+      format: 'date-time',
+      nullable: true,
+    },
+    checkPermission: {
+      type: 'boolean',
+      description: 'A bool indicating if permission is required to use this resource.',
+    },
+    canGenerate: {
+      type: 'boolean',
+      description: 'A bool indicating if generation is enabled for this resource.',
     },
   },
   additionalProperties: false,
@@ -1399,11 +1471,6 @@ export const $SimilaritySearchJob = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of parameters.',
-    },
-    cost: {
-      type: 'number',
-      description: 'A value representing the cost of the job.',
-      format: 'double',
     },
     $type: {
       enum: ['SimilaritySearchJob'],
@@ -1528,6 +1595,11 @@ export const $TextToImageInput = {
       format: 'int32',
       default: 2,
     },
+    imageMetadata: {
+      type: 'string',
+      description: 'External metadata that will be stored with the image',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: 'Input for an text to image step.',
@@ -1581,11 +1653,6 @@ export const $TextToImageJob = {
       },
       description:
         'Get or set a list of control nets that should be applied with this textToImage job.',
-    },
-    cost: {
-      type: 'number',
-      description: 'A value representing the cost of the job.',
-      format: 'double',
     },
     claimDuration: {
       type: 'string',
@@ -1775,10 +1842,10 @@ export const $TextToImageV2Job = {
       description:
         'Get or set a list of control nets that should be applied with this textToImage job',
     },
-    cost: {
-      type: 'number',
-      description: 'A value representing the cost of the job.',
-      format: 'double',
+    imageMetadata: {
+      type: 'string',
+      description: 'Get or set additional metadata that will be embedded with generated images',
+      nullable: true,
     },
     claimDuration: {
       type: 'string',
@@ -1794,7 +1861,7 @@ export const $TextToImageV2Job = {
 } as const;
 
 export const $TransactionInfo = {
-  required: ['amount', 'id', 'type'],
+  required: ['amount', 'type'],
   type: 'object',
   properties: {
     type: {
@@ -1808,7 +1875,6 @@ export const $TransactionInfo = {
       format: 'int32',
     },
     id: {
-      minLength: 1,
       type: 'string',
       description: 'The transaction ID.',
       nullable: true,
@@ -2144,6 +2210,14 @@ export const $UpdateWorkflowRequest = {
       description: 'An optional set of new properties to set on the workflow.',
       nullable: true,
     },
+    tags: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+      description: 'An optional set of new tags to set on the workflow.',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: 'An request for updating a workflow.',
@@ -2167,6 +2241,43 @@ export const $UpdateWorkflowStepRequest = {
     },
   },
   additionalProperties: false,
+} as const;
+
+export const $ValidationProblemDetails = {
+  type: 'object',
+  properties: {
+    type: {
+      type: 'string',
+      nullable: true,
+    },
+    title: {
+      type: 'string',
+      nullable: true,
+    },
+    status: {
+      type: 'integer',
+      format: 'int32',
+      nullable: true,
+    },
+    detail: {
+      type: 'string',
+      nullable: true,
+    },
+    instance: {
+      type: 'string',
+      nullable: true,
+    },
+    errors: {
+      type: 'object',
+      additionalProperties: {
+        type: 'array',
+        items: {
+          type: 'string',
+        },
+      },
+    },
+  },
+  additionalProperties: {},
 } as const;
 
 export const $ValueTupleOfStringAndInt32 = {
@@ -2677,6 +2788,9 @@ export const $Workflow = {
     cost: {
       $ref: '#/components/schemas/WorkflowCost',
     },
+    nsfwLevel: {
+      $ref: '#/components/schemas/NSFWLevel',
+    },
   },
   additionalProperties: false,
   description: 'Details of a workflow.',
@@ -2938,6 +3052,11 @@ export const $WorkflowStepJob = {
     queuePosition: {
       $ref: '#/components/schemas/WorkflowStepJobQueuePosition',
     },
+    cost: {
+      type: 'number',
+      description: "The job's cost.",
+      format: 'double',
+    },
   },
   additionalProperties: false,
   description: 'Details of a job produced by a workflow step.',
@@ -3100,6 +3219,9 @@ At most 10 tags can be assigned to a workflow. Each tag can be at most 200 chara
       type: 'object',
       additionalProperties: {},
       description: 'Get an associated collection of arguments',
+    },
+    nsfwLevel: {
+      $ref: '#/components/schemas/NSFWLevel',
     },
   },
   additionalProperties: false,

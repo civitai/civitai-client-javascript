@@ -9,19 +9,71 @@
     }
   },
   "paths": {
+    "/v2/providers/blobs/{blobKey}": {
+      "put": {
+        "tags": [
+          "Blob"
+        ],
+        "parameters": [
+          {
+            "name": "blobKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted"
+          }
+        }
+      }
+    },
     "/v2/consumer/blobs/{blobId}": {
       "get": {
         "tags": [
           "Blobs"
         ],
+        "summary": "Get blob by ID.",
         "operationId": "GetBlob",
         "parameters": [
           {
             "name": "blobId",
             "in": "path",
+            "description": "The blob ID to retrieve.",
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "nsfwLevel",
+            "in": "query",
+            "description": "A maximum nsfw level. If this is specified and the blob does not have a NSFW level specified or the NSFW level exceeds our max then we'll return an error",
+            "schema": {
+              "$ref": "#/components/schemas/NSFWLevel"
             }
           }
         ],
@@ -44,8 +96,10 @@
         "tags": [
           "Configurations"
         ],
+        "summary": "Create a new configuration.",
         "operationId": "CreateConfiguration",
         "requestBody": {
+          "description": "The details of the configuration being created.",
           "content": {
             "application/json": {
               "schema": {
@@ -65,16 +119,6 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateConfigurationResult"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -91,6 +135,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConfigurationResult"
                 }
               }
             }
@@ -101,18 +155,9 @@
         "tags": [
           "Configurations"
         ],
+        "summary": "Query for existing configurations.",
         "operationId": "QueryConfigurations",
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConfigurationStatus"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -129,6 +174,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationStatus"
                 }
               }
             }
@@ -141,11 +196,13 @@
         "tags": [
           "Configurations"
         ],
+        "summary": "Get options for a configuration.",
         "operationId": "GetConfiguration",
         "parameters": [
           {
             "name": "configurationId",
             "in": "path",
+            "description": "The ID of the configuration whose options are being requested.",
             "required": true,
             "schema": {
               "type": "string"
@@ -153,16 +210,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConfigurationOptions"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -179,6 +226,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationOptions"
                 }
               }
             }
@@ -201,11 +258,13 @@
         "tags": [
           "Configurations"
         ],
+        "summary": "Delete a configuration.",
         "operationId": "DeleteConfiguration",
         "parameters": [
           {
             "name": "configurationId",
             "in": "path",
+            "description": "The ID of the configuration to delete.",
             "required": true,
             "schema": {
               "type": "string"
@@ -213,9 +272,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success"
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -236,6 +292,9 @@
               }
             }
           },
+          "200": {
+            "description": "Success"
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -249,16 +308,18 @@
         }
       }
     },
-    "/v2/models/{air}": {
+    "/v2/resources/{air}": {
       "get": {
         "tags": [
-          "Models"
+          "Resources"
         ],
-        "operationId": "GetModel",
+        "summary": "Get an existing resource.",
+        "operationId": "GetResource",
         "parameters": [
           {
             "name": "air",
             "in": "path",
+            "description": "A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.",
             "required": true,
             "schema": {
               "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
@@ -272,7 +333,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ModelInfo"
+                  "$ref": "#/components/schemas/ResourceInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -291,13 +362,15 @@
       },
       "delete": {
         "tags": [
-          "Models"
+          "Resources"
         ],
-        "operationId": "InvalidateModel",
+        "summary": "Invalidates the cache of a specific resource.",
+        "operationId": "InvalidateResource",
         "parameters": [
           {
             "name": "air",
             "in": "path",
+            "description": "A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.",
             "required": true,
             "schema": {
               "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
@@ -308,6 +381,16 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -357,19 +440,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Job"
-                  }
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -386,6 +456,19 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
                 }
               }
             }
@@ -408,8 +491,10 @@
         "tags": [
           "Workers"
         ],
+        "summary": "Create a worker with a given registration.",
         "operationId": "CreateWorker",
         "requestBody": {
+          "description": "The registration specifying the details of the worker to be created.",
           "content": {
             "application/json": {
               "schema": {
@@ -429,6 +514,26 @@
           }
         },
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created",
             "content": {
@@ -448,7 +553,16 @@
                 }
               }
             }
-          },
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Workers"
+        ],
+        "summary": "Query existing workers.",
+        "operationId": "QueryWorkers",
+        "responses": {
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -468,15 +582,7 @@
                 }
               }
             }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Workers"
-        ],
-        "operationId": "QueryWorkers",
-        "responses": {
+          },
           "200": {
             "description": "Success",
             "content": {
@@ -489,26 +595,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
           }
         }
       }
@@ -518,11 +604,13 @@
         "tags": [
           "Workers"
         ],
+        "summary": "Gets the worker for the provided ID.",
         "operationId": "GetWorker",
         "parameters": [
           {
             "name": "workerId",
             "in": "path",
+            "description": "The ID for the requested worker.",
             "required": true,
             "schema": {
               "type": "string"
@@ -530,16 +618,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkerDetails"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -556,6 +634,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkerDetails"
                 }
               }
             }
@@ -576,11 +664,13 @@
         "tags": [
           "Workers"
         ],
+        "summary": "Delete a worker.",
         "operationId": "DeleteWorker",
         "parameters": [
           {
             "name": "workerId",
             "in": "path",
+            "description": "The ID for the worker to be deleted.",
             "required": true,
             "schema": {
               "type": "string"
@@ -588,9 +678,6 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -610,6 +697,9 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": "No Content"
           },
           "404": {
             "description": "Not Found",
@@ -629,11 +719,13 @@
         "tags": [
           "Workers"
         ],
+        "summary": "Gets the registration details for the specified worker.",
         "operationId": "GetRegistration",
         "parameters": [
           {
             "name": "workerId",
             "in": "path",
+            "description": "The ID of the worker whose registration is being requested.",
             "required": true,
             "schema": {
               "type": "string"
@@ -641,16 +733,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkerRegistration"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -667,6 +749,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkerRegistration"
                 }
               }
             }
@@ -687,11 +779,13 @@
         "tags": [
           "Workers"
         ],
+        "summary": "Update the registration details of the specified worker.",
         "operationId": "UpdateWorkerRegistration",
         "parameters": [
           {
             "name": "workerId",
             "in": "path",
+            "description": "The ID for the worker whose registration is being updated.",
             "required": true,
             "schema": {
               "type": "string"
@@ -699,6 +793,7 @@
           }
         ],
         "requestBody": {
+          "description": "The registration details to update on the worker's registration.",
           "content": {
             "application/json": {
               "schema": {
@@ -718,19 +813,6 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -743,6 +825,19 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -764,16 +859,18 @@
         }
       }
     },
-    "/v2/providers/workers/{workerId}/registration/assets": {
+    "/v2/providers/workers/{workerId}/registration/resources": {
       "patch": {
         "tags": [
           "Workers"
         ],
-        "operationId": "PatchWorkerAssets",
+        "summary": "Patch a worker's registration resources",
+        "operationId": "PatchWorkerResources",
         "parameters": [
           {
             "name": "workerId",
             "in": "path",
+            "description": "The ID for the worker whose registration resources are being patched.",
             "required": true,
             "schema": {
               "type": "string"
@@ -781,12 +878,13 @@
           }
         ],
         "requestBody": {
+          "description": "A dictionary of resource AIRs and their corresponding status for on that worker.",
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "additionalProperties": {
-                  "$ref": "#/components/schemas/WorkerModelStatus"
+                  "$ref": "#/components/schemas/WorkerResourceStatus"
                 }
               }
             },
@@ -794,7 +892,7 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": {
-                  "$ref": "#/components/schemas/WorkerModelStatus"
+                  "$ref": "#/components/schemas/WorkerResourceStatus"
                 }
               }
             },
@@ -802,26 +900,13 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": {
-                  "$ref": "#/components/schemas/WorkerModelStatus"
+                  "$ref": "#/components/schemas/WorkerResourceStatus"
                 }
               }
             }
           }
         },
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -834,6 +919,19 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -866,7 +964,7 @@
           {
             "name": "wait",
             "in": "query",
-            "description": "Whether to wait for the job to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
+            "description": "Whether to wait for the workflow to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
             "schema": {
               "type": "integer",
               "format": "int32",
@@ -889,21 +987,703 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/WorkflowTemplate"
+              },
+              "examples": {
+                "TextToImage": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "textToImage",
+                        "priority": "high",
+                        "timeout": "00:05:00",
+                        "retries": 5,
+                        "input": {
+                          "quantity": 2,
+                          "batchSize": 4,
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "additionalNetworks": {
+                            "urn:air:sd1:embedding:civitai:7808@9208": {
+                              "strength": null,
+                              "triggerWord": "easynegative",
+                              "type": null
+                            }
+                          },
+                          "controlNets": [],
+                          "prompt": "A curious cat",
+                          "negativePrompt": "nsfw",
+                          "scheduler": 0,
+                          "steps": 30,
+                          "cfgScale": 7.5,
+                          "width": 512,
+                          "height": 512,
+                          "seed": 1790693947,
+                          "clipSkip": 2,
+                          "imageMetadata": null
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                },
+                "LORA training": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "imageResourceTraining",
+                        "priority": "normal",
+                        "retries": 1,
+                        "input": {
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "trainingData": "https://example.com/training-data",
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
+                          "optimizerType": "Adafactor",
+                          "networkDim": 16,
+                          "networkAlpha": 16,
+                          "lrScheduler": "cosine_with_restarts",
+                          "maxTrainEpochs": 3,
+                          "numRepeats": 8,
+                          "resolution": 512,
+                          "loraType": "lora",
+                          "enableBucket": true,
+                          "keepTokens": 0,
+                          "lrSchedulerNumCycles": 3,
+                          "trainBatchSize": 1,
+                          "minSnrGamma": 5,
+                          "optimizerArgs": "",
+                          "shuffleCaption": false,
+                          "loraName": "mylora",
+                          "noiseOffset": 0.5,
+                          "samplePrompts": []
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                },
+                "Comfy job": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "comfy",
+                        "priority": "normal",
+                        "input": {
+                          "comfyWorkflow": {
+                            "3": {
+                              "inputs": {
+                                "seed": 740593329207015,
+                                "steps": 20,
+                                "cfg": 8,
+                                "sampler_name": "euler",
+                                "scheduler": "normal",
+                                "denoise": 1,
+                                "model": [
+                                  "4",
+                                  0
+                                ],
+                                "positive": [
+                                  "6",
+                                  0
+                                ],
+                                "negative": [
+                                  "7",
+                                  0
+                                ],
+                                "latent_image": [
+                                  "5",
+                                  0
+                                ]
+                              },
+                              "class_type": "KSampler"
+                            },
+                            "4": {
+                              "inputs": {
+                                "ckpt_name": "@civitai/46846"
+                              },
+                              "class_type": "CheckpointLoaderSimple"
+                            },
+                            "5": {
+                              "inputs": {
+                                "width": 512,
+                                "height": 512,
+                                "batch_size": 1
+                              },
+                              "class_type": "EmptyLatentImage"
+                            },
+                            "6": {
+                              "inputs": {
+                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              },
+                              "class_type": "CLIPTextEncode"
+                            },
+                            "7": {
+                              "inputs": {
+                                "text": "text, watermark",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              },
+                              "class_type": "CLIPTextEncode"
+                            },
+                            "8": {
+                              "inputs": {
+                                "samples": [
+                                  "3",
+                                  0
+                                ],
+                                "vae": [
+                                  "4",
+                                  2
+                                ]
+                              },
+                              "class_type": "VAEDecode"
+                            },
+                            "9": {
+                              "inputs": {
+                                "filename_prefix": "ComfyUI",
+                                "images": [
+                                  "8",
+                                  0
+                                ]
+                              },
+                              "class_type": "SaveImage"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                }
               }
             },
             "text/json": {
               "schema": {
                 "$ref": "#/components/schemas/WorkflowTemplate"
+              },
+              "examples": {
+                "TextToImage": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "textToImage",
+                        "priority": "high",
+                        "timeout": "00:05:00",
+                        "retries": 5,
+                        "input": {
+                          "quantity": 2,
+                          "batchSize": 4,
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "additionalNetworks": {
+                            "urn:air:sd1:embedding:civitai:7808@9208": {
+                              "strength": null,
+                              "triggerWord": "easynegative",
+                              "type": null
+                            }
+                          },
+                          "controlNets": [],
+                          "prompt": "A curious cat",
+                          "negativePrompt": "nsfw",
+                          "scheduler": 0,
+                          "steps": 30,
+                          "cfgScale": 7.5,
+                          "width": 512,
+                          "height": 512,
+                          "seed": 1790693947,
+                          "clipSkip": 2,
+                          "imageMetadata": null
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                },
+                "LORA training": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "imageResourceTraining",
+                        "priority": "normal",
+                        "retries": 1,
+                        "input": {
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "trainingData": "https://example.com/training-data",
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
+                          "optimizerType": "Adafactor",
+                          "networkDim": 16,
+                          "networkAlpha": 16,
+                          "lrScheduler": "cosine_with_restarts",
+                          "maxTrainEpochs": 3,
+                          "numRepeats": 8,
+                          "resolution": 512,
+                          "loraType": "lora",
+                          "enableBucket": true,
+                          "keepTokens": 0,
+                          "lrSchedulerNumCycles": 3,
+                          "trainBatchSize": 1,
+                          "minSnrGamma": 5,
+                          "optimizerArgs": "",
+                          "shuffleCaption": false,
+                          "loraName": "mylora",
+                          "noiseOffset": 0.5,
+                          "samplePrompts": []
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                },
+                "Comfy job": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "comfy",
+                        "priority": "normal",
+                        "input": {
+                          "comfyWorkflow": {
+                            "3": {
+                              "inputs": {
+                                "seed": 740593329207015,
+                                "steps": 20,
+                                "cfg": 8,
+                                "sampler_name": "euler",
+                                "scheduler": "normal",
+                                "denoise": 1,
+                                "model": [
+                                  "4",
+                                  0
+                                ],
+                                "positive": [
+                                  "6",
+                                  0
+                                ],
+                                "negative": [
+                                  "7",
+                                  0
+                                ],
+                                "latent_image": [
+                                  "5",
+                                  0
+                                ]
+                              },
+                              "class_type": "KSampler"
+                            },
+                            "4": {
+                              "inputs": {
+                                "ckpt_name": "@civitai/46846"
+                              },
+                              "class_type": "CheckpointLoaderSimple"
+                            },
+                            "5": {
+                              "inputs": {
+                                "width": 512,
+                                "height": 512,
+                                "batch_size": 1
+                              },
+                              "class_type": "EmptyLatentImage"
+                            },
+                            "6": {
+                              "inputs": {
+                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              },
+                              "class_type": "CLIPTextEncode"
+                            },
+                            "7": {
+                              "inputs": {
+                                "text": "text, watermark",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              },
+                              "class_type": "CLIPTextEncode"
+                            },
+                            "8": {
+                              "inputs": {
+                                "samples": [
+                                  "3",
+                                  0
+                                ],
+                                "vae": [
+                                  "4",
+                                  2
+                                ]
+                              },
+                              "class_type": "VAEDecode"
+                            },
+                            "9": {
+                              "inputs": {
+                                "filename_prefix": "ComfyUI",
+                                "images": [
+                                  "8",
+                                  0
+                                ]
+                              },
+                              "class_type": "SaveImage"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                }
               }
             },
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/WorkflowTemplate"
+              },
+              "examples": {
+                "TextToImage": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "textToImage",
+                        "priority": "high",
+                        "timeout": "00:05:00",
+                        "retries": 5,
+                        "input": {
+                          "quantity": 2,
+                          "batchSize": 4,
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "additionalNetworks": {
+                            "urn:air:sd1:embedding:civitai:7808@9208": {
+                              "strength": null,
+                              "triggerWord": "easynegative",
+                              "type": null
+                            }
+                          },
+                          "controlNets": [],
+                          "prompt": "A curious cat",
+                          "negativePrompt": "nsfw",
+                          "scheduler": 0,
+                          "steps": 30,
+                          "cfgScale": 7.5,
+                          "width": 512,
+                          "height": 512,
+                          "seed": 1790693947,
+                          "clipSkip": 2,
+                          "imageMetadata": null
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                },
+                "LORA training": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "imageResourceTraining",
+                        "priority": "normal",
+                        "retries": 1,
+                        "input": {
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "trainingData": "https://example.com/training-data",
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
+                          "optimizerType": "Adafactor",
+                          "networkDim": 16,
+                          "networkAlpha": 16,
+                          "lrScheduler": "cosine_with_restarts",
+                          "maxTrainEpochs": 3,
+                          "numRepeats": 8,
+                          "resolution": 512,
+                          "loraType": "lora",
+                          "enableBucket": true,
+                          "keepTokens": 0,
+                          "lrSchedulerNumCycles": 3,
+                          "trainBatchSize": 1,
+                          "minSnrGamma": 5,
+                          "optimizerArgs": "",
+                          "shuffleCaption": false,
+                          "loraName": "mylora",
+                          "noiseOffset": 0.5,
+                          "samplePrompts": []
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                },
+                "Comfy job": {
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "comfy",
+                        "priority": "normal",
+                        "input": {
+                          "comfyWorkflow": {
+                            "3": {
+                              "inputs": {
+                                "seed": 740593329207015,
+                                "steps": 20,
+                                "cfg": 8,
+                                "sampler_name": "euler",
+                                "scheduler": "normal",
+                                "denoise": 1,
+                                "model": [
+                                  "4",
+                                  0
+                                ],
+                                "positive": [
+                                  "6",
+                                  0
+                                ],
+                                "negative": [
+                                  "7",
+                                  0
+                                ],
+                                "latent_image": [
+                                  "5",
+                                  0
+                                ]
+                              },
+                              "class_type": "KSampler"
+                            },
+                            "4": {
+                              "inputs": {
+                                "ckpt_name": "@civitai/46846"
+                              },
+                              "class_type": "CheckpointLoaderSimple"
+                            },
+                            "5": {
+                              "inputs": {
+                                "width": 512,
+                                "height": 512,
+                                "batch_size": 1
+                              },
+                              "class_type": "EmptyLatentImage"
+                            },
+                            "6": {
+                              "inputs": {
+                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              },
+                              "class_type": "CLIPTextEncode"
+                            },
+                            "7": {
+                              "inputs": {
+                                "text": "text, watermark",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              },
+                              "class_type": "CLIPTextEncode"
+                            },
+                            "8": {
+                              "inputs": {
+                                "samples": [
+                                  "3",
+                                  0
+                                ],
+                                "vae": [
+                                  "4",
+                                  2
+                                ]
+                              },
+                              "class_type": "VAEDecode"
+                            },
+                            "9": {
+                              "inputs": {
+                                "filename_prefix": "ComfyUI",
+                                "images": [
+                                  "8",
+                                  0
+                                ]
+                              },
+                              "class_type": "SaveImage"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "tips": {
+                      "civitai": 0,
+                      "creators": 0
+                    },
+                    "arguments": {}
+                  }
+                }
               }
             }
           }
         },
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "Success",
             "content": {
@@ -926,16 +1706,6 @@
           },
           "400": {
             "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -1030,13 +1800,13 @@
         "tags": [
           "Workflows"
         ],
-        "summary": "Query for workflows made by the user",
+        "summary": "Query for workflows made by the user.",
         "operationId": "QueryWorkflows",
         "parameters": [
           {
             "name": "cursor",
             "in": "query",
-            "description": "An optional cursor to continue querying workflows from a previous query",
+            "description": "An optional cursor to continue querying workflows from a previous query.",
             "schema": {
               "type": "string"
             }
@@ -1052,18 +1822,36 @@
             }
           },
           {
-            "name": "jobType",
+            "name": "tags",
             "in": "query",
-            "description": "The type of job to filter on",
+            "description": "An optional list of tags to query by",
             "schema": {
               "type": "array",
               "items": {
                 "type": "string"
               }
             }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "Specify 'application/zip' to get the response as a zip file",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "200": {
             "description": "Success",
             "content": {
@@ -1071,15 +1859,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/CursedArrayOfTelemetryCursorAndWorkflow"
                 }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
+              },
+              "application/zip": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -1098,7 +1882,7 @@
           {
             "name": "workflowId",
             "in": "path",
-            "description": "The id of the workflow to get status for",
+            "description": "The ID of the workflow to get status for",
             "required": true,
             "schema": {
               "type": "string"
@@ -1107,29 +1891,29 @@
           {
             "name": "wait",
             "in": "query",
-            "description": "Whether to wait for the job to complete before returning or to return immediately\r\nThe workflow may return a 202 if the clients waits for the job to complete and the job does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the job.",
+            "description": "Whether to wait for the workflow to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
             "schema": {
               "type": "boolean"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Workflow"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workflow"
                 }
               }
             }
@@ -1150,13 +1934,13 @@
         "tags": [
           "Workflows"
         ],
-        "summary": "Updates a request. This can currently be used to cancel a request",
+        "summary": "Updates a worfklow. This can currently be used to cancel a worfklow.",
         "operationId": "UpdateWorkflow",
         "parameters": [
           {
             "name": "workflowId",
             "in": "path",
-            "description": "The id of the request to update",
+            "description": "The ID of the worfklow to update.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1164,7 +1948,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "The details to update on the workflow.",
           "content": {
             "application/json": {
               "schema": {
@@ -1184,11 +1968,8 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -1197,8 +1978,11 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1219,17 +2003,67 @@
           }
         }
       },
+      "patch": {
+        "tags": [
+          "Workflows"
+        ],
+        "operationId": "PatchWorkflow",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonPatchDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "tags": [
           "Workflows"
         ],
-        "summary": "Deletes a request and all its jobs",
+        "summary": "Deletes a workflow and all its jobs.",
         "operationId": "DeleteWorkflow",
         "parameters": [
           {
             "name": "workflowId",
             "in": "path",
-            "description": "The id of the request to delete",
+            "description": "The ID of the workflow to delete.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1237,11 +2071,346 @@
           }
         ],
         "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content"
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/workflows/{workflowId}/tags": {
+      "post": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Submit a tag to be added to a workflow.",
+        "operationId": "AddWorkflowTag",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The ID of the worfklow to update.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The the tag to add to the workflow.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Delete all tags for a workflow.",
+        "operationId": "RemoveAllWorkflowTags",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The ID of the worfklow to update.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/workflows/{workflowId}/tags/{tag}": {
+      "delete": {
+        "tags": [
+          "Workflows"
+        ],
+        "summary": "Submit a tag to be removed from a workflow.",
+        "operationId": "RemoveWorkflowTag",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The ID of the worfklow to update.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "description": "The the tag to remove from the workflow.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/workflows/{workflowId}/steps/{stepName}": {
+      "get": {
+        "tags": [
+          "WorkflowSteps"
+        ],
+        "summary": "Get the status of a workflow step",
+        "operationId": "GetWorkflowStep",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The id of the workflow to get status for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepName",
+            "in": "path",
+            "description": "The name of the step within the workflow to get status for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowStep"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "WorkflowSteps"
+        ],
+        "summary": "Updates a step within a particular workflow.",
+        "operationId": "UpdateWorkflowStep",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "description": "The id of the workflow to update.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepName",
+            "in": "path",
+            "description": "The name of the step to update.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The details to update on the workflow step.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkflowStepRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkflowStepRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkflowStepRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1261,11 +2430,301 @@
             }
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "WorkflowSteps"
+        ],
+        "operationId": "PatchWorkflowStep",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stepName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonPatchDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
   "components": {
     "schemas": {
+      "Blob": {
+        "required": [
+          "available",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Gets the id of the blob that contains this image."
+          },
+          "available": {
+            "type": "boolean",
+            "description": "Gets a value indicating whether the blob is available."
+          },
+          "url": {
+            "type": "string",
+            "description": "Gets a url that can be used to preview the blob.",
+            "format": "uri",
+            "nullable": true
+          },
+          "urlExpiresAt": {
+            "type": "string",
+            "description": "Get when the url is set to expire",
+            "format": "date-time",
+            "nullable": true
+          },
+          "jobId": {
+            "type": "string",
+            "description": "Get the id of the job that is associated with this blob.",
+            "nullable": true
+          },
+          "nsfwLevel": {
+            "$ref": "#/components/schemas/NSFWLevel"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a blob that gets produced as part of a specific job"
+      },
+      "ComfyInput": {
+        "required": [
+          "comfyWorkflow"
+        ],
+        "type": "object",
+        "properties": {
+          "comfyWorkflow": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ComfyNode"
+            },
+            "description": "Get the comfy workflow that needs to be executed"
+          },
+          "quantity": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "The number of jobs to start with this workflow.",
+            "format": "int32",
+            "default": 1
+          },
+          "imageMetadata": {
+            "type": "string",
+            "description": "External metadata that will be stored with the image",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComfyNode": {
+        "required": [
+          "classType",
+          "inputs"
+        ],
+        "type": "object",
+        "properties": {
+          "classType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "isChanged": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputs": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "maxItems": 2,
+                  "minItems": 2,
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComfyOutput": {
+        "type": "object",
+        "properties": {
+          "blobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Blob"
+            },
+            "description": "Get a list of blobs that got generated by this comfy workflow step."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComfyStep": {
+        "required": [
+          "$type",
+          "input",
+          "name"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          }
+        ],
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "timeout": {
+            "type": "string",
+            "description": "The maximum time to wait for this step to complete.",
+            "nullable": true,
+            "example": "00:00:00"
+          },
+          "retries": {
+            "type": "integer",
+            "description": "The maximum number of times this step should be retried.",
+            "format": "int32",
+            "nullable": true
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepJob"
+            },
+            "description": "The jobs generated by this step.",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "The date / time the step was started. Null if not yet started.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "The date / time the step was completed. Null if not yet completed.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
+            "nullable": true
+          },
+          "input": {
+            "$ref": "#/components/schemas/ComfyInput"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ComfyOutput"
+          },
+          "$type": {
+            "enum": [
+              "comfy"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComfyStepTemplate": {
+        "required": [
+          "$type",
+          "input"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "comfy"
+            ],
+            "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ComfyInput"
+          }
+        },
+        "additionalProperties": false
+      },
       "ConfigurationOptions": {
         "required": [
           "selector",
@@ -1289,9 +2748,13 @@
         "additionalProperties": false
       },
       "ConfigurationStatus": {
+        "required": [
+          "configurationId"
+        ],
         "type": "object",
         "properties": {
           "configurationId": {
+            "minLength": 1,
             "type": "string"
           },
           "assigned": {
@@ -1309,25 +2772,44 @@
         },
         "additionalProperties": false
       },
+      "ContainerFormat": {
+        "enum": [
+          "mp4",
+          "webM"
+        ],
+        "type": "string"
+      },
       "CreateConfigurationResult": {
+        "required": [
+          "configurationId"
+        ],
         "type": "object",
         "properties": {
           "configurationId": {
+            "minLength": 1,
             "type": "string"
           }
         },
         "additionalProperties": false
       },
       "CreateWorkerResult": {
+        "required": [
+          "workerId"
+        ],
         "type": "object",
         "properties": {
           "workerId": {
+            "minLength": 1,
             "type": "string"
           }
         },
         "additionalProperties": false
       },
       "CursedArrayOfTelemetryCursorAndWorkflow": {
+        "required": [
+          "items",
+          "next"
+        ],
         "type": "object",
         "properties": {
           "next": {
@@ -1343,12 +2825,18 @@
         "additionalProperties": false
       },
       "DynamicAssignment": {
+        "required": [
+          "fromPath",
+          "toPath"
+        ],
         "type": "object",
         "properties": {
           "fromPath": {
+            "minLength": 1,
             "type": "string"
           },
           "toPath": {
+            "minLength": 1,
             "type": "string"
           },
           "defaultValue": {
@@ -1365,10 +2853,12 @@
         "properties": {
           "message": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "The message to be returned in the output."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the Echo workflow step."
       },
       "EchoOutput": {
         "required": [
@@ -1378,15 +2868,19 @@
         "properties": {
           "message": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "The message to be returned."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the Echo workflow step."
       },
       "EchoStep": {
+        "title": "A workflow step that takes a message string and retuns it.",
         "required": [
           "$type",
-          "input"
+          "input",
+          "name"
         ],
         "type": "object",
         "allOf": [
@@ -1396,22 +2890,22 @@
         ],
         "properties": {
           "name": {
+            "minLength": 1,
             "type": "string",
-            "description": "Get or set the name of this step so that it can be referenced by other steps",
-            "nullable": true
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
           },
           "priority": {
             "$ref": "#/components/schemas/Priority"
           },
           "timeout": {
             "type": "string",
-            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "description": "The maximum time to wait for this step to complete.",
             "nullable": true,
             "example": "00:00:00"
           },
           "retries": {
             "type": "integer",
-            "description": "The max number of retries before we give up",
+            "description": "The maximum number of times this step should be retried.",
             "format": "int32",
             "nullable": true
           },
@@ -1420,21 +2914,28 @@
             "items": {
               "$ref": "#/components/schemas/WorkflowStepJob"
             },
-            "description": "Get the jobs generated by this step"
+            "description": "The jobs generated by this step.",
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
           },
           "startedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step started or null if the step as not yet started",
+            "description": "The date / time the step was started. Null if not yet started.",
             "format": "date-time",
             "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step completed or null if the step has not yet completed",
+            "description": "The date / time the step was completed. Null if not yet completed.",
             "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           },
           "input": {
@@ -1450,7 +2951,8 @@
             "type": "string"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "This step is intended for testing purposes."
       },
       "EchoStepTemplate": {
         "required": [
@@ -1507,43 +3009,150 @@
             "description": "Get a list of the names of the blobs that represent sample images"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "An epock result."
       },
       "Expression": {
         "type": "object",
         "additionalProperties": false
       },
-      "Image": {
+      "HumanoidImageMaskCategory": {
+        "enum": [
+          "dresses",
+          "upperBody",
+          "lowerBody"
+        ],
+        "type": "string"
+      },
+      "HumanoidImageMaskInput": {
         "required": [
-          "available",
-          "id",
-          "jobId",
-          "url"
+          "category",
+          "imageUrl"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "minLength": 1,
+          "imageUrl": {
             "type": "string",
-            "description": "Gets the id of the blob that contains this image."
-          },
-          "available": {
-            "type": "boolean",
-            "description": "Gets a value indicating whether the image is available."
-          },
-          "url": {
-            "type": "string",
-            "description": "Gets the URL of the image.",
             "format": "uri"
           },
-          "jobId": {
-            "minLength": 1,
-            "type": "string",
-            "description": "Get the id of the job that is associated with this image"
+          "category": {
+            "$ref": "#/components/schemas/HumanoidImageMaskCategory"
           }
         },
-        "additionalProperties": false,
-        "description": "Represents an image that is the result of a TextToImage workflow step."
+        "additionalProperties": false
+      },
+      "HumanoidImageMaskOutput": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/Blob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "HumanoidImageMaskStep": {
+        "required": [
+          "$type",
+          "input",
+          "name"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          }
+        ],
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "timeout": {
+            "type": "string",
+            "description": "The maximum time to wait for this step to complete.",
+            "nullable": true,
+            "example": "00:00:00"
+          },
+          "retries": {
+            "type": "integer",
+            "description": "The maximum number of times this step should be retried.",
+            "format": "int32",
+            "nullable": true
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepJob"
+            },
+            "description": "The jobs generated by this step.",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "The date / time the step was started. Null if not yet started.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "The date / time the step was completed. Null if not yet completed.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
+            "nullable": true
+          },
+          "input": {
+            "$ref": "#/components/schemas/HumanoidImageMaskInput"
+          },
+          "output": {
+            "$ref": "#/components/schemas/HumanoidImageMaskOutput"
+          },
+          "$type": {
+            "enum": [
+              "humanoidImageMask"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "HumanoidImageMaskStepTemplate": {
+        "required": [
+          "$type",
+          "input"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "humanoidImageMask"
+            ],
+            "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/HumanoidImageMaskInput"
+          }
+        },
+        "additionalProperties": false
       },
       "ImageJobControlNet": {
         "type": "object",
@@ -1553,27 +3162,22 @@
           },
           "weight": {
             "type": "number",
+            "description": "A value representing the weight applied to the ControlNet.",
             "format": "double"
           },
           "startStep": {
             "type": "number",
+            "description": "A value representing the start step selected for the ControlNet.",
             "format": "double"
           },
           "endStep": {
             "type": "number",
+            "description": "A value representing the end step selected for the ControlNet.",
             "format": "double"
-          },
-          "blobKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "imageUrl": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Information for a controlnet provided for a text to image input."
       },
       "ImageJobNetworkParams": {
         "type": "object",
@@ -1606,10 +3210,12 @@
         "properties": {
           "prompt": {
             "type": "string",
+            "description": "The prompt for the text to image generation.",
             "nullable": true
           },
           "negativePrompt": {
             "type": "string",
+            "description": "The negative prompt for the text to image generation.",
             "nullable": true
           },
           "scheduler": {
@@ -1619,39 +3225,52 @@
             "maximum": 150,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "description": "The number of steps for the text to image generation.",
+            "format": "int32",
+            "default": 30
           },
           "cfgScale": {
             "maximum": 30,
             "minimum": 1,
             "type": "number",
+            "description": "The CFG scale value for the text to image generation.",
             "format": "double",
+            "default": 7.5,
             "nullable": true
           },
           "width": {
             "maximum": 2048,
             "minimum": 64,
             "type": "integer",
-            "format": "int32"
+            "description": "The width for the image to be generated in pixels.",
+            "format": "int32",
+            "default": 512
           },
           "height": {
             "maximum": 2048,
             "minimum": 64,
             "type": "integer",
-            "format": "int32"
+            "description": "The height for the image to be generated in pixels.",
+            "format": "int32",
+            "default": 512
           },
           "seed": {
             "maximum": 4294967295,
             "minimum": -1,
             "type": "integer",
-            "format": "int64"
+            "description": "The seed for the text to image generation.",
+            "format": "int64",
+            "default": -1
           },
           "clipSkip": {
             "type": "integer",
-            "format": "int32"
+            "description": "The clip skip value for the text to image generation.",
+            "format": "int32",
+            "default": 2
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Parameters for a text to image step."
       },
       "ImageResourceTrainingInput": {
         "required": [
@@ -1663,94 +3282,135 @@
           "model": {
             "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
-            "description": "The primary model to train upon"
+            "description": "The primary model to train upon."
           },
           "trainingData": {
             "type": "string",
-            "description": "A url referring data that needs to be trained upon",
+            "description": "A url referring data to use in training.",
             "format": "uri"
           },
           "unetLR": {
             "type": "number",
-            "format": "double"
+            "description": "The desired learning rate for the U-Net.",
+            "format": "double",
+            "default": 5E-05
           },
           "textEncoderLR": {
             "type": "number",
-            "format": "double"
+            "description": "The desired learning rate for the text encoder.",
+            "format": "double",
+            "default": 5E-05
           },
           "optimizerType": {
-            "type": "string"
+            "type": "string",
+            "description": "The desired optimizer type.",
+            "default": "Adafactor"
           },
           "networkDim": {
             "type": "integer",
-            "format": "int32"
+            "description": "The desired network dimensionality.",
+            "format": "int32",
+            "default": 16
           },
           "networkAlpha": {
             "type": "integer",
-            "format": "int32"
+            "description": "The desired network alpha.",
+            "format": "int32",
+            "default": 16
           },
           "lrScheduler": {
-            "type": "string"
+            "type": "string",
+            "description": "The desired learning rate scheduler.",
+            "default": "cosine_with_restarts"
           },
           "maxTrainEpochs": {
             "type": "integer",
-            "format": "int32"
+            "description": "The desired maximum number of training epochs.",
+            "format": "int32",
+            "default": 3
           },
           "numRepeats": {
             "type": "integer",
-            "format": "int32"
+            "description": "The desired number of repeats.",
+            "format": "int32",
+            "default": 8
           },
           "resolution": {
             "type": "integer",
-            "format": "int32"
+            "description": "The desired resolution.",
+            "format": "int32",
+            "default": 512
           },
           "loraType": {
-            "type": "string"
+            "type": "string",
+            "description": "The lora type.",
+            "default": "lora"
           },
           "enableBucket": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "EnableBucket?",
+            "default": true
           },
           "keepTokens": {
             "type": "integer",
-            "format": "int32"
+            "description": "KeepTokens?",
+            "format": "int32",
+            "default": 0
           },
           "lrSchedulerNumCycles": {
             "type": "integer",
-            "format": "int32"
+            "description": "The desired number of cycles for the learning rate scheduler.",
+            "format": "int32",
+            "default": 3
           },
           "trainBatchSize": {
             "type": "integer",
-            "format": "int32"
+            "description": "The desired training batch size.",
+            "format": "int32",
+            "default": 1
           },
           "minSnrGamma": {
             "type": "integer",
-            "format": "int32"
+            "description": "MinSnrGamm?",
+            "format": "int32",
+            "default": 5
           },
           "optimizerArgs": {
-            "type": "string"
+            "type": "string",
+            "description": "Provided arguments for the optimizer.",
+            "default": ""
           },
           "shuffleCaption": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "ShuffleCaption?",
+            "default": false
           },
           "loraName": {
-            "type": "string"
+            "type": "string",
+            "description": "The desired lora name.",
+            "default": "my-lora"
           },
           "noiseOffset": {
             "type": "number",
-            "format": "double"
+            "description": "The desired noise offset.",
+            "format": "double",
+            "default": 0.5
           },
           "samplePrompts": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "A selection of sample prompts."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Input for an image resource training step."
       },
       "ImageResourceTrainingJob": {
         "required": [
           "$type",
+          "model",
           "params",
           "trainingData"
         ],
@@ -1763,7 +3423,8 @@
         "properties": {
           "model": {
             "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string"
+            "type": "string",
+            "description": "An AIR representing the model to use."
           },
           "trainingData": {
             "type": "string",
@@ -1775,34 +3436,21 @@
             "additionalProperties": {},
             "description": "A untyped set of parameters that are associated with this job"
           },
-          "cost": {
-            "type": "number",
-            "description": "Get cost associated with this job",
-            "format": "double"
-          },
-          "customCost": {
-            "type": "number",
-            "description": "Get or set a custom cost value for this job",
-            "format": "double"
-          },
           "output": {
             "type": "string",
             "description": "An application provided output of the current status of this job",
             "nullable": true
-          },
-          "type": {
-            "type": "string"
-          },
-          "claimDuration": {
-            "type": "string",
-            "description": "Rick: yeah i think for LoRA we need it to be 5-10 minutes.\r\nlora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer",
-            "example": "00:00:00"
           },
           "$type": {
             "enum": [
               "ImageResourceTrainingJob"
             ],
             "type": "string"
+          },
+          "claimDuration": {
+            "type": "string",
+            "description": "Rick: yeah i think for LoRA we need it to be 5-10 minutes.\r\nlora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer",
+            "example": "00:00:00"
           }
         },
         "additionalProperties": false
@@ -1817,7 +3465,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EpochResult"
-            }
+            },
+            "description": "An array of epochs."
           },
           "storedAsAssets": {
             "type": "boolean",
@@ -1830,7 +3479,8 @@
       "ImageResourceTrainingStep": {
         "required": [
           "$type",
-          "input"
+          "input",
+          "name"
         ],
         "type": "object",
         "allOf": [
@@ -1840,22 +3490,22 @@
         ],
         "properties": {
           "name": {
+            "minLength": 1,
             "type": "string",
-            "description": "Get or set the name of this step so that it can be referenced by other steps",
-            "nullable": true
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
           },
           "priority": {
             "$ref": "#/components/schemas/Priority"
           },
           "timeout": {
             "type": "string",
-            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "description": "The maximum time to wait for this step to complete.",
             "nullable": true,
             "example": "00:00:00"
           },
           "retries": {
             "type": "integer",
-            "description": "The max number of retries before we give up",
+            "description": "The maximum number of times this step should be retried.",
             "format": "int32",
             "nullable": true
           },
@@ -1864,21 +3514,28 @@
             "items": {
               "$ref": "#/components/schemas/WorkflowStepJob"
             },
-            "description": "Get the jobs generated by this step"
+            "description": "The jobs generated by this step.",
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
           },
           "startedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step started or null if the step as not yet started",
+            "description": "The date / time the step was started. Null if not yet started.",
             "format": "date-time",
             "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step completed or null if the step has not yet completed",
+            "description": "The date / time the step was completed. Null if not yet completed.",
             "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           },
           "input": {
@@ -1894,7 +3551,8 @@
             "type": "string"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "A workflow step for training image resources."
       },
       "ImageResourceTrainingStepTemplate": {
         "required": [
@@ -1927,7 +3585,8 @@
           "softedgePidinet",
           "rembg"
         ],
-        "type": "string"
+        "type": "string",
+        "description": "Available image transformers."
       },
       "Job": {
         "required": [
@@ -1970,7 +3629,7 @@
           },
           "cost": {
             "type": "number",
-            "description": "Get a cost estimate for this job",
+            "description": "Get a cost for this job",
             "format": "double"
           },
           "maxRetryAttempt": {
@@ -1997,12 +3656,17 @@
           "version": {
             "type": "integer",
             "description": "Get or set the version of this job, this is used to track changes to the job schema",
-            "format": "int32"
+            "format": "int32",
+            "default": 0
           },
           "claimDuration": {
             "type": "string",
             "description": "The total duration that the job can be claimed",
             "example": "00:00:00"
+          },
+          "recovered": {
+            "type": "boolean",
+            "description": "An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters"
           }
         },
         "additionalProperties": false,
@@ -2013,7 +3677,7 @@
             "LLMPromptAugmentationJob": "#/components/schemas/LLMPromptAugmentationJob",
             "SimilaritySearchJob": "#/components/schemas/SimilaritySearchJob",
             "TextToImageJob": "#/components/schemas/TextToImageJob",
-            "TextToImageJobV2": "#/components/schemas/TextToImageJobV2"
+            "TextToImageV2Job": "#/components/schemas/TextToImageV2Job"
           }
         }
       },
@@ -2023,11 +3687,71 @@
           "unavailable",
           "available"
         ],
-        "type": "string"
+        "type": "string",
+        "description": "Available levels of job support."
+      },
+      "JsonPatchDocument": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/JsonPatchOperation"
+        },
+        "description": "Array of operations to perform"
+      },
+      "JsonPatchOperation": {
+        "required": [
+          "op",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "op": {
+            "enum": [
+              "add",
+              "remove",
+              "replace",
+              "move",
+              "copy",
+              "test"
+            ],
+            "type": "string",
+            "description": "The operation type. Allowed values: 'add', 'remove', 'replace', 'move', 'copy', 'test'."
+          },
+          "path": {
+            "type": "string",
+            "description": "The JSON Pointer path to the property in the target document where the operation is to be applied."
+          },
+          "from": {
+            "type": "string",
+            "description": "Should be a path, required when using move, copy"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              }
+            ],
+            "description": "The value to apply for 'add', 'replace', or 'test' operations. Not required for 'remove', 'move', or 'copy'.",
+            "nullable": true
+          }
+        },
+        "description": "Describes a single operation in a JSON Patch document. Includes the operation type, the target property path, and the value to be used."
       },
       "LLMPromptAugmentationCapabilities": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "LLM prompt augmentaition capabilities."
       },
       "LLMPromptAugmentationJob": {
         "required": [
@@ -2043,24 +3767,25 @@
         "properties": {
           "model": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "The primary model to use."
           },
           "basePrompt": {
             "type": "string",
+            "description": "The base prompt.",
             "nullable": true
           },
           "prompts": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "A list of prompts."
           },
           "temp": {
             "type": "number",
+            "description": "The temp.",
             "format": "double"
-          },
-          "type": {
-            "type": "string"
           },
           "$type": {
             "enum": [
@@ -2071,51 +3796,16 @@
         },
         "additionalProperties": false
       },
-      "ModelInfo": {
-        "required": [
-          "air",
-          "downloadUrls",
-          "hashes",
-          "size"
+      "NSFWLevel": {
+        "enum": [
+          "pg",
+          "pG13",
+          "r",
+          "x",
+          "xxx"
         ],
-        "type": "object",
-        "properties": {
-          "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string"
-          },
-          "size": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "hashes": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
-          "downloadUrls": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uri"
-            }
-          },
-          "modelName": {
-            "type": "string",
-            "nullable": true
-          },
-          "versionName": {
-            "type": "string",
-            "nullable": true
-          },
-          "invalidateAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
+        "type": "string",
+        "nullable": true
       },
       "Priority": {
         "enum": [
@@ -2123,7 +3813,8 @@
           "normal",
           "low"
         ],
-        "type": "string"
+        "type": "string",
+        "description": "Available options for priority."
       },
       "ProblemDetails": {
         "type": "object",
@@ -2157,62 +3848,145 @@
         "properties": {
           "totalJobsRequested": {
             "type": "integer",
+            "description": "The total number of jobs requested.",
             "format": "int64"
           },
           "totalCostRequested": {
             "type": "number",
+            "description": "The total cost of jobs requested.",
             "format": "double"
           },
           "totalJobsSucceeded": {
             "type": "integer",
+            "description": "The total number of successful jobs.",
             "format": "int64"
           },
           "totalCostSucceeded": {
             "type": "number",
+            "description": "The total cost of successful jobs.",
             "format": "double"
           },
           "totalJobsRejected": {
             "type": "integer",
+            "description": "The total number of rejected jobs.",
             "format": "int64"
           },
           "totalCostRejected": {
             "type": "number",
+            "description": "The total cost of rejected jobs.",
             "format": "double"
           },
           "totalJobsLateRejected": {
             "type": "integer",
+            "description": "The total number of late rejected jobs.",
             "format": "int64"
           },
           "totalCostLateRejected": {
             "type": "number",
+            "description": "The total cost of laterejected jobs.",
             "format": "double"
           },
           "totalJobsExpired": {
             "type": "integer",
+            "description": "The total number of expired jobs.",
             "format": "int64"
           },
           "totalCostExpired": {
             "type": "number",
+            "description": "The total cost of expired jobs.",
             "format": "double"
           },
           "totalJobsFailed": {
             "type": "integer",
+            "description": "The total number of failed jobs.",
             "format": "int64"
           },
           "totalCostFailed": {
             "type": "number",
+            "description": "The total cost of failed jobs.",
             "format": "double"
           },
           "totalJobsCompleted": {
             "type": "integer",
+            "description": "The total number of completed jobs.",
             "format": "int64"
           },
           "totalCostCompleted": {
             "type": "number",
+            "description": "The total cost of completed jobs.",
             "format": "double"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of processing statistics."
+      },
+      "ResourceInfo": {
+        "required": [
+          "air",
+          "downloadUrls",
+          "hashes",
+          "size"
+        ],
+        "type": "object",
+        "properties": {
+          "air": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "An AIR ID for the resource."
+          },
+          "size": {
+            "type": "integer",
+            "description": "The resource size in bytes.",
+            "format": "int64"
+          },
+          "hashes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "A collection of hashes."
+          },
+          "downloadUrls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "An array of download urls."
+          },
+          "resourceName": {
+            "type": "string",
+            "description": "The name of the resource.",
+            "nullable": true
+          },
+          "versionName": {
+            "type": "string",
+            "description": "The name of the version.",
+            "nullable": true
+          },
+          "invalidateAt": {
+            "type": "string",
+            "description": "The date time to invalidate at.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "earlyAccessEndsAt": {
+            "type": "string",
+            "description": "A DateTime representing when early access for the resource ends.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "checkPermission": {
+            "type": "boolean",
+            "description": "A bool indicating if permission is required to use this resource."
+          },
+          "canGenerate": {
+            "type": "boolean",
+            "description": "A bool indicating if generation is enabled for this resource."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Details for a specific resource."
       },
       "Scheduler": {
         "enum": [
@@ -2220,18 +3994,18 @@
           "euler",
           "lms",
           "heun",
-          "dpm2",
-          "dpm2A",
-          "dpm2SA",
-          "dpm2M",
-          "dpmSDE",
+          "dpM2",
+          "dpM2A",
+          "dpM2SA",
+          "dpM2M",
+          "dpmsde",
           "dpmFast",
           "dpmAdaptive",
           "lmsKarras",
-          "dpm2Karras",
-          "dpm2AKarras",
-          "dpm2SAKarras",
-          "dpm2MKarras",
+          "dpM2Karras",
+          "dpM2AKarras",
+          "dpM2SAKarras",
+          "dpM2MKarras",
           "dpmsdeKarras",
           "ddim",
           "plms",
@@ -2241,7 +4015,8 @@
           "ddpm",
           "deis"
         ],
-        "type": "string"
+        "type": "string",
+        "description": "The available options for schedulers used in image generation."
       },
       "SimilaritySearchJob": {
         "required": [
@@ -2260,26 +4035,23 @@
         "properties": {
           "model": {
             "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string"
+            "type": "string",
+            "description": "An AIR ID representing the primary model."
           },
           "nsfwFilter": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "A value for the NSFW filter."
           },
           "prompt": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "The prompt provided."
           },
           "params": {
             "type": "object",
-            "additionalProperties": {}
-          },
-          "cost": {
-            "type": "number",
-            "format": "double"
-          },
-          "type": {
-            "type": "string"
+            "additionalProperties": {},
+            "description": "A collection of parameters."
           },
           "$type": {
             "enum": [
@@ -2288,16 +4060,23 @@
             "type": "string"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details for a similarity search job."
       },
       "Subscription": {
+        "required": [
+          "webhook"
+        ],
         "type": "object",
         "properties": {
           "webhook": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The webhook url."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "A subscription for pushed based notifications."
       },
       "TextToImageInput": {
         "required": [
@@ -2311,20 +4090,22 @@
             "maximum": 100,
             "minimum": 1,
             "type": "integer",
-            "description": "Get or sets the number of images to generate in a batch",
-            "format": "int32"
+            "description": "The number of batches to run.",
+            "format": "int32",
+            "default": 1
           },
           "batchSize": {
             "maximum": 100,
             "minimum": 1,
             "type": "integer",
-            "description": "The size of each batch",
-            "format": "int32"
+            "description": "The size of each batch.",
+            "format": "int32",
+            "default": 1
           },
           "model": {
             "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
-            "description": "The AIR of the checkpoint model to use for generation"
+            "description": "The AIR of the checkpoint model to use for generation."
           },
           "additionalNetworks": {
             "type": "object",
@@ -2338,15 +4119,17 @@
             "items": {
               "$ref": "#/components/schemas/ImageJobControlNet"
             },
-            "description": "Get or set a associative list of additional networks."
+            "description": "Get or set a associative list of ControlNets."
           },
           "prompt": {
             "type": "string",
-            "nullable": true
+            "description": "The provided text prompt.",
+            "default": ""
           },
           "negativePrompt": {
             "type": "string",
-            "nullable": true
+            "description": "The provided negative text prompt.",
+            "default": ""
           },
           "scheduler": {
             "$ref": "#/components/schemas/Scheduler"
@@ -2355,43 +4138,62 @@
             "maximum": 150,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "description": "The number of steps for image generation.",
+            "format": "int32",
+            "default": 30
           },
           "cfgScale": {
             "maximum": 30,
             "minimum": 1,
             "type": "number",
+            "description": "The CFG scale value for image generation.",
             "format": "double",
-            "nullable": true
+            "default": 7.5
           },
           "width": {
             "maximum": 2048,
             "minimum": 64,
             "type": "integer",
-            "format": "int32"
+            "description": "The desired image width in pixels.",
+            "format": "int32",
+            "default": 512
           },
           "height": {
             "maximum": 2048,
             "minimum": 64,
             "type": "integer",
-            "format": "int32"
+            "description": "The desired image height in pixels.",
+            "format": "int32",
+            "default": 512
           },
           "seed": {
             "maximum": 4294967295,
             "minimum": 0,
             "type": "integer",
+            "description": "The seed to use in image generation. Defaults to a random value if left unpopulated.",
             "format": "int64"
           },
           "clipSkip": {
             "type": "integer",
-            "format": "int32"
+            "description": "The clip skip value for image generation.",
+            "format": "int32",
+            "default": 2
+          },
+          "imageMetadata": {
+            "type": "string",
+            "description": "External metadata that will be stored with the image",
+            "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Input for an text to image step."
       },
       "TextToImageJob": {
         "required": [
-          "$type"
+          "$type",
+          "imageHash",
+          "model",
+          "params"
         ],
         "type": "object",
         "allOf": [
@@ -2402,48 +4204,45 @@
         "properties": {
           "model": {
             "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string"
+            "type": "string",
+            "description": "An AIR representing the model to use."
           },
           "params": {
             "$ref": "#/components/schemas/ImageJobParams"
           },
           "imageHash": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The hash for the output image."
           },
           "additionalNetworks": {
             "type": "object",
             "additionalProperties": {
               "$ref": "#/components/schemas/ImageJobNetworkParams"
             },
-            "description": "Get or set a associative list of additional networks. Each network is identified by a hash code"
+            "description": "Get or set a associative list of additional networks. Each network is identified by a hash code."
           },
           "destinationUrl": {
             "type": "string",
-            "description": "Get or set the URL where the image will be uploaded to",
+            "description": "Get or set the URL where the image will be uploaded to.",
             "format": "uri",
             "nullable": true
           },
           "storeAsBlob": {
             "type": "boolean",
-            "description": "Wether to store the image as a blob or as a legacy image"
+            "description": "A value indicating whether to store the image as a blob or as a legacy image."
           },
           "controlNets": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ImageJobControlNet"
             },
-            "description": "Get or set a list of control nets that should be applied with this textToImage job"
-          },
-          "cost": {
-            "type": "number",
-            "format": "double"
+            "description": "Get or set a list of control nets that should be applied with this textToImage job."
           },
           "claimDuration": {
             "type": "string",
+            "description": "The duration for which this job can be claimed for.",
             "example": "00:00:00"
-          },
-          "type": {
-            "type": "string"
           },
           "$type": {
             "enum": [
@@ -2452,87 +4251,42 @@
             "type": "string"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "A text to image generation job."
       },
       "TextToImageJobSlot": {
+        "required": [
+          "destinationUrl",
+          "imageHash"
+        ],
         "type": "object",
         "properties": {
           "imageHash": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The hash for the image output."
           },
           "destinationUrl": {
             "type": "string",
+            "description": "The destination url for image upload.",
             "format": "uri"
           }
         },
-        "additionalProperties": false
-      },
-      "TextToImageJobV2": {
-        "required": [
-          "$type"
-        ],
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          }
-        ],
-        "properties": {
-          "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string"
-          },
-          "params": {
-            "$ref": "#/components/schemas/ImageJobParams"
-          },
-          "slots": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TextToImageJobSlot"
-            }
-          },
-          "additionalNetworks": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/ImageJobNetworkParams"
-            },
-            "description": "Get or set a associative list of additional networks. Each network is identified by a hash code"
-          },
-          "controlNets": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ImageJobControlNet"
-            },
-            "description": "Get or set a list of control nets that should be applied with this textToImage job"
-          },
-          "cost": {
-            "type": "number",
-            "format": "double"
-          },
-          "claimDuration": {
-            "type": "string",
-            "example": "00:00:00"
-          },
-          "type": {
-            "type": "string"
-          },
-          "$type": {
-            "enum": [
-              "TextToImageJobV2"
-            ],
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Contains slot information for an image generated by a TextToImageJob."
       },
       "TextToImageOutput": {
+        "required": [
+          "images"
+        ],
         "type": "object",
         "properties": {
           "images": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Image"
-            }
+              "$ref": "#/components/schemas/Blob"
+            },
+            "description": "A collection of output images."
           }
         },
         "additionalProperties": false,
@@ -2541,7 +4295,8 @@
       "TextToImageStep": {
         "required": [
           "$type",
-          "input"
+          "input",
+          "name"
         ],
         "type": "object",
         "allOf": [
@@ -2551,22 +4306,22 @@
         ],
         "properties": {
           "name": {
+            "minLength": 1,
             "type": "string",
-            "description": "Get or set the name of this step so that it can be referenced by other steps",
-            "nullable": true
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
           },
           "priority": {
             "$ref": "#/components/schemas/Priority"
           },
           "timeout": {
             "type": "string",
-            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "description": "The maximum time to wait for this step to complete.",
             "nullable": true,
             "example": "00:00:00"
           },
           "retries": {
             "type": "integer",
-            "description": "The max number of retries before we give up",
+            "description": "The maximum number of times this step should be retried.",
             "format": "int32",
             "nullable": true
           },
@@ -2575,21 +4330,28 @@
             "items": {
               "$ref": "#/components/schemas/WorkflowStepJob"
             },
-            "description": "Get the jobs generated by this step"
+            "description": "The jobs generated by this step.",
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
           },
           "startedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step started or null if the step as not yet started",
+            "description": "The date / time the step was started. Null if not yet started.",
             "format": "date-time",
             "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step completed or null if the step has not yet completed",
+            "description": "The date / time the step was completed. Null if not yet completed.",
             "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           },
           "input": {
@@ -2605,7 +4367,8 @@
             "type": "string"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "A workflow step for text to image generations."
       },
       "TextToImageStepTemplate": {
         "required": [
@@ -2631,20 +4394,435 @@
         },
         "additionalProperties": false
       },
+      "TextToImageV2Job": {
+        "required": [
+          "$type",
+          "model",
+          "params",
+          "slots"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Job"
+          }
+        ],
+        "properties": {
+          "baseModel": {
+            "type": "string",
+            "description": "The base model / ecosystem for the model.",
+            "nullable": true
+          },
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "An AIR representing the model to use."
+          },
+          "params": {
+            "$ref": "#/components/schemas/ImageJobParams"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TextToImageJobSlot"
+            },
+            "description": "Slots for the resulting image outputs."
+          },
+          "additionalNetworks": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ImageJobNetworkParams"
+            },
+            "description": "Get or set a associative list of additional networks. Each network is identified by a hash code"
+          },
+          "controlNets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageJobControlNet"
+            },
+            "description": "Get or set a list of control nets that should be applied with this textToImage job"
+          },
+          "imageMetadata": {
+            "type": "string",
+            "description": "Get or set additional metadata that will be embedded with generated images",
+            "nullable": true
+          },
+          "claimDuration": {
+            "type": "string",
+            "description": "The duration for which this job can be claimed for.",
+            "example": "00:00:00"
+          },
+          "$type": {
+            "enum": [
+              "TextToImageV2Job"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "TransactionInfo": {
         "required": [
-          "id"
+          "amount",
+          "type"
         ],
         "type": "object",
         "properties": {
+          "type": {
+            "$ref": "#/components/schemas/TransactionType"
+          },
           "amount": {
+            "maximum": 2147483647,
+            "minimum": 0,
             "type": "integer",
+            "description": "The transaction amount.",
             "format": "int32"
           },
           "id": {
+            "type": "string",
+            "description": "The transaction ID.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Transaction information."
+      },
+      "TransactionSummary": {
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionInfo"
+            },
+            "description": "Get a list of individual transactions."
+          }
+        },
+        "additionalProperties": false
+      },
+      "TransactionType": {
+        "enum": [
+          "debit",
+          "credit"
+        ],
+        "type": "string"
+      },
+      "TranscodeInput": {
+        "required": [
+          "sourceUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "containerFormat": {
+            "$ref": "#/components/schemas/ContainerFormat"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "destinationUrl": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TranscodeOutput": {
+        "required": [
+          "available",
+          "id",
+          "jobId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
             "minLength": 1,
             "type": "string",
+            "description": "Gets the id of the blob that contains the media."
+          },
+          "available": {
+            "type": "boolean",
+            "description": "Gets a value indicating whether the media is available."
+          },
+          "url": {
+            "type": "string",
+            "description": "Gets a url that can be used to preview the media.",
+            "format": "uri",
             "nullable": true
+          },
+          "urlExpiresAt": {
+            "type": "string",
+            "description": "Get when the url is set to expire",
+            "format": "date-time",
+            "nullable": true
+          },
+          "jobId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Get the id of the job that is associated with this media."
+          }
+        },
+        "additionalProperties": false
+      },
+      "TranscodeStep": {
+        "required": [
+          "$type",
+          "input",
+          "name"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          }
+        ],
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "timeout": {
+            "type": "string",
+            "description": "The maximum time to wait for this step to complete.",
+            "nullable": true,
+            "example": "00:00:00"
+          },
+          "retries": {
+            "type": "integer",
+            "description": "The maximum number of times this step should be retried.",
+            "format": "int32",
+            "nullable": true
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepJob"
+            },
+            "description": "The jobs generated by this step.",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "The date / time the step was started. Null if not yet started.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "The date / time the step was completed. Null if not yet completed.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
+            "nullable": true
+          },
+          "input": {
+            "$ref": "#/components/schemas/TranscodeInput"
+          },
+          "output": {
+            "$ref": "#/components/schemas/TranscodeOutput"
+          },
+          "$type": {
+            "enum": [
+              "transcode"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TranscodeStepTemplate": {
+        "required": [
+          "$type",
+          "input"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "transcode"
+            ],
+            "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/TranscodeInput"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TryOnUInput": {
+        "required": [
+          "garmentUrl",
+          "subjectUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "subjectUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "garmentUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "subjectMaskUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "subjectMaskBlobKey": {
+            "type": "string"
+          },
+          "garmentDescription": {
+            "type": "string"
+          },
+          "maskSubject": {
+            "type": "boolean"
+          },
+          "cropSubject": {
+            "type": "boolean"
+          },
+          "steps": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "seed": {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TryOnUOutput": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/Blob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TryOnUStep": {
+        "required": [
+          "$type",
+          "input",
+          "name"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          }
+        ],
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "timeout": {
+            "type": "string",
+            "description": "The maximum time to wait for this step to complete.",
+            "nullable": true,
+            "example": "00:00:00"
+          },
+          "retries": {
+            "type": "integer",
+            "description": "The maximum number of times this step should be retried.",
+            "format": "int32",
+            "nullable": true
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepJob"
+            },
+            "description": "The jobs generated by this step.",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "The date / time the step was started. Null if not yet started.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "The date / time the step was completed. Null if not yet completed.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
+            "nullable": true
+          },
+          "input": {
+            "$ref": "#/components/schemas/TryOnUInput"
+          },
+          "output": {
+            "$ref": "#/components/schemas/TryOnUOutput"
+          },
+          "$type": {
+            "enum": [
+              "tryOnU"
+            ],
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TryOnUStepTemplate": {
+        "required": [
+          "$type",
+          "input"
+        ],
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "tryOnU"
+            ],
+            "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/TryOnUInput"
           }
         },
         "additionalProperties": false
@@ -2654,16 +4832,86 @@
         "properties": {
           "status": {
             "$ref": "#/components/schemas/UpdateWorkflowStatus"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "An optional set of new properties to set on the workflow.",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An optional set of new tags to set on the workflow.",
+            "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "An request for updating a workflow."
       },
       "UpdateWorkflowStatus": {
         "enum": [
           "canceled"
         ],
         "type": "string",
+        "description": "Available statuses for updating workflows.",
         "nullable": true
+      },
+      "UpdateWorkflowStepRequest": {
+        "required": [
+          "metadata"
+        ],
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "An set of new properties to set on the workflow step."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "additionalProperties": {}
+      },
+      "ValueTupleOfStringAndInt32": {
+        "type": "object",
+        "additionalProperties": false
       },
       "WorkerCapabilities": {
         "type": "object",
@@ -2685,46 +4933,68 @@
           },
           "llmPromptAugmentation": {
             "$ref": "#/components/schemas/LLMPromptAugmentationCapabilities"
+          },
+          "humanoidImageMask": {
+            "$ref": "#/components/schemas/WorkerHumanoidImageMaskCapabilities"
+          },
+          "tryOnU": {
+            "$ref": "#/components/schemas/WorkerTryOnUCapabilities"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's capabilities."
       },
       "WorkerConfigurationCapabilities": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's configuration capabilities."
       },
       "WorkerDetails": {
+        "required": [
+          "id",
+          "name"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The worker's ID."
           },
           "name": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The worker's name."
           },
           "activeJobs": {
             "type": "integer",
+            "description": "The worker's active job count.",
             "format": "int32"
           },
           "queueSize": {
             "type": "integer",
+            "description": "The number of jobs in the worker's queue.",
             "format": "int32"
           },
           "queueDepth": {
             "type": "number",
+            "description": "The total cost of job's in the worker's queue.",
             "format": "double"
           },
           "startDate": {
             "type": "string",
+            "description": "The worker's start date / time.",
             "format": "date-time"
           },
           "lastRequestDate": {
             "type": "string",
+            "description": "The worker's last request date / time.",
             "format": "date-time",
             "nullable": true
           },
           "expirationDate": {
             "type": "string",
+            "description": "The worker's expiration date / time.",
             "format": "date-time",
             "nullable": true
           },
@@ -2733,37 +5003,63 @@
           },
           "succeededThroughputRate": {
             "type": "number",
+            "description": "The worker's succeeded job throughput rate.",
             "format": "double"
           },
           "failedThroughputRate": {
             "type": "number",
+            "description": "The worker's failed job throughput rate.",
             "format": "double"
           },
           "idleRate": {
             "type": "number",
+            "description": "The worker's idle rate.",
             "format": "double"
           },
           "lastSuccesfullyCompletedJobDate": {
             "type": "string",
+            "description": "The date / time of the worker's last successfully completed job.",
             "format": "date-time",
             "nullable": true
           },
           "lastJobUpdateDate": {
             "type": "string",
+            "description": "The date / time of the worker's last job update.",
             "format": "date-time",
             "nullable": true
           },
           "subscriptionSetDate": {
             "type": "string",
+            "description": "The date / time that the worker's subscription was set.",
             "format": "date-time",
             "nullable": true
           },
           "quarantineDate": {
             "type": "string",
+            "description": "The date / time that the worker was quarantined.",
             "format": "date-time",
+            "nullable": true
+          },
+          "resourceDownloadRate": {
+            "type": "number",
+            "description": "The rate at which this worker has been downloading",
+            "format": "double"
+          },
+          "resourceEvictionRate": {
+            "type": "number",
+            "description": "The rate at which this worker has been evicting resources",
+            "format": "double"
+          },
+          "succeededThroughputSum": {
+            "type": "string",
             "nullable": true
           }
         },
+        "additionalProperties": false,
+        "description": "Details for a particular worker."
+      },
+      "WorkerHumanoidImageMaskCapabilities": {
+        "type": "object",
         "additionalProperties": false
       },
       "WorkerImageCapabilities": {
@@ -2785,18 +5081,20 @@
             "$ref": "#/components/schemas/WorkerImageEmbeddingCapabilities"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's image capabilities."
       },
       "WorkerImageEmbeddingCapabilities": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's image embedding capabilities."
       },
       "WorkerImageImageToImageCapabilities": {
         "type": "object",
         "properties": {
           "size": {
             "type": "integer",
-            "description": "Max size supported (as square)",
+            "description": "The worker's maximum supported image size for image to image (squared).",
             "format": "int32"
           },
           "schedulers": {
@@ -2804,32 +5102,34 @@
             "items": {
               "$ref": "#/components/schemas/Scheduler"
             },
-            "description": "Schedulers supported"
+            "description": "A list of schedulers the worker supports for image to image."
           },
           "controlNet": {
             "maximum": 10,
             "minimum": 0,
             "type": "integer",
-            "description": "The number of controlnets that can be used in tandem",
+            "description": "The number of ControlNets the worker supports for image to image (at once).",
             "format": "int32"
           },
           "inpainting": {
             "type": "boolean",
-            "description": "Whether or not inpainting is supported"
+            "description": "Indicates whether the worker supports inpaiting."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's image to image capabilities."
       },
       "WorkerImageResourceTrainingCapabilities": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's image resource training capabilities."
       },
       "WorkerImageTextToImageCapabilities": {
         "type": "object",
         "properties": {
           "size": {
             "type": "integer",
-            "description": "Max size supported (as square)",
+            "description": "The worker's maximum supported image size for text to image (squared).",
             "format": "int32"
           },
           "schedulers": {
@@ -2837,17 +5137,18 @@
             "items": {
               "$ref": "#/components/schemas/Scheduler"
             },
-            "description": "Schedulers supported"
+            "description": "A list of schedulers the worker supports for text to image."
           },
           "controlNet": {
             "maximum": 10,
             "minimum": 0,
             "type": "integer",
-            "description": "The number of controlnets that can be used in tandem",
+            "description": "The number of ControlNets the worker supports for text to image (at once).",
             "format": "int32"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's text to image capabilities."
       },
       "WorkerImageTransformCapabilities": {
         "type": "object",
@@ -2857,10 +5158,11 @@
             "items": {
               "$ref": "#/components/schemas/ImageTransformer"
             },
-            "description": "Max size supported (as square)"
+            "description": "A list of supported image transformers."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's image transform capabilities."
       },
       "WorkerMediaCapabilities": {
         "type": "object",
@@ -2876,71 +5178,61 @@
           },
           "movieRating": {
             "$ref": "#/components/schemas/WorkerMediaMovieRatingCapabilities"
+          },
+          "transcode": {
+            "$ref": "#/components/schemas/WorkerMediaTranscodeCapabilities"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's media capabilities."
       },
       "WorkerMediaComfyCapabilities": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's media comfy capabilities."
       },
       "WorkerMediaMovieRatingCapabilities": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's media movie rating capabilities."
       },
       "WorkerMediaTaggingCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Details of a worker's media tagging capabilities."
+      },
+      "WorkerMediaTranscodeCapabilities": {
         "type": "object",
         "additionalProperties": false
       },
       "WorkerMediaWDTaggingCapabilities": {
         "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerModelAvailability": {
-        "enum": [
-          "unknown",
-          "unsupported",
-          "unavailable",
-          "available",
-          "providerUnsupported"
-        ],
-        "type": "string"
+        "additionalProperties": false,
+        "description": "Details of a worker's media WD tagging capabilities."
       },
       "WorkerModelPreparationCapabilities": {
         "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerModelStatus": {
-        "type": "object",
-        "properties": {
-          "availability": {
-            "$ref": "#/components/schemas/WorkerModelAvailability"
-          },
-          "cost": {
-            "type": "number",
-            "format": "float"
-          }
-        },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's model preparation capabilities."
       },
       "WorkerRegistration": {
+        "required": [
+          "name"
+        ],
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The worker's name."
           },
-          "onDemandModelTypesAsArray": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "onDemandModelTypes": {
+          "onDemandResourceTypes": {
             "uniqueItems": true,
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "A hash set of resource types the worker can retrieve on demand."
           },
           "capabilities": {
             "$ref": "#/components/schemas/WorkerCapabilities"
@@ -2953,7 +5245,7 @@
           },
           "concurrentLimit": {
             "type": "integer",
-            "description": "How many requests you can handle at once",
+            "description": "The number of requests the worker can handle at once.",
             "format": "int32"
           },
           "ecosystems": {
@@ -2961,44 +5253,80 @@
             "additionalProperties": {
               "$ref": "#/components/schemas/EcosystemElement"
             },
-            "description": "The ecosystems supported by this worker"
+            "description": "A collection of ecosystems the worker supports."
           },
-          "models": {
+          "resources": {
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/components/schemas/WorkerModelStatus"
+              "$ref": "#/components/schemas/WorkerResourceStatus"
             },
-            "description": "A list of assets that are currently unavailable by this worker\r\nThis is the counterpart of assets"
+            "description": "A collection of information about the availability of particular resources on this worker."
           },
           "cacheLevel": {
             "type": "string",
-            "description": "The name of the closest cache level that this worker can interact with",
+            "description": "The name of the closest cache level that this worker can interact with.",
             "nullable": true
           },
           "maxColdSwapQueueSize": {
             "type": "integer",
-            "description": "The max queue size before we stop accepting requests that require cold swapping",
+            "description": "The max queue size before the worker stops accepting requests that require cold swapping.",
             "format": "int32",
             "nullable": true
           },
-          "maxPendingModelSize": {
+          "maxPendingResourceSize": {
             "type": "integer",
+            "description": "The max size in Mb of downloads that can be pending.",
             "format": "int32",
             "nullable": true
           },
           "consumeUnavailableJobs": {
             "type": "boolean",
-            "description": "Wether the worker should consume jobs that are not yet available"
+            "description": "A value indicating if worker should consume jobs that are not yet available."
           },
           "nodeIdentifier": {
             "type": "string",
-            "description": "An optional identified that uniquely identifies this worker",
+            "description": "An optional identifier unique to this worker.",
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a worker's registration."
+      },
+      "WorkerResourceAvailability": {
+        "enum": [
+          "unknown",
+          "unsupported",
+          "unavailable",
+          "available",
+          "providerUnsupported"
+        ],
+        "type": "string",
+        "description": "Options for representing the status for a resource on a worker."
+      },
+      "WorkerResourceStatus": {
+        "required": [
+          "availability"
+        ],
+        "type": "object",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/WorkerResourceAvailability"
+          },
+          "cost": {
+            "type": "number",
+            "description": "The cost associated with this resource.",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Details for the status of a resource on a particular worker."
       },
       "WorkerSimilaritySearchCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Details of a worker's similarity search capabilities."
+      },
+      "WorkerTryOnUCapabilities": {
         "type": "object",
         "additionalProperties": false
       },
@@ -3007,29 +5335,29 @@
           "normal",
           "deferred"
         ],
-        "type": "string"
+        "type": "string",
+        "description": "Available values for worker type."
       },
       "Workflow": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID for the workflow.",
             "nullable": true
           },
           "createdAt": {
             "type": "string",
+            "description": "The date / time the workflow was created.",
             "format": "date-time"
           },
           "transactions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TransactionInfo"
-            },
-            "nullable": true
+            "$ref": "#/components/schemas/TransactionSummary"
           },
-          "properties": {
+          "metadata": {
             "type": "object",
             "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow.",
             "nullable": true
           },
           "status": {
@@ -3037,42 +5365,70 @@
           },
           "startedAt": {
             "type": "string",
-            "description": "Get the moment in time when the workflow started or null if the workflow as not yet started",
+            "description": "The date / time the workflow was started. Null if not yet started.",
             "format": "date-time",
             "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "description": "Get the moment in time when the workflow completed or null if the workflow has not yet completed",
+            "description": "The date / time the workflow was completed. Null if not yet complete.",
             "format": "date-time",
             "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An optional list of tags for the workflow."
+          },
+          "arguments": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Get an associated collection of arguments"
           },
           "steps": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/WorkflowStep"
-            }
+            },
+            "description": "The steps for the workflow."
           },
           "callbacks": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/WorkflowCallback"
-            }
+            },
+            "description": "An array of callback details for the workflow."
+          },
+          "tips": {
+            "$ref": "#/components/schemas/WorkflowTips"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/WorkflowCost"
+          },
+          "nsfwLevel": {
+            "$ref": "#/components/schemas/NSFWLevel"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a workflow."
       },
       "WorkflowCallback": {
+        "required": [
+          "type",
+          "url"
+        ],
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
+            "description": "The url for the callback.",
             "format": "uri"
           },
           "type": {
             "type": "array",
             "items": {
-              "type": "string",
               "enum": [
                 "workflow:*",
                 "workflow:unassigned",
@@ -3096,17 +5452,76 @@
                 "job:expired",
                 "job:canceled"
               ],
+              "type": "string",
               "example": "workflow:succeeded"
-            }
+            },
+            "description": "An array of event types to send to the callback."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Details of a callback setup for a workflow."
+      },
+      "WorkflowCost": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "integer",
+            "description": "The base cost of this request, excludsing any tips",
+            "format": "int32"
+          },
+          "factors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double",
+              "nullable": true
+            },
+            "description": "A breakdown of the cost factors for this request",
+            "nullable": true
+          },
+          "tips": {
+            "$ref": "#/components/schemas/WorkflowCostTips"
+          },
+          "total": {
+            "type": "integer",
+            "description": "The total cost of this request, including tips",
+            "format": "int32"
           }
         },
         "additionalProperties": false
       },
+      "WorkflowCostTips": {
+        "required": [
+          "civitai",
+          "creators"
+        ],
+        "type": "object",
+        "properties": {
+          "civitai": {
+            "type": "integer",
+            "description": "The buzz tipped to Civitai",
+            "format": "int32"
+          },
+          "creators": {
+            "type": "integer",
+            "description": "The buzz tipped to the Creators who's resources were used",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Get the cost of tips"
+      },
       "WorkflowEvent": {
+        "required": [
+          "status",
+          "workflowId"
+        ],
         "type": "object",
         "properties": {
           "workflowId": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The ID that represents the corresponding workflow."
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
@@ -3116,7 +5531,8 @@
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a workflow event."
       },
       "WorkflowStatus": {
         "enum": [
@@ -3129,11 +5545,13 @@
           "expired",
           "canceled"
         ],
-        "type": "string"
+        "type": "string",
+        "description": "Values available to represent workflow status."
       },
       "WorkflowStep": {
         "required": [
-          "$type"
+          "$type",
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -3141,22 +5559,22 @@
             "type": "string"
           },
           "name": {
+            "minLength": 1,
             "type": "string",
-            "description": "Get or set the name of this step so that it can be referenced by other steps",
-            "nullable": true
+            "description": "The name of the workflow step. Used to allow steps to refer to one another."
           },
           "priority": {
             "$ref": "#/components/schemas/Priority"
           },
           "timeout": {
             "type": "string",
-            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "description": "The maximum time to wait for this step to complete.",
             "nullable": true,
             "example": "00:00:00"
           },
           "retries": {
             "type": "integer",
-            "description": "The max number of retries before we give up",
+            "description": "The maximum number of times this step should be retried.",
             "format": "int32",
             "nullable": true
           },
@@ -3165,42 +5583,63 @@
             "items": {
               "$ref": "#/components/schemas/WorkflowStepJob"
             },
-            "description": "Get the jobs generated by this step"
+            "description": "The jobs generated by this step.",
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
           },
           "startedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step started or null if the step as not yet started",
+            "description": "The date / time the step was started. Null if not yet started.",
             "format": "date-time",
             "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "description": "Get the moment in time when the step completed or null if the step has not yet completed",
+            "description": "The date / time the step was completed. Null if not yet completed.",
             "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           }
         },
         "additionalProperties": false,
+        "description": "Details of a workflow step.",
         "discriminator": {
           "propertyName": "$type",
           "mapping": {
-            "textToImage": "#/components/schemas/TextToImageStep",
+            "tryOnU": "#/components/schemas/TryOnUStep",
+            "transcode": "#/components/schemas/TranscodeStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
-            "echo": "#/components/schemas/EchoStep"
+            "humanoidImageMask": "#/components/schemas/HumanoidImageMaskStep",
+            "echo": "#/components/schemas/EchoStep",
+            "textToImage": "#/components/schemas/TextToImageStep",
+            "comfy": "#/components/schemas/ComfyStep"
           }
         }
       },
       "WorkflowStepEvent": {
+        "required": [
+          "status",
+          "stepName",
+          "workflowId"
+        ],
         "type": "object",
         "properties": {
           "workflowId": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The workflow ID."
           },
           "stepName": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The workflow step's name."
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
@@ -3210,50 +5649,70 @@
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a workflow step event."
       },
       "WorkflowStepJob": {
+        "required": [
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
-          },
-          "cost": {
-            "type": "number",
-            "format": "double"
+            "minLength": 1,
+            "type": "string",
+            "description": "The job's ID."
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
           },
           "startedAt": {
             "type": "string",
-            "description": "Get the moment in time when the job started or null if the job has not yet started",
+            "description": "The date / time the job started. Null if not yet started.",
             "format": "date-time",
             "nullable": true
           },
           "completedAt": {
             "type": "string",
-            "description": "Get the moment in time when the job completed or null if the job has not yet completed",
+            "description": "The date / time the job completed. Null if not yet completed.",
             "format": "date-time",
             "nullable": true
           },
           "queuePosition": {
             "$ref": "#/components/schemas/WorkflowStepJobQueuePosition"
+          },
+          "cost": {
+            "type": "number",
+            "description": "The job's cost.",
+            "format": "double"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a job produced by a workflow step."
       },
       "WorkflowStepJobEvent": {
+        "required": [
+          "jobId",
+          "status",
+          "stepName",
+          "workflowId"
+        ],
         "type": "object",
         "properties": {
           "workflowId": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The workflow ID."
           },
           "stepName": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The step's name."
           },
           "jobId": {
-            "type": "string"
+            "minLength": 1,
+            "type": "string",
+            "description": "The job's ID."
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
@@ -3263,7 +5722,8 @@
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of a workflow step job event."
       },
       "WorkflowStepJobQueuePosition": {
         "type": "object",
@@ -3273,24 +5733,25 @@
           },
           "precedingJobs": {
             "type": "integer",
-            "description": "Get the number of jobs preceding the current job",
+            "description": "The number of preceding jobs in the queue.",
             "format": "int32",
             "nullable": true
           },
           "startAt": {
             "type": "string",
-            "description": "Get an estimation as to when this job will start",
+            "description": "An estimated date / time for when the job will start.",
             "format": "date-time",
             "nullable": true
           },
           "completeAt": {
             "type": "string",
-            "description": "Get an estimation as to when this job will complete",
+            "description": "An estimated date / time for when the job will complete.",
             "format": "date-time",
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Details of the workflow step job's queue position."
       },
       "WorkflowStepTemplate": {
         "required": [
@@ -3302,11 +5763,11 @@
           "$type": {
             "minLength": 1,
             "type": "string",
-            "description": "Get or set the type of this step"
+            "description": "The type of step the template represents."
           },
           "name": {
             "type": "string",
-            "description": "Get or set the name of this step so that it can be referenced by other steps",
+            "description": "The name of the workflow step. Used to allow steps to refer to one another.",
             "nullable": true
           },
           "priority": {
@@ -3314,24 +5775,35 @@
           },
           "timeout": {
             "type": "string",
-            "description": "The max amount of time to wait for a job generated by this node to complete before timing out",
+            "description": "The maximum time to wait for this step to complete.",
             "nullable": true,
             "example": "00:00:00"
           },
           "retries": {
             "type": "integer",
-            "description": "The max number of retries before we give up",
+            "description": "The maximum number of times this step should be retried.",
             "format": "int32",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           }
         },
         "additionalProperties": false,
+        "description": "Details of a workflow step template.",
         "discriminator": {
           "propertyName": "$type",
           "mapping": {
-            "textToImage": "TextToImageStepTemplate",
-            "imageResourceTraining": "ImageResourceTrainingStepTemplate",
-            "echo": "EchoStepTemplate"
+            "tryOnU": "#/components/schemas/TryOnUStepTemplate",
+            "transcode": "#/components/schemas/TranscodeStepTemplate",
+            "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
+            "humanoidImageMask": "#/components/schemas/HumanoidImageMaskStepTemplate",
+            "echo": "#/components/schemas/EchoStepTemplate",
+            "textToImage": "#/components/schemas/TextToImageStepTemplate",
+            "comfy": "#/components/schemas/ComfyStepTemplate"
           }
         }
       },
@@ -3341,10 +5813,20 @@
         ],
         "type": "object",
         "properties": {
-          "properties": {
+          "metadata": {
             "type": "object",
             "additionalProperties": {},
-            "description": "Properties are user defined metadata that can be used to store additional information about the workflow",
+            "description": "A collection of user defined metadata that can be used to store additional information about the workflow.",
+            "nullable": true
+          },
+          "tags": {
+            "maxItems": 10,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "A list of tags associated with this workflow.\r\nTags are indexed and can be used to search for workflows.\r\nAt most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.",
             "nullable": true
           },
           "steps": {
@@ -3353,14 +5835,42 @@
             "items": {
               "$ref": "#/components/schemas/WorkflowStepTemplate"
             },
-            "description": "A list of steps that compose this workflow."
+            "description": "An array of steps that compose this workflow."
           },
           "callbacks": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/WorkflowCallback"
             },
-            "description": "A list of callbacks that should get called during the lifecycle of the workflow"
+            "description": "An array of callbacks to be triggered during the lifetime of the workflow."
+          },
+          "tips": {
+            "$ref": "#/components/schemas/WorkflowTips"
+          },
+          "arguments": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Get an associated collection of arguments"
+          },
+          "nsfwLevel": {
+            "$ref": "#/components/schemas/NSFWLevel"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Details of a requested workflow."
+      },
+      "WorkflowTips": {
+        "type": "object",
+        "properties": {
+          "civitai": {
+            "type": "number",
+            "description": "The rate of tipping that should be allocated to civitai",
+            "format": "double"
+          },
+          "creators": {
+            "type": "number",
+            "description": "The rate of tipping that should be allocated to creators involved in this workflow",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -3368,10 +5878,10 @@
     },
     "securitySchemes": {
       "ApiKey": {
-        "type": "apiKey",
-        "description": "Copy 'Bearer ' + valid Authorization token into field",
-        "name": "Authorization",
-        "in": "header"
+        "type": "http",
+        "description": "Copy valid authorization token into field",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   },

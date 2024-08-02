@@ -1,6 +1,6 @@
 {
   "name": "@civitai/client",
-  "version": "0.1.9-beta.1",
+  "version": "0.1.9-beta.2",
   "description": "Civitai's javascript client for generating ai content",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.1.6",
+    "rfc6902": "^5.1.1",
     "tslib": "^2.6.2"
   },
   "publishConfig": {

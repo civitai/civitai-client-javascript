@@ -43,9 +43,9 @@ import type {
   UpdateWorkerRegistrationData,
   UpdateWorkerRegistrationError,
   UpdateWorkerRegistrationResponse,
-  PathWorkerResourcesData,
-  PathWorkerResourcesError,
-  PathWorkerResourcesResponse,
+  PatchWorkerResourcesData,
+  PatchWorkerResourcesError,
+  PatchWorkerResourcesResponse,
   SubmitWorkflowData,
   SubmitWorkflowError,
   SubmitWorkflowResponse,
@@ -58,15 +58,30 @@ import type {
   UpdateWorkflowData,
   UpdateWorkflowError,
   UpdateWorkflowResponse,
+  PatchWorkflowData,
+  PatchWorkflowError,
+  PatchWorkflowResponse,
   DeleteWorkflowData,
   DeleteWorkflowError,
   DeleteWorkflowResponse,
+  AddWorkflowTagData,
+  AddWorkflowTagError,
+  AddWorkflowTagResponse,
+  RemoveAllWorkflowTagsData,
+  RemoveAllWorkflowTagsError,
+  RemoveAllWorkflowTagsResponse,
+  RemoveWorkflowTagData,
+  RemoveWorkflowTagError,
+  RemoveWorkflowTagResponse,
   GetWorkflowStepData,
   GetWorkflowStepError,
   GetWorkflowStepResponse,
   UpdateWorkflowStepData,
   UpdateWorkflowStepError,
   UpdateWorkflowStepResponse,
+  PatchWorkflowStepData,
+  PatchWorkflowStepError,
+  PatchWorkflowStepResponse,
 } from './types.gen';
 
 export const putV2ProvidersBlobsByBlobKey = (
@@ -224,11 +239,13 @@ export const updateWorkerRegistration = (options: Options<UpdateWorkerRegistrati
 /**
  * Patch a worker's registration resources
  */
-export const pathWorkerResources = (options: Options<PathWorkerResourcesData>) => {
-  return (options?.client ?? client).patch<PathWorkerResourcesResponse, PathWorkerResourcesError>({
-    ...options,
-    url: '/v2/providers/workers/{workerId}/registration/resources',
-  });
+export const patchWorkerResources = (options: Options<PatchWorkerResourcesData>) => {
+  return (options?.client ?? client).patch<PatchWorkerResourcesResponse, PatchWorkerResourcesError>(
+    {
+      ...options,
+      url: '/v2/providers/workers/{workerId}/registration/resources',
+    }
+  );
 };
 
 /**
@@ -271,6 +288,13 @@ export const updateWorkflow = (options: Options<UpdateWorkflowData>) => {
   });
 };
 
+export const patchWorkflow = (options: Options<PatchWorkflowData>) => {
+  return (options?.client ?? client).patch<PatchWorkflowResponse, PatchWorkflowError>({
+    ...options,
+    url: '/v2/consumer/workflows/{workflowId}',
+  });
+};
+
 /**
  * Deletes a workflow and all its jobs.
  */
@@ -278,6 +302,39 @@ export const deleteWorkflow = (options: Options<DeleteWorkflowData>) => {
   return (options?.client ?? client).delete<DeleteWorkflowResponse, DeleteWorkflowError>({
     ...options,
     url: '/v2/consumer/workflows/{workflowId}',
+  });
+};
+
+/**
+ * Submit a tag to be added to a workflow.
+ */
+export const addWorkflowTag = (options: Options<AddWorkflowTagData>) => {
+  return (options?.client ?? client).post<AddWorkflowTagResponse, AddWorkflowTagError>({
+    ...options,
+    url: '/v2/consumer/workflows/{workflowId}/tags',
+  });
+};
+
+/**
+ * Delete all tags for a workflow.
+ */
+export const removeAllWorkflowTags = (options: Options<RemoveAllWorkflowTagsData>) => {
+  return (options?.client ?? client).delete<
+    RemoveAllWorkflowTagsResponse,
+    RemoveAllWorkflowTagsError
+  >({
+    ...options,
+    url: '/v2/consumer/workflows/{workflowId}/tags',
+  });
+};
+
+/**
+ * Submit a tag to be removed from a workflow.
+ */
+export const removeWorkflowTag = (options: Options<RemoveWorkflowTagData>) => {
+  return (options?.client ?? client).delete<RemoveWorkflowTagResponse, RemoveWorkflowTagError>({
+    ...options,
+    url: '/v2/consumer/workflows/{workflowId}/tags/{tag}',
   });
 };
 
@@ -296,6 +353,13 @@ export const getWorkflowStep = (options: Options<GetWorkflowStepData>) => {
  */
 export const updateWorkflowStep = (options: Options<UpdateWorkflowStepData>) => {
   return (options?.client ?? client).put<UpdateWorkflowStepResponse, UpdateWorkflowStepError>({
+    ...options,
+    url: '/v2/consumer/workflows/{workflowId}/steps/{stepName}',
+  });
+};
+
+export const patchWorkflowStep = (options: Options<PatchWorkflowStepData>) => {
+  return (options?.client ?? client).patch<PatchWorkflowStepResponse, PatchWorkflowStepError>({
     ...options,
     url: '/v2/consumer/workflows/{workflowId}/steps/{stepName}',
   });

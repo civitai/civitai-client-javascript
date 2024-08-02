@@ -24,6 +24,7 @@ export type Blob = {
    * Get the id of the job that is associated with this blob.
    */
   jobId?: string | null;
+  nsfwLevel?: NSFWLevel;
 };
 
 export type ComfyInput = {
@@ -37,6 +38,10 @@ export type ComfyInput = {
    * The number of jobs to start with this workflow.
    */
   quantity?: number;
+  /**
+   * External metadata that will be stored with the image
+   */
+  imageMetadata?: string | null;
 };
 
 export type ComfyNode = {
@@ -498,14 +503,6 @@ export type ImageResourceTrainingJob = Job & {
     [key: string]: unknown;
   };
   /**
-   * Get cost associated with this job
-   */
-  cost?: number;
-  /**
-   * Get or set a custom cost value for this job
-   */
-  customCost?: number;
-  /**
    * An application provided output of the current status of this job
    */
   output?: string | null;
@@ -631,7 +628,7 @@ export type Job = {
    */
   type?: string;
   /**
-   * Get a cost estimate for this job
+   * Get a cost for this job
    */
   cost?: number;
   /**
@@ -677,6 +674,58 @@ export const JobSupport = {
 } as const;
 
 /**
+ * Array of operations to perform
+ */
+export type JsonPatchDocument = Array<JsonPatchOperation>;
+
+/**
+ * Describes a single operation in a JSON Patch document. Includes the operation type, the target property path, and the value to be used.
+ */
+export type JsonPatchOperation = {
+  /**
+   * The operation type. Allowed values: 'add', 'remove', 'replace', 'move', 'copy', 'test'.
+   */
+  op: 'add' | 'remove' | 'replace' | 'move' | 'copy' | 'test';
+  /**
+   * The JSON Pointer path to the property in the target document where the operation is to be applied.
+   */
+  path: string;
+  /**
+   * Should be a path, required when using move, copy
+   */
+  from?: string;
+  /**
+   * The value to apply for 'add', 'replace', or 'test' operations. Not required for 'remove', 'move', or 'copy'.
+   */
+  value?:
+    | string
+    | number
+    | boolean
+    | {
+        [key: string]: unknown;
+      }
+    | unknown[]
+    | null;
+};
+
+/**
+ * The operation type. Allowed values: 'add', 'remove', 'replace', 'move', 'copy', 'test'.
+ */
+export type op = 'add' | 'remove' | 'replace' | 'move' | 'copy' | 'test';
+
+/**
+ * The operation type. Allowed values: 'add', 'remove', 'replace', 'move', 'copy', 'test'.
+ */
+export const op = {
+  ADD: 'add',
+  REMOVE: 'remove',
+  REPLACE: 'replace',
+  MOVE: 'move',
+  COPY: 'copy',
+  TEST: 'test',
+} as const;
+
+/**
  * LLM prompt augmentaition capabilities.
  */
 export type LLMPromptAugmentationCapabilities = {
@@ -707,6 +756,16 @@ export type $type6 = 'LLMPromptAugmentationJob';
 
 export const $type6 = {
   LLMPROMPT_AUGMENTATION_JOB: 'LLMPromptAugmentationJob',
+} as const;
+
+export type NSFWLevel = 'pg' | 'pG13' | 'r' | 'x' | 'xxx';
+
+export const NSFWLevel = {
+  PG: 'pg',
+  P_G13: 'pG13',
+  R: 'r',
+  X: 'x',
+  XXX: 'xxx',
 } as const;
 
 /**
@@ -825,9 +884,21 @@ export type ResourceInfo = {
    */
   versionName?: string | null;
   /**
-   * A date time to invalidate at.
+   * The date time to invalidate at.
    */
   invalidateAt?: string | null;
+  /**
+   * A DateTime representing when early access for the resource ends.
+   */
+  earlyAccessEndsAt?: string | null;
+  /**
+   * A bool indicating if permission is required to use this resource.
+   */
+  checkPermission?: boolean;
+  /**
+   * A bool indicating if generation is enabled for this resource.
+   */
+  canGenerate?: boolean;
 };
 
 /**
@@ -911,10 +982,6 @@ export type SimilaritySearchJob = Job & {
   params: {
     [key: string]: unknown;
   };
-  /**
-   * A value representing the cost of the job.
-   */
-  cost?: number;
   $type: 'SimilaritySearchJob';
 };
 
@@ -993,6 +1060,10 @@ export type TextToImageInput = {
    * The clip skip value for image generation.
    */
   clipSkip?: number;
+  /**
+   * External metadata that will be stored with the image
+   */
+  imageMetadata?: string | null;
 };
 
 /**
@@ -1026,10 +1097,6 @@ export type TextToImageJob = Job & {
    * Get or set a list of control nets that should be applied with this textToImage job.
    */
   controlNets?: Array<ImageJobControlNet>;
-  /**
-   * A value representing the cost of the job.
-   */
-  cost?: number;
   /**
    * The duration for which this job can be claimed for.
    */
@@ -1144,9 +1211,9 @@ export type TextToImageV2Job = Job & {
    */
   controlNets?: Array<ImageJobControlNet>;
   /**
-   * A value representing the cost of the job.
+   * Get or set additional metadata that will be embedded with generated images
    */
-  cost?: number;
+  imageMetadata?: string | null;
   /**
    * The duration for which this job can be claimed for.
    */
@@ -1172,7 +1239,7 @@ export type TransactionInfo = {
   /**
    * The transaction ID.
    */
-  id: string | null;
+  id?: string | null;
 };
 
 export type TransactionSummary = {
@@ -1344,6 +1411,10 @@ export type UpdateWorkflowRequest = {
   metadata?: {
     [key: string]: unknown;
   } | null;
+  /**
+   * An optional set of new tags to set on the workflow.
+   */
+  tags?: Array<string> | null;
 };
 
 /**
@@ -1365,6 +1436,18 @@ export type UpdateWorkflowStepRequest = {
   metadata: {
     [key: string]: unknown;
   };
+};
+
+export type ValidationProblemDetails = {
+  type?: string | null;
+  title?: string | null;
+  status?: number | null;
+  detail?: string | null;
+  instance?: string | null;
+  errors?: {
+    [key: string]: Array<string>;
+  };
+  '[key: string]': (unknown | string | number) | undefined;
 };
 
 export type ValueTupleOfStringAndInt32 = {
@@ -1754,6 +1837,7 @@ export type Workflow = {
   callbacks?: Array<WorkflowCallback>;
   tips?: WorkflowTips;
   cost?: WorkflowCost;
+  nsfwLevel?: NSFWLevel;
 };
 
 /**
@@ -1936,6 +2020,10 @@ export type WorkflowStepJob = {
    */
   completedAt?: string | null;
   queuePosition?: WorkflowStepJobQueuePosition;
+  /**
+   * The job's cost.
+   */
+  cost?: number;
 };
 
 /**
@@ -2037,6 +2125,7 @@ export type WorkflowTemplate = {
   arguments?: {
     [key: string]: unknown;
   };
+  nsfwLevel?: NSFWLevel;
 };
 
 export type WorkflowTips = {
@@ -2066,6 +2155,12 @@ export type GetBlobData = {
      * The blob ID to retrieve.
      */
     blobId: string;
+  };
+  query?: {
+    /**
+     * A maximum nsfw level. If this is specified and the blob does not have a NSFW level specified or the NSFW level exceeds our max then we'll return an error
+     */
+    nsfwLevel?: NSFWLevel;
   };
 };
 
@@ -2222,7 +2317,7 @@ export type UpdateWorkerRegistrationResponse = void;
 
 export type UpdateWorkerRegistrationError = ProblemDetails;
 
-export type PathWorkerResourcesData = {
+export type PatchWorkerResourcesData = {
   /**
    * A dictionary of resource AIRs and their corresponding status for on that worker.
    */
@@ -2237,9 +2332,9 @@ export type PathWorkerResourcesData = {
   };
 };
 
-export type PathWorkerResourcesResponse = void;
+export type PatchWorkerResourcesResponse = void;
 
-export type PathWorkerResourcesError = ProblemDetails;
+export type PatchWorkerResourcesError = ProblemDetails;
 
 export type SubmitWorkflowData = {
   body?: WorkflowTemplate;
@@ -2291,7 +2386,7 @@ export type QueryWorkflowsError = ProblemDetails;
 export type GetWorkflowData = {
   path: {
     /**
-     * The id of the workflow to get status for
+     * The ID of the workflow to get status for
      */
     workflowId: string;
   };
@@ -2316,7 +2411,7 @@ export type UpdateWorkflowData = {
   body?: UpdateWorkflowRequest;
   path: {
     /**
-     * The id of the worfklow to update.
+     * The ID of the worfklow to update.
      */
     workflowId: string;
   };
@@ -2326,10 +2421,21 @@ export type UpdateWorkflowResponse = void;
 
 export type UpdateWorkflowError = ProblemDetails;
 
+export type PatchWorkflowData = {
+  body?: JsonPatchDocument;
+  path: {
+    workflowId: string;
+  };
+};
+
+export type PatchWorkflowResponse = void;
+
+export type PatchWorkflowError = ProblemDetails;
+
 export type DeleteWorkflowData = {
   path: {
     /**
-     * The id of the workflow to delete.
+     * The ID of the workflow to delete.
      */
     workflowId: string;
   };
@@ -2338,6 +2444,53 @@ export type DeleteWorkflowData = {
 export type DeleteWorkflowResponse = void;
 
 export type DeleteWorkflowError = ProblemDetails;
+
+export type AddWorkflowTagData = {
+  /**
+   * The the tag to add to the workflow.
+   */
+  body?: string;
+  path: {
+    /**
+     * The ID of the worfklow to update.
+     */
+    workflowId: string;
+  };
+};
+
+export type AddWorkflowTagResponse = void;
+
+export type AddWorkflowTagError = ValidationProblemDetails & ProblemDetails;
+
+export type RemoveAllWorkflowTagsData = {
+  path: {
+    /**
+     * The ID of the worfklow to update.
+     */
+    workflowId: string;
+  };
+};
+
+export type RemoveAllWorkflowTagsResponse = void;
+
+export type RemoveAllWorkflowTagsError = ValidationProblemDetails & ProblemDetails;
+
+export type RemoveWorkflowTagData = {
+  path: {
+    /**
+     * The the tag to remove from the workflow.
+     */
+    tag: string;
+    /**
+     * The ID of the worfklow to update.
+     */
+    workflowId: string;
+  };
+};
+
+export type RemoveWorkflowTagResponse = void;
+
+export type RemoveWorkflowTagError = ValidationProblemDetails & ProblemDetails;
 
 export type GetWorkflowStepData = {
   path: {
@@ -2376,6 +2529,18 @@ export type UpdateWorkflowStepData = {
 export type UpdateWorkflowStepResponse = void;
 
 export type UpdateWorkflowStepError = ProblemDetails;
+
+export type PatchWorkflowStepData = {
+  body?: JsonPatchDocument;
+  path: {
+    stepName: string;
+    workflowId: string;
+  };
+};
+
+export type PatchWorkflowStepResponse = void;
+
+export type PatchWorkflowStepError = ProblemDetails;
 
 export type $OpenApiTs = {
   '/v2/providers/blobs/{blobKey}': {
@@ -2677,7 +2842,7 @@ export type $OpenApiTs = {
   };
   '/v2/providers/workers/{workerId}/registration/resources': {
     patch: {
-      req: PathWorkerResourcesData;
+      req: PatchWorkerResourcesData;
       res: {
         /**
          * No Content
@@ -2773,6 +2938,23 @@ export type $OpenApiTs = {
         '404': ProblemDetails;
       };
     };
+    patch: {
+      req: PatchWorkflowData;
+      res: {
+        /**
+         * No Content
+         */
+        '204': void;
+        /**
+         * Unauthorized
+         */
+        '401': ProblemDetails;
+        /**
+         * Not Found
+         */
+        '404': ProblemDetails;
+      };
+    };
     delete: {
       req: DeleteWorkflowData;
       res: {
@@ -2780,6 +2962,73 @@ export type $OpenApiTs = {
          * No Content
          */
         '204': void;
+        /**
+         * Unauthorized
+         */
+        '401': ProblemDetails;
+        /**
+         * Not Found
+         */
+        '404': ProblemDetails;
+      };
+    };
+  };
+  '/v2/consumer/workflows/{workflowId}/tags': {
+    post: {
+      req: AddWorkflowTagData;
+      res: {
+        /**
+         * No Content
+         */
+        '204': void;
+        /**
+         * Bad Request
+         */
+        '400': ValidationProblemDetails;
+        /**
+         * Unauthorized
+         */
+        '401': ProblemDetails;
+        /**
+         * Not Found
+         */
+        '404': ProblemDetails;
+      };
+    };
+    delete: {
+      req: RemoveAllWorkflowTagsData;
+      res: {
+        /**
+         * No Content
+         */
+        '204': void;
+        /**
+         * Bad Request
+         */
+        '400': ValidationProblemDetails;
+        /**
+         * Unauthorized
+         */
+        '401': ProblemDetails;
+        /**
+         * Not Found
+         */
+        '404': ProblemDetails;
+      };
+    };
+  };
+  '/v2/consumer/workflows/{workflowId}/tags/{tag}': {
+    delete: {
+      req: RemoveWorkflowTagData;
+      res: {
+        /**
+         * No Content
+         */
+        '204': void;
+        /**
+         * Bad Request
+         */
+        '400': ValidationProblemDetails;
         /**
          * Unauthorized
          */
@@ -2820,6 +3069,23 @@ export type $OpenApiTs = {
          * Bad Request
          */
         '400': ProblemDetails;
+        /**
+         * Unauthorized
+         */
+        '401': ProblemDetails;
+        /**
+         * Not Found
+         */
+        '404': ProblemDetails;
+      };
+    };
+    patch: {
+      req: PatchWorkflowStepData;
+      res: {
+        /**
+         * No Content
+         */
+        '204': void;
         /**
          * Unauthorized
          */
