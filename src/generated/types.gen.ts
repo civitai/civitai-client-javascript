@@ -2225,6 +2225,9 @@ export type InvalidateResourceData = {
      */
     air: string;
   };
+  query?: {
+    userId?: number;
+  }
 };
 
 export type InvalidateResourceResponse = void;
