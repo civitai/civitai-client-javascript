@@ -183,7 +183,6 @@ export const $ComfyStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
     input: {
       $ref: '#/components/schemas/ComfyInput',
@@ -414,7 +413,6 @@ export const $EchoStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
     input: {
       $ref: '#/components/schemas/EchoInput',
@@ -576,7 +574,6 @@ export const $HumanoidImageMaskStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
     input: {
       $ref: '#/components/schemas/HumanoidImageMaskInput',
@@ -985,7 +982,6 @@ export const $ImageResourceTrainingStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
     input: {
       $ref: '#/components/schemas/ImageResourceTrainingInput',
@@ -1406,6 +1402,18 @@ export const $ResourceInfo = {
       type: 'boolean',
       description: 'A bool indicating if generation is enabled for this resource.',
     },
+    freeTrialLimit: {
+      type: 'integer',
+      description:
+        'An optional limit on the number of uses for this resource per user that has early acccess.',
+      format: 'int32',
+      nullable: true,
+    },
+    requiresAuthorization: {
+      type: 'boolean',
+      description: 'Wether this resource requires authorization.',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: 'Details for a specific resource.',
@@ -1759,7 +1767,6 @@ export const $TextToImageStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
     input: {
       $ref: '#/components/schemas/TextToImageInput',
@@ -2017,7 +2024,6 @@ export const $TranscodeStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
     input: {
       $ref: '#/components/schemas/TranscodeInput',
@@ -2162,7 +2168,6 @@ export const $TryOnUStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
     input: {
       $ref: '#/components/schemas/TryOnUInput',
@@ -2739,7 +2744,6 @@ export const $Workflow = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow.',
-      nullable: true,
     },
     status: {
       $ref: '#/components/schemas/WorkflowStatus',
@@ -2790,6 +2794,11 @@ export const $Workflow = {
     },
     nsfwLevel: {
       $ref: '#/components/schemas/NSFWLevel',
+    },
+    experimental: {
+      type: 'boolean',
+      description: 'Get or set whether this workflow is experimental',
+      nullable: true,
     },
   },
   additionalProperties: false,
@@ -2980,7 +2989,6 @@ export const $WorkflowStep = {
       type: 'object',
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
-      nullable: true,
     },
   },
   additionalProperties: false,
@@ -3222,6 +3230,11 @@ At most 10 tags can be assigned to a workflow. Each tag can be at most 200 chara
     },
     nsfwLevel: {
       $ref: '#/components/schemas/NSFWLevel',
+    },
+    experimental: {
+      type: 'boolean',
+      description: 'Get or set whether this workflow is experimental',
+      nullable: true,
     },
   },
   additionalProperties: false,

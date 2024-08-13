@@ -94,7 +94,7 @@ export type ComfyStep = WorkflowStep & {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   input: ComfyInput;
   output?: ComfyOutput;
   $type: 'comfy';
@@ -211,7 +211,7 @@ export type EchoStep = WorkflowStep & {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   input: EchoInput;
   output?: EchoOutput;
   $type: 'echo';
@@ -303,7 +303,7 @@ export type HumanoidImageMaskStep = WorkflowStep & {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   input: HumanoidImageMaskInput;
   output?: HumanoidImageMaskOutput;
   $type: 'humanoidImageMask';
@@ -567,7 +567,7 @@ export type ImageResourceTrainingStep = WorkflowStep & {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   input: ImageResourceTrainingInput;
   output?: ImageResourceTrainingOutput;
   $type: 'imageResourceTraining';
@@ -899,6 +899,14 @@ export type ResourceInfo = {
    * A bool indicating if generation is enabled for this resource.
    */
   canGenerate?: boolean;
+  /**
+   * An optional limit on the number of uses for this resource per user that has early acccess.
+   */
+  freeTrialLimit?: number | null;
+  /**
+   * Wether this resource requires authorization.
+   */
+  requiresAuthorization?: boolean | null;
 };
 
 /**
@@ -1169,7 +1177,7 @@ export type TextToImageStep = WorkflowStep & {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   input: TextToImageInput;
   output?: TextToImageOutput;
   $type: 'textToImage';
@@ -1318,7 +1326,7 @@ export type TranscodeStep = WorkflowStep & {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   input: TranscodeInput;
   output?: TranscodeOutput;
   $type: 'transcode';
@@ -1383,7 +1391,7 @@ export type TryOnUStep = WorkflowStep & {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   input: TryOnUInput;
   output?: TryOnUOutput;
   $type: 'tryOnU';
@@ -1807,7 +1815,7 @@ export type Workflow = {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
   status?: WorkflowStatus;
   /**
    * The date / time the workflow was started. Null if not yet started.
@@ -1838,6 +1846,10 @@ export type Workflow = {
   tips?: WorkflowTips;
   cost?: WorkflowCost;
   nsfwLevel?: NSFWLevel;
+  /**
+   * Get or set whether this workflow is experimental
+   */
+  experimental?: boolean | null;
 };
 
 /**
@@ -1983,7 +1995,7 @@ export type WorkflowStep = {
    */
   metadata?: {
     [key: string]: unknown;
-  } | null;
+  };
 };
 
 /**
@@ -2126,6 +2138,10 @@ export type WorkflowTemplate = {
     [key: string]: unknown;
   };
   nsfwLevel?: NSFWLevel;
+  /**
+   * Get or set whether this workflow is experimental
+   */
+  experimental?: boolean | null;
 };
 
 export type WorkflowTips = {
