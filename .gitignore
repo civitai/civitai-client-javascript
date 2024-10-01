@@ -54,3 +54,4 @@ typings/
 dist/
 .vercel
 
+.idea/

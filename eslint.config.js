@@ -39,15 +39,7 @@ module.exports = [
       '@typescript-eslint/no-unused-vars': ['warn', { 'ignoreRestSiblings': true }],
       '@typescript-eslint/no-namespace': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      "@typescript-eslint/ban-types": [
-        "error",
-        {
-          "extendDefaults": true,
-          "types": {
-            "{}": false
-          }
-        }
-      ],
+      '@typescript-eslint/no-empty-object-type': 'off',
       "@typescript-eslint/no-explicit-any": ["off"]
     }
   }

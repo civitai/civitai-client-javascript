@@ -1,6 +1,6 @@
 {
   "name": "@civitai/client",
-  "version": "0.1.9-beta.3",
+  "version": "0.1.9-beta.4",
   "description": "Civitai's javascript client for generating ai content",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,8 +30,8 @@
     "@hey-api/openapi-ts": "^0.47.2",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.19",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
     "dotenv": "^16.4.4",
     "eslint": "^9.1.1",
     "eslint-config-prettier": "^9.1.0",
