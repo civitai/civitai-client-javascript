@@ -1,6 +1,6 @@
 {
   "name": "@civitai/client",
-  "version": "0.1.9-beta.4",
+  "version": "0.1.9-beta.5",
   "description": "Civitai's javascript client for generating ai content",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
     "test": "jest",
     "prepublishOnly": "npm test && npm run build",
     "typecheck": "tsc --noEmit",
-    "publish": "npm publish --tag beta"
+    "publish": "npm run typecheck && npm run build && npm publish --tag beta"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.47.2",

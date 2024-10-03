@@ -764,9 +764,13 @@ export const $EcosystemElement = {
 } as const;
 
 export const $EpochResult = {
-  required: ['blobName', 'blobSize'],
+  required: ['blobName', 'blobSize', 'blobUrl'],
   type: 'object',
   properties: {
+    epochNumber: {
+      type: 'integer',
+      format: 'int32',
+    },
     blobName: {
       minLength: 1,
       type: 'string',
@@ -781,8 +785,14 @@ export const $EpochResult = {
       type: 'array',
       items: {
         type: 'string',
+        format: 'uri',
       },
       description: 'Get a list of the names of the blobs that represent sample images',
+    },
+    blobUrl: {
+      type: 'string',
+      description: 'A presigned url that points to the epoch file',
+      format: 'uri',
     },
   },
   additionalProperties: false,
@@ -1056,8 +1066,13 @@ export const $ImageJobParams = {
   description: 'Parameters for a text to image step.',
 } as const;
 
+export const $ImageResouceTrainingModerationStatus = {
+  enum: ['evaluating', 'underReview', 'approved', 'rejected'],
+  type: 'string',
+} as const;
+
 export const $ImageResourceTrainingInput = {
-  required: ['engine', 'model', 'trainingData'],
+  required: ['engine', 'model', 'trainingData', 'trainingDataImagesCount'],
   type: 'object',
   properties: {
     engine: {
@@ -1073,6 +1088,12 @@ export const $ImageResourceTrainingInput = {
       type: 'string',
       description: 'A url referring data to use in training.',
       format: 'uri',
+    },
+    trainingDataImagesCount: {
+      type: 'integer',
+      description:
+        'The number of images embedded in this training data. This is used to calculate the cost of training.',
+      format: 'int32',
     },
     loraName: {
       type: 'string',
@@ -1148,9 +1169,12 @@ lora training has this lame effect where it can't send updates while it is uploa
 } as const;
 
 export const $ImageResourceTrainingOutput = {
-  required: ['epochs', 'sampleImagesPrompts'],
+  required: ['epochs', 'moderationStatus', 'sampleImagesPrompts'],
   type: 'object',
   properties: {
+    moderationStatus: {
+      $ref: '#/components/schemas/ImageResouceTrainingModerationStatus',
+    },
     epochs: {
       type: 'array',
       items: {
@@ -1344,6 +1368,13 @@ export const $Job = {
       format: 'int32',
       default: 0,
     },
+    jobDependencies: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/JobDependency',
+      },
+      description: 'Get or set a list of dependencies that this job has',
+    },
     claimDuration: {
       type: 'string',
       description: 'The total duration that the job can be claimed',
@@ -1375,6 +1406,33 @@ export const $Job = {
       TextToImageV2Job: '#/components/schemas/TextToImageV2Job',
     },
   },
+} as const;
+
+export const $JobDependency = {
+  type: 'object',
+  properties: {
+    jobId: {
+      type: 'string',
+    },
+    onFailure: {
+      $ref: '#/components/schemas/JobDependencyContinuation',
+    },
+    onSuccess: {
+      $ref: '#/components/schemas/JobDependencyContinuation',
+    },
+    dynamicAssignments: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/DynamicAssignment',
+      },
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $JobDependencyContinuation = {
+  enum: ['fail', 'skip', 'continue'],
+  type: 'string',
 } as const;
 
 export const $JobSupport = {
@@ -1464,6 +1522,15 @@ export const $KohyaImageResourceTrainingInput = {
       format: 'int32',
       default: 8,
     },
+    trainBatchSize: {
+      maximum: 9,
+      minimum: 1,
+      type: 'integer',
+      description:
+        'Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.',
+      format: 'int32',
+      nullable: true,
+    },
     resolution: {
       maximum: 1024,
       minimum: 512,
@@ -1471,7 +1538,7 @@ export const $KohyaImageResourceTrainingInput = {
       description:
         'Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution',
       format: 'int32',
-      default: 512,
+      nullable: true,
     },
     enableBucket: {
       type: 'boolean',
@@ -1530,7 +1597,7 @@ This option does nothing if the Shuffle Tags option is off.`,
       type: 'string',
       description:
         'You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.',
-      default: 'cosine_with_restarts',
+      nullable: true,
     },
     lrSchedulerNumCycles: {
       maximum: 4,
@@ -1552,7 +1619,7 @@ stable by moving closer to or farther from the learning target.
 Min SNR gamma was introduced to compensate for that. When learning images have little noise,
 it may deviate greatly from the target, so try to suppress this jump.`,
       format: 'int32',
-      default: 5,
+      nullable: true,
     },
     networkDim: {
       maximum: 256,
@@ -1561,7 +1628,7 @@ it may deviate greatly from the target, so try to suppress this jump.`,
       description:
         'The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.',
       format: 'int32',
-      default: 32,
+      nullable: true,
     },
     networkAlpha: {
       maximum: 256,
@@ -1573,7 +1640,6 @@ meaning that the learning rate is only half as powerful as the Learning Rate set
 
 If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.`,
       format: 'int32',
-      default: 16,
       nullable: true,
     },
     noiseOffset: {
@@ -1583,13 +1649,18 @@ If Alpha and Dim are the same number, the strength used will be 1 and will have 
       description:
         'Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.',
       format: 'double',
-      default: 0.1,
       nullable: true,
     },
-    optimizerArgs: {
+    optimizerType: {
       type: 'string',
-      description:
-        'Additional arguments can be passed to control the behavior of the selected optimizer. This is set automatically.',
+      description: `The optimizer determines how to update the neural net weights during training. 
+Various methods have been proposed for smart learning, but the most commonly used in LoRA learning 
+is "AdamW8bit" or "Adafactor" for SDXL.`,
+      nullable: true,
+    },
+    targetSteps: {
+      type: 'integer',
+      format: 'int32',
       nullable: true,
     },
     engine: {
@@ -3291,11 +3362,6 @@ export const $Workflow = {
     experimental: {
       type: 'boolean',
       description: 'Get or set whether this workflow is experimental',
-      nullable: true,
-    },
-    fake: {
-      type: 'boolean',
-      description: 'Get or set whether this workflow is fake and only used to get an estimate',
       nullable: true,
     },
   },

@@ -387,6 +387,7 @@ export type EcosystemElement = {
  * An epock result.
  */
 export type EpochResult = {
+  epochNumber?: number;
   /**
    * Get the name of the generated epoch assets
    */
@@ -399,6 +400,10 @@ export type EpochResult = {
    * Get a list of the names of the blobs that represent sample images
    */
   sampleImages?: Array<string>;
+  /**
+   * A presigned url that points to the epoch file
+   */
+  blobUrl: string;
 };
 
 export type Expression = {
@@ -571,6 +576,19 @@ export type ImageJobParams = {
   clipSkip?: number;
 };
 
+export type ImageResouceTrainingModerationStatus =
+  | 'evaluating'
+  | 'underReview'
+  | 'approved'
+  | 'rejected';
+
+export const ImageResouceTrainingModerationStatus = {
+  EVALUATING: 'evaluating',
+  UNDER_REVIEW: 'underReview',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+} as const;
+
 /**
  * Input for an image resource training step.
  */
@@ -584,6 +602,10 @@ export type ImageResourceTrainingInput = {
    * A url referring data to use in training.
    */
   trainingData: string;
+  /**
+   * The number of images embedded in this training data. This is used to calculate the cost of training.
+   */
+  trainingDataImagesCount: number;
   /**
    * The desired lora name.
    */
@@ -632,6 +654,7 @@ export const $type6 = {
 } as const;
 
 export type ImageResourceTrainingOutput = {
+  moderationStatus: ImageResouceTrainingModerationStatus;
   /**
    * An array of epochs.
    */
@@ -765,6 +788,10 @@ export type Job = {
    */
   version?: number;
   /**
+   * Get or set a list of dependencies that this job has
+   */
+  jobDependencies?: Array<JobDependency>;
+  /**
    * The total duration that the job can be claimed
    */
   claimDuration?: string;
@@ -777,6 +804,21 @@ export type Job = {
    */
   recovered?: boolean;
 };
+
+export type JobDependency = {
+  jobId?: string;
+  onFailure?: JobDependencyContinuation;
+  onSuccess?: JobDependencyContinuation;
+  dynamicAssignments?: Array<DynamicAssignment>;
+};
+
+export type JobDependencyContinuation = 'fail' | 'skip' | 'continue';
+
+export const JobDependencyContinuation = {
+  FAIL: 'fail',
+  SKIP: 'skip',
+  CONTINUE: 'continue',
+} as const;
 
 /**
  * Available levels of job support.
@@ -854,9 +896,13 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
    */
   numRepeats?: number;
   /**
+   * Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.
+   */
+  trainBatchSize?: number | null;
+  /**
    * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
    */
-  resolution?: number;
+  resolution?: number | null;
   /**
    * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
    */
@@ -890,7 +936,7 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
-  lrScheduler?: string;
+  lrScheduler?: string | null;
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
@@ -903,11 +949,11 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
    * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
    * it may deviate greatly from the target, so try to suppress this jump.
    */
-  minSnrGamma?: number;
+  minSnrGamma?: number | null;
   /**
    * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
    */
-  networkDim?: number;
+  networkDim?: number | null;
   /**
    * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
    * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
@@ -921,9 +967,12 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
    */
   noiseOffset?: number | null;
   /**
-   * Additional arguments can be passed to control the behavior of the selected optimizer. This is set automatically.
+   * The optimizer determines how to update the neural net weights during training.
+   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
+   * is "AdamW8bit" or "Adafactor" for SDXL.
    */
-  optimizerArgs?: string | null;
+  optimizerType?: string | null;
+  targetSteps?: number | null;
   engine: 'kohya';
 };
 
@@ -2099,10 +2148,6 @@ export type Workflow = {
    * Get or set whether this workflow is experimental
    */
   experimental?: boolean | null;
-  /**
-   * Get or set whether this workflow is fake and only used to get an estimate
-   */
-  fake?: boolean | null;
 };
 
 /**
