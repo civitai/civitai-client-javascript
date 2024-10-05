@@ -1195,6 +1195,12 @@ export const $ImageResourceTrainingOutput = {
 Assets are deprecated and require a different retrieval mechanism`,
       nullable: true,
     },
+    eta: {
+      type: 'number',
+      description: 'Get an estimate in minutes on how long the work is expected to take',
+      format: 'double',
+      nullable: true,
+    },
   },
   additionalProperties: false,
 } as const;

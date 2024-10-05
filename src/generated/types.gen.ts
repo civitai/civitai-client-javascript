@@ -668,6 +668,10 @@ export type ImageResourceTrainingOutput = {
    * Assets are deprecated and require a different retrieval mechanism
    */
   storedAsAssets?: boolean | null;
+  /**
+   * Get an estimate in minutes on how long the work is expected to take
+   */
+  eta?: number | null;
 };
 
 /**

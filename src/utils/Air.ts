@@ -24,6 +24,13 @@ export abstract class Air {
     }
     return match.groups! as AirProps;
   }
+  static parseSafe(identifier: string) {
+    const match = identifier.match(regex);
+    return match?.groups as AirProps | undefined;
+  }
+  static isAir(identifier: string) {
+    return regex.test(identifier);
+  }
   static stringify({ ecosystem, type, source, id, version, format }: AirProps) {
     return `urn:air:${ecosystem}:${type}:${source}:${id}${version ? `@${version}` : ''}${format ? `:${format}` : ''}`;
   }
