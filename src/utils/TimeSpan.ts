@@ -41,9 +41,9 @@ export class TimeSpan {
       const str = arguments[0];
       let match: RegExpMatchArray | null;
       if ((match = str.match(timeSpanWithDays))) {
-        [days, hours, minutes, seconds, ticks] = match.splice(1, 6).map(Number);
+        [days, hours, minutes, seconds, ticks] = match.splice(1, 6).map((x) => (x ? Number(x) : 0));
       } else if ((match = str.match(timeSpanNoDays))) {
-        [hours, minutes, seconds, ticks] = match.splice(1, 4).map(Number);
+        [hours, minutes, seconds, ticks] = match.splice(1, 4).map((x) => (x ? Number(x) : 0));
       }
     } else if (arguments.length === 1) [ticks] = arguments;
     else if (arguments.length === 3) [hours, minutes, seconds] = arguments;
