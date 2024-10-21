@@ -8,7 +8,7 @@ const timeSpanWithDays = /^(\d+):(\d+):(\d+):(\d+).(\d+)?/,
   timeSpanNoDays = /^(\d+):(\d+):(\d+).(\d+)?/;
 
 function toDoubleDigitString(n: number) {
-  return n < 10 ? '0' + n : n;
+  return `${n < 10 ? '0' + n : n}`;
 }
 
 export class TimeSpan {
@@ -124,11 +124,22 @@ export class TimeSpan {
     return this.#ticks;
   }
 
-  toString = () => {
-    return (
-      [this.days, this.hours, this.minutes, this.seconds].map(toDoubleDigitString).join(':') +
-      '.' +
-      toDoubleDigitString(this.ticks)
-    );
+  toString = (include?: ('days' | 'hours' | 'minutes' | 'seconds' | 'ticks')[]) => {
+    const toInclude = include ? [...new Set([...include])] : undefined;
+    const parts1 = (toInclude ?? ['days', 'hours', 'minutes', 'seconds'])
+      .filter((x) => x !== 'ticks')
+      .map((part) => toDoubleDigitString(this[part]))
+      .join(':');
+    const parts2 = (toInclude ?? ['ticks'])
+      .filter((x) => x === 'ticks')
+      .map((part) => toDoubleDigitString(this[part]))[0];
+
+    return parts2 ? `${parts1}.${parts2}` : parts1;
+
+    // return (
+    //   [this.days, this.hours, this.minutes, this.seconds].map(toDoubleDigitString).join(':') +
+    //   '.' +
+    //   toDoubleDigitString(this.ticks)
+    // );
   };
 }

@@ -395,7 +395,7 @@ export type EpochResult = {
   /**
    * Get the total size in bytes of the asset
    */
-  blobSize: number;
+  blobSize?: number | null;
   /**
    * Get a list of the names of the blobs that represent sample images
    */
@@ -1199,7 +1199,8 @@ export type Scheduler =
   | 'undefined'
   | 'lcm'
   | 'ddpm'
-  | 'deis';
+  | 'deis'
+  | 'dpM3MSDE';
 
 /**
  * The available options for schedulers used in image generation.
@@ -1229,6 +1230,7 @@ export const Scheduler = {
   LCM: 'lcm',
   DDPM: 'ddpm',
   DEIS: 'deis',
+  DP_M3MSDE: 'dpM3MSDE',
 } as const;
 
 /**
@@ -2237,6 +2239,10 @@ export type WorkflowEvent = {
    */
   workflowId: string;
   status: WorkflowStatus;
+  /**
+   * A timestamp for when this event got raised
+   */
+  timestamp?: string;
   $type?: string | null;
 };
 

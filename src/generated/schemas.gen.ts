@@ -764,7 +764,7 @@ export const $EcosystemElement = {
 } as const;
 
 export const $EpochResult = {
-  required: ['blobName', 'blobSize', 'blobUrl'],
+  required: ['blobName', 'blobUrl'],
   type: 'object',
   properties: {
     epochNumber: {
@@ -780,6 +780,7 @@ export const $EpochResult = {
       type: 'integer',
       description: 'Get the total size in bytes of the asset',
       format: 'int64',
+      nullable: true,
     },
     sampleImages: {
       type: 'array',
@@ -1946,6 +1947,7 @@ export const $Scheduler = {
     'lcm',
     'ddpm',
     'deis',
+    'dpM3MSDE',
   ],
   type: 'string',
   description: 'The available options for schedulers used in image generation.',
@@ -3490,6 +3492,11 @@ export const $WorkflowEvent = {
     },
     status: {
       $ref: '#/components/schemas/WorkflowStatus',
+    },
+    timestamp: {
+      type: 'string',
+      description: 'A timestamp for when this event got raised',
+      format: 'date-time',
     },
     $type: {
       type: 'string',
