@@ -26,6 +26,9 @@ import type {
   GetJobsData,
   GetJobsError,
   GetJobsResponse,
+  DownloadResourceData,
+  DownloadResourceError,
+  DownloadResourceResponse,
   CreateWorkerData,
   CreateWorkerError,
   CreateWorkerResponse,
@@ -170,6 +173,13 @@ export const getJobs = (options: Options<GetJobsData>) => {
   return (options?.client ?? client).get<GetJobsResponse, GetJobsError>({
     ...options,
     url: '/v2/providers/workers/{workerId}/jobs',
+  });
+};
+
+export const downloadResource = (options: Options<DownloadResourceData>) => {
+  return (options?.client ?? client).get<DownloadResourceResponse, DownloadResourceError>({
+    ...options,
+    url: '/v2/providers/workers/{workerId}/resources/{air}',
   });
 };
 
