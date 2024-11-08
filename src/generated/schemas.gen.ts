@@ -902,6 +902,13 @@ export const $HaiperVideoGenInput = {
           format: 'uri',
           nullable: true,
         },
+        model: {
+          $ref: '#/components/schemas/HaiperVideoGenModel',
+        },
+        resolution: {
+          type: 'integer',
+          format: 'int32',
+        },
       },
       additionalProperties: false,
     },
@@ -959,6 +966,13 @@ export const $HaiperVideoGenJob = {
           format: 'uri',
           nullable: true,
         },
+        model: {
+          $ref: '#/components/schemas/HaiperVideoGenModel',
+        },
+        resolution: {
+          type: 'integer',
+          format: 'int32',
+        },
         claimDuration: {
           type: 'string',
           format: 'date-span',
@@ -978,6 +992,11 @@ export const $HaiperVideoGenJob = {
       type: 'string',
     },
   },
+} as const;
+
+export const $HaiperVideoGenModel = {
+  enum: ['v1_5', 'v2'],
+  type: 'string',
 } as const;
 
 export const $HaiperVideoGenOutput = {
@@ -1647,6 +1666,7 @@ export const $Job = {
       batchOCRSafetyClassification: '#/components/schemas/BatchOCRSafetyClassificationJob',
       gate: '#/components/schemas/GateJob',
       haiper: '#/components/schemas/HaiperVideoGenJob',
+      mochi: '#/components/schemas/MochiVideoGenJob',
     },
   },
 } as const;
@@ -2051,6 +2071,80 @@ export const $MediaTaggingJob = {
   properties: {
     $type: {
       enum: ['mediaTagging'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $MochiVideoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        seed: {
+          maximum: 2147483647,
+          minimum: -1,
+          type: 'integer',
+          format: 'int64',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['mochi'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $MochiVideoGenJob = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Job',
+    },
+    {
+      required: ['destinationUrl', 'mediaHash', 'prompt'],
+      type: 'object',
+      properties: {
+        prompt: {
+          type: 'string',
+        },
+        seed: {
+          maximum: 4294967295,
+          minimum: -1,
+          type: 'integer',
+          format: 'int64',
+        },
+        mediaHash: {
+          type: 'string',
+        },
+        destinationUrl: {
+          type: 'string',
+          format: 'uri',
+        },
+        type: {
+          type: 'string',
+          readOnly: true,
+        },
+        claimDuration: {
+          type: 'string',
+          format: 'date-span',
+          readOnly: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['mochi'],
       type: 'string',
     },
   },
@@ -3072,6 +3166,7 @@ export const $VideoGenInput = {
     propertyName: 'engine',
     mapping: {
       haiper: '#/components/schemas/HaiperVideoGenInput',
+      mochi: '#/components/schemas/MochiVideoGenInput',
     },
   },
 } as const;

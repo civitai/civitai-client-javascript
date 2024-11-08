@@ -429,6 +429,8 @@ export type HaiperVideoGenInput = VideoGenInput & {
   duration?: number;
   aspectRatio?: HaiperVideoGenAspectRatio;
   sourceImageUrl?: string | null;
+  model?: HaiperVideoGenModel;
+  resolution?: number;
 } & {
   engine: 'haiper';
 };
@@ -449,6 +451,8 @@ export type HaiperVideoGenJob = Job & {
   aspectRatio?: HaiperVideoGenAspectRatio;
   destinationUrl: string;
   sourceImageUrl?: string | null;
+  model?: HaiperVideoGenModel;
+  resolution?: number;
   readonly claimDuration?: string;
   readonly type?: string;
 } & {
@@ -459,6 +463,13 @@ export type $type6 = 'haiper';
 
 export const $type6 = {
   HAIPER: 'haiper',
+} as const;
+
+export type HaiperVideoGenModel = 'v1_5' | 'v2';
+
+export const HaiperVideoGenModel = {
+  V1_5: 'v1_5',
+  V2: 'v2',
 } as const;
 
 export type HaiperVideoGenOutput = VideoGenOutput & {
@@ -1078,6 +1089,35 @@ export const $type13 = {
   MEDIA_TAGGING: 'mediaTagging',
 } as const;
 
+export type MochiVideoGenInput = VideoGenInput & {
+  seed?: number;
+} & {
+  engine: 'mochi';
+};
+
+export type engine4 = 'mochi';
+
+export const engine4 = {
+  MOCHI: 'mochi',
+} as const;
+
+export type MochiVideoGenJob = Job & {
+  prompt: string;
+  seed?: number;
+  mediaHash: string;
+  destinationUrl: string;
+  readonly type?: string;
+  readonly claimDuration?: string;
+} & {
+  $type: 'mochi';
+};
+
+export type $type14 = 'mochi';
+
+export const $type14 = {
+  MOCHI: 'mochi',
+} as const;
+
 export type MovieRatingJob = Job & {
   mediaUrl?: string;
   model?: string | null;
@@ -1088,9 +1128,9 @@ export type MovieRatingJob = Job & {
   $type: 'movieRating';
 };
 
-export type $type14 = 'movieRating';
+export type $type15 = 'movieRating';
 
-export const $type14 = {
+export const $type15 = {
   MOVIE_RATING: 'movieRating',
 } as const;
 
@@ -1338,9 +1378,9 @@ export type SimilaritySearchJob = Job & {
   $type: 'similaritySearch';
 };
 
-export type $type15 = 'similaritySearch';
+export type $type16 = 'similaritySearch';
 
-export const $type15 = {
+export const $type16 = {
   SIMILARITY_SEARCH: 'similaritySearch',
 } as const;
 
@@ -1466,9 +1506,9 @@ export type TextToImageJob = Job & {
   $type: 'textToImage';
 };
 
-export type $type16 = 'textToImage';
+export type $type17 = 'textToImage';
 
-export const $type16 = {
+export const $type17 = {
   TEXT_TO_IMAGE: 'textToImage',
 } as const;
 
@@ -1565,9 +1605,9 @@ export type TranscodeStep = WorkflowStep & {
   $type: 'transcode';
 };
 
-export type $type17 = 'transcode';
+export type $type18 = 'transcode';
 
-export const $type17 = {
+export const $type18 = {
   TRANSCODE: 'transcode',
 } as const;
 
@@ -1605,9 +1645,9 @@ export type TryOnUJob = Job & {
   $type: 'tryOnU';
 };
 
-export type $type18 = 'tryOnU';
+export type $type19 = 'tryOnU';
 
-export const $type18 = {
+export const $type19 = {
   TRY_ON_U: 'tryOnU',
 } as const;
 
@@ -1698,9 +1738,9 @@ export type VideoGenStep = WorkflowStep & {
   $type: 'videoGen';
 };
 
-export type $type19 = 'videoGen';
+export type $type20 = 'videoGen';
 
-export const $type19 = {
+export const $type20 = {
   VIDEO_GEN: 'videoGen',
 } as const;
 
@@ -1722,9 +1762,9 @@ export type WDTaggingJob = Job & {
   $type: 'wdTagging';
 };
 
-export type $type20 = 'wdTagging';
+export type $type21 = 'wdTagging';
 
-export const $type20 = {
+export const $type21 = {
   WD_TAGGING: 'wdTagging',
 } as const;
 
