@@ -310,9 +310,12 @@ export const $BatchOCRSafetyClassificationStepTemplate = {
 } as const;
 
 export const $Blob = {
-  required: ['available', 'id'],
+  required: ['available', 'id', 'type'],
   type: 'object',
   properties: {
+    type: {
+      type: 'string',
+    },
     id: {
       type: 'string',
       description: 'Gets the id of the blob that contains this image.',
@@ -344,6 +347,12 @@ export const $Blob = {
   },
   additionalProperties: false,
   description: 'Represents a blob that gets produced as part of a specific job',
+  discriminator: {
+    propertyName: 'type',
+    mapping: {
+      video: '#/components/schemas/VideoBlob',
+    },
+  },
 } as const;
 
 export const $BuzzClientAccount = {
@@ -909,6 +918,9 @@ export const $HaiperVideoGenInput = {
           type: 'integer',
           format: 'int32',
         },
+        enablePromptEnhancer: {
+          type: 'boolean',
+        },
       },
       additionalProperties: false,
     },
@@ -972,6 +984,9 @@ export const $HaiperVideoGenJob = {
         resolution: {
           type: 'integer',
           format: 'int32',
+        },
+        enablePromptEnhancer: {
+          type: 'boolean',
         },
         claimDuration: {
           type: 'string',
@@ -2091,6 +2106,9 @@ export const $MochiVideoGenInput = {
           type: 'integer',
           format: 'int64',
         },
+        enablePromptEnhancer: {
+          type: 'boolean',
+        },
       },
       additionalProperties: false,
     },
@@ -2128,6 +2146,9 @@ export const $MochiVideoGenJob = {
         destinationUrl: {
           type: 'string',
           format: 'uri',
+        },
+        enablePromptEnhancer: {
+          type: 'boolean',
         },
         type: {
           type: 'string',
@@ -3150,6 +3171,37 @@ export const $ValueTupleOfStringAndInt32 = {
   additionalProperties: false,
 } as const;
 
+export const $VideoBlob = {
+  required: ['type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Blob',
+    },
+    {
+      type: 'object',
+      properties: {
+        width: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+        height: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    type: {
+      enum: ['video'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $VideoGenInput = {
   required: ['engine', 'prompt'],
   type: 'object',
@@ -3786,7 +3838,7 @@ export const $WorkerTryOnUCapabilities = {
 } as const;
 
 export const $WorkerType = {
-  enum: ['normal', 'deferred'],
+  enum: ['normal', 'deferred', 'test'],
   type: 'string',
   description: 'Available values for worker type.',
 } as const;

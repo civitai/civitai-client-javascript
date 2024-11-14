@@ -107,6 +107,7 @@ export type BatchOCRSafetyClassificationStepTemplate = WorkflowStepTemplate & {
  * Represents a blob that gets produced as part of a specific job
  */
 export type Blob = {
+  type: string;
   /**
    * Gets the id of the blob that contains this image.
    */
@@ -431,6 +432,7 @@ export type HaiperVideoGenInput = VideoGenInput & {
   sourceImageUrl?: string | null;
   model?: HaiperVideoGenModel;
   resolution?: number;
+  enablePromptEnhancer?: boolean;
 } & {
   engine: 'haiper';
 };
@@ -453,6 +455,7 @@ export type HaiperVideoGenJob = Job & {
   sourceImageUrl?: string | null;
   model?: HaiperVideoGenModel;
   resolution?: number;
+  enablePromptEnhancer?: boolean;
   readonly claimDuration?: string;
   readonly type?: string;
 } & {
@@ -1091,6 +1094,7 @@ export const $type13 = {
 
 export type MochiVideoGenInput = VideoGenInput & {
   seed?: number;
+  enablePromptEnhancer?: boolean;
 } & {
   engine: 'mochi';
 };
@@ -1106,6 +1110,7 @@ export type MochiVideoGenJob = Job & {
   seed?: number;
   mediaHash: string;
   destinationUrl: string;
+  enablePromptEnhancer?: boolean;
   readonly type?: string;
   readonly claimDuration?: string;
 } & {
@@ -1722,6 +1727,19 @@ export type ValueTupleOfStringAndInt32 = {
   [key: string]: unknown;
 };
 
+export type VideoBlob = Blob & {
+  width?: number | null;
+  height?: number | null;
+} & {
+  type: 'video';
+};
+
+export type type = 'video';
+
+export const type = {
+  VIDEO: 'video',
+} as const;
+
 export type VideoGenInput = {
   engine: string;
   prompt: string;
@@ -2135,7 +2153,7 @@ export type WorkerTryOnUCapabilities = {
 /**
  * Available values for worker type.
  */
-export type WorkerType = 'normal' | 'deferred';
+export type WorkerType = 'normal' | 'deferred' | 'test';
 
 /**
  * Available values for worker type.
@@ -2143,6 +2161,7 @@ export type WorkerType = 'normal' | 'deferred';
 export const WorkerType = {
   NORMAL: 'normal',
   DEFERRED: 'deferred',
+  TEST: 'test',
 } as const;
 
 /**
