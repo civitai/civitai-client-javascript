@@ -1027,6 +1027,10 @@ export const $HaiperVideoGenOutput = {
           format: 'double',
           nullable: true,
         },
+        externalTOSViolation: {
+          type: 'boolean',
+          nullable: true,
+        },
       },
       additionalProperties: false,
     },

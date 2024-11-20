@@ -477,6 +477,7 @@ export const HaiperVideoGenModel = {
 
 export type HaiperVideoGenOutput = VideoGenOutput & {
   progress?: number | null;
+  externalTOSViolation?: boolean | null;
 };
 
 export type HumanoidImageMaskCategory = 'dresses' | 'upperBody' | 'lowerBody';
