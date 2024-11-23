@@ -1940,7 +1940,7 @@ export type WorkerImageImageToImageCapabilities = {
  * Details of a worker's image resource training capabilities.
  */
 export type WorkerImageResourceTrainingCapabilities = {
-  engine?: string;
+  engines?: Array<string>;
 };
 
 /**

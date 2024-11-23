@@ -20,7 +20,7 @@ export function createCivitaiClient(config: ClientConfig) {
   });
 
   client.interceptors.response.use(async (response) => {
-    if (!response.ok && response.status === 500) {
+    if (!response.ok) {
       const error = { status: response.status, detail: response.statusText } as ProblemDetails;
       const newResponse = new Response(JSON.stringify(error), {
         status: response.status,

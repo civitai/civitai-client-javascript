@@ -2578,7 +2578,7 @@ export const $TextToImageInput = {
       default: 7.5,
     },
     width: {
-      maximum: 2048,
+      maximum: 4084,
       minimum: 64,
       type: 'integer',
       description: 'The desired image width in pixels.',
@@ -2586,7 +2586,7 @@ export const $TextToImageInput = {
       default: 512,
     },
     height: {
-      maximum: 2048,
+      maximum: 4084,
       minimum: 64,
       type: 'integer',
       description: 'The desired image height in pixels.',
@@ -3561,8 +3561,12 @@ export const $WorkerImageImageToImageCapabilities = {
 export const $WorkerImageResourceTrainingCapabilities = {
   type: 'object',
   properties: {
-    engine: {
-      type: 'string',
+    engines: {
+      uniqueItems: true,
+      type: 'array',
+      items: {
+        type: 'string',
+      },
     },
   },
   additionalProperties: false,
