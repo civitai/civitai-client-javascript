@@ -1777,6 +1777,148 @@ export const $JsonPatchOperation = {
     'Describes a single operation in a JSON Patch document. Includes the operation type, the target property path, and the value to be used.',
 } as const;
 
+export const $KlingCameraControl = {
+  type: 'object',
+  properties: {
+    config: {
+      $ref: '#/components/schemas/KlingCameraControlConfig',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $KlingCameraControlConfig = {
+  type: 'object',
+  properties: {
+    horizontal: {
+      maximum: 10,
+      minimum: -10,
+      type: 'number',
+      description:
+        "Horizontal, controls the camera's movement along the horizontal axis (translation along the x-axis).",
+      format: 'double',
+      nullable: true,
+    },
+    vertical: {
+      maximum: 10,
+      minimum: -10,
+      type: 'number',
+      description:
+        "Vertical, controls the camera's movement along the vertical axis (translation along the y-axis).",
+      format: 'double',
+      nullable: true,
+    },
+    pan: {
+      maximum: 10,
+      minimum: -10,
+      type: 'number',
+      description:
+        "Pan, controls the camera's rotation in the horizontal plane (rotation around the y-axis).",
+      format: 'double',
+      nullable: true,
+    },
+    tilt: {
+      maximum: 10,
+      minimum: -10,
+      type: 'number',
+      description:
+        "Tilt, controls the camera's rotation in the horizontal plane (rotation around the y-axis).",
+      format: 'double',
+      nullable: true,
+    },
+    roll: {
+      maximum: 10,
+      minimum: -10,
+      type: 'number',
+      description: "Roll, controls the camera's rolling amount (rotation around the z-axis).",
+      format: 'double',
+      nullable: true,
+    },
+    zoom: {
+      maximum: 10,
+      minimum: -10,
+      type: 'number',
+      description:
+        "Zoom, controls the change in the camera's focal length, affecting the proximity of the field of view.",
+      format: 'double',
+      nullable: true,
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $KlingMode = {
+  enum: ['standard', 'professional'],
+  type: 'string',
+} as const;
+
+export const $KlingModel = {
+  enum: ['v1', 'v1_5'],
+  type: 'string',
+} as const;
+
+export const $KlingVideoGenAspectRatio = {
+  enum: ['16:9', '9:16', '1:1'],
+  type: 'string',
+} as const;
+
+export const $KlingVideoGenDuration = {
+  enum: ['5', '10'],
+  type: 'string',
+} as const;
+
+export const $KlingVideoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        model: {
+          $ref: '#/components/schemas/KlingModel',
+        },
+        negativePrompt: {
+          type: 'string',
+          nullable: true,
+        },
+        cfgScale: {
+          maximum: 1,
+          minimum: 0,
+          type: 'number',
+          format: 'double',
+          default: 0.5,
+        },
+        mode: {
+          $ref: '#/components/schemas/KlingMode',
+        },
+        aspectRatio: {
+          $ref: '#/components/schemas/KlingVideoGenAspectRatio',
+        },
+        duration: {
+          $ref: '#/components/schemas/KlingVideoGenDuration',
+        },
+        cameraControl: {
+          $ref: '#/components/schemas/KlingCameraControl',
+        },
+        sourceImageUrl: {
+          type: 'string',
+          format: 'uri',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['kling'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $KohyaImageResourceTrainingInput = {
   required: ['engine'],
   allOf: [
@@ -2093,6 +2235,43 @@ export const $MediaTaggingJob = {
       type: 'string',
     },
   },
+} as const;
+
+export const $MiniMaxVideoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        model: {
+          $ref: '#/components/schemas/MiniMaxVideoGenModel',
+        },
+        enablePromptEnhancer: {
+          type: 'boolean',
+        },
+        sourceImageUrl: {
+          type: 'string',
+          format: 'uri',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['minimax'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $MiniMaxVideoGenModel = {
+  enum: ['hailou'],
+  type: 'string',
 } as const;
 
 export const $MochiVideoGenInput = {
@@ -3223,6 +3402,8 @@ export const $VideoGenInput = {
     mapping: {
       haiper: '#/components/schemas/HaiperVideoGenInput',
       mochi: '#/components/schemas/MochiVideoGenInput',
+      kling: '#/components/schemas/KlingVideoGenInput',
+      minimax: '#/components/schemas/MiniMaxVideoGenInput',
     },
   },
 } as const;
@@ -3369,6 +3550,12 @@ export const $WorkerCapabilities = {
     },
     haiper: {
       $ref: '#/components/schemas/WorkerHaiperCapabilities',
+    },
+    kling: {
+      $ref: '#/components/schemas/WorkerKlingCapabilities',
+    },
+    miniMax: {
+      $ref: '#/components/schemas/WorkerMiniMaxCapabilities',
     },
   },
   additionalProperties: false,
@@ -3624,6 +3811,11 @@ export const $WorkerImageTransformCapabilities = {
   description: "Details of a worker's image transform capabilities.",
 } as const;
 
+export const $WorkerKlingCapabilities = {
+  type: 'object',
+  additionalProperties: false,
+} as const;
+
 export const $WorkerMediaAgeClassificationCapabilities = {
   type: 'object',
   additionalProperties: false,
@@ -3698,6 +3890,11 @@ export const $WorkerMediaWDTaggingCapabilities = {
   type: 'object',
   additionalProperties: false,
   description: "Details of a worker's media WD tagging capabilities.",
+} as const;
+
+export const $WorkerMiniMaxCapabilities = {
+  type: 'object',
+  additionalProperties: false,
 } as const;
 
 export const $WorkerModelPreparationCapabilities = {
@@ -4231,6 +4428,10 @@ export const $WorkflowStepJobEvent = {
     progress: {
       type: 'number',
       format: 'double',
+      nullable: true,
+    },
+    reason: {
+      type: 'string',
       nullable: true,
     },
   },

@@ -926,6 +926,85 @@ export const op = {
   TEST: 'test',
 } as const;
 
+export type KlingCameraControl = {
+  config?: KlingCameraControlConfig;
+};
+
+export type KlingCameraControlConfig = {
+  /**
+   * Horizontal, controls the camera's movement along the horizontal axis (translation along the x-axis).
+   */
+  horizontal?: number | null;
+  /**
+   * Vertical, controls the camera's movement along the vertical axis (translation along the y-axis).
+   */
+  vertical?: number | null;
+  /**
+   * Pan, controls the camera's rotation in the horizontal plane (rotation around the y-axis).
+   */
+  pan?: number | null;
+  /**
+   * Tilt, controls the camera's rotation in the horizontal plane (rotation around the y-axis).
+   */
+  tilt?: number | null;
+  /**
+   * Roll, controls the camera's rolling amount (rotation around the z-axis).
+   */
+  roll?: number | null;
+  /**
+   * Zoom, controls the change in the camera's focal length, affecting the proximity of the field of view.
+   */
+  zoom?: number | null;
+};
+
+export type KlingMode = 'standard' | 'professional';
+
+export const KlingMode = {
+  STANDARD: 'standard',
+  PROFESSIONAL: 'professional',
+} as const;
+
+export type KlingModel = 'v1' | 'v1_5';
+
+export const KlingModel = {
+  V1: 'v1',
+  V1_5: 'v1_5',
+} as const;
+
+export type KlingVideoGenAspectRatio = '16:9' | '9:16' | '1:1';
+
+export const KlingVideoGenAspectRatio = {
+  _16_9: '16:9',
+  _9_16: '9:16',
+  _1_1: '1:1',
+} as const;
+
+export type KlingVideoGenDuration = '5' | '10';
+
+export const KlingVideoGenDuration = {
+  _5: '5',
+  _10: '10',
+} as const;
+
+export type KlingVideoGenInput = VideoGenInput & {
+  model?: KlingModel;
+  negativePrompt?: string | null;
+  cfgScale?: number;
+  mode?: KlingMode;
+  aspectRatio?: KlingVideoGenAspectRatio;
+  duration?: KlingVideoGenDuration;
+  cameraControl?: KlingCameraControl;
+  sourceImageUrl?: string | null;
+} & {
+  engine: 'kling';
+};
+
+export type engine3 = 'kling';
+
+export const engine3 = {
+  KLING: 'kling',
+} as const;
+
 export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   /**
    * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
@@ -1017,9 +1096,9 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   engine: 'kohya';
 };
 
-export type engine3 = 'kohya';
+export type engine4 = 'kohya';
 
-export const engine3 = {
+export const engine4 = {
   KOHYA: 'kohya',
 } as const;
 
@@ -1093,6 +1172,26 @@ export const $type13 = {
   MEDIA_TAGGING: 'mediaTagging',
 } as const;
 
+export type MiniMaxVideoGenInput = VideoGenInput & {
+  model?: MiniMaxVideoGenModel;
+  enablePromptEnhancer?: boolean;
+  sourceImageUrl?: string | null;
+} & {
+  engine: 'minimax';
+};
+
+export type engine5 = 'minimax';
+
+export const engine5 = {
+  MINIMAX: 'minimax',
+} as const;
+
+export type MiniMaxVideoGenModel = 'hailou';
+
+export const MiniMaxVideoGenModel = {
+  HAILOU: 'hailou',
+} as const;
+
 export type MochiVideoGenInput = VideoGenInput & {
   seed?: number;
   enablePromptEnhancer?: boolean;
@@ -1100,9 +1199,9 @@ export type MochiVideoGenInput = VideoGenInput & {
   engine: 'mochi';
 };
 
-export type engine4 = 'mochi';
+export type engine6 = 'mochi';
 
-export const engine4 = {
+export const engine6 = {
   MOCHI: 'mochi',
 } as const;
 
@@ -1800,6 +1899,8 @@ export type WorkerCapabilities = {
   humanoidImageMask?: WorkerHumanoidImageMaskCapabilities;
   tryOnU?: WorkerTryOnUCapabilities;
   haiper?: WorkerHaiperCapabilities;
+  kling?: WorkerKlingCapabilities;
+  miniMax?: WorkerMiniMaxCapabilities;
 };
 
 /**
@@ -1975,6 +2076,10 @@ export type WorkerImageTransformCapabilities = {
   transformers?: Array<ImageTransformer>;
 };
 
+export type WorkerKlingCapabilities = {
+  [key: string]: unknown;
+};
+
 export type WorkerMediaAgeClassificationCapabilities = {
   [key: string]: unknown;
 };
@@ -2030,6 +2135,10 @@ export type WorkerMediaTranscodeCapabilities = {
  * Details of a worker's media WD tagging capabilities.
  */
 export type WorkerMediaWDTaggingCapabilities = {
+  [key: string]: unknown;
+};
+
+export type WorkerMiniMaxCapabilities = {
   [key: string]: unknown;
 };
 
@@ -2435,6 +2544,7 @@ export type WorkflowStepJobEvent = {
   status: WorkflowStatus;
   $type?: string;
   progress?: number | null;
+  reason?: string | null;
 };
 
 /**
