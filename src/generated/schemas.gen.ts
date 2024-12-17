@@ -580,6 +580,192 @@ export const $ComfyStepTemplate = {
   },
 } as const;
 
+export const $ComfyVideoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        model: {
+          pattern:
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+          type: 'string',
+          default: 'urn:air:ltxv:checkpoint:civitai:982559@1100593',
+        },
+        negativePrompt: {
+          type: 'string',
+          nullable: true,
+        },
+        sampler: {
+          enum: [
+            'euler',
+            'euler_cfg_pp',
+            'euler_ancestral',
+            'euler_ancestral_cfg_pp',
+            'heun',
+            'heunpp2',
+            'dpm_2',
+            'dpm_2_ancestral',
+            'lms',
+            'dpm_fast',
+            'dpm_adaptive',
+            'dpmpp_2s_ancestral',
+            'dpmpp_2s_ancestral_cfg_pp',
+            'dpmpp_sde',
+            'dpmpp_sde_gpu',
+            'dpmpp_2m',
+            'dpmpp_2m_cfg_pp',
+            'dpmpp_2m_sde',
+            'dpmpp_2m_sde_gpu',
+            'dpmpp_3m_sde',
+            'dpmpp_3m_sde_gpu',
+            'ddpm',
+            'lcm',
+            'ipndm',
+            'ipndm_v',
+            'deis',
+          ],
+          type: 'string',
+          default: 'euler_ancestral',
+        },
+        cfgScale: {
+          maximum: 100,
+          minimum: 0,
+          type: 'number',
+          format: 'double',
+          default: 4,
+        },
+        width: {
+          maximum: 1280,
+          minimum: 64,
+          type: 'integer',
+          format: 'int32',
+          default: 720,
+        },
+        height: {
+          maximum: 720,
+          minimum: 64,
+          type: 'integer',
+          format: 'int32',
+          default: 720,
+        },
+        frameRate: {
+          type: 'integer',
+          format: 'int32',
+          default: 25,
+        },
+        duration: {
+          maximum: 30,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+          default: 5,
+        },
+        seed: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+        steps: {
+          maximum: 50,
+          minimum: 10,
+          type: 'integer',
+          format: 'int32',
+          default: 20,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['comfy'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $ComfyVideoGenJob = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Job',
+    },
+    {
+      required: ['destinationUrl', 'model', 'prompt'],
+      type: 'object',
+      properties: {
+        model: {
+          pattern:
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+          type: 'string',
+        },
+        prompt: {
+          type: 'string',
+        },
+        negativePrompt: {
+          type: 'string',
+          nullable: true,
+        },
+        cfgScale: {
+          type: 'number',
+          format: 'double',
+        },
+        destinationUrl: {
+          type: 'string',
+          format: 'uri',
+        },
+        sampler: {
+          type: 'string',
+        },
+        width: {
+          type: 'integer',
+          format: 'int32',
+        },
+        height: {
+          type: 'integer',
+          format: 'int32',
+        },
+        frameRate: {
+          type: 'integer',
+          format: 'int32',
+        },
+        length: {
+          type: 'integer',
+          format: 'int32',
+        },
+        seed: {
+          type: 'integer',
+          format: 'int64',
+        },
+        steps: {
+          type: 'integer',
+          format: 'int32',
+        },
+        claimDuration: {
+          type: 'string',
+          format: 'date-span',
+          readOnly: true,
+        },
+        type: {
+          type: 'string',
+          readOnly: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['comfyVideoGen'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $ConfigurationOptions = {
   required: ['selector', 'spec'],
   type: 'object',
@@ -900,26 +1086,26 @@ export const $HaiperVideoGenInput = {
           format: 'int64',
         },
         duration: {
+          enum: [2, 4, 8],
           type: 'integer',
           format: 'int32',
         },
         aspectRatio: {
           $ref: '#/components/schemas/HaiperVideoGenAspectRatio',
         },
-        sourceImageUrl: {
-          type: 'string',
-          format: 'uri',
-          nullable: true,
-        },
         model: {
           $ref: '#/components/schemas/HaiperVideoGenModel',
         },
         resolution: {
+          enum: [720, 1080, 2160],
           type: 'integer',
           format: 'int32',
         },
         enablePromptEnhancer: {
           type: 'boolean',
+        },
+        sourceImage: {
+          $ref: '#/components/schemas/SourceImage',
         },
       },
       additionalProperties: false,
@@ -963,6 +1149,7 @@ export const $HaiperVideoGenJob = {
           format: 'int64',
         },
         duration: {
+          enum: [2, 4, 8],
           type: 'integer',
           format: 'int32',
         },
@@ -1029,6 +1216,10 @@ export const $HaiperVideoGenOutput = {
         },
         externalTOSViolation: {
           type: 'boolean',
+          nullable: true,
+        },
+        message: {
+          type: 'string',
           nullable: true,
         },
       },
@@ -1686,6 +1877,7 @@ export const $Job = {
       gate: '#/components/schemas/GateJob',
       haiper: '#/components/schemas/HaiperVideoGenJob',
       mochi: '#/components/schemas/MochiVideoGenJob',
+      comfyVideoGen: '#/components/schemas/ComfyVideoGenJob',
     },
   },
 } as const;
@@ -1907,6 +2099,9 @@ export const $KlingVideoGenInput = {
           format: 'uri',
           nullable: true,
         },
+        sourceImage: {
+          $ref: '#/components/schemas/SourceImage',
+        },
       },
       additionalProperties: false,
     },
@@ -2018,6 +2213,7 @@ This option does nothing if the Shuffle Tags option is off.`,
           default: 0.00005,
         },
         lrScheduler: {
+          enum: ['constant', 'cosine', 'cosine_with_restarts', 'cosine_with_restarts', 'linear'],
           type: 'string',
           description:
             'You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.',
@@ -2154,6 +2350,73 @@ export const $LLMPromptAugmentationJob = {
   },
 } as const;
 
+export const $LightricksAspectRatio = {
+  enum: ['square', 'landscape', 'portrait'],
+  type: 'string',
+} as const;
+
+export const $LightricksVideoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        negativePrompt: {
+          type: 'string',
+          nullable: true,
+        },
+        cfgScale: {
+          maximum: 100,
+          minimum: 0,
+          type: 'number',
+          format: 'double',
+          default: 4,
+        },
+        aspectRatio: {
+          $ref: '#/components/schemas/LightricksAspectRatio',
+        },
+        frameRate: {
+          type: 'integer',
+          format: 'int32',
+          default: 25,
+        },
+        duration: {
+          maximum: 30,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+          default: 5,
+        },
+        seed: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+        steps: {
+          maximum: 50,
+          minimum: 10,
+          type: 'integer',
+          format: 'int32',
+          default: 20,
+        },
+        resolution: {
+          $ref: '#/components/schemas/ValueTupleOfInt32AndInt32',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['lightricks'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $MediaCaptioningJob = {
   required: ['$type'],
   allOf: [
@@ -2237,6 +2500,23 @@ export const $MediaTaggingJob = {
   },
 } as const;
 
+export const $MemoryOfByte = {
+  type: 'object',
+  properties: {
+    length: {
+      type: 'integer',
+      format: 'int32',
+    },
+    isEmpty: {
+      type: 'boolean',
+    },
+    span: {
+      $ref: '#/components/schemas/SpanOfByte',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
 export const $MiniMaxVideoGenInput = {
   required: ['engine'],
   allOf: [
@@ -2252,10 +2532,8 @@ export const $MiniMaxVideoGenInput = {
         enablePromptEnhancer: {
           type: 'boolean',
         },
-        sourceImageUrl: {
-          type: 'string',
-          format: 'uri',
-          nullable: true,
+        sourceImage: {
+          $ref: '#/components/schemas/SourceImage',
         },
       },
       additionalProperties: false,
@@ -2672,6 +2950,30 @@ export const $SimilaritySearchJob = {
     },
   },
   description: 'Details for a similarity search job.',
+} as const;
+
+export const $SourceImage = {
+  type: 'object',
+  properties: {
+    buffer: {
+      $ref: '#/components/schemas/MemoryOfByte',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $SpanOfByte = {
+  type: 'object',
+  properties: {
+    length: {
+      type: 'integer',
+      format: 'int32',
+    },
+    isEmpty: {
+      type: 'boolean',
+    },
+  },
+  additionalProperties: false,
 } as const;
 
 export const $Subscription = {
@@ -3349,6 +3651,11 @@ export const $ValidationProblemDetails = {
   additionalProperties: {},
 } as const;
 
+export const $ValueTupleOfInt32AndInt32 = {
+  type: 'object',
+  additionalProperties: false,
+} as const;
+
 export const $ValueTupleOfStringAndInt32 = {
   type: 'object',
   additionalProperties: false,
@@ -3404,6 +3711,8 @@ export const $VideoGenInput = {
       mochi: '#/components/schemas/MochiVideoGenInput',
       kling: '#/components/schemas/KlingVideoGenInput',
       minimax: '#/components/schemas/MiniMaxVideoGenInput',
+      comfy: '#/components/schemas/ComfyVideoGenInput',
+      lightricks: '#/components/schemas/LightricksVideoGenInput',
     },
   },
 } as const;

@@ -228,6 +228,135 @@ export type ComfyStepTemplate = WorkflowStepTemplate & {
   $type: 'comfy';
 };
 
+export type ComfyVideoGenInput = VideoGenInput & {
+  model?: string;
+  negativePrompt?: string | null;
+  sampler?:
+    | 'euler'
+    | 'euler_cfg_pp'
+    | 'euler_ancestral'
+    | 'euler_ancestral_cfg_pp'
+    | 'heun'
+    | 'heunpp2'
+    | 'dpm_2'
+    | 'dpm_2_ancestral'
+    | 'lms'
+    | 'dpm_fast'
+    | 'dpm_adaptive'
+    | 'dpmpp_2s_ancestral'
+    | 'dpmpp_2s_ancestral_cfg_pp'
+    | 'dpmpp_sde'
+    | 'dpmpp_sde_gpu'
+    | 'dpmpp_2m'
+    | 'dpmpp_2m_cfg_pp'
+    | 'dpmpp_2m_sde'
+    | 'dpmpp_2m_sde_gpu'
+    | 'dpmpp_3m_sde'
+    | 'dpmpp_3m_sde_gpu'
+    | 'ddpm'
+    | 'lcm'
+    | 'ipndm'
+    | 'ipndm_v'
+    | 'deis';
+  cfgScale?: number;
+  width?: number;
+  height?: number;
+  frameRate?: number;
+  duration?: number;
+  seed?: number | null;
+  steps?: number;
+} & {
+  engine: 'comfy';
+};
+
+export type sampler =
+  | 'euler'
+  | 'euler_cfg_pp'
+  | 'euler_ancestral'
+  | 'euler_ancestral_cfg_pp'
+  | 'heun'
+  | 'heunpp2'
+  | 'dpm_2'
+  | 'dpm_2_ancestral'
+  | 'lms'
+  | 'dpm_fast'
+  | 'dpm_adaptive'
+  | 'dpmpp_2s_ancestral'
+  | 'dpmpp_2s_ancestral_cfg_pp'
+  | 'dpmpp_sde'
+  | 'dpmpp_sde_gpu'
+  | 'dpmpp_2m'
+  | 'dpmpp_2m_cfg_pp'
+  | 'dpmpp_2m_sde'
+  | 'dpmpp_2m_sde_gpu'
+  | 'dpmpp_3m_sde'
+  | 'dpmpp_3m_sde_gpu'
+  | 'ddpm'
+  | 'lcm'
+  | 'ipndm'
+  | 'ipndm_v'
+  | 'deis';
+
+export const sampler = {
+  EULER: 'euler',
+  EULER_CFG_PP: 'euler_cfg_pp',
+  EULER_ANCESTRAL: 'euler_ancestral',
+  EULER_ANCESTRAL_CFG_PP: 'euler_ancestral_cfg_pp',
+  HEUN: 'heun',
+  HEUNPP2: 'heunpp2',
+  DPM_2: 'dpm_2',
+  DPM_2_ANCESTRAL: 'dpm_2_ancestral',
+  LMS: 'lms',
+  DPM_FAST: 'dpm_fast',
+  DPM_ADAPTIVE: 'dpm_adaptive',
+  DPMPP_2S_ANCESTRAL: 'dpmpp_2s_ancestral',
+  DPMPP_2S_ANCESTRAL_CFG_PP: 'dpmpp_2s_ancestral_cfg_pp',
+  DPMPP_SDE: 'dpmpp_sde',
+  DPMPP_SDE_GPU: 'dpmpp_sde_gpu',
+  DPMPP_2M: 'dpmpp_2m',
+  DPMPP_2M_CFG_PP: 'dpmpp_2m_cfg_pp',
+  DPMPP_2M_SDE: 'dpmpp_2m_sde',
+  DPMPP_2M_SDE_GPU: 'dpmpp_2m_sde_gpu',
+  DPMPP_3M_SDE: 'dpmpp_3m_sde',
+  DPMPP_3M_SDE_GPU: 'dpmpp_3m_sde_gpu',
+  DDPM: 'ddpm',
+  LCM: 'lcm',
+  IPNDM: 'ipndm',
+  IPNDM_V: 'ipndm_v',
+  DEIS: 'deis',
+} as const;
+
+export type engine = 'comfy';
+
+export const engine = {
+  COMFY: 'comfy',
+} as const;
+
+export type ComfyVideoGenJob = Job & {
+  model: string;
+  prompt: string;
+  negativePrompt?: string | null;
+  cfgScale?: number;
+  destinationUrl: string;
+  sampler?: string;
+  width?: number;
+  height?: number;
+  frameRate?: number;
+  length?: number;
+  seed?: number;
+  steps?: number;
+  readonly claimDuration?: string;
+  readonly type?: string;
+} & {
+  $type: 'comfyVideoGen';
+};
+
+export type $type4 = 'comfyVideoGen';
+
+export const $type4 = {
+  COMFY_VIDEO_GEN: 'comfyVideoGen',
+} as const;
+
 export type ConfigurationOptions = {
   /**
    * Get or set the priority of this configuration if multiple configurations apply to the same worker
@@ -310,9 +439,9 @@ export type EchoStep = WorkflowStep & {
   $type: 'echo';
 };
 
-export type $type4 = 'echo';
+export type $type5 = 'echo';
 
-export const $type4 = {
+export const $type5 = {
   ECHO: 'echo',
 } as const;
 
@@ -376,9 +505,9 @@ export type FluxDevFastImageResourceTrainingInput = ImageResourceTrainingInput &
   engine: 'flux-dev-fast';
 };
 
-export type engine = 'flux-dev-fast';
+export type engine2 = 'flux-dev-fast';
 
-export const engine = {
+export const engine2 = {
   FLUX_DEV_FAST: 'flux-dev-fast',
 } as const;
 
@@ -388,9 +517,9 @@ export type GateJob = Job & {
   $type: 'gate';
 };
 
-export type $type5 = 'gate';
+export type $type6 = 'gate';
 
-export const $type5 = {
+export const $type6 = {
   GATE: 'gate',
 } as const;
 
@@ -427,19 +556,35 @@ export type HaiperVideoGenInput = VideoGenInput & {
   negativePrompt?: string | null;
   cameraMovement?: HaiperVideoGenCameraMovement;
   seed?: number;
-  duration?: number;
+  duration?: 2 | 4 | 8;
   aspectRatio?: HaiperVideoGenAspectRatio;
-  sourceImageUrl?: string | null;
   model?: HaiperVideoGenModel;
-  resolution?: number;
+  resolution?: 720 | 1080 | 2160;
   enablePromptEnhancer?: boolean;
+  sourceImage?: SourceImage;
 } & {
   engine: 'haiper';
 };
 
-export type engine2 = 'haiper';
+export type duration = 2 | 4 | 8;
 
-export const engine2 = {
+export const duration = {
+  _2: 2,
+  _4: 4,
+  _8: 8,
+} as const;
+
+export type resolution = 720 | 1080 | 2160;
+
+export const resolution = {
+  _720: 720,
+  _1080: 1080,
+  _2160: 2160,
+} as const;
+
+export type engine3 = 'haiper';
+
+export const engine3 = {
   HAIPER: 'haiper',
 } as const;
 
@@ -449,7 +594,7 @@ export type HaiperVideoGenJob = Job & {
   negativePrompt?: string | null;
   cameraMovement?: HaiperVideoGenCameraMovement;
   seed?: number;
-  duration?: number;
+  duration?: 2 | 4 | 8;
   aspectRatio?: HaiperVideoGenAspectRatio;
   destinationUrl: string;
   sourceImageUrl?: string | null;
@@ -462,9 +607,9 @@ export type HaiperVideoGenJob = Job & {
   $type: 'haiper';
 };
 
-export type $type6 = 'haiper';
+export type $type7 = 'haiper';
 
-export const $type6 = {
+export const $type7 = {
   HAIPER: 'haiper',
 } as const;
 
@@ -478,6 +623,7 @@ export const HaiperVideoGenModel = {
 export type HaiperVideoGenOutput = VideoGenOutput & {
   progress?: number | null;
   externalTOSViolation?: boolean | null;
+  message?: string | null;
 };
 
 export type HumanoidImageMaskCategory = 'dresses' | 'upperBody' | 'lowerBody';
@@ -503,9 +649,9 @@ export type HumanoidImageMaskJob = Job & {
   $type: 'humanoidImageMask';
 };
 
-export type $type7 = 'humanoidImageMask';
+export type $type8 = 'humanoidImageMask';
 
-export const $type7 = {
+export const $type8 = {
   HUMANOID_IMAGE_MASK: 'humanoidImageMask',
 } as const;
 
@@ -533,9 +679,9 @@ export type ImageEmbeddingJob = Job & {
   $type: 'imageEmbedding';
 };
 
-export type $type8 = 'imageEmbedding';
+export type $type9 = 'imageEmbedding';
 
-export const $type8 = {
+export const $type9 = {
   IMAGE_EMBEDDING: 'imageEmbedding',
 } as const;
 
@@ -688,9 +834,9 @@ export type ImageResourceTrainingJob = Job & {
   $type: 'imageResourceTraining';
 };
 
-export type $type9 = 'imageResourceTraining';
+export type $type10 = 'imageResourceTraining';
 
-export const $type9 = {
+export const $type10 = {
   IMAGE_RESOURCE_TRAINING: 'imageResourceTraining',
 } as const;
 
@@ -756,9 +902,9 @@ export type ImageTransformJob = Job & {
   $type: 'imageTransform';
 };
 
-export type $type10 = 'imageTransform';
+export type $type11 = 'imageTransform';
 
-export const $type10 = {
+export const $type11 = {
   IMAGE_TRANSFORM: 'imageTransform',
 } as const;
 
@@ -995,13 +1141,14 @@ export type KlingVideoGenInput = VideoGenInput & {
   duration?: KlingVideoGenDuration;
   cameraControl?: KlingCameraControl;
   sourceImageUrl?: string | null;
+  sourceImage?: SourceImage;
 } & {
   engine: 'kling';
 };
 
-export type engine3 = 'kling';
+export type engine4 = 'kling';
 
-export const engine3 = {
+export const engine4 = {
   KLING: 'kling',
 } as const;
 
@@ -1055,7 +1202,7 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
-  lrScheduler?: string | null;
+  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear' | null;
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
@@ -1096,9 +1243,24 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   engine: 'kohya';
 };
 
-export type engine4 = 'kohya';
+/**
+ * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+ */
+export type lrScheduler = 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear';
 
-export const engine4 = {
+/**
+ * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+ */
+export const lrScheduler = {
+  CONSTANT: 'constant',
+  COSINE: 'cosine',
+  COSINE_WITH_RESTARTS: 'cosine_with_restarts',
+  LINEAR: 'linear',
+} as const;
+
+export type engine5 = 'kohya';
+
+export const engine5 = {
   KOHYA: 'kohya',
 } as const;
 
@@ -1134,10 +1296,37 @@ export type LLMPromptAugmentationJob = Job & {
   $type: 'llmPromptAugmentation';
 };
 
-export type $type11 = 'llmPromptAugmentation';
+export type $type12 = 'llmPromptAugmentation';
 
-export const $type11 = {
+export const $type12 = {
   LLM_PROMPT_AUGMENTATION: 'llmPromptAugmentation',
+} as const;
+
+export type LightricksAspectRatio = 'square' | 'landscape' | 'portrait';
+
+export const LightricksAspectRatio = {
+  SQUARE: 'square',
+  LANDSCAPE: 'landscape',
+  PORTRAIT: 'portrait',
+} as const;
+
+export type LightricksVideoGenInput = VideoGenInput & {
+  negativePrompt?: string | null;
+  cfgScale?: number;
+  aspectRatio?: LightricksAspectRatio;
+  frameRate?: number;
+  duration?: number;
+  seed?: number | null;
+  steps?: number;
+  resolution?: ValueTupleOfInt32AndInt32;
+} & {
+  engine: 'lightricks';
+};
+
+export type engine6 = 'lightricks';
+
+export const engine6 = {
+  LIGHTRICKS: 'lightricks',
 } as const;
 
 export type MediaCaptioningJob = Job & {
@@ -1152,9 +1341,9 @@ export type MediaCaptioningJob = Job & {
   $type: 'mediaCaptioning';
 };
 
-export type $type12 = 'mediaCaptioning';
+export type $type13 = 'mediaCaptioning';
 
-export const $type12 = {
+export const $type13 = {
   MEDIA_CAPTIONING: 'mediaCaptioning',
 } as const;
 
@@ -1166,23 +1355,29 @@ export type MediaTaggingJob = Job & {
   $type: 'mediaTagging';
 };
 
-export type $type13 = 'mediaTagging';
+export type $type14 = 'mediaTagging';
 
-export const $type13 = {
+export const $type14 = {
   MEDIA_TAGGING: 'mediaTagging',
 } as const;
+
+export type MemoryOfByte = {
+  length?: number;
+  isEmpty?: boolean;
+  span?: SpanOfByte;
+};
 
 export type MiniMaxVideoGenInput = VideoGenInput & {
   model?: MiniMaxVideoGenModel;
   enablePromptEnhancer?: boolean;
-  sourceImageUrl?: string | null;
+  sourceImage?: SourceImage;
 } & {
   engine: 'minimax';
 };
 
-export type engine5 = 'minimax';
+export type engine7 = 'minimax';
 
-export const engine5 = {
+export const engine7 = {
   MINIMAX: 'minimax',
 } as const;
 
@@ -1199,9 +1394,9 @@ export type MochiVideoGenInput = VideoGenInput & {
   engine: 'mochi';
 };
 
-export type engine6 = 'mochi';
+export type engine8 = 'mochi';
 
-export const engine6 = {
+export const engine8 = {
   MOCHI: 'mochi',
 } as const;
 
@@ -1217,9 +1412,9 @@ export type MochiVideoGenJob = Job & {
   $type: 'mochi';
 };
 
-export type $type14 = 'mochi';
+export type $type15 = 'mochi';
 
-export const $type14 = {
+export const $type15 = {
   MOCHI: 'mochi',
 } as const;
 
@@ -1233,9 +1428,9 @@ export type MovieRatingJob = Job & {
   $type: 'movieRating';
 };
 
-export type $type15 = 'movieRating';
+export type $type16 = 'movieRating';
 
-export const $type15 = {
+export const $type16 = {
   MOVIE_RATING: 'movieRating',
 } as const;
 
@@ -1483,11 +1678,20 @@ export type SimilaritySearchJob = Job & {
   $type: 'similaritySearch';
 };
 
-export type $type16 = 'similaritySearch';
+export type $type17 = 'similaritySearch';
 
-export const $type16 = {
+export const $type17 = {
   SIMILARITY_SEARCH: 'similaritySearch',
 } as const;
+
+export type SourceImage = {
+  buffer?: MemoryOfByte;
+};
+
+export type SpanOfByte = {
+  length?: number;
+  isEmpty?: boolean;
+};
 
 /**
  * A subscription for pushed based notifications.
@@ -1611,9 +1815,9 @@ export type TextToImageJob = Job & {
   $type: 'textToImage';
 };
 
-export type $type17 = 'textToImage';
+export type $type18 = 'textToImage';
 
-export const $type17 = {
+export const $type18 = {
   TEXT_TO_IMAGE: 'textToImage',
 } as const;
 
@@ -1710,9 +1914,9 @@ export type TranscodeStep = WorkflowStep & {
   $type: 'transcode';
 };
 
-export type $type18 = 'transcode';
+export type $type19 = 'transcode';
 
-export const $type18 = {
+export const $type19 = {
   TRANSCODE: 'transcode',
 } as const;
 
@@ -1750,9 +1954,9 @@ export type TryOnUJob = Job & {
   $type: 'tryOnU';
 };
 
-export type $type19 = 'tryOnU';
+export type $type20 = 'tryOnU';
 
-export const $type19 = {
+export const $type20 = {
   TRY_ON_U: 'tryOnU',
 } as const;
 
@@ -1823,6 +2027,10 @@ export type ValidationProblemDetails = {
   '[key: string]': (unknown | string | number) | undefined;
 };
 
+export type ValueTupleOfInt32AndInt32 = {
+  [key: string]: unknown;
+};
+
 export type ValueTupleOfStringAndInt32 = {
   [key: string]: unknown;
 };
@@ -1856,9 +2064,9 @@ export type VideoGenStep = WorkflowStep & {
   $type: 'videoGen';
 };
 
-export type $type20 = 'videoGen';
+export type $type21 = 'videoGen';
 
-export const $type20 = {
+export const $type21 = {
   VIDEO_GEN: 'videoGen',
 } as const;
 
@@ -1880,9 +2088,9 @@ export type WDTaggingJob = Job & {
   $type: 'wdTagging';
 };
 
-export type $type21 = 'wdTagging';
+export type $type22 = 'wdTagging';
 
-export const $type21 = {
+export const $type22 = {
   WD_TAGGING: 'wdTagging',
 } as const;
 
