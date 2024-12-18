@@ -41,21 +41,21 @@ module.exports = [
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       "@typescript-eslint/no-explicit-any": ["off"],
-      '@typescript-eslint/ban-types': ["error",
-        {
-            "types": {
-                "String": false,
-                "Boolean": false,
-                "Number": false,
-                "Symbol": false,
-                "{}": false,
-                "Object": false,
-                "object": false,
-                "Function": false,
-            },
-            "extendDefaults": true
-        }
-      ]
+      // '@typescript-eslint/ban-types': ["error",
+      //   {
+      //       "types": {
+      //           "String": false,
+      //           "Boolean": false,
+      //           "Number": false,
+      //           "Symbol": false,
+      //           "{}": false,
+      //           "Object": false,
+      //           "object": false,
+      //           "Function": false,
+      //       },
+      //       "extendDefaults": true
+      //   }
+      // ]
     }
   }
 ]
