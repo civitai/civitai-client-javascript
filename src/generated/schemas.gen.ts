@@ -14,62 +14,12 @@ export const $AgeClassificationInput = {
     },
     mediaUrl: {
       type: 'string',
-      description: 'The URL of the media to classify',
+      description:
+        'The URL of the media to classify. This can either be a URL to an image or a video or a ZIP containing multiple images',
       format: 'uri',
     },
   },
   additionalProperties: false,
-} as const;
-
-export const $AgeClassificationJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationBlobKey', 'destinationUrl', 'failOnMinorDetected', 'mediaUrl'],
-      type: 'object',
-      properties: {
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          nullable: true,
-        },
-        mediaUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        destinationBlobKey: {
-          type: 'string',
-        },
-        destinationUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        failOnMinorDetected: {
-          type: 'boolean',
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['ageClassification'],
-      type: 'string',
-    },
-  },
 } as const;
 
 export const $AgeClassificationOutput = {
@@ -126,6 +76,7 @@ export const $AgeClassificationStep = {
       type: 'string',
     },
   },
+  description: 'Age classification',
 } as const;
 
 export const $AgeClassificationStepTemplate = {
@@ -151,6 +102,7 @@ export const $AgeClassificationStepTemplate = {
       type: 'string',
     },
   },
+  description: 'Age classification',
 } as const;
 
 export const $AgeClassifierLabel = {
@@ -189,40 +141,6 @@ export const $BatchOCRSafetyClassificationInput = {
   additionalProperties: false,
 } as const;
 
-export const $BatchOCRSafetyClassificationJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['mediaUrls'],
-      type: 'object',
-      properties: {
-        mediaUrls: {
-          uniqueItems: true,
-          type: 'array',
-          items: {
-            type: 'string',
-            format: 'uri',
-          },
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['batchOCRSafetyClassification'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $BatchOCRSafetyClassificationOutput = {
   required: ['results'],
   type: 'object',
@@ -254,59 +172,6 @@ export const $BatchOCRSafetyClassificationResult = {
     },
   },
   additionalProperties: false,
-} as const;
-
-export const $BatchOCRSafetyClassificationStep = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/WorkflowStep',
-    },
-    {
-      required: ['input'],
-      type: 'object',
-      properties: {
-        input: {
-          $ref: '#/components/schemas/BatchOCRSafetyClassificationInput',
-        },
-        output: {
-          $ref: '#/components/schemas/BatchOCRSafetyClassificationOutput',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['batchOCRSafetyClassification'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $BatchOCRSafetyClassificationStepTemplate = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/WorkflowStepTemplate',
-    },
-    {
-      required: ['input'],
-      type: 'object',
-      properties: {
-        input: {
-          $ref: '#/components/schemas/BatchOCRSafetyClassificationInput',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['batchOCRSafetyClassification'],
-      type: 'string',
-    },
-  },
 } as const;
 
 export const $Blob = {
@@ -388,84 +253,6 @@ export const $ComfyInput = {
   additionalProperties: false,
 } as const;
 
-export const $ComfyJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['params', 'slots'],
-      type: 'object',
-      properties: {
-        params: {
-          type: 'object',
-          additionalProperties: {
-            $ref: '#/components/schemas/ComfyNode',
-          },
-          description: 'A untyped set of parameters that are associated with this job',
-        },
-        resources: {
-          uniqueItems: true,
-          type: 'array',
-          items: {
-            pattern:
-              '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-            type: 'string',
-          },
-          nullable: true,
-        },
-        slots: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/ComfyJobSlot',
-          },
-          description: 'Slots for the resulting blob outputs.',
-        },
-        imageMetadata: {
-          type: 'string',
-          description: 'Get or set additional metadata that will be embedded with generated images',
-          nullable: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['comfy'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $ComfyJobSlot = {
-  required: ['blobKey', 'destinationUrl'],
-  type: 'object',
-  properties: {
-    blobKey: {
-      type: 'string',
-      description: 'The hash for the blob output.',
-    },
-    destinationUrl: {
-      type: 'string',
-      description: 'The destination url for blob upload.',
-      format: 'uri',
-    },
-  },
-  additionalProperties: false,
-  description: 'Contains slot information for a blob generated by a ComfyJob.',
-} as const;
-
 export const $ComfyNode = {
   required: ['classType', 'inputs'],
   type: 'object',
@@ -518,7 +305,15 @@ export const $ComfyOutput = {
     blobs: {
       type: 'array',
       items: {
-        $ref: '#/components/schemas/Blob',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/Blob',
+          },
+          {
+            $ref: '#/components/schemas/VideoBlob',
+          },
+        ],
+        description: 'Represents a blob that gets produced as part of a specific job',
       },
       description: 'Get a list of blobs that got generated by this comfy workflow step.',
     },
@@ -552,7 +347,7 @@ export const $ComfyStep = {
       type: 'string',
     },
   },
-  description: '',
+  description: 'Comfy workflows',
 } as const;
 
 export const $ComfyStepTemplate = {
@@ -578,114 +373,7 @@ export const $ComfyStepTemplate = {
       type: 'string',
     },
   },
-} as const;
-
-export const $ComfyVideoGenInput = {
-  required: ['engine'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/VideoGenInput',
-    },
-    {
-      type: 'object',
-      properties: {
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          default: 'urn:air:ltxv:checkpoint:civitai:982559@1100593',
-        },
-        negativePrompt: {
-          type: 'string',
-          nullable: true,
-        },
-        sampler: {
-          enum: [
-            'euler',
-            'euler_cfg_pp',
-            'euler_ancestral',
-            'euler_ancestral_cfg_pp',
-            'heun',
-            'heunpp2',
-            'dpm_2',
-            'dpm_2_ancestral',
-            'lms',
-            'dpm_fast',
-            'dpm_adaptive',
-            'dpmpp_2s_ancestral',
-            'dpmpp_2s_ancestral_cfg_pp',
-            'dpmpp_sde',
-            'dpmpp_sde_gpu',
-            'dpmpp_2m',
-            'dpmpp_2m_cfg_pp',
-            'dpmpp_2m_sde',
-            'dpmpp_2m_sde_gpu',
-            'dpmpp_3m_sde',
-            'dpmpp_3m_sde_gpu',
-            'ddpm',
-            'lcm',
-            'ipndm',
-            'ipndm_v',
-            'deis',
-          ],
-          type: 'string',
-          default: 'euler_ancestral',
-        },
-        cfgScale: {
-          maximum: 100,
-          minimum: 0,
-          type: 'number',
-          format: 'double',
-          default: 4,
-        },
-        width: {
-          maximum: 1280,
-          minimum: 64,
-          type: 'integer',
-          format: 'int32',
-          default: 720,
-        },
-        height: {
-          maximum: 720,
-          minimum: 64,
-          type: 'integer',
-          format: 'int32',
-          default: 720,
-        },
-        frameRate: {
-          type: 'integer',
-          format: 'int32',
-          default: 25,
-        },
-        duration: {
-          maximum: 30,
-          minimum: 1,
-          type: 'integer',
-          format: 'int32',
-          default: 5,
-        },
-        seed: {
-          type: 'integer',
-          format: 'int32',
-          nullable: true,
-        },
-        steps: {
-          maximum: 50,
-          minimum: 10,
-          type: 'integer',
-          format: 'int32',
-          default: 20,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    engine: {
-      enum: ['comfy'],
-      type: 'string',
-    },
-  },
+  description: 'Comfy workflows',
 } as const;
 
 export const $ComfyVideoGenJob = {
@@ -928,7 +616,7 @@ export const $EchoStep = {
       type: 'string',
     },
   },
-  description: 'A workflow step that takes a message string and retuns it.',
+  description: 'Echo',
 } as const;
 
 export const $EchoStepTemplate = {
@@ -954,6 +642,7 @@ export const $EchoStepTemplate = {
       type: 'string',
     },
   },
+  description: 'Echo',
 } as const;
 
 export const $EcosystemElement = {
@@ -1028,31 +717,6 @@ export const $FluxDevFastImageResourceTrainingInput = {
   },
 } as const;
 
-export const $GateJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['gate'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $HaiperVideoGenAspectRatio = {
   enum: ['16:9', '4:3', '1:1', '9:16', '3:4'],
   type: 'string',
@@ -1105,7 +769,9 @@ export const $HaiperVideoGenInput = {
           type: 'boolean',
         },
         sourceImage: {
-          $ref: '#/components/schemas/SourceImage',
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
         },
       },
       additionalProperties: false,
@@ -1113,83 +779,6 @@ export const $HaiperVideoGenInput = {
   ],
   properties: {
     engine: {
-      enum: ['haiper'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $HaiperVideoGenJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationUrl', 'mediaHash', 'prompt'],
-      type: 'object',
-      properties: {
-        mediaHash: {
-          type: 'string',
-        },
-        prompt: {
-          type: 'string',
-        },
-        negativePrompt: {
-          type: 'string',
-          nullable: true,
-        },
-        cameraMovement: {
-          $ref: '#/components/schemas/HaiperVideoGenCameraMovement',
-        },
-        seed: {
-          maximum: 4294967295,
-          minimum: -1,
-          type: 'integer',
-          format: 'int64',
-        },
-        duration: {
-          enum: [2, 4, 8],
-          type: 'integer',
-          format: 'int32',
-        },
-        aspectRatio: {
-          $ref: '#/components/schemas/HaiperVideoGenAspectRatio',
-        },
-        destinationUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        sourceImageUrl: {
-          type: 'string',
-          format: 'uri',
-          nullable: true,
-        },
-        model: {
-          $ref: '#/components/schemas/HaiperVideoGenModel',
-        },
-        resolution: {
-          type: 'integer',
-          format: 'int32',
-        },
-        enablePromptEnhancer: {
-          type: 'boolean',
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
       enum: ['haiper'],
       type: 'string',
     },
@@ -1248,138 +837,23 @@ export const $HumanoidImageMaskInput = {
   additionalProperties: false,
 } as const;
 
-export const $HumanoidImageMaskJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['category', 'destinationBlobKey', 'imageUrl'],
-      type: 'object',
-      properties: {
-        imageUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        category: {
-          $ref: '#/components/schemas/HumanoidImageMaskCategory',
-        },
-        destinationBlobKey: {
-          type: 'string',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['humanoidImageMask'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $HumanoidImageMaskOutput = {
   required: ['blob'],
   type: 'object',
   properties: {
     blob: {
-      $ref: '#/components/schemas/Blob',
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Blob',
+        },
+        {
+          $ref: '#/components/schemas/VideoBlob',
+        },
+      ],
+      description: 'Represents a blob that gets produced as part of a specific job',
     },
   },
   additionalProperties: false,
-} as const;
-
-export const $HumanoidImageMaskStep = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/WorkflowStep',
-    },
-    {
-      required: ['input'],
-      type: 'object',
-      properties: {
-        input: {
-          $ref: '#/components/schemas/HumanoidImageMaskInput',
-        },
-        output: {
-          $ref: '#/components/schemas/HumanoidImageMaskOutput',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['humanoidImageMask'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $HumanoidImageMaskStepTemplate = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/WorkflowStepTemplate',
-    },
-    {
-      required: ['input'],
-      type: 'object',
-      properties: {
-        input: {
-          $ref: '#/components/schemas/HumanoidImageMaskInput',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['humanoidImageMask'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $ImageEmbeddingJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['imageUrl'],
-      type: 'object',
-      properties: {
-        imageUrl: {
-          type: 'string',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['imageEmbedding'],
-      type: 'string',
-    },
-  },
 } as const;
 
 export const $ImageJobControlNet = {
@@ -1661,7 +1135,15 @@ export const $ImageResourceTrainingStep = {
       type: 'object',
       properties: {
         input: {
-          $ref: '#/components/schemas/ImageResourceTrainingInput',
+          oneOf: [
+            {
+              $ref: '#/components/schemas/KohyaImageResourceTrainingInput',
+            },
+            {
+              $ref: '#/components/schemas/FluxDevFastImageResourceTrainingInput',
+            },
+          ],
+          description: "The workflow's input.",
         },
         output: {
           $ref: '#/components/schemas/ImageResourceTrainingOutput',
@@ -1676,7 +1158,7 @@ export const $ImageResourceTrainingStep = {
       type: 'string',
     },
   },
-  description: 'A workflow step for training image resources.',
+  description: 'LORA Training',
 } as const;
 
 export const $ImageResourceTrainingStepTemplate = {
@@ -1690,7 +1172,16 @@ export const $ImageResourceTrainingStepTemplate = {
       type: 'object',
       properties: {
         input: {
-          $ref: '#/components/schemas/ImageResourceTrainingInput',
+          oneOf: [
+            {
+              $ref: '#/components/schemas/KohyaImageResourceTrainingInput',
+            },
+            {
+              $ref: '#/components/schemas/FluxDevFastImageResourceTrainingInput',
+            },
+          ],
+          description: 'Input for the ImageResourceTrainingStep step.',
+          nullable: true,
         },
       },
       additionalProperties: false,
@@ -1702,43 +1193,50 @@ export const $ImageResourceTrainingStepTemplate = {
       type: 'string',
     },
   },
+  description: 'LORA Training',
 } as const;
 
-export const $ImageTransformJob = {
+export const $ImageTransformer = {
+  enum: ['canny', 'depthZoe', 'softedgePidinet', 'rembg'],
+  type: 'string',
+  description: 'Available image transformers.',
+} as const;
+
+export const $ImageUploadOutput = {
+  required: ['blob'],
+  type: 'object',
+  properties: {
+    blob: {
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Blob',
+        },
+        {
+          $ref: '#/components/schemas/VideoBlob',
+        },
+      ],
+      description: 'Represents a blob that gets produced as part of a specific job',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $ImageUploadStep = {
   required: ['$type'],
   allOf: [
     {
-      $ref: '#/components/schemas/Job',
+      $ref: '#/components/schemas/WorkflowStep',
     },
     {
+      required: ['input'],
       type: 'object',
       properties: {
-        imageUrl: {
+        input: {
           type: 'string',
-          description: 'The url of the image to transform',
-          format: 'uri',
+          description: "The workflow's input.",
         },
-        transformer: {
-          $ref: '#/components/schemas/ImageTransformer',
-        },
-        destinationBlobKey: {
-          type: 'string',
-          description: 'Get the key of the destination blob to upload the result to',
-        },
-        params: {
-          type: 'object',
-          additionalProperties: {},
-          description: 'A untyped set of parameters that are associated with this job',
-        },
-        destinationUrl: {
-          type: 'string',
-          description: 'Get or set the URL where the transformed image will be uploaded to',
-          format: 'uri',
-          nullable: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
+        output: {
+          $ref: '#/components/schemas/ImageUploadOutput',
         },
       },
       additionalProperties: false,
@@ -1746,16 +1244,39 @@ export const $ImageTransformJob = {
   ],
   properties: {
     $type: {
-      enum: ['imageTransform'],
+      enum: ['imageUpload'],
       type: 'string',
     },
   },
+  description: 'Image upload',
 } as const;
 
-export const $ImageTransformer = {
-  enum: ['canny', 'depthZoe', 'softedgePidinet', 'rembg'],
-  type: 'string',
-  description: 'Available image transformers.',
+export const $ImageUploadStepTemplate = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/WorkflowStepTemplate',
+    },
+    {
+      required: ['input'],
+      type: 'object',
+      properties: {
+        input: {
+          type: 'string',
+          description: 'Input for the ImageUploadStep step.',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['imageUpload'],
+      type: 'string',
+    },
+  },
+  description: 'Image upload',
 } as const;
 
 export const $Job = {
@@ -1861,21 +1382,8 @@ export const $Job = {
     mapping: {
       textToImage: '#/components/schemas/TextToImageJob',
       imageResourceTraining: '#/components/schemas/ImageResourceTrainingJob',
-      imageTransform: '#/components/schemas/ImageTransformJob',
-      movieRating: '#/components/schemas/MovieRatingJob',
-      wdTagging: '#/components/schemas/WDTaggingJob',
-      mediaTagging: '#/components/schemas/MediaTaggingJob',
-      comfy: '#/components/schemas/ComfyJob',
-      imageEmbedding: '#/components/schemas/ImageEmbeddingJob',
       similaritySearch: '#/components/schemas/SimilaritySearchJob',
       llmPromptAugmentation: '#/components/schemas/LLMPromptAugmentationJob',
-      humanoidImageMask: '#/components/schemas/HumanoidImageMaskJob',
-      tryOnU: '#/components/schemas/TryOnUJob',
-      mediaCaptioning: '#/components/schemas/MediaCaptioningJob',
-      ageClassification: '#/components/schemas/AgeClassificationJob',
-      batchOCRSafetyClassification: '#/components/schemas/BatchOCRSafetyClassificationJob',
-      gate: '#/components/schemas/GateJob',
-      haiper: '#/components/schemas/HaiperVideoGenJob',
       mochi: '#/components/schemas/MochiVideoGenJob',
       comfyVideoGen: '#/components/schemas/ComfyVideoGenJob',
     },
@@ -2100,7 +1608,9 @@ export const $KlingVideoGenInput = {
           nullable: true,
         },
         sourceImage: {
-          $ref: '#/components/schemas/SourceImage',
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
         },
       },
       additionalProperties: false,
@@ -2213,7 +1723,7 @@ This option does nothing if the Shuffle Tags option is off.`,
           default: 0.00005,
         },
         lrScheduler: {
-          enum: ['constant', 'cosine', 'cosine_with_restarts', 'cosine_with_restarts', 'linear'],
+          enum: ['constant', 'cosine', 'cosine_with_restarts', 'linear'],
           type: 'string',
           description:
             'You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.',
@@ -2417,106 +1927,6 @@ export const $LightricksVideoGenInput = {
   },
 } as const;
 
-export const $MediaCaptioningJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['mediaUrl', 'model'],
-      type: 'object',
-      properties: {
-        model: {
-          type: 'string',
-        },
-        modelId: {
-          type: 'integer',
-          format: 'int32',
-        },
-        mediaUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        temperature: {
-          type: 'number',
-          format: 'double',
-        },
-        maxNewTokens: {
-          type: 'integer',
-          format: 'int32',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['mediaCaptioning'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $MediaTaggingJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      type: 'object',
-      properties: {
-        modelId: {
-          type: 'integer',
-          format: 'int32',
-        },
-        mediaUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['mediaTagging'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $MemoryOfByte = {
-  type: 'object',
-  properties: {
-    length: {
-      type: 'integer',
-      format: 'int32',
-    },
-    isEmpty: {
-      type: 'boolean',
-    },
-    span: {
-      $ref: '#/components/schemas/SpanOfByte',
-    },
-  },
-  additionalProperties: false,
-} as const;
-
 export const $MiniMaxVideoGenInput = {
   required: ['engine'],
   allOf: [
@@ -2533,7 +1943,9 @@ export const $MiniMaxVideoGenInput = {
           type: 'boolean',
         },
         sourceImage: {
-          $ref: '#/components/schemas/SourceImage',
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
         },
       },
       additionalProperties: false,
@@ -2627,50 +2039,6 @@ export const $MochiVideoGenJob = {
   properties: {
     $type: {
       enum: ['mochi'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $MovieRatingJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      type: 'object',
-      properties: {
-        mediaUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          nullable: true,
-        },
-        blobKey: {
-          type: 'string',
-          nullable: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['movieRating'],
       type: 'string',
     },
   },
@@ -2952,30 +2320,6 @@ export const $SimilaritySearchJob = {
   description: 'Details for a similarity search job.',
 } as const;
 
-export const $SourceImage = {
-  type: 'object',
-  properties: {
-    buffer: {
-      $ref: '#/components/schemas/MemoryOfByte',
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-export const $SpanOfByte = {
-  type: 'object',
-  properties: {
-    length: {
-      type: 'integer',
-      format: 'int32',
-    },
-    isEmpty: {
-      type: 'boolean',
-    },
-  },
-  additionalProperties: false,
-} as const;
-
 export const $Subscription = {
   required: ['webhook'],
   type: 'object',
@@ -2990,7 +2334,7 @@ export const $Subscription = {
 } as const;
 
 export const $TextToImageInput = {
-  required: ['height', 'model', 'prompt', 'width'],
+  required: ['height', 'prompt', 'width'],
   type: 'object',
   properties: {
     quantity: {
@@ -3005,7 +2349,7 @@ export const $TextToImageInput = {
       maximum: 100,
       minimum: 1,
       type: 'integer',
-      description: 'The size of each batch.D',
+      description: 'The size of each batch',
       format: 'int32',
       default: 1,
     },
@@ -3014,6 +2358,7 @@ export const $TextToImageInput = {
         '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'The AIR of the checkpoint model to use for generation.',
+      default: 'urn:air:sd1:checkpoint:civitai:4384@128713',
     },
     additionalNetworks: {
       type: 'object',
@@ -3184,7 +2529,15 @@ export const $TextToImageOutput = {
     images: {
       type: 'array',
       items: {
-        $ref: '#/components/schemas/Blob',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/Blob',
+          },
+          {
+            $ref: '#/components/schemas/VideoBlob',
+          },
+        ],
+        description: 'Represents a blob that gets produced as part of a specific job',
       },
       description: 'A collection of output images.',
     },
@@ -3219,7 +2572,7 @@ export const $TextToImageStep = {
       type: 'string',
     },
   },
-  description: 'A workflow step for text to image generations.',
+  description: 'TextToImage',
 } as const;
 
 export const $TextToImageStepTemplate = {
@@ -3245,6 +2598,7 @@ export const $TextToImageStepTemplate = {
       type: 'string',
     },
   },
+  description: 'TextToImage',
 } as const;
 
 export const $TransactionInfo = {
@@ -3375,31 +2729,9 @@ export const $TranscodeStep = {
       type: 'string',
     },
   },
-} as const;
-
-export const $TranscodeStepTemplate = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/WorkflowStepTemplate',
-    },
-    {
-      required: ['input'],
-      type: 'object',
-      properties: {
-        input: {
-          $ref: '#/components/schemas/TranscodeInput',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['transcode'],
-      type: 'string',
-    },
-  },
+  description: 'Transcoding',
+  'x-preview': true,
+  'x-internal': true,
 } as const;
 
 export const $TryOnUInput = {
@@ -3442,132 +2774,23 @@ export const $TryOnUInput = {
   additionalProperties: false,
 } as const;
 
-export const $TryOnUJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationBlobKey', 'garmentUrl', 'subjectMaskUrl', 'subjectUrl'],
-      type: 'object',
-      properties: {
-        subjectUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        garmentUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        subjectMaskUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        garmentDescription: {
-          type: 'string',
-          nullable: true,
-        },
-        maskSubject: {
-          type: 'boolean',
-        },
-        cropSubject: {
-          type: 'boolean',
-        },
-        steps: {
-          type: 'integer',
-          format: 'int32',
-        },
-        seed: {
-          type: 'integer',
-          format: 'int32',
-        },
-        destinationBlobKey: {
-          type: 'string',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['tryOnU'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $TryOnUOutput = {
   required: ['blob'],
   type: 'object',
   properties: {
     blob: {
-      $ref: '#/components/schemas/Blob',
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Blob',
+        },
+        {
+          $ref: '#/components/schemas/VideoBlob',
+        },
+      ],
+      description: 'Represents a blob that gets produced as part of a specific job',
     },
   },
   additionalProperties: false,
-} as const;
-
-export const $TryOnUStep = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/WorkflowStep',
-    },
-    {
-      required: ['input'],
-      type: 'object',
-      properties: {
-        input: {
-          $ref: '#/components/schemas/TryOnUInput',
-        },
-        output: {
-          $ref: '#/components/schemas/TryOnUOutput',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['tryOnU'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $TryOnUStepTemplate = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/WorkflowStepTemplate',
-    },
-    {
-      required: ['input'],
-      type: 'object',
-      properties: {
-        input: {
-          $ref: '#/components/schemas/TryOnUInput',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['tryOnU'],
-      type: 'string',
-    },
-  },
 } as const;
 
 export const $UpdateWorkflowRequest = {
@@ -3711,7 +2934,6 @@ export const $VideoGenInput = {
       mochi: '#/components/schemas/MochiVideoGenInput',
       kling: '#/components/schemas/KlingVideoGenInput',
       minimax: '#/components/schemas/MiniMaxVideoGenInput',
-      comfy: '#/components/schemas/ComfyVideoGenInput',
       lightricks: '#/components/schemas/LightricksVideoGenInput',
     },
   },
@@ -3721,7 +2943,16 @@ export const $VideoGenOutput = {
   type: 'object',
   properties: {
     video: {
-      $ref: '#/components/schemas/Blob',
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Blob',
+        },
+        {
+          $ref: '#/components/schemas/VideoBlob',
+        },
+      ],
+      description: 'Represents a blob that gets produced as part of a specific job',
+      nullable: true,
     },
   },
   additionalProperties: false,
@@ -3738,10 +2969,33 @@ export const $VideoGenStep = {
       type: 'object',
       properties: {
         input: {
-          $ref: '#/components/schemas/VideoGenInput',
+          oneOf: [
+            {
+              $ref: '#/components/schemas/HaiperVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/MochiVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/KlingVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/MiniMaxVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/LightricksVideoGenInput',
+            },
+          ],
+          description: "The workflow's input.",
         },
         output: {
-          $ref: '#/components/schemas/VideoGenOutput',
+          oneOf: [
+            {
+              $ref: '#/components/schemas/HaiperVideoGenOutput',
+            },
+          ],
+          description: "The workflow's output.",
+          nullable: true,
         },
       },
       additionalProperties: false,
@@ -3753,6 +3007,7 @@ export const $VideoGenStep = {
       type: 'string',
     },
   },
+  description: 'Video generation',
 } as const;
 
 export const $VideoGenStepTemplate = {
@@ -3766,7 +3021,25 @@ export const $VideoGenStepTemplate = {
       type: 'object',
       properties: {
         input: {
-          $ref: '#/components/schemas/VideoGenInput',
+          oneOf: [
+            {
+              $ref: '#/components/schemas/HaiperVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/MochiVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/KlingVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/MiniMaxVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/LightricksVideoGenInput',
+            },
+          ],
+          description: 'Input for the VideoGenStep step.',
+          nullable: true,
         },
       },
       additionalProperties: false,
@@ -3778,56 +3051,7 @@ export const $VideoGenStepTemplate = {
       type: 'string',
     },
   },
-} as const;
-
-export const $WDTaggingJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      type: 'object',
-      properties: {
-        model: {
-          type: 'string',
-        },
-        mediaUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        threshold: {
-          type: 'number',
-          format: 'double',
-          nullable: true,
-        },
-        movieRatingModel: {
-          type: 'string',
-          nullable: true,
-        },
-        prompt: {
-          type: 'string',
-          nullable: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['wdTagging'],
-      type: 'string',
-    },
-  },
+  description: 'Video generation',
 } as const;
 
 export const $WorkerCapabilities = {
@@ -3850,21 +3074,6 @@ export const $WorkerCapabilities = {
     },
     llmPromptAugmentation: {
       $ref: '#/components/schemas/LLMPromptAugmentationCapabilities',
-    },
-    humanoidImageMask: {
-      $ref: '#/components/schemas/WorkerHumanoidImageMaskCapabilities',
-    },
-    tryOnU: {
-      $ref: '#/components/schemas/WorkerTryOnUCapabilities',
-    },
-    haiper: {
-      $ref: '#/components/schemas/WorkerHaiperCapabilities',
-    },
-    kling: {
-      $ref: '#/components/schemas/WorkerKlingCapabilities',
-    },
-    miniMax: {
-      $ref: '#/components/schemas/WorkerMiniMaxCapabilities',
     },
   },
   additionalProperties: false,
@@ -4408,7 +3617,33 @@ export const $Workflow = {
     steps: {
       type: 'array',
       items: {
-        $ref: '#/components/schemas/WorkflowStep',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/AgeClassificationStep',
+          },
+          {
+            $ref: '#/components/schemas/ComfyStep',
+          },
+          {
+            $ref: '#/components/schemas/EchoStep',
+          },
+          {
+            $ref: '#/components/schemas/ImageResourceTrainingStep',
+          },
+          {
+            $ref: '#/components/schemas/ImageUploadStep',
+          },
+          {
+            $ref: '#/components/schemas/TextToImageStep',
+          },
+          {
+            $ref: '#/components/schemas/TranscodeStep',
+          },
+          {
+            $ref: '#/components/schemas/VideoGenStep',
+          },
+        ],
+        description: 'Details of a workflow step.',
       },
       description: 'The steps for the workflow.',
     },
@@ -4640,14 +3875,12 @@ export const $WorkflowStep = {
     propertyName: '$type',
     mapping: {
       ageClassification: '#/components/schemas/AgeClassificationStep',
-      batchOCRSafetyClassification: '#/components/schemas/BatchOCRSafetyClassificationStep',
       comfy: '#/components/schemas/ComfyStep',
       echo: '#/components/schemas/EchoStep',
-      humanoidImageMask: '#/components/schemas/HumanoidImageMaskStep',
       imageResourceTraining: '#/components/schemas/ImageResourceTrainingStep',
+      imageUpload: '#/components/schemas/ImageUploadStep',
       textToImage: '#/components/schemas/TextToImageStep',
       transcode: '#/components/schemas/TranscodeStep',
-      tryOnU: '#/components/schemas/TryOnUStep',
       videoGen: '#/components/schemas/VideoGenStep',
     },
   },
@@ -4818,14 +4051,11 @@ export const $WorkflowStepTemplate = {
     propertyName: '$type',
     mapping: {
       ageClassification: '#/components/schemas/AgeClassificationStepTemplate',
-      batchOCRSafetyClassification: '#/components/schemas/BatchOCRSafetyClassificationStepTemplate',
       comfy: '#/components/schemas/ComfyStepTemplate',
       echo: '#/components/schemas/EchoStepTemplate',
-      humanoidImageMask: '#/components/schemas/HumanoidImageMaskStepTemplate',
       imageResourceTraining: '#/components/schemas/ImageResourceTrainingStepTemplate',
+      imageUpload: '#/components/schemas/ImageUploadStepTemplate',
       textToImage: '#/components/schemas/TextToImageStepTemplate',
-      transcode: '#/components/schemas/TranscodeStepTemplate',
-      tryOnU: '#/components/schemas/TryOnUStepTemplate',
       videoGen: '#/components/schemas/VideoGenStepTemplate',
     },
   },
@@ -4858,7 +4088,30 @@ At most 10 tags can be assigned to a workflow. Each tag can be at most 200 chara
       minItems: 1,
       type: 'array',
       items: {
-        $ref: '#/components/schemas/WorkflowStepTemplate',
+        oneOf: [
+          {
+            $ref: '#/components/schemas/AgeClassificationStepTemplate',
+          },
+          {
+            $ref: '#/components/schemas/ComfyStepTemplate',
+          },
+          {
+            $ref: '#/components/schemas/EchoStepTemplate',
+          },
+          {
+            $ref: '#/components/schemas/ImageResourceTrainingStepTemplate',
+          },
+          {
+            $ref: '#/components/schemas/ImageUploadStepTemplate',
+          },
+          {
+            $ref: '#/components/schemas/TextToImageStepTemplate',
+          },
+          {
+            $ref: '#/components/schemas/VideoGenStepTemplate',
+          },
+        ],
+        description: 'Details of a workflow step template.',
       },
       description: 'An array of steps that compose this workflow.',
     },
