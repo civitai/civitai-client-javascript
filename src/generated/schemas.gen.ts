@@ -1327,16 +1327,6 @@ export const $Job = {
       description: 'The max number of retries before we give up',
       format: 'int32',
     },
-    dependencies: {
-      type: 'object',
-      additionalProperties: {
-        type: 'array',
-        items: {
-          $ref: '#/components/schemas/DynamicAssignment',
-        },
-      },
-      description: 'Get or set a list of dependencies that this job has',
-    },
     issuedBy: {
       type: 'string',
       description: 'Get or set the name of the consumer that issued this job',
@@ -1385,7 +1375,9 @@ export const $Job = {
       similaritySearch: '#/components/schemas/SimilaritySearchJob',
       llmPromptAugmentation: '#/components/schemas/LLMPromptAugmentationJob',
       mochi: '#/components/schemas/MochiVideoGenJob',
+      vidu: '#/components/schemas/ViduVideoGenJob',
       comfyVideoGen: '#/components/schemas/ComfyVideoGenJob',
+      rewritePrompt: '#/components/schemas/RewritePromptJob',
     },
   },
 } as const;
@@ -2236,9 +2228,51 @@ export const $ResourceInfo = {
     fileFormat: {
       $ref: '#/components/schemas/FileFormat',
     },
+    hasMatureContentRestriction: {
+      type: 'boolean',
+      description: `A boolean indicating whether this resource restricts mature content generation.
+If resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content`,
+    },
   },
   additionalProperties: false,
   description: 'Details for a specific resource.',
+} as const;
+
+export const $RewritePromptGoal = {
+  enum: ['preventSexual', 'preventSexualMinor'],
+  type: 'string',
+} as const;
+
+export const $RewritePromptJob = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Job',
+    },
+    {
+      required: ['goal', 'prompt'],
+      type: 'object',
+      properties: {
+        prompt: {
+          type: 'string',
+        },
+        goal: {
+          $ref: '#/components/schemas/RewritePromptGoal',
+        },
+        type: {
+          type: 'string',
+          readOnly: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['rewritePrompt'],
+      type: 'string',
+    },
+  },
 } as const;
 
 export const $Scheduler = {
@@ -2935,6 +2969,7 @@ export const $VideoGenInput = {
       kling: '#/components/schemas/KlingVideoGenInput',
       minimax: '#/components/schemas/MiniMaxVideoGenInput',
       lightricks: '#/components/schemas/LightricksVideoGenInput',
+      vidu: '#/components/schemas/ViduVideoGenInput',
     },
   },
 } as const;
@@ -2984,6 +3019,9 @@ export const $VideoGenStep = {
             },
             {
               $ref: '#/components/schemas/LightricksVideoGenInput',
+            },
+            {
+              $ref: '#/components/schemas/ViduVideoGenInput',
             },
           ],
           description: "The workflow's input.",
@@ -3037,6 +3075,9 @@ export const $VideoGenStepTemplate = {
             {
               $ref: '#/components/schemas/LightricksVideoGenInput',
             },
+            {
+              $ref: '#/components/schemas/ViduVideoGenInput',
+            },
           ],
           description: 'Input for the VideoGenStep step.',
           nullable: true,
@@ -3052,6 +3093,115 @@ export const $VideoGenStepTemplate = {
     },
   },
   description: 'Video generation',
+} as const;
+
+export const $ViduVideoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        enablePromptEnhancer: {
+          type: 'boolean',
+          default: true,
+        },
+        seed: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+        sourceImage: {
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
+        },
+        style: {
+          $ref: '#/components/schemas/ViduVideoGenStyle',
+        },
+        duration: {
+          enum: [4, 8],
+          type: 'integer',
+          format: 'int32',
+          default: 4,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['vidu'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $ViduVideoGenJob = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Job',
+    },
+    {
+      required: ['destinationBlobKey', 'destinationUrl', 'prompt'],
+      type: 'object',
+      properties: {
+        prompt: {
+          type: 'string',
+        },
+        enablePromptEnhancer: {
+          type: 'boolean',
+        },
+        destinationUrl: {
+          type: 'string',
+          format: 'uri',
+        },
+        sourceImageUrl: {
+          type: 'string',
+          format: 'uri',
+          nullable: true,
+        },
+        destinationBlobKey: {
+          type: 'string',
+        },
+        seed: {
+          type: 'integer',
+          format: 'int32',
+        },
+        style: {
+          $ref: '#/components/schemas/ViduVideoGenStyle',
+        },
+        duration: {
+          type: 'integer',
+          format: 'int32',
+        },
+        claimDuration: {
+          type: 'string',
+          format: 'date-span',
+          readOnly: true,
+        },
+        type: {
+          type: 'string',
+          readOnly: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['vidu'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $ViduVideoGenStyle = {
+  enum: ['general', 'anime'],
+  type: 'string',
 } as const;
 
 export const $WorkerCapabilities = {
@@ -3421,6 +3571,11 @@ export const $WorkerModelPreparationCapabilities = {
   description: "Details of a worker's model preparation capabilities.",
 } as const;
 
+export const $WorkerPromptRewritingCapabilities = {
+  type: 'object',
+  additionalProperties: false,
+} as const;
+
 export const $WorkerRegistration = {
   required: ['name'],
   type: 'object',
@@ -3564,6 +3719,11 @@ export const $WorkerType = {
   enum: ['normal', 'deferred', 'test'],
   type: 'string',
   description: 'Available values for worker type.',
+} as const;
+
+export const $WorkerViduCapabilities = {
+  type: 'object',
+  additionalProperties: false,
 } as const;
 
 export const $Workflow = {

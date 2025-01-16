@@ -740,12 +740,6 @@ export type Job = {
    */
   maxRetryAttempt?: number;
   /**
-   * Get or set a list of dependencies that this job has
-   */
-  dependencies?: {
-    [key: string]: Array<DynamicAssignment>;
-  };
-  /**
    * Get or set the name of the consumer that issued this job
    */
   issuedBy?: string | null;
@@ -1317,7 +1311,33 @@ export type ResourceInfo = {
    */
   requiresAuthorization?: boolean | null;
   fileFormat?: FileFormat;
+  /**
+   * A boolean indicating whether this resource restricts mature content generation.
+   * If resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content
+   */
+  hasMatureContentRestriction?: boolean;
 };
+
+export type RewritePromptGoal = 'preventSexual' | 'preventSexualMinor';
+
+export const RewritePromptGoal = {
+  PREVENT_SEXUAL: 'preventSexual',
+  PREVENT_SEXUAL_MINOR: 'preventSexualMinor',
+} as const;
+
+export type RewritePromptJob = Job & {
+  prompt: string;
+  goal: RewritePromptGoal;
+  readonly type?: string;
+} & {
+  $type: 'rewritePrompt';
+};
+
+export type $type9 = 'rewritePrompt';
+
+export const $type9 = {
+  REWRITE_PROMPT: 'rewritePrompt',
+} as const;
 
 /**
  * The available options for schedulers used in image generation.
@@ -1410,9 +1430,9 @@ export type SimilaritySearchJob = Job & {
   $type: 'similaritySearch';
 };
 
-export type $type9 = 'similaritySearch';
+export type $type10 = 'similaritySearch';
 
-export const $type9 = {
+export const $type10 = {
   SIMILARITY_SEARCH: 'similaritySearch',
 } as const;
 
@@ -1538,9 +1558,9 @@ export type TextToImageJob = Job & {
   $type: 'textToImage';
 };
 
-export type $type10 = 'textToImage';
+export type $type11 = 'textToImage';
 
-export const $type10 = {
+export const $type11 = {
   TEXT_TO_IMAGE: 'textToImage',
 } as const;
 
@@ -1643,9 +1663,9 @@ export type TranscodeStep = WorkflowStep & {
   $type: 'transcode';
 };
 
-export type $type11 = 'transcode';
+export type $type12 = 'transcode';
 
-export const $type11 = {
+export const $type12 = {
   TRANSCODE: 'transcode',
 } as const;
 
@@ -1763,7 +1783,8 @@ export type VideoGenStep = WorkflowStep & {
     | MochiVideoGenInput
     | KlingVideoGenInput
     | MiniMaxVideoGenInput
-    | LightricksVideoGenInput;
+    | LightricksVideoGenInput
+    | ViduVideoGenInput;
   /**
    * The workflow's output.
    */
@@ -1772,9 +1793,9 @@ export type VideoGenStep = WorkflowStep & {
   $type: 'videoGen';
 };
 
-export type $type12 = 'videoGen';
+export type $type13 = 'videoGen';
 
-export const $type12 = {
+export const $type13 = {
   VIDEO_GEN: 'videoGen',
 } as const;
 
@@ -1791,10 +1812,65 @@ export type VideoGenStepTemplate = WorkflowStepTemplate & {
     | KlingVideoGenInput
     | MiniMaxVideoGenInput
     | LightricksVideoGenInput
+    | ViduVideoGenInput
     | null;
 } & {
   $type: 'videoGen';
 };
+
+export type ViduVideoGenInput = VideoGenInput & {
+  enablePromptEnhancer?: boolean;
+  seed?: number | null;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  sourceImage?: string | null;
+  style?: ViduVideoGenStyle;
+  duration?: 4 | 8;
+} & {
+  engine: 'vidu';
+};
+
+export type duration2 = 4 | 8;
+
+export const duration2 = {
+  _4: 4,
+  _8: 8,
+} as const;
+
+export type engine8 = 'vidu';
+
+export const engine8 = {
+  VIDU: 'vidu',
+} as const;
+
+export type ViduVideoGenJob = Job & {
+  prompt: string;
+  enablePromptEnhancer?: boolean;
+  destinationUrl: string;
+  sourceImageUrl?: string | null;
+  destinationBlobKey: string;
+  seed?: number;
+  style?: ViduVideoGenStyle;
+  duration?: number;
+  readonly claimDuration?: string;
+  readonly type?: string;
+} & {
+  $type: 'vidu';
+};
+
+export type $type14 = 'vidu';
+
+export const $type14 = {
+  VIDU: 'vidu',
+} as const;
+
+export type ViduVideoGenStyle = 'general' | 'anime';
+
+export const ViduVideoGenStyle = {
+  GENERAL: 'general',
+  ANIME: 'anime',
+} as const;
 
 /**
  * Details of a worker's capabilities.
@@ -2054,6 +2130,10 @@ export type WorkerModelPreparationCapabilities = {
   [key: string]: unknown;
 };
 
+export type WorkerPromptRewritingCapabilities = {
+  [key: string]: unknown;
+};
+
 /**
  * Details of a worker's registration.
  */
@@ -2178,6 +2258,10 @@ export const WorkerType = {
   DEFERRED: 'deferred',
   TEST: 'test',
 } as const;
+
+export type WorkerViduCapabilities = {
+  [key: string]: unknown;
+};
 
 /**
  * Details of a workflow.
@@ -2683,7 +2767,8 @@ export type InvokeVideoGenStepTemplateData = {
     | MochiVideoGenInput
     | KlingVideoGenInput
     | MiniMaxVideoGenInput
-    | LightricksVideoGenInput;
+    | LightricksVideoGenInput
+    | ViduVideoGenInput;
 };
 
 export type InvokeVideoGenStepTemplateResponse = HaiperVideoGenOutput;
@@ -2739,7 +2824,9 @@ export type GetJobsResponse = Array<
   | SimilaritySearchJob
   | LLMPromptAugmentationJob
   | MochiVideoGenJob
+  | ViduVideoGenJob
   | ComfyVideoGenJob
+  | RewritePromptJob
 >;
 
 export type GetJobsError = ProblemDetails;
@@ -3355,7 +3442,9 @@ export type $OpenApiTs = {
           | SimilaritySearchJob
           | LLMPromptAugmentationJob
           | MochiVideoGenJob
+          | ViduVideoGenJob
           | ComfyVideoGenJob
+          | RewritePromptJob
         >;
         /**
          * Unauthorized
