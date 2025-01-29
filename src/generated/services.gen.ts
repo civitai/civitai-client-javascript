@@ -6,6 +6,12 @@ import type {
   UploadBlobError,
   UploadBlobResponse,
   GetBlobData,
+  ClaimJobsData,
+  ClaimJobsError,
+  ClaimJobsResponse,
+  UpdateClaimStatusData,
+  UpdateClaimStatusError,
+  UpdateClaimStatusResponse,
   CreateConfigurationData,
   CreateConfigurationError,
   CreateConfigurationResponse,
@@ -44,9 +50,9 @@ import type {
   InvalidateResourceData,
   InvalidateResourceError,
   InvalidateResourceResponse,
-  GetJobsData,
-  GetJobsError,
-  GetJobsResponse,
+  GetRecommendedResourcesData,
+  GetRecommendedResourcesError,
+  GetRecommendedResourcesResponse,
   DownloadResourceData,
   DownloadResourceError,
   DownloadResourceResponse,
@@ -122,6 +128,20 @@ export const getBlob = (options: Options<GetBlobData>) => {
   return (options?.client ?? client).get<void>({
     ...options,
     url: '/v2/consumer/blobs/{blobId}',
+  });
+};
+
+export const claimJobs = (options: Options<ClaimJobsData>) => {
+  return (options?.client ?? client).get<ClaimJobsResponse, ClaimJobsError>({
+    ...options,
+    url: '/v2/providers/workers/{workerId}/claims',
+  });
+};
+
+export const updateClaimStatus = (options: Options<UpdateClaimStatusData>) => {
+  return (options?.client ?? client).put<UpdateClaimStatusResponse, UpdateClaimStatusError>({
+    ...options,
+    url: '/v2/providers/workers/{workerId}/claims/{claimId}/status',
   });
 };
 
@@ -292,10 +312,13 @@ export const invalidateResource = (options: Options<InvalidateResourceData>) => 
   });
 };
 
-export const getJobs = (options: Options<GetJobsData>) => {
-  return (options?.client ?? client).get<GetJobsResponse, GetJobsError>({
+export const getRecommendedResources = (options: Options<GetRecommendedResourcesData>) => {
+  return (options?.client ?? client).get<
+    GetRecommendedResourcesResponse,
+    GetRecommendedResourcesError
+  >({
     ...options,
-    url: '/v2/providers/workers/{workerId}/jobs',
+    url: '/v2/providers/workers/{workerId}/resources',
   });
 };
 
