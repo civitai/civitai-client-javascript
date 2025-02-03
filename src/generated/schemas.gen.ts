@@ -6,7 +6,7 @@ export const $AgeClassificationInput = {
   properties: {
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description:
         'An optional model to use for age classification. If not provided, the default model will determined by the worker',
@@ -324,7 +324,7 @@ export const $ComfyJob = {
           type: 'array',
           items: {
             pattern:
-              '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+              '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
             type: 'string',
           },
           nullable: true,
@@ -507,7 +507,7 @@ export const $ComfyVideoGenJob = {
       properties: {
         model: {
           pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
           type: 'string',
         },
         prompt: {
@@ -1104,7 +1104,7 @@ export const $ImageResourceTrainingInput = {
     },
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'The primary model to train upon.',
     },
@@ -1155,7 +1155,7 @@ export const $ImageResourceTrainingJob = {
       properties: {
         model: {
           pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
           type: 'string',
           description: 'An AIR representing the model to use.',
         },
@@ -1446,7 +1446,7 @@ export const $Job = {
       type: 'array',
       items: {
         pattern:
-          '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+          '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
         type: 'string',
       },
       description: 'Get a list of resources that this job depends on',
@@ -1971,9 +1971,6 @@ export const $LightricksVideoGenInput = {
           format: 'double',
           default: 4,
         },
-        aspectRatio: {
-          $ref: '#/components/schemas/LightricksAspectRatio',
-        },
         frameRate: {
           type: 'integer',
           format: 'int32',
@@ -1998,13 +1995,13 @@ export const $LightricksVideoGenInput = {
           format: 'int32',
           default: 20,
         },
+        aspectRatio: {
+          $ref: '#/components/schemas/LightricksAspectRatio',
+        },
         sourceImage: {
           type: 'string',
           description: 'Either A URL, A DataURL or a Base64 string',
           nullable: true,
-        },
-        resolution: {
-          $ref: '#/components/schemas/ValueTupleOfInt32AndInt32',
         },
       },
       additionalProperties: false,
@@ -2258,7 +2255,7 @@ export const $ResourceInfo = {
   properties: {
     air: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'An AIR ID for the resource.',
     },
@@ -2418,7 +2415,7 @@ export const $SimilaritySearchJob = {
       properties: {
         model: {
           pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
           type: 'string',
           description: 'An AIR ID representing the primary model.',
         },
@@ -2488,7 +2485,7 @@ export const $TextToImageInput = {
     },
     model: {
       pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
       description: 'The AIR of the checkpoint model to use for generation.',
       default: 'urn:air:sd1:checkpoint:civitai:4384@128713',
@@ -2593,7 +2590,7 @@ export const $TextToImageJob = {
       properties: {
         model: {
           pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
           type: 'string',
           description: 'An AIR representing the model to use.',
         },
@@ -2762,7 +2759,7 @@ export const $TextToImageV2Job = {
         },
         model: {
           pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
           type: 'string',
           description: 'An AIR representing the model to use.',
         },
@@ -3137,11 +3134,6 @@ export const $ValidationProblemDetails = {
     },
   },
   additionalProperties: {},
-} as const;
-
-export const $ValueTupleOfInt32AndInt32 = {
-  type: 'object',
-  additionalProperties: false,
 } as const;
 
 export const $ValueTupleOfStringAndInt32 = {

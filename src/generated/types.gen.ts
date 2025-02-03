@@ -1140,16 +1140,15 @@ export const LightricksAspectRatio = {
 export type LightricksVideoGenInput = VideoGenInput & {
   negativePrompt?: string | null;
   cfgScale?: number;
-  aspectRatio?: LightricksAspectRatio;
   frameRate?: number;
   duration?: number;
   seed?: number | null;
   steps?: number;
+  aspectRatio?: LightricksAspectRatio;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: string | null;
-  resolution?: ValueTupleOfInt32AndInt32;
 } & {
   engine: 'lightricks';
 };
@@ -1863,10 +1862,6 @@ export type ValidationProblemDetails = {
     [key: string]: Array<string>;
   };
   '[key: string]': (unknown | string | number) | undefined;
-};
-
-export type ValueTupleOfInt32AndInt32 = {
-  [key: string]: unknown;
 };
 
 export type ValueTupleOfStringAndInt32 = {
