@@ -557,6 +557,14 @@ export const $ComfyVideoGenJob = {
           format: 'uri',
           nullable: true,
         },
+        additionalNetworks: {
+          type: 'array',
+          items: {
+            pattern:
+              '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+            type: 'string',
+          },
+        },
         claimDuration: {
           type: 'string',
           format: 'date-span',
@@ -970,6 +978,66 @@ export const $HumanoidImageMaskOutput = {
     },
   },
   additionalProperties: false,
+} as const;
+
+export const $HunyuanVdeoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        cfgScale: {
+          maximum: 100,
+          minimum: 0,
+          type: 'number',
+          format: 'double',
+          default: 4,
+        },
+        frameRate: {
+          type: 'integer',
+          format: 'int32',
+          default: 25,
+        },
+        duration: {
+          maximum: 30,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+          default: 5,
+        },
+        seed: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+        steps: {
+          maximum: 50,
+          minimum: 10,
+          type: 'integer',
+          format: 'int32',
+          default: 20,
+        },
+        width: {
+          type: 'integer',
+          format: 'int32',
+        },
+        height: {
+          type: 'integer',
+          format: 'int32',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['hunyuan'],
+      type: 'string',
+    },
+  },
 } as const;
 
 export const $ImageJobControlNet = {
@@ -1947,7 +2015,7 @@ export const $LLMPromptAugmentationJob = {
 } as const;
 
 export const $LightricksAspectRatio = {
-  enum: ['1:1', '16:9', '9:16'],
+  enum: ['1:1', '16:9', '9:16', '3:2', '2:3'],
   type: 'string',
 } as const;
 
@@ -3192,6 +3260,7 @@ export const $VideoGenInput = {
       kling: '#/components/schemas/KlingVideoGenInput',
       minimax: '#/components/schemas/MiniMaxVideoGenInput',
       lightricks: '#/components/schemas/LightricksVideoGenInput',
+      hunyuan: '#/components/schemas/HunyuanVdeoGenInput',
       vidu: '#/components/schemas/ViduVideoGenInput',
     },
   },

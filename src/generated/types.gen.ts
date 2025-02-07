@@ -240,6 +240,7 @@ export type ComfyVideoGenJob = Job & {
   seed?: number;
   steps?: number;
   sourceImageUrl?: string | null;
+  additionalNetworks?: Array<string>;
   readonly claimDuration?: string;
   readonly type?: string;
 } & {
@@ -506,6 +507,24 @@ export type HumanoidImageMaskInput = {
 export type HumanoidImageMaskOutput = {
   blob: Blob;
 };
+
+export type HunyuanVdeoGenInput = VideoGenInput & {
+  cfgScale?: number;
+  frameRate?: number;
+  duration?: number;
+  seed?: number | null;
+  steps?: number;
+  width?: number;
+  height?: number;
+} & {
+  engine: 'hunyuan';
+};
+
+export type engine3 = 'hunyuan';
+
+export const engine3 = {
+  HUNYUAN: 'hunyuan',
+} as const;
 
 /**
  * Information for a controlnet provided for a text to image input.
@@ -973,9 +992,9 @@ export type KlingVideoGenInput = VideoGenInput & {
   engine: 'kling';
 };
 
-export type engine3 = 'kling';
+export type engine4 = 'kling';
 
-export const engine3 = {
+export const engine4 = {
   KLING: 'kling',
 } as const;
 
@@ -1085,9 +1104,9 @@ export const lrScheduler = {
   LINEAR: 'linear',
 } as const;
 
-export type engine4 = 'kohya';
+export type engine5 = 'kohya';
 
-export const engine4 = {
+export const engine5 = {
   KOHYA: 'kohya',
 } as const;
 
@@ -1129,12 +1148,14 @@ export const $type7 = {
   LLM_PROMPT_AUGMENTATION: 'llmPromptAugmentation',
 } as const;
 
-export type LightricksAspectRatio = '1:1' | '16:9' | '9:16';
+export type LightricksAspectRatio = '1:1' | '16:9' | '9:16' | '3:2' | '2:3';
 
 export const LightricksAspectRatio = {
   _1_1: '1:1',
   _16_9: '16:9',
   _9_16: '9:16',
+  _3_2: '3:2',
+  _2_3: '2:3',
 } as const;
 
 export type LightricksVideoGenInput = VideoGenInput & {
@@ -1153,9 +1174,9 @@ export type LightricksVideoGenInput = VideoGenInput & {
   engine: 'lightricks';
 };
 
-export type engine5 = 'lightricks';
+export type engine6 = 'lightricks';
 
-export const engine5 = {
+export const engine6 = {
   LIGHTRICKS: 'lightricks',
 } as const;
 
@@ -1170,9 +1191,9 @@ export type MiniMaxVideoGenInput = VideoGenInput & {
   engine: 'minimax';
 };
 
-export type engine6 = 'minimax';
+export type engine7 = 'minimax';
 
-export const engine6 = {
+export const engine7 = {
   MINIMAX: 'minimax',
 } as const;
 
@@ -1189,9 +1210,9 @@ export type MochiVideoGenInput = VideoGenInput & {
   engine: 'mochi';
 };
 
-export type engine7 = 'mochi';
+export type engine8 = 'mochi';
 
-export const engine7 = {
+export const engine8 = {
   MOCHI: 'mochi',
 } as const;
 
@@ -1935,9 +1956,9 @@ export const duration2 = {
   _8: 8,
 } as const;
 
-export type engine8 = 'vidu';
+export type engine9 = 'vidu';
 
-export const engine8 = {
+export const engine9 = {
   VIDU: 'vidu',
 } as const;
 
