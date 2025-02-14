@@ -6,6 +6,9 @@ import type {
   UploadBlobError,
   UploadBlobResponse,
   GetBlobData,
+  HeadBlobData,
+  HeadBlobError,
+  HeadBlobResponse,
   ClaimJobsData,
   ClaimJobsError,
   ClaimJobsResponse,
@@ -122,10 +125,17 @@ export const uploadBlob = (options: Options<UploadBlobData>) => {
 };
 
 /**
- * Get blob by ID.
+ * Get blob by ID. This will return the blob as a binary stream.
  */
 export const getBlob = (options: Options<GetBlobData>) => {
   return (options?.client ?? client).get<void>({
+    ...options,
+    url: '/v2/consumer/blobs/{blobId}',
+  });
+};
+
+export const headBlob = (options: Options<HeadBlobData>) => {
+  return (options?.client ?? client).head<HeadBlobResponse, HeadBlobError>({
     ...options,
     url: '/v2/consumer/blobs/{blobId}',
   });

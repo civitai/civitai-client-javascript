@@ -557,14 +557,6 @@ export const $ComfyVideoGenJob = {
           format: 'uri',
           nullable: true,
         },
-        additionalNetworks: {
-          type: 'array',
-          items: {
-            pattern:
-              '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-            type: 'string',
-          },
-        },
         claimDuration: {
           type: 'string',
           format: 'date-span',

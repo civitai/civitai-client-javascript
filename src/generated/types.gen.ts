@@ -240,7 +240,6 @@ export type ComfyVideoGenJob = Job & {
   seed?: number;
   steps?: number;
   sourceImageUrl?: string | null;
-  additionalNetworks?: Array<string>;
   readonly claimDuration?: string;
   readonly type?: string;
 } & {
@@ -2783,6 +2782,16 @@ export type GetBlobData = {
   };
 };
 
+export type HeadBlobData = {
+  path: {
+    blobId: string;
+  };
+};
+
+export type HeadBlobResponse = void;
+
+export type HeadBlobError = ProblemDetails;
+
 export type ClaimJobsData = {
   path: {
     workerId: string;
@@ -3292,6 +3301,23 @@ export type $OpenApiTs = {
          * Unauthorized
          */
         '401': ProblemDetails;
+      };
+    };
+    head: {
+      req: HeadBlobData;
+      res: {
+        /**
+         * No Content
+         */
+        '204': void;
+        /**
+         * Unauthorized
+         */
+        '401': ProblemDetails;
+        /**
+         * Not Found
+         */
+        '404': ProblemDetails;
       };
     };
   };
