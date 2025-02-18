@@ -3086,6 +3086,10 @@ export type QueryWorkflowsData = {
   };
   query?: {
     /**
+     * Whether to return data from oldest to newest
+     */
+    ascending?: boolean;
+    /**
      * An optional cursor to continue querying workflows from a previous query.
      */
     cursor?: string;
