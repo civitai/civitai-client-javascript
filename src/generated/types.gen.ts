@@ -11,6 +11,24 @@ export type AgeClassificationInput = {
   mediaUrl: string;
 };
 
+export type AgeClassificationJob = Job & {
+  model?: string | null;
+  mediaUrl: string;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  failOnMinorDetected: boolean;
+  readonly claimDuration?: string;
+  readonly type?: string;
+} & {
+  $type: 'ageClassification';
+};
+
+export type $type = 'ageClassification';
+
+export const $type = {
+  AGE_CLASSIFICATION: 'ageClassification',
+} as const;
+
 export type AgeClassificationOutput = {
   labels: {
     [key: string]: Array<AgeClassifierLabel>;
@@ -35,12 +53,6 @@ export type AgeClassificationStep = WorkflowStep & {
 } & {
   $type: 'ageClassification';
 };
-
-export type $type = 'ageClassification';
-
-export const $type = {
-  AGE_CLASSIFICATION: 'ageClassification',
-} as const;
 
 /**
  * Age classification
@@ -145,6 +157,10 @@ export type ComfyInput = {
    * External metadata that will be stored with the image
    */
   imageMetadata?: string | null;
+  /**
+   * Opt-into using the spine controller exclusively
+   */
+  useSpineComfy?: boolean | null;
 };
 
 export type ComfyJob = Job & {
@@ -163,6 +179,10 @@ export type ComfyJob = Job & {
    * Get or set additional metadata that will be embedded with generated images
    */
   imageMetadata?: string | null;
+  /**
+   * The ability to opt-into spine comfy instances
+   */
+  spineComfy?: boolean | null;
   readonly type?: string;
   readonly claimDuration?: string;
 } & {
@@ -240,6 +260,7 @@ export type ComfyVideoGenJob = Job & {
   seed?: number;
   steps?: number;
   sourceImageUrl?: string | null;
+  additionalNetworks?: Array<string> | null;
   readonly claimDuration?: string;
   readonly type?: string;
 } & {
@@ -1389,6 +1410,14 @@ export type ResourceInfo = {
    * If resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content
    */
   hasMatureContentRestriction?: boolean;
+  /**
+   * Get a rank between 0-1 on the popularity of the resource.
+   */
+  popularityRank?: number | null;
+  /**
+   * Get wether this resource is featured
+   */
+  isFeatured?: boolean | null;
 };
 
 export type RewritePromptGoal = 'preventSexual' | 'preventSexualMinor';
@@ -2204,7 +2233,10 @@ export type WorkerMediaCaptioningCapabilities = {
  * Details of a worker's media comfy capabilities.
  */
 export type WorkerMediaComfyCapabilities = {
-  [key: string]: unknown;
+  /**
+   * A preview property to enable spine comfy workflows
+   */
+  spineComfy?: boolean;
 };
 
 /**

@@ -22,6 +22,57 @@ export const $AgeClassificationInput = {
   additionalProperties: false,
 } as const;
 
+export const $AgeClassificationJob = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Job',
+    },
+    {
+      required: ['destinationBlobKey', 'destinationUrl', 'failOnMinorDetected', 'mediaUrl'],
+      type: 'object',
+      properties: {
+        model: {
+          pattern:
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+          type: 'string',
+          nullable: true,
+        },
+        mediaUrl: {
+          type: 'string',
+          format: 'uri',
+        },
+        destinationBlobKey: {
+          type: 'string',
+        },
+        destinationUrl: {
+          type: 'string',
+          format: 'uri',
+        },
+        failOnMinorDetected: {
+          type: 'boolean',
+        },
+        claimDuration: {
+          type: 'string',
+          format: 'date-span',
+          readOnly: true,
+        },
+        type: {
+          type: 'string',
+          readOnly: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['ageClassification'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $AgeClassificationOutput = {
   required: ['hasMinor', 'labels', 'prediction'],
   type: 'object',
@@ -298,6 +349,11 @@ export const $ComfyInput = {
       description: 'External metadata that will be stored with the image',
       nullable: true,
     },
+    useSpineComfy: {
+      type: 'boolean',
+      description: 'Opt-into using the spine controller exclusively',
+      nullable: true,
+    },
   },
   additionalProperties: false,
 } as const;
@@ -339,6 +395,11 @@ export const $ComfyJob = {
         imageMetadata: {
           type: 'string',
           description: 'Get or set additional metadata that will be embedded with generated images',
+          nullable: true,
+        },
+        spineComfy: {
+          type: 'boolean',
+          description: 'The ability to opt-into spine comfy instances',
           nullable: true,
         },
         type: {
@@ -555,6 +616,13 @@ export const $ComfyVideoGenJob = {
         sourceImageUrl: {
           type: 'string',
           format: 'uri',
+          nullable: true,
+        },
+        additionalNetworks: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
           nullable: true,
         },
         claimDuration: {
@@ -1527,6 +1595,7 @@ export const $Job = {
       comfy: '#/components/schemas/ComfyJob',
       similaritySearch: '#/components/schemas/SimilaritySearchJob',
       llmPromptAugmentation: '#/components/schemas/LLMPromptAugmentationJob',
+      ageClassification: '#/components/schemas/AgeClassificationJob',
       mochi: '#/components/schemas/MochiVideoGenJob',
       vidu: '#/components/schemas/ViduVideoGenJob',
       comfyVideoGen: '#/components/schemas/ComfyVideoGenJob',
@@ -2388,6 +2457,17 @@ export const $ResourceInfo = {
       type: 'boolean',
       description: `A boolean indicating whether this resource restricts mature content generation.
 If resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content`,
+    },
+    popularityRank: {
+      type: 'number',
+      description: 'Get a rank between 0-1 on the popularity of the resource.',
+      format: 'double',
+      nullable: true,
+    },
+    isFeatured: {
+      type: 'boolean',
+      description: 'Get wether this resource is featured',
+      nullable: true,
     },
   },
   additionalProperties: false,
@@ -3756,6 +3836,12 @@ export const $WorkerMediaCaptioningCapabilities = {
 
 export const $WorkerMediaComfyCapabilities = {
   type: 'object',
+  properties: {
+    spineComfy: {
+      type: 'boolean',
+      description: 'A preview property to enable spine comfy workflows',
+    },
+  },
   additionalProperties: false,
   description: "Details of a worker's media comfy capabilities.",
 } as const;
