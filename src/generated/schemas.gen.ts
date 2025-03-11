@@ -2469,6 +2469,12 @@ If resources with this restriction are used in generation, then generations will
       description: 'Get wether this resource is featured',
       nullable: true,
     },
+    publishedAt: {
+      type: 'string',
+      description: 'The date at which this model got published',
+      format: 'date-time',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: 'Details for a specific resource.',

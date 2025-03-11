@@ -1418,6 +1418,10 @@ export type ResourceInfo = {
    * Get wether this resource is featured
    */
   isFeatured?: boolean | null;
+  /**
+   * The date at which this model got published
+   */
+  publishedAt?: string | null;
 };
 
 export type RewritePromptGoal = 'preventSexual' | 'preventSexualMinor';
