@@ -3,6 +3,7 @@ import { ProblemDetails } from '../generated';
 
 type ClientConfig = {
   env?: 'dev' | 'prod';
+  baseUrl?: string;
   base?: string; // TODO - implement a base path override
   auth: string;
 };
@@ -10,6 +11,7 @@ type ClientConfig = {
 export function createCivitaiClient(config: ClientConfig) {
   const client = createClient({
     baseUrl:
+      config.baseUrl ? config.baseUrl :
       config.env === 'dev'
         ? 'https://orchestration-dev.civitai.com'
         : 'https://orchestration.civitai.com',
