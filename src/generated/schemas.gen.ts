@@ -1267,6 +1267,7 @@ export const $ImageResourceTrainingInput = {
     mapping: {
       kohya: '#/components/schemas/KohyaImageResourceTrainingInput',
       'flux-dev-fast': '#/components/schemas/FluxDevFastImageResourceTrainingInput',
+      musubi: '#/components/schemas/MusubiImageResourceTrainingInput',
     },
   },
 } as const;
@@ -1592,6 +1593,7 @@ export const $Job = {
       textToImage: '#/components/schemas/TextToImageJob',
       textToImageV2: '#/components/schemas/TextToImageV2Job',
       imageResourceTraining: '#/components/schemas/ImageResourceTrainingJob',
+      wdTagging: '#/components/schemas/WDTaggingJob',
       comfy: '#/components/schemas/ComfyJob',
       similaritySearch: '#/components/schemas/SimilaritySearchJob',
       llmPromptAugmentation: '#/components/schemas/LLMPromptAugmentationJob',
@@ -1900,7 +1902,7 @@ export const $KohyaImageResourceTrainingInput = {
           maximum: 3,
           minimum: 0,
           type: 'integer',
-          description: `If your training images have tags, you can randomly shuffle them. 
+          description: `If your training images have tags, you can randomly shuffle them.
 However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
 This option does nothing if the Shuffle Tags option is off.`,
           format: 'int32',
@@ -1957,10 +1959,10 @@ This option does nothing if the Shuffle Tags option is off.`,
           maximum: 20,
           minimum: 0,
           type: 'integer',
-          description: `Learning is performed by putting noise of various strengths on the training image, 
+          description: `Learning is performed by putting noise of various strengths on the training image,
 but depending on the difference in strength of the noise on which it is placed, learning will be
 stable by moving closer to or farther from the learning target.
-
+            
 Min SNR gamma was introduced to compensate for that. When learning images have little noise,
 it may deviate greatly from the target, so try to suppress this jump.`,
           format: 'int32',
@@ -1979,10 +1981,10 @@ it may deviate greatly from the target, so try to suppress this jump.`,
           maximum: 256,
           minimum: 1,
           type: 'integer',
-          description: `The smaller the Network alpha value, the larger the stored LoRA neural net weights. 
-For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5, 
+          description: `The smaller the Network alpha value, the larger the stored LoRA neural net weights.
+For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
 meaning that the learning rate is only half as powerful as the Learning Rate setting.
-
+            
 If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.`,
           format: 'int32',
           nullable: true,
@@ -1998,8 +2000,8 @@ If Alpha and Dim are the same number, the strength used will be 1 and will have 
         },
         optimizerType: {
           type: 'string',
-          description: `The optimizer determines how to update the neural net weights during training. 
-Various methods have been proposed for smart learning, but the most commonly used in LoRA learning 
+          description: `The optimizer determines how to update the neural net weights during training.
+Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
 is "AdamW8bit" or "Adafactor" for SDXL.`,
           nullable: true,
         },
@@ -2256,6 +2258,128 @@ export const $MochiVideoGenJob = {
   properties: {
     $type: {
       enum: ['mochi'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $MusubiImageResourceTrainingInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/ImageResourceTrainingInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        maxTrainEpochs: {
+          maximum: 20,
+          minimum: 0,
+          type: 'integer',
+          description:
+            'An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.',
+          format: 'int32',
+          default: 5,
+        },
+        numRepeats: {
+          maximum: 5000,
+          minimum: 1,
+          type: 'integer',
+          description:
+            'Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.',
+          format: 'int32',
+          default: 8,
+        },
+        trainBatchSize: {
+          maximum: 9,
+          minimum: 1,
+          type: 'integer',
+          description:
+            'Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.',
+          format: 'int32',
+          nullable: true,
+        },
+        resolution: {
+          maximum: 1024,
+          minimum: 512,
+          type: 'integer',
+          description:
+            'Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution',
+          format: 'int32',
+          nullable: true,
+        },
+        enableBucket: {
+          type: 'boolean',
+          description:
+            'Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.',
+          default: true,
+        },
+        unetLR: {
+          maximum: 1,
+          minimum: 0,
+          type: 'number',
+          description:
+            'Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net',
+          format: 'double',
+          default: 0.00005,
+        },
+        lrScheduler: {
+          enum: ['constant', 'cosine', 'cosine_with_restarts', 'linear'],
+          type: 'string',
+          description:
+            'You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.',
+          nullable: true,
+        },
+        lrSchedulerNumCycles: {
+          maximum: 4,
+          minimum: 1,
+          type: 'integer',
+          description:
+            'This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.',
+          format: 'int32',
+          default: 3,
+        },
+        networkDim: {
+          maximum: 256,
+          minimum: 1,
+          type: 'integer',
+          description:
+            'The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.',
+          format: 'int32',
+          nullable: true,
+        },
+        networkAlpha: {
+          maximum: 256,
+          minimum: 1,
+          type: 'integer',
+          description: `The smaller the Network alpha value, the larger the stored LoRA neural net weights.
+For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
+meaning that the learning rate is only half as powerful as the Learning Rate setting.
+            
+If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.`,
+          format: 'int32',
+          nullable: true,
+        },
+        optimizerType: {
+          type: 'string',
+          description: `The optimizer determines how to update the neural net weights during training.
+Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
+is "AdamW8bit" or "Adafactor" for SDXL.`,
+          nullable: true,
+        },
+        targetSteps: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+          readOnly: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['musubi'],
       type: 'string',
     },
   },
@@ -3518,6 +3642,56 @@ export const $ViduVideoGenStyle = {
   type: 'string',
 } as const;
 
+export const $WDTaggingJob = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Job',
+    },
+    {
+      type: 'object',
+      properties: {
+        model: {
+          type: 'string',
+        },
+        mediaUrl: {
+          type: 'string',
+          format: 'uri',
+        },
+        threshold: {
+          type: 'number',
+          format: 'double',
+          nullable: true,
+        },
+        movieRatingModel: {
+          type: 'string',
+          nullable: true,
+        },
+        prompt: {
+          type: 'string',
+          nullable: true,
+        },
+        claimDuration: {
+          type: 'string',
+          format: 'date-span',
+          readOnly: true,
+        },
+        type: {
+          type: 'string',
+          readOnly: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['wdTagging'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $WorkerCapabilities = {
   type: 'object',
   properties: {
@@ -4003,6 +4177,12 @@ export const $WorkerRegistration = {
         'Get additional metadata about this worker. This can be used for debugging purposes as well as to target certain configurations to certain workers.',
       nullable: true,
     },
+    capacitySaturationRate: {
+      type: 'number',
+      description: 'The saturation rate of available capacity of this worker of the worker.',
+      format: 'double',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: "Details of a worker's registration.",
@@ -4329,6 +4509,13 @@ export const $WorkflowStep = {
       additionalProperties: {},
       description: 'A collection of user defined metadata for the workflow step.',
     },
+    estimatedProgressRate: {
+      type: 'number',
+      description:
+        'An estimation on the current progression of this step, or null if there is no estimation',
+      format: 'double',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: 'Details of a workflow step.',
@@ -4400,6 +4587,13 @@ export const $WorkflowStepJob = {
       type: 'number',
       description: "The job's cost.",
       format: 'double',
+    },
+    estimatedProgressRate: {
+      type: 'number',
+      description:
+        'An estimation on the current progression of this job, or null if there is no estimation',
+      format: 'double',
+      nullable: true,
     },
   },
   additionalProperties: false,

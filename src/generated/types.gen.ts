@@ -1254,6 +1254,68 @@ export const $type8 = {
   MOCHI: 'mochi',
 } as const;
 
+export type MusubiImageResourceTrainingInput = ImageResourceTrainingInput & {
+  /**
+   * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
+   */
+  maxTrainEpochs?: number;
+  /**
+   * Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.
+   */
+  numRepeats?: number;
+  /**
+   * Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.
+   */
+  trainBatchSize?: number | null;
+  /**
+   * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
+   */
+  resolution?: number | null;
+  /**
+   * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
+   */
+  enableBucket?: boolean;
+  /**
+   * Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net
+   */
+  unetLR?: number;
+  /**
+   * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+   */
+  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear' | null;
+  /**
+   * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
+   */
+  lrSchedulerNumCycles?: number;
+  /**
+   * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
+   */
+  networkDim?: number | null;
+  /**
+   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
+   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
+   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
+   *
+   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   */
+  networkAlpha?: number | null;
+  /**
+   * The optimizer determines how to update the neural net weights during training.
+   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
+   * is "AdamW8bit" or "Adafactor" for SDXL.
+   */
+  optimizerType?: string | null;
+  readonly targetSteps?: number | null;
+} & {
+  engine: 'musubi';
+};
+
+export type engine9 = 'musubi';
+
+export const engine9 = {
+  MUSUBI: 'musubi',
+} as const;
+
 export type NSFWLevel = 'pg' | 'pG13' | 'r' | 'x' | 'xxx' | 'na';
 
 export const NSFWLevel = {
@@ -1988,9 +2050,9 @@ export const duration2 = {
   _8: 8,
 } as const;
 
-export type engine9 = 'vidu';
+export type engine10 = 'vidu';
 
-export const engine9 = {
+export const engine10 = {
   VIDU: 'vidu',
 } as const;
 
@@ -2020,6 +2082,24 @@ export type ViduVideoGenStyle = 'general' | 'anime';
 export const ViduVideoGenStyle = {
   GENERAL: 'general',
   ANIME: 'anime',
+} as const;
+
+export type WDTaggingJob = Job & {
+  model?: string;
+  mediaUrl?: string;
+  threshold?: number | null;
+  movieRatingModel?: string | null;
+  prompt?: string | null;
+  readonly claimDuration?: string;
+  readonly type?: string;
+} & {
+  $type: 'wdTagging';
+};
+
+export type $type16 = 'wdTagging';
+
+export const $type16 = {
+  WD_TAGGING: 'wdTagging',
 } as const;
 
 /**
@@ -2359,6 +2439,10 @@ export type WorkerRegistration = {
   metadata?: {
     [key: string]: unknown;
   } | null;
+  /**
+   * The saturation rate of available capacity of this worker of the worker.
+   */
+  capacitySaturationRate?: number | null;
 };
 
 /**
@@ -2631,6 +2715,10 @@ export type WorkflowStep = {
   metadata?: {
     [key: string]: unknown;
   };
+  /**
+   * An estimation on the current progression of this step, or null if there is no estimation
+   */
+  estimatedProgressRate?: number | null;
 };
 
 /**
@@ -2671,6 +2759,10 @@ export type WorkflowStepJob = {
    * The job's cost.
    */
   cost?: number;
+  /**
+   * An estimation on the current progression of this job, or null if there is no estimation
+   */
+  estimatedProgressRate?: number | null;
 };
 
 /**
@@ -3012,7 +3104,7 @@ export type CreateWorkerData = {
 
 export type CreateWorkerResponse = CreateWorkerResult;
 
-export type CreateWorkerError = ProblemDetails;
+export type CreateWorkerError = ProblemDetails & string;
 
 export type QueryWorkersResponse = Array<WorkerDetails>;
 
@@ -3739,6 +3831,10 @@ export type $OpenApiTs = {
          * Forbidden
          */
         '403': ProblemDetails;
+        /**
+         * Not Acceptable
+         */
+        '406': string;
       };
     };
     get: {
