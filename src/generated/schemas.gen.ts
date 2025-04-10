@@ -618,10 +618,10 @@ export const $ComfyVideoGenJob = {
           format: 'uri',
           nullable: true,
         },
-        additionalNetworks: {
+        loras: {
           type: 'array',
           items: {
-            type: 'string',
+            $ref: '#/components/schemas/Lora',
           },
           nullable: true,
         },
@@ -1088,6 +1088,12 @@ export const $HunyuanVdeoGenInput = {
           type: 'integer',
           format: 'int32',
         },
+        loras: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/HunyuanVdeoGenLoraInput',
+          },
+        },
       },
       additionalProperties: false,
     },
@@ -1098,6 +1104,23 @@ export const $HunyuanVdeoGenInput = {
       type: 'string',
     },
   },
+} as const;
+
+export const $HunyuanVdeoGenLoraInput = {
+  required: ['air', 'strength'],
+  type: 'object',
+  properties: {
+    air: {
+      pattern:
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+      type: 'string',
+    },
+    strength: {
+      type: 'number',
+      format: 'double',
+    },
+  },
+  additionalProperties: false,
 } as const;
 
 export const $ImageJobControlNet = {
@@ -2144,6 +2167,22 @@ export const $LightricksVideoGenInput = {
       type: 'string',
     },
   },
+} as const;
+
+export const $Lora = {
+  type: 'object',
+  properties: {
+    air: {
+      pattern:
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+      type: 'string',
+    },
+    strength: {
+      type: 'number',
+      format: 'double',
+    },
+  },
+  additionalProperties: false,
 } as const;
 
 export const $MiniMaxVideoGenInput = {
@@ -3463,6 +3502,7 @@ export const $VideoGenInput = {
       minimax: '#/components/schemas/MiniMaxVideoGenInput',
       lightricks: '#/components/schemas/LightricksVideoGenInput',
       hunyuan: '#/components/schemas/HunyuanVdeoGenInput',
+      wan: '#/components/schemas/WanVdeoGenInput',
       vidu: '#/components/schemas/ViduVideoGenInput',
     },
   },
@@ -3692,6 +3732,71 @@ export const $WDTaggingJob = {
   },
 } as const;
 
+export const $WanVdeoGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/VideoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        sourceImage: {
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
+        },
+        cfgScale: {
+          maximum: 100,
+          minimum: 0,
+          type: 'number',
+          format: 'double',
+          default: 4,
+        },
+        frameRate: {
+          type: 'integer',
+          format: 'int32',
+          default: 25,
+        },
+        duration: {
+          maximum: 30,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+          default: 5,
+        },
+        seed: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+        steps: {
+          maximum: 50,
+          minimum: 10,
+          type: 'integer',
+          format: 'int32',
+          default: 20,
+        },
+        width: {
+          type: 'integer',
+          format: 'int32',
+        },
+        height: {
+          type: 'integer',
+          format: 'int32',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['wan'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $WorkerCapabilities = {
   type: 'object',
   properties: {
@@ -3824,6 +3929,13 @@ export const $WorkerDetails = {
       type: 'integer',
       description: 'The size in bytes of resources that are queued up for this worker to download',
       format: 'int64',
+      nullable: true,
+    },
+    availableCapacity: {
+      type: 'number',
+      description:
+        'The remaining capacity  that this worker can claim, or null if remaining capacity can not be computed',
+      format: 'double',
       nullable: true,
     },
   },

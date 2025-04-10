@@ -260,7 +260,7 @@ export type ComfyVideoGenJob = Job & {
   seed?: number;
   steps?: number;
   sourceImageUrl?: string | null;
-  additionalNetworks?: Array<string> | null;
+  loras?: Array<Lora> | null;
   readonly claimDuration?: string;
   readonly type?: string;
 } & {
@@ -536,6 +536,7 @@ export type HunyuanVdeoGenInput = VideoGenInput & {
   steps?: number;
   width?: number;
   height?: number;
+  loras?: Array<HunyuanVdeoGenLoraInput>;
 } & {
   engine: 'hunyuan';
 };
@@ -545,6 +546,11 @@ export type engine3 = 'hunyuan';
 export const engine3 = {
   HUNYUAN: 'hunyuan',
 } as const;
+
+export type HunyuanVdeoGenLoraInput = {
+  air: string;
+  strength: number;
+};
 
 /**
  * Information for a controlnet provided for a text to image input.
@@ -1199,6 +1205,11 @@ export type engine6 = 'lightricks';
 export const engine6 = {
   LIGHTRICKS: 'lightricks',
 } as const;
+
+export type Lora = {
+  air?: string;
+  strength?: number;
+};
 
 export type MiniMaxVideoGenInput = VideoGenInput & {
   model?: MiniMaxVideoGenModel;
@@ -2102,6 +2113,28 @@ export const $type16 = {
   WD_TAGGING: 'wdTagging',
 } as const;
 
+export type WanVdeoGenInput = VideoGenInput & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  sourceImage?: string | null;
+  cfgScale?: number;
+  frameRate?: number;
+  duration?: number;
+  seed?: number | null;
+  steps?: number;
+  width?: number;
+  height?: number;
+} & {
+  engine: 'wan';
+};
+
+export type engine11 = 'wan';
+
+export const engine11 = {
+  WAN: 'wan',
+} as const;
+
 /**
  * Details of a worker's capabilities.
  */
@@ -2198,6 +2231,10 @@ export type WorkerDetails = {
    * The size in bytes of resources that are queued up for this worker to download
    */
   upcomingResourcesSize?: number | null;
+  /**
+   * The remaining capacity  that this worker can claim, or null if remaining capacity can not be computed
+   */
+  availableCapacity?: number | null;
 };
 
 export type WorkerHaiperCapabilities = {
