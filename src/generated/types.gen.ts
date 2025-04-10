@@ -537,6 +537,7 @@ export type HunyuanVdeoGenInput = VideoGenInput & {
   width?: number;
   height?: number;
   loras?: Array<HunyuanVdeoGenLoraInput>;
+  model?: string | null;
 } & {
   engine: 'hunyuan';
 };
@@ -2125,6 +2126,8 @@ export type WanVdeoGenInput = VideoGenInput & {
   steps?: number;
   width?: number;
   height?: number;
+  model?: string | null;
+  loras?: Array<HunyuanVdeoGenLoraInput>;
 } & {
   engine: 'wan';
 };

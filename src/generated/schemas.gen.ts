@@ -1094,6 +1094,12 @@ export const $HunyuanVdeoGenInput = {
             $ref: '#/components/schemas/HunyuanVdeoGenLoraInput',
           },
         },
+        model: {
+          pattern:
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+          type: 'string',
+          nullable: true,
+        },
       },
       additionalProperties: false,
     },
@@ -3784,6 +3790,18 @@ export const $WanVdeoGenInput = {
         height: {
           type: 'integer',
           format: 'int32',
+        },
+        model: {
+          pattern:
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+          type: 'string',
+          nullable: true,
+        },
+        loras: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/HunyuanVdeoGenLoraInput',
+          },
         },
       },
       additionalProperties: false,
