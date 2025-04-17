@@ -22,57 +22,6 @@ export const $AgeClassificationInput = {
   additionalProperties: false,
 } as const;
 
-export const $AgeClassificationJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationBlobKey', 'destinationUrl', 'failOnMinorDetected', 'mediaUrl'],
-      type: 'object',
-      properties: {
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          nullable: true,
-        },
-        mediaUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        destinationBlobKey: {
-          type: 'string',
-        },
-        destinationUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        failOnMinorDetected: {
-          type: 'boolean',
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['ageClassification'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $AgeClassificationOutput = {
   required: ['hasMinor', 'labels', 'prediction'],
   type: 'object',
@@ -276,55 +225,6 @@ export const $BuzzClientAccount = {
   type: 'string',
 } as const;
 
-export const $Claim = {
-  required: ['id', 'job', 'status'],
-  type: 'object',
-  properties: {
-    id: {
-      type: 'string',
-    },
-    job: {
-      $ref: '#/components/schemas/Job',
-    },
-    status: {
-      $ref: '#/components/schemas/ClaimStatus',
-    },
-    requestedAt: {
-      type: 'string',
-      format: 'date-time',
-    },
-    expiresAt: {
-      type: 'string',
-      format: 'date-time',
-    },
-    retryAttempt: {
-      type: 'integer',
-      format: 'int32',
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-export const $ClaimStatus = {
-  type: 'object',
-  properties: {
-    status: {
-      $ref: '#/components/schemas/ClaimStatusType',
-    },
-    context: {
-      type: 'object',
-      additionalProperties: {},
-      nullable: true,
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-export const $ClaimStatusType = {
-  enum: ['claimed', 'rejected', 'succeeded'],
-  type: 'string',
-} as const;
-
 export const $ComfyInput = {
   required: ['comfyWorkflow'],
   type: 'object',
@@ -356,89 +256,6 @@ export const $ComfyInput = {
     },
   },
   additionalProperties: false,
-} as const;
-
-export const $ComfyJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['params', 'slots'],
-      type: 'object',
-      properties: {
-        params: {
-          type: 'object',
-          additionalProperties: {
-            $ref: '#/components/schemas/ComfyNode',
-          },
-          description: 'A untyped set of parameters that are associated with this job',
-        },
-        resources: {
-          uniqueItems: true,
-          type: 'array',
-          items: {
-            pattern:
-              '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-            type: 'string',
-          },
-          nullable: true,
-        },
-        slots: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/ComfyJobSlot',
-          },
-          description: 'Slots for the resulting blob outputs.',
-        },
-        imageMetadata: {
-          type: 'string',
-          description: 'Get or set additional metadata that will be embedded with generated images',
-          nullable: true,
-        },
-        spineComfy: {
-          type: 'boolean',
-          description: 'The ability to opt-into spine comfy instances',
-          nullable: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['comfy'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $ComfyJobSlot = {
-  required: ['blobKey', 'destinationUrl'],
-  type: 'object',
-  properties: {
-    blobKey: {
-      type: 'string',
-      description: 'The hash for the blob output.',
-    },
-    destinationUrl: {
-      type: 'string',
-      description: 'The destination url for blob upload.',
-      format: 'uri',
-    },
-  },
-  additionalProperties: false,
-  description: 'Contains slot information for a blob generated by a ComfyJob.',
 } as const;
 
 export const $ComfyNode = {
@@ -556,165 +373,9 @@ export const $ComfyStepTemplate = {
   description: 'Comfy workflows',
 } as const;
 
-export const $ComfyVideoGenJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationUrl', 'model', 'prompt'],
-      type: 'object',
-      properties: {
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-        },
-        prompt: {
-          type: 'string',
-        },
-        negativePrompt: {
-          type: 'string',
-          nullable: true,
-        },
-        cfgScale: {
-          type: 'number',
-          format: 'double',
-        },
-        destinationUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        sampler: {
-          type: 'string',
-        },
-        width: {
-          type: 'integer',
-          format: 'int32',
-        },
-        height: {
-          type: 'integer',
-          format: 'int32',
-        },
-        frameRate: {
-          type: 'integer',
-          format: 'int32',
-        },
-        length: {
-          type: 'integer',
-          format: 'int32',
-        },
-        seed: {
-          type: 'integer',
-          format: 'int64',
-        },
-        steps: {
-          type: 'integer',
-          format: 'int32',
-        },
-        sourceImageUrl: {
-          type: 'string',
-          format: 'uri',
-          nullable: true,
-        },
-        loras: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/Lora',
-          },
-          nullable: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['comfyVideoGen'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $ConfigurationOptions = {
-  required: ['selector', 'spec'],
-  type: 'object',
-  properties: {
-    priority: {
-      type: 'integer',
-      description:
-        'Get or set the priority of this configuration if multiple configurations apply to the same worker',
-      format: 'int64',
-    },
-    selector: {
-      $ref: '#/components/schemas/Expression',
-    },
-    spec: {
-      description: 'Get or set the specification associated with this configuration',
-      nullable: true,
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-export const $ConfigurationStatus = {
-  required: ['configurationId'],
-  type: 'object',
-  properties: {
-    configurationId: {
-      type: 'string',
-    },
-    assigned: {
-      type: 'integer',
-      format: 'int32',
-    },
-    targeted: {
-      type: 'integer',
-      format: 'int32',
-    },
-    applied: {
-      type: 'integer',
-      format: 'int32',
-    },
-  },
-  additionalProperties: false,
-} as const;
-
 export const $ContainerFormat = {
   enum: ['mp4', 'webM'],
   type: 'string',
-} as const;
-
-export const $CreateConfigurationResult = {
-  required: ['configurationId'],
-  type: 'object',
-  properties: {
-    configurationId: {
-      type: 'string',
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-export const $CreateWorkerResult = {
-  required: ['workerId'],
-  type: 'object',
-  properties: {
-    workerId: {
-      type: 'string',
-    },
-  },
-  additionalProperties: false,
 } as const;
 
 export const $CursedArrayOfTelemetryCursorAndWorkflow = {
@@ -729,28 +390,6 @@ export const $CursedArrayOfTelemetryCursorAndWorkflow = {
       items: {
         $ref: '#/components/schemas/Workflow',
       },
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-export const $DownloadSource = {
-  enum: ['default', 'tigris'],
-  type: 'string',
-} as const;
-
-export const $DynamicAssignment = {
-  required: ['fromPath', 'toPath'],
-  type: 'object',
-  properties: {
-    fromPath: {
-      type: 'string',
-    },
-    toPath: {
-      type: 'string',
-    },
-    defaultValue: {
-      nullable: true,
     },
   },
   additionalProperties: false,
@@ -837,13 +476,6 @@ export const $EchoStepTemplate = {
   description: 'Echo',
 } as const;
 
-export const $EcosystemElement = {
-  type: 'object',
-  additionalProperties: {
-    $ref: '#/components/schemas/EcosystemElement',
-  },
-} as const;
-
 export const $EpochResult = {
   required: ['blobName', 'blobUrl'],
   type: 'object',
@@ -878,11 +510,6 @@ export const $EpochResult = {
   },
   additionalProperties: false,
   description: 'An epock result.',
-} as const;
-
-export const $Expression = {
-  type: 'object',
-  additionalProperties: false,
 } as const;
 
 export const $FileFormat = {
@@ -1091,7 +718,7 @@ export const $HunyuanVdeoGenInput = {
         loras: {
           type: 'array',
           items: {
-            $ref: '#/components/schemas/HunyuanVdeoGenLoraInput',
+            $ref: '#/components/schemas/VideoGenInputLora',
           },
         },
         model: {
@@ -1110,23 +737,6 @@ export const $HunyuanVdeoGenInput = {
       type: 'string',
     },
   },
-} as const;
-
-export const $HunyuanVdeoGenLoraInput = {
-  required: ['air', 'strength'],
-  type: 'object',
-  properties: {
-    air: {
-      pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-      type: 'string',
-    },
-    strength: {
-      type: 'number',
-      format: 'double',
-    },
-  },
-  additionalProperties: false,
 } as const;
 
 export const $ImageJobControlNet = {
@@ -1176,75 +786,6 @@ export const $ImageJobNetworkParams = {
     },
   },
   additionalProperties: false,
-} as const;
-
-export const $ImageJobParams = {
-  required: ['height', 'width'],
-  type: 'object',
-  properties: {
-    prompt: {
-      type: 'string',
-      description: 'The prompt for the text to image generation.',
-      nullable: true,
-    },
-    negativePrompt: {
-      type: 'string',
-      description: 'The negative prompt for the text to image generation.',
-      nullable: true,
-    },
-    scheduler: {
-      $ref: '#/components/schemas/Scheduler',
-    },
-    steps: {
-      maximum: 150,
-      minimum: 1,
-      type: 'integer',
-      description: 'The number of steps for the text to image generation.',
-      format: 'int32',
-      default: 30,
-    },
-    cfgScale: {
-      maximum: 30,
-      minimum: 1,
-      type: 'number',
-      description: 'The CFG scale value for the text to image generation.',
-      format: 'double',
-      default: 7.5,
-      nullable: true,
-    },
-    width: {
-      maximum: 2048,
-      minimum: 64,
-      type: 'integer',
-      description: 'The width for the image to be generated in pixels.',
-      format: 'int32',
-      default: 512,
-    },
-    height: {
-      maximum: 2048,
-      minimum: 64,
-      type: 'integer',
-      description: 'The height for the image to be generated in pixels.',
-      format: 'int32',
-      default: 512,
-    },
-    seed: {
-      maximum: 4294967295,
-      minimum: -1,
-      type: 'integer',
-      description: 'The seed for the text to image generation.',
-      format: 'int64',
-      default: -1,
-    },
-    clipSkip: {
-      type: 'integer',
-      description: 'The clip skip value for the text to image generation.',
-      format: 'int32',
-      default: 2,
-    },
-  },
-  additionalProperties: false,
-  description: 'Parameters for a text to image step.',
 } as const;
 
 export const $ImageResouceTrainingModerationStatus = {
@@ -1297,66 +838,6 @@ export const $ImageResourceTrainingInput = {
       kohya: '#/components/schemas/KohyaImageResourceTrainingInput',
       'flux-dev-fast': '#/components/schemas/FluxDevFastImageResourceTrainingInput',
       musubi: '#/components/schemas/MusubiImageResourceTrainingInput',
-    },
-  },
-} as const;
-
-export const $ImageResourceTrainingJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['model', 'params', 'trainingData'],
-      type: 'object',
-      properties: {
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          description: 'An AIR representing the model to use.',
-        },
-        trainingData: {
-          type: 'string',
-          description: 'A url referring data that needs to be trained upon',
-          format: 'uri',
-        },
-        params: {
-          type: 'object',
-          additionalProperties: {},
-          description: 'A untyped set of parameters that are associated with this job',
-        },
-        output: {
-          type: 'string',
-          description: 'An application provided output of the current status of this job',
-          nullable: true,
-        },
-        engine: {
-          type: 'string',
-          description: 'The engine that should be used for training',
-          nullable: true,
-        },
-        type: {
-          type: 'string',
-          description: 'The job type.',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          description: `Rick: yeah i think for LoRA we need it to be 5-10 minutes.
-lora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer`,
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['imageResourceTraining'],
-      type: 'string',
     },
   },
 } as const;
@@ -1526,141 +1007,6 @@ export const $ImageUploadStepTemplate = {
     },
   },
   description: 'Image upload',
-} as const;
-
-export const $Job = {
-  required: ['$type'],
-  type: 'object',
-  properties: {
-    $type: {
-      type: 'string',
-    },
-    id: {
-      type: 'string',
-      description: 'A unique id for this job',
-    },
-    createdAt: {
-      type: 'string',
-      description: 'The date when this job got created',
-      format: 'date-time',
-    },
-    expireAt: {
-      type: 'string',
-      description: 'The date for when this job was set to expire',
-      format: 'date-time',
-      nullable: true,
-    },
-    webhook: {
-      type: 'string',
-      description: 'A webhook to be invoked when the job receives a status update',
-      format: 'uri',
-      nullable: true,
-    },
-    properties: {
-      type: 'object',
-      additionalProperties: {},
-      description:
-        'A set of user defined properties that can be used to index and partition this job',
-    },
-    type: {
-      type: 'string',
-      description: 'The type of this job as a string',
-    },
-    cost: {
-      type: 'number',
-      description: 'Get a cost for this job',
-      format: 'double',
-    },
-    maxRetryAttempt: {
-      type: 'integer',
-      description: 'The max number of retries before we give up',
-      format: 'int32',
-    },
-    issuedBy: {
-      type: 'string',
-      description: 'Get or set the name of the consumer that issued this job',
-      nullable: true,
-    },
-    version: {
-      type: 'integer',
-      description:
-        'Get or set the version of this job, this is used to track changes to the job schema',
-      format: 'int32',
-      default: 0,
-    },
-    jobDependencies: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/JobDependency',
-      },
-      description: 'Get or set a list of dependencies that this job has',
-    },
-    claimDuration: {
-      type: 'string',
-      description: 'The total duration that the job can be claimed',
-      format: 'date-span',
-    },
-    resources: {
-      type: 'array',
-      items: {
-        pattern:
-          '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-        type: 'string',
-      },
-      description: 'Get a list of resources that this job depends on',
-    },
-    recovered: {
-      type: 'boolean',
-      description:
-        'An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters',
-    },
-  },
-  additionalProperties: false,
-  discriminator: {
-    propertyName: '$type',
-    mapping: {
-      textToImage: '#/components/schemas/TextToImageJob',
-      textToImageV2: '#/components/schemas/TextToImageV2Job',
-      imageResourceTraining: '#/components/schemas/ImageResourceTrainingJob',
-      wdTagging: '#/components/schemas/WDTaggingJob',
-      comfy: '#/components/schemas/ComfyJob',
-      similaritySearch: '#/components/schemas/SimilaritySearchJob',
-      llmPromptAugmentation: '#/components/schemas/LLMPromptAugmentationJob',
-      ageClassification: '#/components/schemas/AgeClassificationJob',
-      mochi: '#/components/schemas/MochiVideoGenJob',
-      vidu: '#/components/schemas/ViduVideoGenJob',
-      comfyVideoGen: '#/components/schemas/ComfyVideoGenJob',
-      rewritePrompt: '#/components/schemas/RewritePromptJob',
-      transcode: '#/components/schemas/TranscodeJob',
-    },
-  },
-} as const;
-
-export const $JobDependency = {
-  type: 'object',
-  properties: {
-    jobId: {
-      type: 'string',
-    },
-    onFailure: {
-      $ref: '#/components/schemas/JobDependencyContinuation',
-    },
-    onSuccess: {
-      $ref: '#/components/schemas/JobDependencyContinuation',
-    },
-    dynamicAssignments: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/DynamicAssignment',
-      },
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-export const $JobDependencyContinuation = {
-  enum: ['fail', 'skip', 'continue'],
-  type: 'string',
 } as const;
 
 export const $JobSupport = {
@@ -2052,60 +1398,6 @@ is "AdamW8bit" or "Adafactor" for SDXL.`,
   },
 } as const;
 
-export const $LLMPromptAugmentationCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: 'LLM prompt augmentaition capabilities.',
-} as const;
-
-export const $LLMPromptAugmentationJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['model'],
-      type: 'object',
-      properties: {
-        model: {
-          type: 'string',
-          description: 'The primary model to use.',
-        },
-        basePrompt: {
-          type: 'string',
-          description: 'The base prompt.',
-          nullable: true,
-        },
-        prompts: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          description: 'A list of prompts.',
-        },
-        temp: {
-          type: 'number',
-          description: 'The temp.',
-          format: 'double',
-        },
-        type: {
-          type: 'string',
-          description: 'The type.',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['llmPromptAugmentation'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $LightricksAspectRatio = {
   enum: ['1:1', '16:9', '9:16', '3:2', '2:3'],
   type: 'string',
@@ -2175,22 +1467,6 @@ export const $LightricksVideoGenInput = {
   },
 } as const;
 
-export const $Lora = {
-  type: 'object',
-  properties: {
-    air: {
-      pattern:
-        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-      type: 'string',
-    },
-    strength: {
-      type: 'number',
-      format: 'double',
-    },
-  },
-  additionalProperties: false,
-} as const;
-
 export const $MiniMaxVideoGenInput = {
   required: ['engine'],
   allOf: [
@@ -2252,56 +1528,6 @@ export const $MochiVideoGenInput = {
   ],
   properties: {
     engine: {
-      enum: ['mochi'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $MochiVideoGenJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationUrl', 'mediaHash', 'prompt'],
-      type: 'object',
-      properties: {
-        prompt: {
-          type: 'string',
-        },
-        seed: {
-          maximum: 4294967295,
-          minimum: -1,
-          type: 'integer',
-          format: 'int64',
-        },
-        mediaHash: {
-          type: 'string',
-        },
-        destinationUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        enablePromptEnhancer: {
-          type: 'boolean',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
       enum: ['mochi'],
       type: 'string',
     },
@@ -2469,84 +1695,6 @@ export const $ProblemDetails = {
   additionalProperties: {},
 } as const;
 
-export const $ProcessingStatistics = {
-  type: 'object',
-  properties: {
-    totalJobsRequested: {
-      type: 'integer',
-      description: 'The total number of jobs requested.',
-      format: 'int64',
-    },
-    totalCostRequested: {
-      type: 'number',
-      description: 'The total cost of jobs requested.',
-      format: 'double',
-    },
-    totalJobsSucceeded: {
-      type: 'integer',
-      description: 'The total number of successful jobs.',
-      format: 'int64',
-    },
-    totalCostSucceeded: {
-      type: 'number',
-      description: 'The total cost of successful jobs.',
-      format: 'double',
-    },
-    totalJobsRejected: {
-      type: 'integer',
-      description: 'The total number of rejected jobs.',
-      format: 'int64',
-    },
-    totalCostRejected: {
-      type: 'number',
-      description: 'The total cost of rejected jobs.',
-      format: 'double',
-    },
-    totalJobsLateRejected: {
-      type: 'integer',
-      description: 'The total number of late rejected jobs.',
-      format: 'int64',
-    },
-    totalCostLateRejected: {
-      type: 'number',
-      description: 'The total cost of laterejected jobs.',
-      format: 'double',
-    },
-    totalJobsExpired: {
-      type: 'integer',
-      description: 'The total number of expired jobs.',
-      format: 'int64',
-    },
-    totalCostExpired: {
-      type: 'number',
-      description: 'The total cost of expired jobs.',
-      format: 'double',
-    },
-    totalJobsFailed: {
-      type: 'integer',
-      description: 'The total number of failed jobs.',
-      format: 'int64',
-    },
-    totalCostFailed: {
-      type: 'number',
-      description: 'The total cost of failed jobs.',
-      format: 'double',
-    },
-    totalJobsCompleted: {
-      type: 'integer',
-      description: 'The total number of completed jobs.',
-      format: 'int64',
-    },
-    totalCostCompleted: {
-      type: 'number',
-      description: 'The total cost of completed jobs.',
-      format: 'double',
-    },
-  },
-  additionalProperties: false,
-  description: 'Details of processing statistics.',
-} as const;
-
 export const $ResourceInfo = {
   required: ['air', 'downloadUrls', 'hashes', 'size'],
   type: 'object',
@@ -2649,43 +1797,6 @@ If resources with this restriction are used in generation, then generations will
   description: 'Details for a specific resource.',
 } as const;
 
-export const $RewritePromptGoal = {
-  enum: ['preventSexual', 'preventSexualMinor'],
-  type: 'string',
-} as const;
-
-export const $RewritePromptJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['goal', 'prompt'],
-      type: 'object',
-      properties: {
-        prompt: {
-          type: 'string',
-        },
-        goal: {
-          $ref: '#/components/schemas/RewritePromptGoal',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['rewritePrompt'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $Scheduler = {
   enum: [
     'eulerA',
@@ -2716,66 +1827,6 @@ export const $Scheduler = {
   ],
   type: 'string',
   description: 'The available options for schedulers used in image generation.',
-} as const;
-
-export const $SimilaritySearchJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['model', 'nsfwFilter', 'params', 'prompt'],
-      type: 'object',
-      properties: {
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          description: 'An AIR ID representing the primary model.',
-        },
-        nsfwFilter: {
-          type: 'string',
-          description: 'A value for the NSFW filter.',
-        },
-        prompt: {
-          type: 'string',
-          description: 'The prompt provided.',
-        },
-        params: {
-          type: 'object',
-          additionalProperties: {},
-          description: 'A collection of parameters.',
-        },
-        type: {
-          type: 'string',
-          description: 'The job type.',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['similaritySearch'],
-      type: 'string',
-    },
-  },
-  description: 'Details for a similarity search job.',
-} as const;
-
-export const $Subscription = {
-  required: ['webhook'],
-  type: 'object',
-  properties: {
-    webhook: {
-      type: 'string',
-      description: 'The webhook url.',
-    },
-  },
-  additionalProperties: false,
-  description: 'A subscription for pushed based notifications.',
 } as const;
 
 export const $TextToImageInput = {
@@ -2893,98 +1944,6 @@ export const $TextToImageInput = {
   description: 'Input for an text to image step.',
 } as const;
 
-export const $TextToImageJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['imageHash', 'model', 'params'],
-      type: 'object',
-      properties: {
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          description: 'An AIR representing the model to use.',
-        },
-        params: {
-          $ref: '#/components/schemas/ImageJobParams',
-        },
-        imageHash: {
-          type: 'string',
-          description: 'The hash for the output image.',
-        },
-        additionalNetworks: {
-          type: 'object',
-          additionalProperties: {
-            $ref: '#/components/schemas/ImageJobNetworkParams',
-          },
-          description:
-            'Get or set a associative list of additional networks. Each network is identified by a hash code.',
-        },
-        destinationUrl: {
-          type: 'string',
-          description: 'Get or set the URL where the image will be uploaded to.',
-          format: 'uri',
-          nullable: true,
-        },
-        storeAsBlob: {
-          type: 'boolean',
-          description:
-            'A value indicating whether to store the image as a blob or as a legacy image.',
-        },
-        controlNets: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/ImageJobControlNet',
-          },
-          description:
-            'Get or set a list of control nets that should be applied with this textToImage job.',
-        },
-        claimDuration: {
-          type: 'string',
-          description: 'The duration for which this job can be claimed for.',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          description: 'The job type.',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['textToImage'],
-      type: 'string',
-    },
-  },
-  description: 'A text to image generation job.',
-} as const;
-
-export const $TextToImageJobSlot = {
-  required: ['destinationUrl', 'imageHash'],
-  type: 'object',
-  properties: {
-    imageHash: {
-      type: 'string',
-      description: 'The hash for the image output.',
-    },
-    destinationUrl: {
-      type: 'string',
-      description: 'The destination url for image upload.',
-      format: 'uri',
-    },
-  },
-  additionalProperties: false,
-  description: 'Contains slot information for an image generated by a TextToImageJob.',
-} as const;
-
 export const $TextToImageOutput = {
   required: ['images'],
   type: 'object',
@@ -3056,87 +2015,6 @@ export const $TextToImageStepTemplate = {
   description: 'TextToImage',
 } as const;
 
-export const $TextToImageV2Job = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['model', 'params', 'slots'],
-      type: 'object',
-      properties: {
-        baseModel: {
-          type: 'string',
-          description: 'The base model / ecosystem for the model.',
-          nullable: true,
-          readOnly: true,
-        },
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          description: 'An AIR representing the model to use.',
-        },
-        params: {
-          $ref: '#/components/schemas/ImageJobParams',
-        },
-        slots: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/TextToImageJobSlot',
-          },
-          description: 'Slots for the resulting image outputs.',
-        },
-        additionalNetworks: {
-          type: 'object',
-          additionalProperties: {
-            $ref: '#/components/schemas/ImageJobNetworkParams',
-          },
-          description:
-            'Get or set a associative list of additional networks. Each network is identified by a hash code',
-        },
-        controlNets: {
-          type: 'array',
-          items: {
-            $ref: '#/components/schemas/ImageJobControlNet',
-          },
-          description:
-            'Get or set a list of control nets that should be applied with this textToImage job',
-        },
-        imageMetadata: {
-          type: 'string',
-          description: 'Get or set additional metadata that will be embedded with generated images',
-          nullable: true,
-        },
-        engine: {
-          type: 'string',
-          description: 'The engine to use for generation',
-          nullable: true,
-        },
-        claimDuration: {
-          type: 'string',
-          description: 'The duration for which this job can be claimed for.',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          description: 'The job type.',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['textToImageV2'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $TransactionInfo = {
   required: ['amount', 'type'],
   type: 'object',
@@ -3205,55 +2083,6 @@ export const $TranscodeInput = {
     },
   },
   additionalProperties: false,
-} as const;
-
-export const $TranscodeJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationUrl', 'mediaHash', 'sourceUrl'],
-      type: 'object',
-      properties: {
-        sourceUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        containerFormat: {
-          $ref: '#/components/schemas/ContainerFormat',
-        },
-        width: {
-          type: 'integer',
-          format: 'int32',
-        },
-        mediaHash: {
-          type: 'string',
-        },
-        destinationUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['transcode'],
-      type: 'string',
-    },
-  },
 } as const;
 
 export const $TranscodeOutput = {
@@ -3487,6 +2316,123 @@ export const $VideoBlob = {
   },
 } as const;
 
+export const $VideoEnhancementInput = {
+  required: ['sourceUrl'],
+  type: 'object',
+  properties: {
+    sourceUrl: {
+      type: 'string',
+      format: 'uri',
+    },
+    upscaler: {
+      $ref: '#/components/schemas/VideoEnhancementInputUpscalerOptions',
+    },
+    interpolation: {
+      $ref: '#/components/schemas/VideoEnhancementInputInterpolationOptions',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $VideoEnhancementInputInterpolationOptions = {
+  required: ['multiplier'],
+  type: 'object',
+  properties: {
+    multiplier: {
+      type: 'integer',
+      format: 'int32',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $VideoEnhancementInputUpscalerOptions = {
+  required: ['height', 'model', 'width'],
+  type: 'object',
+  properties: {
+    model: {
+      pattern:
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+      type: 'string',
+    },
+    width: {
+      type: 'integer',
+      format: 'int32',
+    },
+    height: {
+      type: 'integer',
+      format: 'int32',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $VideoEnhancementOutput = {
+  required: ['video'],
+  type: 'object',
+  properties: {
+    video: {
+      $ref: '#/components/schemas/VideoBlob',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $VideoEnhancementStep = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/WorkflowStep',
+    },
+    {
+      required: ['input'],
+      type: 'object',
+      properties: {
+        input: {
+          $ref: '#/components/schemas/VideoEnhancementInput',
+        },
+        output: {
+          $ref: '#/components/schemas/VideoEnhancementOutput',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['videoEnhancement'],
+      type: 'string',
+    },
+  },
+  description: 'Upscale videos and/or interpolate frames',
+} as const;
+
+export const $VideoEnhancementStepTemplate = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/WorkflowStepTemplate',
+    },
+    {
+      required: ['input'],
+      type: 'object',
+      properties: {
+        input: {
+          $ref: '#/components/schemas/VideoEnhancementInput',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['videoEnhancement'],
+      type: 'string',
+    },
+  },
+  description: 'Upscale videos and/or interpolate frames',
+} as const;
+
 export const $VideoGenInput = {
   required: ['engine', 'prompt'],
   type: 'object',
@@ -3514,11 +2460,28 @@ export const $VideoGenInput = {
   },
 } as const;
 
+export const $VideoGenInputLora = {
+  required: ['air', 'strength'],
+  type: 'object',
+  properties: {
+    air: {
+      pattern:
+        '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+      type: 'string',
+    },
+    strength: {
+      type: 'number',
+      format: 'double',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
 export const $VideoGenOutput = {
   type: 'object',
   properties: {
     video: {
-      $ref: '#/components/schemas/Blob',
+      $ref: '#/components/schemas/VideoBlob',
     },
   },
   additionalProperties: false,
@@ -3623,119 +2586,9 @@ export const $ViduVideoGenInput = {
   },
 } as const;
 
-export const $ViduVideoGenJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      required: ['destinationBlobKey', 'destinationUrl', 'prompt'],
-      type: 'object',
-      properties: {
-        prompt: {
-          type: 'string',
-        },
-        enablePromptEnhancer: {
-          type: 'boolean',
-        },
-        destinationUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        sourceImageUrl: {
-          type: 'string',
-          format: 'uri',
-          nullable: true,
-        },
-        destinationBlobKey: {
-          type: 'string',
-        },
-        seed: {
-          type: 'integer',
-          format: 'int32',
-        },
-        style: {
-          $ref: '#/components/schemas/ViduVideoGenStyle',
-        },
-        duration: {
-          type: 'integer',
-          format: 'int32',
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['vidu'],
-      type: 'string',
-    },
-  },
-} as const;
-
 export const $ViduVideoGenStyle = {
   enum: ['general', 'anime'],
   type: 'string',
-} as const;
-
-export const $WDTaggingJob = {
-  required: ['$type'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Job',
-    },
-    {
-      type: 'object',
-      properties: {
-        model: {
-          type: 'string',
-        },
-        mediaUrl: {
-          type: 'string',
-          format: 'uri',
-        },
-        threshold: {
-          type: 'number',
-          format: 'double',
-          nullable: true,
-        },
-        movieRatingModel: {
-          type: 'string',
-          nullable: true,
-        },
-        prompt: {
-          type: 'string',
-          nullable: true,
-        },
-        claimDuration: {
-          type: 'string',
-          format: 'date-span',
-          readOnly: true,
-        },
-        type: {
-          type: 'string',
-          readOnly: true,
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-  properties: {
-    $type: {
-      enum: ['wdTagging'],
-      type: 'string',
-    },
-  },
 } as const;
 
 export const $WanVdeoGenInput = {
@@ -3800,7 +2653,7 @@ export const $WanVdeoGenInput = {
         loras: {
           type: 'array',
           items: {
-            $ref: '#/components/schemas/HunyuanVdeoGenLoraInput',
+            $ref: '#/components/schemas/VideoGenInputLora',
           },
         },
       },
@@ -3813,554 +2666,6 @@ export const $WanVdeoGenInput = {
       type: 'string',
     },
   },
-} as const;
-
-export const $WorkerCapabilities = {
-  type: 'object',
-  properties: {
-    image: {
-      $ref: '#/components/schemas/WorkerImageCapabilities',
-    },
-    media: {
-      $ref: '#/components/schemas/WorkerMediaCapabilities',
-    },
-    modelManagement: {
-      $ref: '#/components/schemas/WorkerModelPreparationCapabilities',
-    },
-    configurationManagement: {
-      $ref: '#/components/schemas/WorkerConfigurationCapabilities',
-    },
-    similaritySearch: {
-      $ref: '#/components/schemas/WorkerSimilaritySearchCapabilities',
-    },
-    llmPromptAugmentation: {
-      $ref: '#/components/schemas/LLMPromptAugmentationCapabilities',
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's capabilities.",
-} as const;
-
-export const $WorkerConfigurationCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: "Details of a worker's configuration capabilities.",
-} as const;
-
-export const $WorkerDetails = {
-  required: ['id', 'name'],
-  type: 'object',
-  properties: {
-    id: {
-      type: 'string',
-      description: "The worker's ID.",
-    },
-    name: {
-      type: 'string',
-      description: "The worker's name.",
-    },
-    activeJobs: {
-      type: 'integer',
-      description: "The worker's active job count.",
-      format: 'int32',
-    },
-    queueSize: {
-      type: 'integer',
-      description: "The number of jobs in the worker's queue.",
-      format: 'int32',
-    },
-    queueDepth: {
-      type: 'number',
-      description: "The total cost of job's in the worker's queue.",
-      format: 'double',
-    },
-    startDate: {
-      type: 'string',
-      description: "The worker's start date / time.",
-      format: 'date-time',
-    },
-    lastRequestDate: {
-      type: 'string',
-      description: "The worker's last request date / time.",
-      format: 'date-time',
-      nullable: true,
-    },
-    expirationDate: {
-      type: 'string',
-      description: "The worker's expiration date / time.",
-      format: 'date-time',
-      nullable: true,
-    },
-    statistics: {
-      $ref: '#/components/schemas/ProcessingStatistics',
-    },
-    succeededThroughputRate: {
-      type: 'number',
-      description: "The worker's succeeded job throughput rate.",
-      format: 'double',
-    },
-    failedThroughputRate: {
-      type: 'number',
-      description: "The worker's failed job throughput rate.",
-      format: 'double',
-    },
-    idleRate: {
-      type: 'number',
-      description: "The worker's idle rate.",
-      format: 'double',
-    },
-    lastSuccesfullyCompletedJobDate: {
-      type: 'string',
-      description: "The date / time of the worker's last successfully completed job.",
-      format: 'date-time',
-      nullable: true,
-    },
-    lastJobUpdateDate: {
-      type: 'string',
-      description: "The date / time of the worker's last job update.",
-      format: 'date-time',
-      nullable: true,
-    },
-    subscriptionSetDate: {
-      type: 'string',
-      description: "The date / time that the worker's subscription was set.",
-      format: 'date-time',
-      nullable: true,
-    },
-    quarantineDate: {
-      type: 'string',
-      description: 'The date / time that the worker was quarantined.',
-      format: 'date-time',
-      nullable: true,
-    },
-    resourceDownloadRate: {
-      type: 'number',
-      description: 'The rate at which this worker has been downloading',
-      format: 'double',
-    },
-    resourceEvictionRate: {
-      type: 'number',
-      description: 'The rate at which this worker has been evicting resources',
-      format: 'double',
-    },
-    upcomingResourcesSize: {
-      type: 'integer',
-      description: 'The size in bytes of resources that are queued up for this worker to download',
-      format: 'int64',
-      nullable: true,
-    },
-    availableCapacity: {
-      type: 'number',
-      description:
-        'The remaining capacity  that this worker can claim, or null if remaining capacity can not be computed',
-      format: 'double',
-      nullable: true,
-    },
-  },
-  additionalProperties: false,
-  description: 'Details for a particular worker.',
-} as const;
-
-export const $WorkerHaiperCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerHumanoidImageMaskCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerImageCapabilities = {
-  type: 'object',
-  properties: {
-    textToImage: {
-      $ref: '#/components/schemas/WorkerImageTextToImageCapabilities',
-    },
-    imageToImage: {
-      $ref: '#/components/schemas/WorkerImageImageToImageCapabilities',
-    },
-    transform: {
-      $ref: '#/components/schemas/WorkerImageTransformCapabilities',
-    },
-    resourceTraining: {
-      $ref: '#/components/schemas/WorkerImageResourceTrainingCapabilities',
-    },
-    embedding: {
-      $ref: '#/components/schemas/WorkerImageEmbeddingCapabilities',
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's image capabilities.",
-} as const;
-
-export const $WorkerImageEmbeddingCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: "Details of a worker's image embedding capabilities.",
-} as const;
-
-export const $WorkerImageImageToImageCapabilities = {
-  type: 'object',
-  properties: {
-    size: {
-      type: 'integer',
-      description: "The worker's maximum supported image size for image to image (squared).",
-      format: 'int32',
-    },
-    schedulers: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/Scheduler',
-      },
-      description: 'A list of schedulers the worker supports for image to image.',
-    },
-    controlNet: {
-      maximum: 10,
-      minimum: 0,
-      type: 'integer',
-      description: 'The number of ControlNets the worker supports for image to image (at once).',
-      format: 'int32',
-    },
-    inpainting: {
-      type: 'boolean',
-      description: 'Indicates whether the worker supports inpaiting.',
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's image to image capabilities.",
-} as const;
-
-export const $WorkerImageResourceTrainingCapabilities = {
-  type: 'object',
-  properties: {
-    engines: {
-      uniqueItems: true,
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's image resource training capabilities.",
-} as const;
-
-export const $WorkerImageTextToImageCapabilities = {
-  type: 'object',
-  properties: {
-    size: {
-      type: 'integer',
-      description: "The worker's maximum supported image size for text to image (squared).",
-      format: 'int32',
-    },
-    schedulers: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/Scheduler',
-      },
-      description: 'A list of schedulers the worker supports for text to image.',
-    },
-    controlNet: {
-      maximum: 10,
-      minimum: 0,
-      type: 'integer',
-      description: 'The number of ControlNets the worker supports for text to image (at once).',
-      format: 'int32',
-    },
-    engines: {
-      uniqueItems: true,
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-      description: 'A list of engines that this worker supports for text to image.',
-      nullable: true,
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's text to image capabilities.",
-} as const;
-
-export const $WorkerImageTransformCapabilities = {
-  type: 'object',
-  properties: {
-    transformers: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/ImageTransformer',
-      },
-      description: 'A list of supported image transformers.',
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's image transform capabilities.",
-} as const;
-
-export const $WorkerKlingCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerMediaAgeClassificationCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerMediaCapabilities = {
-  type: 'object',
-  properties: {
-    wdTagging: {
-      $ref: '#/components/schemas/WorkerMediaWDTaggingCapabilities',
-    },
-    comfy: {
-      $ref: '#/components/schemas/WorkerMediaComfyCapabilities',
-    },
-    tagging: {
-      $ref: '#/components/schemas/WorkerMediaTaggingCapabilities',
-    },
-    movieRating: {
-      $ref: '#/components/schemas/WorkerMediaMovieRatingCapabilities',
-    },
-    transcode: {
-      $ref: '#/components/schemas/WorkerMediaTranscodeCapabilities',
-    },
-    captioning: {
-      $ref: '#/components/schemas/WorkerMediaCaptioningCapabilities',
-    },
-    ageClassification: {
-      $ref: '#/components/schemas/WorkerMediaAgeClassificationCapabilities',
-    },
-    ocrSafetyClassification: {
-      $ref: '#/components/schemas/WorkerMediaOCRSafetyClassificationCapabilities',
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's media capabilities.",
-} as const;
-
-export const $WorkerMediaCaptioningCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerMediaComfyCapabilities = {
-  type: 'object',
-  properties: {
-    spineComfy: {
-      type: 'boolean',
-      description: 'A preview property to enable spine comfy workflows',
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's media comfy capabilities.",
-} as const;
-
-export const $WorkerMediaMovieRatingCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: "Details of a worker's media movie rating capabilities.",
-} as const;
-
-export const $WorkerMediaOCRSafetyClassificationCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerMediaTaggingCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: "Details of a worker's media tagging capabilities.",
-} as const;
-
-export const $WorkerMediaTranscodeCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerMediaWDTaggingCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: "Details of a worker's media WD tagging capabilities.",
-} as const;
-
-export const $WorkerMiniMaxCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerModelPreparationCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: "Details of a worker's model preparation capabilities.",
-} as const;
-
-export const $WorkerPromptRewritingCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerRegistration = {
-  required: ['name'],
-  type: 'object',
-  properties: {
-    name: {
-      type: 'string',
-      description: "The worker's name.",
-    },
-    onDemandResourceTypes: {
-      uniqueItems: true,
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-      description: 'A hash set of resource types the worker can retrieve on demand.',
-    },
-    capabilities: {
-      $ref: '#/components/schemas/WorkerCapabilities',
-    },
-    subscription: {
-      $ref: '#/components/schemas/Subscription',
-    },
-    type: {
-      $ref: '#/components/schemas/WorkerType',
-    },
-    concurrentLimit: {
-      type: 'integer',
-      description: 'The number of requests the worker can handle at once.',
-      format: 'int32',
-    },
-    ecosystems: {
-      type: 'object',
-      additionalProperties: {
-        $ref: '#/components/schemas/EcosystemElement',
-      },
-      description: 'A collection of ecosystems the worker supports.',
-    },
-    resources: {
-      type: 'object',
-      additionalProperties: {
-        $ref: '#/components/schemas/WorkerResourceStatus',
-      },
-      description:
-        'A collection of information about the availability of particular resources on this worker.',
-    },
-    cacheLevel: {
-      type: 'string',
-      description: 'The name of the closest cache level that this worker can interact with.',
-      nullable: true,
-    },
-    maxColdSwapQueueSize: {
-      type: 'integer',
-      description:
-        'The max queue size before the worker stops accepting requests that require cold swapping.',
-      format: 'int32',
-      nullable: true,
-    },
-    maxPendingResourceSize: {
-      type: 'integer',
-      description: 'The max size in Mb of downloads that can be pending.',
-      format: 'int32',
-      nullable: true,
-    },
-    consumeUnavailableJobs: {
-      type: 'boolean',
-      description: 'A value indicating if worker should consume jobs that are not yet available.',
-    },
-    nodeIdentifier: {
-      type: 'string',
-      description: 'An optional identifier unique to this worker.',
-      nullable: true,
-    },
-    scoreBoost: {
-      type: 'number',
-      description:
-        'An optional boost to the scoring of this worker. This can be used to make a worker more or less likely to be selected for work',
-      format: 'double',
-      nullable: true,
-    },
-    supportedFileFormats: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/FileFormat',
-      },
-      description:
-        'A list of file formats that the worker supports. If none are specified then all formats are considered supported',
-      nullable: true,
-    },
-    preferredDownloadSource: {
-      $ref: '#/components/schemas/DownloadSource',
-    },
-    labels: {
-      type: 'object',
-      additionalProperties: {
-        type: 'string',
-      },
-      description:
-        'A collection of labels that will be applied to metrics produced by these workers',
-      nullable: true,
-    },
-    metadata: {
-      type: 'object',
-      additionalProperties: {},
-      description:
-        'Get additional metadata about this worker. This can be used for debugging purposes as well as to target certain configurations to certain workers.',
-      nullable: true,
-    },
-    capacitySaturationRate: {
-      type: 'number',
-      description: 'The saturation rate of available capacity of this worker of the worker.',
-      format: 'double',
-      nullable: true,
-    },
-  },
-  additionalProperties: false,
-  description: "Details of a worker's registration.",
-} as const;
-
-export const $WorkerResourceAvailability = {
-  enum: ['unknown', 'unsupported', 'unavailable', 'available', 'providerUnsupported'],
-  type: 'string',
-  description: 'Options for representing the status for a resource on a worker.',
-} as const;
-
-export const $WorkerResourceStatus = {
-  required: ['availability'],
-  type: 'object',
-  properties: {
-    availability: {
-      $ref: '#/components/schemas/WorkerResourceAvailability',
-    },
-    cost: {
-      type: 'number',
-      description: 'The cost associated with this resource.',
-      format: 'float',
-    },
-  },
-  additionalProperties: false,
-  description: 'Details for the status of a resource on a particular worker.',
-} as const;
-
-export const $WorkerSimilaritySearchCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-  description: "Details of a worker's similarity search capabilities.",
-} as const;
-
-export const $WorkerTryOnUCapabilities = {
-  type: 'object',
-  additionalProperties: false,
-} as const;
-
-export const $WorkerType = {
-  enum: ['normal', 'deferred', 'test'],
-  type: 'string',
-  description: 'Available values for worker type.',
-} as const;
-
-export const $WorkerViduCapabilities = {
-  type: 'object',
-  additionalProperties: false,
 } as const;
 
 export const $Workflow = {
@@ -4659,6 +2964,7 @@ export const $WorkflowStep = {
       imageUpload: '#/components/schemas/ImageUploadStep',
       textToImage: '#/components/schemas/TextToImageStep',
       transcode: '#/components/schemas/TranscodeStep',
+      videoEnhancement: '#/components/schemas/VideoEnhancementStep',
       videoGen: '#/components/schemas/VideoGenStep',
     },
   },
@@ -4841,6 +3147,7 @@ export const $WorkflowStepTemplate = {
       imageResourceTraining: '#/components/schemas/ImageResourceTrainingStepTemplate',
       imageUpload: '#/components/schemas/ImageUploadStepTemplate',
       textToImage: '#/components/schemas/TextToImageStepTemplate',
+      videoEnhancement: '#/components/schemas/VideoEnhancementStepTemplate',
       videoGen: '#/components/schemas/VideoGenStepTemplate',
     },
   },

@@ -2,30 +2,10 @@
 
 import { client, type Options } from '@hey-api/client-fetch';
 import type {
-  UploadBlobData,
-  UploadBlobError,
-  UploadBlobResponse,
   GetBlobData,
   HeadBlobData,
   HeadBlobError,
   HeadBlobResponse,
-  ClaimJobsData,
-  ClaimJobsError,
-  ClaimJobsResponse,
-  UpdateClaimStatusData,
-  UpdateClaimStatusError,
-  UpdateClaimStatusResponse,
-  CreateConfigurationData,
-  CreateConfigurationError,
-  CreateConfigurationResponse,
-  QueryConfigurationsError,
-  QueryConfigurationsResponse,
-  GetConfigurationData,
-  GetConfigurationError,
-  GetConfigurationResponse,
-  DeleteConfigurationData,
-  DeleteConfigurationError,
-  DeleteConfigurationResponse,
   InvokeAgeClassificationStepTemplateData,
   InvokeAgeClassificationStepTemplateError,
   InvokeAgeClassificationStepTemplateResponse,
@@ -44,6 +24,9 @@ import type {
   InvokeTextToImageStepTemplateData,
   InvokeTextToImageStepTemplateError,
   InvokeTextToImageStepTemplateResponse,
+  InvokeVideoEnhancementStepTemplateData,
+  InvokeVideoEnhancementStepTemplateError,
+  InvokeVideoEnhancementStepTemplateResponse,
   InvokeVideoGenStepTemplateData,
   InvokeVideoGenStepTemplateError,
   InvokeVideoGenStepTemplateResponse,
@@ -53,32 +36,6 @@ import type {
   InvalidateResourceData,
   InvalidateResourceError,
   InvalidateResourceResponse,
-  GetRecommendedResourcesData,
-  GetRecommendedResourcesError,
-  GetRecommendedResourcesResponse,
-  DownloadResourceData,
-  DownloadResourceError,
-  DownloadResourceResponse,
-  CreateWorkerData,
-  CreateWorkerError,
-  CreateWorkerResponse,
-  QueryWorkersError,
-  QueryWorkersResponse,
-  GetWorkerData,
-  GetWorkerError,
-  GetWorkerResponse,
-  DeleteWorkerData,
-  DeleteWorkerError,
-  DeleteWorkerResponse,
-  GetRegistrationData,
-  GetRegistrationError,
-  GetRegistrationResponse,
-  UpdateWorkerRegistrationData,
-  UpdateWorkerRegistrationError,
-  UpdateWorkerRegistrationResponse,
-  PatchWorkerResourcesData,
-  PatchWorkerResourcesError,
-  PatchWorkerResourcesResponse,
   SubmitWorkflowData,
   SubmitWorkflowError,
   SubmitWorkflowResponse,
@@ -117,13 +74,6 @@ import type {
   PatchWorkflowStepResponse,
 } from './types.gen';
 
-export const uploadBlob = (options: Options<UploadBlobData>) => {
-  return (options?.client ?? client).put<UploadBlobResponse, UploadBlobError>({
-    ...options,
-    url: '/v2/providers/blobs/{blobKey}',
-  });
-};
-
 /**
  * Get blob by ID. This will return the blob as a binary stream.
  */
@@ -134,64 +84,13 @@ export const getBlob = (options: Options<GetBlobData>) => {
   });
 };
 
+/**
+ * Handles HTTP HEAD requests for a specific blob, checking its existence and NSFW level.
+ */
 export const headBlob = (options: Options<HeadBlobData>) => {
   return (options?.client ?? client).head<HeadBlobResponse, HeadBlobError>({
     ...options,
     url: '/v2/consumer/blobs/{blobId}',
-  });
-};
-
-export const claimJobs = (options: Options<ClaimJobsData>) => {
-  return (options?.client ?? client).get<ClaimJobsResponse, ClaimJobsError>({
-    ...options,
-    url: '/v2/providers/workers/{workerId}/claims',
-  });
-};
-
-export const updateClaimStatus = (options: Options<UpdateClaimStatusData>) => {
-  return (options?.client ?? client).put<UpdateClaimStatusResponse, UpdateClaimStatusError>({
-    ...options,
-    url: '/v2/providers/workers/{workerId}/claims/{claimId}/status',
-  });
-};
-
-/**
- * Create a new configuration.
- */
-export const createConfiguration = (options?: Options<CreateConfigurationData>) => {
-  return (options?.client ?? client).post<CreateConfigurationResponse, CreateConfigurationError>({
-    ...options,
-    url: '/v2/providers/configurations',
-  });
-};
-
-/**
- * Query for existing configurations.
- */
-export const queryConfigurations = (options?: Options) => {
-  return (options?.client ?? client).get<QueryConfigurationsResponse, QueryConfigurationsError>({
-    ...options,
-    url: '/v2/providers/configurations',
-  });
-};
-
-/**
- * Get options for a configuration.
- */
-export const getConfiguration = (options: Options<GetConfigurationData>) => {
-  return (options?.client ?? client).get<GetConfigurationResponse, GetConfigurationError>({
-    ...options,
-    url: '/v2/providers/configurations/{configurationId}/options',
-  });
-};
-
-/**
- * Delete a configuration.
- */
-export const deleteConfiguration = (options: Options<DeleteConfigurationData>) => {
-  return (options?.client ?? client).delete<DeleteConfigurationResponse, DeleteConfigurationError>({
-    ...options,
-    url: '/v2/providers/configurations/{configurationId}',
   });
 };
 
@@ -289,6 +188,21 @@ export const invokeTextToImageStepTemplate = (
 };
 
 /**
+ * Upscale videos and/or interpolate frames
+ */
+export const invokeVideoEnhancementStepTemplate = (
+  options?: Options<InvokeVideoEnhancementStepTemplateData>
+) => {
+  return (options?.client ?? client).post<
+    InvokeVideoEnhancementStepTemplateResponse,
+    InvokeVideoEnhancementStepTemplateError
+  >({
+    ...options,
+    url: '/v2/consumer/recipes/videoEnhancement',
+  });
+};
+
+/**
  * Video generation
  * Generate videos through text/image inputs using any of our supported engines
  */
@@ -320,98 +234,6 @@ export const invalidateResource = (options: Options<InvalidateResourceData>) => 
     ...options,
     url: '/v2/resources/{air}',
   });
-};
-
-export const getRecommendedResources = (options: Options<GetRecommendedResourcesData>) => {
-  return (options?.client ?? client).get<
-    GetRecommendedResourcesResponse,
-    GetRecommendedResourcesError
-  >({
-    ...options,
-    url: '/v2/providers/workers/{workerId}/resources',
-  });
-};
-
-export const downloadResource = (options: Options<DownloadResourceData>) => {
-  return (options?.client ?? client).get<DownloadResourceResponse, DownloadResourceError>({
-    ...options,
-    url: '/v2/providers/workers/{workerId}/resources/{air}',
-  });
-};
-
-/**
- * Create a worker with a given registration.
- */
-export const createWorker = (options?: Options<CreateWorkerData>) => {
-  return (options?.client ?? client).post<CreateWorkerResponse, CreateWorkerError>({
-    ...options,
-    url: '/v2/providers/workers',
-  });
-};
-
-/**
- * Query existing workers.
- */
-export const queryWorkers = (options?: Options) => {
-  return (options?.client ?? client).get<QueryWorkersResponse, QueryWorkersError>({
-    ...options,
-    url: '/v2/providers/workers',
-  });
-};
-
-/**
- * Gets the worker for the provided ID.
- */
-export const getWorker = (options: Options<GetWorkerData>) => {
-  return (options?.client ?? client).get<GetWorkerResponse, GetWorkerError>({
-    ...options,
-    url: '/v2/providers/workers/{workerId}',
-  });
-};
-
-/**
- * Delete a worker.
- */
-export const deleteWorker = (options: Options<DeleteWorkerData>) => {
-  return (options?.client ?? client).delete<DeleteWorkerResponse, DeleteWorkerError>({
-    ...options,
-    url: '/v2/providers/workers/{workerId}',
-  });
-};
-
-/**
- * Gets the registration details for the specified worker.
- */
-export const getRegistration = (options: Options<GetRegistrationData>) => {
-  return (options?.client ?? client).get<GetRegistrationResponse, GetRegistrationError>({
-    ...options,
-    url: '/v2/providers/workers/{workerId}/registration',
-  });
-};
-
-/**
- * Update the registration details of the specified worker.
- */
-export const updateWorkerRegistration = (options: Options<UpdateWorkerRegistrationData>) => {
-  return (options?.client ?? client).put<
-    UpdateWorkerRegistrationResponse,
-    UpdateWorkerRegistrationError
-  >({
-    ...options,
-    url: '/v2/providers/workers/{workerId}/registration',
-  });
-};
-
-/**
- * Patch a worker's registration resources
- */
-export const patchWorkerResources = (options: Options<PatchWorkerResourcesData>) => {
-  return (options?.client ?? client).patch<PatchWorkerResourcesResponse, PatchWorkerResourcesError>(
-    {
-      ...options,
-      url: '/v2/providers/workers/{workerId}/registration/resources',
-    }
-  );
 };
 
 /**

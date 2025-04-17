@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Civitai Orchestration API",
+    "title": "Civitai Orchestration Consumer API",
     "description": "The Civitai Orchestration API is a RESTful API that allows you to interact with the Civitai Orchestration system. The API is designed to be simple and easy to use, and is built on top of the OpenAPI specification.",
     "version": "v2",
     "x-logo": {
@@ -10,69 +10,12 @@
     }
   },
   "paths": {
-    "/v2/providers/blobs/{blobKey}": {
-      "put": {
-        "tags": [
-          "Blob"
-        ],
-        "operationId": "UploadBlob",
-        "parameters": [
-          {
-            "name": "blobKey",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "jobId",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "nsfwLevel",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/NSFWLevel"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/v2/consumer/blobs/{blobId}": {
       "get": {
         "tags": [
           "Blobs"
         ],
-        "summary": "Get blob by ID.",
+        "summary": "Get blob by ID. This will return the blob as a binary stream.",
         "operationId": "GetBlob",
         "parameters": [
           {
@@ -105,18 +48,18 @@
             }
           }
         }
-      }
-    },
-    "/v2/providers/workers/{workerId}/claims": {
-      "get": {
+      },
+      "head": {
         "tags": [
-          "Claims"
+          "Blobs"
         ],
-        "operationId": "ClaimJobs",
+        "summary": "Handles HTTP HEAD requests for a specific blob, checking its existence and NSFW level.",
+        "operationId": "HeadBlob",
         "parameters": [
           {
-            "name": "workerId",
+            "name": "blobId",
             "in": "path",
+            "description": "Identifies the specific blob to check for existence and NSFW level.",
             "required": true,
             "schema": {
               "type": "string"
@@ -126,106 +69,6 @@
         "responses": {
           "401": {
             "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Claim"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/workers/{workerId}/claims/{claimId}/status": {
-      "put": {
-        "tags": [
-          "Claims"
-        ],
-        "operationId": "UpdateClaimStatus",
-        "parameters": [
-          {
-            "name": "claimId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "workerId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimStatus"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimStatus"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimStatus"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -236,243 +79,6 @@
           },
           "204": {
             "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/configurations": {
-      "post": {
-        "tags": [
-          "Configurations"
-        ],
-        "summary": "Create a new configuration.",
-        "operationId": "CreateConfiguration",
-        "requestBody": {
-          "description": "The details of the configuration being created.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfigurationOptions"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfigurationOptions"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfigurationOptions"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateConfigurationResult"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Configurations"
-        ],
-        "summary": "Query for existing configurations.",
-        "operationId": "QueryConfigurations",
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConfigurationStatus"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/configurations/{configurationId}/options": {
-      "get": {
-        "tags": [
-          "Configurations"
-        ],
-        "summary": "Get options for a configuration.",
-        "operationId": "GetConfiguration",
-        "parameters": [
-          {
-            "name": "configurationId",
-            "in": "path",
-            "description": "The ID of the configuration whose options are being requested.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConfigurationOptions"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/configurations/{configurationId}": {
-      "delete": {
-        "tags": [
-          "Configurations"
-        ],
-        "summary": "Delete a configuration.",
-        "operationId": "DeleteConfiguration",
-        "parameters": [
-          {
-            "name": "configurationId",
-            "in": "path",
-            "description": "The ID of the configuration to delete.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK"
           },
           "404": {
             "description": "Not Found",
@@ -853,6 +459,66 @@
         }
       }
     },
+    "/v2/consumer/recipes/videoEnhancement": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Upscale videos and/or interpolate frames",
+        "operationId": "InvokeVideoEnhancementStepTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoEnhancementInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoEnhancementInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoEnhancementInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoEnhancementOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/videoGen": {
       "post": {
         "tags": [
@@ -928,7 +594,7 @@
             "description": "A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.",
             "required": true,
             "schema": {
-              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
               "type": "string"
             }
           }
@@ -979,7 +645,7 @@
             "description": "A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.",
             "required": true,
             "schema": {
-              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
               "type": "string"
             }
           },
@@ -1002,643 +668,6 @@
           },
           "400": {
             "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/workers/{workerId}/resources": {
-      "get": {
-        "tags": [
-          "WorkerResources"
-        ],
-        "operationId": "GetRecommendedResources",
-        "parameters": [
-          {
-            "name": "workerId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "since_version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "headers": {
-              "X-Resources-Version": {
-                "description": "The version of the resource to filter updates with subsequent requests",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ResourceInfo"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/workers/{workerId}/resources/{air}": {
-      "get": {
-        "tags": [
-          "WorkerResources"
-        ],
-        "operationId": "DownloadResource",
-        "parameters": [
-          {
-            "name": "workerId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "air",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "307": {
-            "description": "Temporary Redirect"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/workers": {
-      "post": {
-        "tags": [
-          "Workers"
-        ],
-        "summary": "Create a worker with a given registration.",
-        "operationId": "CreateWorker",
-        "requestBody": {
-          "description": "The registration specifying the details of the worker to be created.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkerRegistration"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkerRegistration"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkerRegistration"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateWorkerResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Workers"
-        ],
-        "summary": "Query existing workers.",
-        "operationId": "QueryWorkers",
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WorkerDetails"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/workers/{workerId}": {
-      "get": {
-        "tags": [
-          "Workers"
-        ],
-        "summary": "Gets the worker for the provided ID.",
-        "operationId": "GetWorker",
-        "parameters": [
-          {
-            "name": "workerId",
-            "in": "path",
-            "description": "The ID for the requested worker.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkerDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Workers"
-        ],
-        "summary": "Delete a worker.",
-        "operationId": "DeleteWorker",
-        "parameters": [
-          {
-            "name": "workerId",
-            "in": "path",
-            "description": "The ID for the worker to be deleted.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/workers/{workerId}/registration": {
-      "get": {
-        "tags": [
-          "Workers"
-        ],
-        "summary": "Gets the registration details for the specified worker.",
-        "operationId": "GetRegistration",
-        "parameters": [
-          {
-            "name": "workerId",
-            "in": "path",
-            "description": "The ID of the worker whose registration is being requested.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WorkerRegistration"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Workers"
-        ],
-        "summary": "Update the registration details of the specified worker.",
-        "operationId": "UpdateWorkerRegistration",
-        "parameters": [
-          {
-            "name": "workerId",
-            "in": "path",
-            "description": "The ID for the worker whose registration is being updated.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "The registration details to update on the worker's registration.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkerRegistration"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkerRegistration"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/WorkerRegistration"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/providers/workers/{workerId}/registration/resources": {
-      "patch": {
-        "tags": [
-          "Workers"
-        ],
-        "summary": "Patch a worker's registration resources",
-        "operationId": "PatchWorkerResources",
-        "parameters": [
-          {
-            "name": "workerId",
-            "in": "path",
-            "description": "The ID for the worker whose registration resources are being patched.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "A dictionary of resource AIRs and their corresponding status for on that worker.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/WorkerResourceStatus"
-                }
-              }
-            },
-            "text/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/WorkerResourceStatus"
-                }
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/WorkerResourceStatus"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -2479,6 +1508,14 @@
             }
           },
           {
+            "name": "ascending",
+            "in": "query",
+            "description": "Whether to return data from oldest to newest",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "Accept",
             "in": "header",
             "description": "Specify 'application/zip' to get the response as a zip file",
@@ -3153,7 +2190,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "An optional model to use for age classification. If not provided, the default model will determined by the worker",
             "nullable": true
@@ -3396,60 +2433,6 @@
         ],
         "type": "string"
       },
-      "Claim": {
-        "required": [
-          "id",
-          "job",
-          "status"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "job": {
-            "$ref": "#/components/schemas/Job"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ClaimStatus"
-          },
-          "requestedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "retryAttempt": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ClaimStatus": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "$ref": "#/components/schemas/ClaimStatusType"
-          },
-          "context": {
-            "type": "object",
-            "additionalProperties": {},
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ClaimStatusType": {
-        "enum": [
-          "claimed",
-          "rejected",
-          "succeeded"
-        ],
-        "type": "string"
-      },
       "ComfyInput": {
         "required": [
           "comfyWorkflow"
@@ -3475,94 +2458,14 @@
             "type": "string",
             "description": "External metadata that will be stored with the image",
             "nullable": true
+          },
+          "useSpineComfy": {
+            "type": "boolean",
+            "description": "Opt-into using the spine controller exclusively",
+            "nullable": true
           }
         },
         "additionalProperties": false
-      },
-      "ComfyJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "params",
-              "slots"
-            ],
-            "type": "object",
-            "properties": {
-              "params": {
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/ComfyNode"
-                },
-                "description": "A untyped set of parameters that are associated with this job"
-              },
-              "resources": {
-                "uniqueItems": true,
-                "type": "array",
-                "items": {
-                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                  "type": "string"
-                },
-                "nullable": true
-              },
-              "slots": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ComfyJobSlot"
-                },
-                "description": "Slots for the resulting blob outputs."
-              },
-              "imageMetadata": {
-                "type": "string",
-                "description": "Get or set additional metadata that will be embedded with generated images",
-                "nullable": true
-              },
-              "type": {
-                "type": "string",
-                "readOnly": true
-              },
-              "claimDuration": {
-                "type": "string",
-                "format": "date-span",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "comfy"
-            ],
-            "type": "string"
-          }
-        }
-      },
-      "ComfyJobSlot": {
-        "required": [
-          "blobKey",
-          "destinationUrl"
-        ],
-        "type": "object",
-        "properties": {
-          "blobKey": {
-            "type": "string",
-            "description": "The hash for the blob output."
-          },
-          "destinationUrl": {
-            "type": "string",
-            "description": "The destination url for blob upload.",
-            "format": "uri"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Contains slot information for a blob generated by a ComfyJob."
       },
       "ComfyNode": {
         "required": [
@@ -3690,171 +2593,12 @@
         },
         "description": "Comfy workflows"
       },
-      "ComfyVideoGenJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "destinationUrl",
-              "model",
-              "prompt"
-            ],
-            "type": "object",
-            "properties": {
-              "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string"
-              },
-              "prompt": {
-                "type": "string"
-              },
-              "negativePrompt": {
-                "type": "string",
-                "nullable": true
-              },
-              "cfgScale": {
-                "type": "number",
-                "format": "double"
-              },
-              "destinationUrl": {
-                "type": "string",
-                "format": "uri"
-              },
-              "sampler": {
-                "type": "string"
-              },
-              "width": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "height": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "frameRate": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "length": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "seed": {
-                "type": "integer",
-                "format": "int64"
-              },
-              "steps": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "sourceImageUrl": {
-                "type": "string",
-                "format": "uri",
-                "nullable": true
-              },
-              "claimDuration": {
-                "type": "string",
-                "format": "date-span",
-                "readOnly": true
-              },
-              "type": {
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "comfyVideoGen"
-            ],
-            "type": "string"
-          }
-        }
-      },
-      "ConfigurationOptions": {
-        "required": [
-          "selector",
-          "spec"
-        ],
-        "type": "object",
-        "properties": {
-          "priority": {
-            "type": "integer",
-            "description": "Get or set the priority of this configuration if multiple configurations apply to the same worker",
-            "format": "int64"
-          },
-          "selector": {
-            "$ref": "#/components/schemas/Expression"
-          },
-          "spec": {
-            "description": "Get or set the specification associated with this configuration",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ConfigurationStatus": {
-        "required": [
-          "configurationId"
-        ],
-        "type": "object",
-        "properties": {
-          "configurationId": {
-            "type": "string"
-          },
-          "assigned": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "targeted": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "applied": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "ContainerFormat": {
         "enum": [
           "mp4",
           "webM"
         ],
         "type": "string"
-      },
-      "CreateConfigurationResult": {
-        "required": [
-          "configurationId"
-        ],
-        "type": "object",
-        "properties": {
-          "configurationId": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreateWorkerResult": {
-        "required": [
-          "workerId"
-        ],
-        "type": "object",
-        "properties": {
-          "workerId": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
       },
       "CursedArrayOfTelemetryCursorAndWorkflow": {
         "required": [
@@ -3871,32 +2615,6 @@
             "items": {
               "$ref": "#/components/schemas/Workflow"
             }
-          }
-        },
-        "additionalProperties": false
-      },
-      "DownloadSource": {
-        "enum": [
-          "default",
-          "tigris"
-        ],
-        "type": "string"
-      },
-      "DynamicAssignment": {
-        "required": [
-          "fromPath",
-          "toPath"
-        ],
-        "type": "object",
-        "properties": {
-          "fromPath": {
-            "type": "string"
-          },
-          "toPath": {
-            "type": "string"
-          },
-          "defaultValue": {
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3994,12 +2712,6 @@
         },
         "description": "Echo"
       },
-      "EcosystemElement": {
-        "type": "object",
-        "additionalProperties": {
-          "$ref": "#/components/schemas/EcosystemElement"
-        }
-      },
       "EpochResult": {
         "required": [
           "blobName",
@@ -4037,10 +2749,6 @@
         },
         "additionalProperties": false,
         "description": "An epock result."
-      },
-      "Expression": {
-        "type": "object",
-        "additionalProperties": false
       },
       "FileFormat": {
         "enum": [
@@ -4236,6 +2944,80 @@
         },
         "additionalProperties": false
       },
+      "HunyuanVdeoGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cfgScale": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 4
+              },
+              "frameRate": {
+                "type": "integer",
+                "format": "int32",
+                "default": 25
+              },
+              "duration": {
+                "maximum": 30,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 10,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "width": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "loras": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VideoGenInputLora"
+                }
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "hunyuan"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "ImageJobControlNet": {
         "type": "object",
         "properties": {
@@ -4283,77 +3065,6 @@
         },
         "additionalProperties": false
       },
-      "ImageJobParams": {
-        "required": [
-          "height",
-          "width"
-        ],
-        "type": "object",
-        "properties": {
-          "prompt": {
-            "type": "string",
-            "description": "The prompt for the text to image generation.",
-            "nullable": true
-          },
-          "negativePrompt": {
-            "type": "string",
-            "description": "The negative prompt for the text to image generation.",
-            "nullable": true
-          },
-          "scheduler": {
-            "$ref": "#/components/schemas/Scheduler"
-          },
-          "steps": {
-            "maximum": 150,
-            "minimum": 1,
-            "type": "integer",
-            "description": "The number of steps for the text to image generation.",
-            "format": "int32",
-            "default": 30
-          },
-          "cfgScale": {
-            "maximum": 30,
-            "minimum": 1,
-            "type": "number",
-            "description": "The CFG scale value for the text to image generation.",
-            "format": "double",
-            "default": 7.5,
-            "nullable": true
-          },
-          "width": {
-            "maximum": 2048,
-            "minimum": 64,
-            "type": "integer",
-            "description": "The width for the image to be generated in pixels.",
-            "format": "int32",
-            "default": 512
-          },
-          "height": {
-            "maximum": 2048,
-            "minimum": 64,
-            "type": "integer",
-            "description": "The height for the image to be generated in pixels.",
-            "format": "int32",
-            "default": 512
-          },
-          "seed": {
-            "maximum": 4294967295,
-            "minimum": -1,
-            "type": "integer",
-            "description": "The seed for the text to image generation.",
-            "format": "int64",
-            "default": -1
-          },
-          "clipSkip": {
-            "type": "integer",
-            "description": "The clip skip value for the text to image generation.",
-            "format": "int32",
-            "default": 2
-          }
-        },
-        "additionalProperties": false,
-        "description": "Parameters for a text to image step."
-      },
       "ImageResouceTrainingModerationStatus": {
         "enum": [
           "evaluating",
@@ -4376,7 +3087,7 @@
             "type": "string"
           },
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The primary model to train upon."
           },
@@ -4409,72 +3120,8 @@
           "propertyName": "engine",
           "mapping": {
             "kohya": "#/components/schemas/KohyaImageResourceTrainingInput",
-            "flux-dev-fast": "#/components/schemas/FluxDevFastImageResourceTrainingInput"
-          }
-        }
-      },
-      "ImageResourceTrainingJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "model",
-              "params",
-              "trainingData"
-            ],
-            "type": "object",
-            "properties": {
-              "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string",
-                "description": "An AIR representing the model to use."
-              },
-              "trainingData": {
-                "type": "string",
-                "description": "A url referring data that needs to be trained upon",
-                "format": "uri"
-              },
-              "params": {
-                "type": "object",
-                "additionalProperties": {},
-                "description": "A untyped set of parameters that are associated with this job"
-              },
-              "output": {
-                "type": "string",
-                "description": "An application provided output of the current status of this job",
-                "nullable": true
-              },
-              "engine": {
-                "type": "string",
-                "description": "The engine that should be used for training",
-                "nullable": true
-              },
-              "type": {
-                "type": "string",
-                "description": "The job type.",
-                "readOnly": true
-              },
-              "claimDuration": {
-                "type": "string",
-                "description": "Rick: yeah i think for LoRA we need it to be 5-10 minutes.\r\nlora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer",
-                "format": "date-span",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "imageResourceTraining"
-            ],
-            "type": "string"
+            "flux-dev-fast": "#/components/schemas/FluxDevFastImageResourceTrainingInput",
+            "musubi": "#/components/schemas/MusubiImageResourceTrainingInput"
           }
         }
       },
@@ -4671,138 +3318,6 @@
           }
         },
         "description": "Image upload"
-      },
-      "Job": {
-        "required": [
-          "$type"
-        ],
-        "type": "object",
-        "properties": {
-          "$type": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string",
-            "description": "A unique id for this job"
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "The date when this job got created",
-            "format": "date-time"
-          },
-          "expireAt": {
-            "type": "string",
-            "description": "The date for when this job was set to expire",
-            "format": "date-time",
-            "nullable": true
-          },
-          "webhook": {
-            "type": "string",
-            "description": "A webhook to be invoked when the job receives a status update",
-            "format": "uri",
-            "nullable": true
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {},
-            "description": "A set of user defined properties that can be used to index and partition this job"
-          },
-          "type": {
-            "type": "string",
-            "description": "The type of this job as a string"
-          },
-          "cost": {
-            "type": "number",
-            "description": "Get a cost for this job",
-            "format": "double"
-          },
-          "maxRetryAttempt": {
-            "type": "integer",
-            "description": "The max number of retries before we give up",
-            "format": "int32"
-          },
-          "issuedBy": {
-            "type": "string",
-            "description": "Get or set the name of the consumer that issued this job",
-            "nullable": true
-          },
-          "version": {
-            "type": "integer",
-            "description": "Get or set the version of this job, this is used to track changes to the job schema",
-            "format": "int32",
-            "default": 0
-          },
-          "jobDependencies": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/JobDependency"
-            },
-            "description": "Get or set a list of dependencies that this job has"
-          },
-          "claimDuration": {
-            "type": "string",
-            "description": "The total duration that the job can be claimed",
-            "format": "date-span"
-          },
-          "resources": {
-            "type": "array",
-            "items": {
-              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-              "type": "string"
-            },
-            "description": "Get a list of resources that this job depends on"
-          },
-          "recovered": {
-            "type": "boolean",
-            "description": "An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters"
-          }
-        },
-        "additionalProperties": false,
-        "discriminator": {
-          "propertyName": "$type",
-          "mapping": {
-            "textToImage": "#/components/schemas/TextToImageJob",
-            "textToImageV2": "#/components/schemas/TextToImageV2Job",
-            "imageResourceTraining": "#/components/schemas/ImageResourceTrainingJob",
-            "comfy": "#/components/schemas/ComfyJob",
-            "similaritySearch": "#/components/schemas/SimilaritySearchJob",
-            "llmPromptAugmentation": "#/components/schemas/LLMPromptAugmentationJob",
-            "mochi": "#/components/schemas/MochiVideoGenJob",
-            "vidu": "#/components/schemas/ViduVideoGenJob",
-            "comfyVideoGen": "#/components/schemas/ComfyVideoGenJob",
-            "rewritePrompt": "#/components/schemas/RewritePromptJob",
-            "transcode": "#/components/schemas/TranscodeJob"
-          }
-        }
-      },
-      "JobDependency": {
-        "type": "object",
-        "properties": {
-          "jobId": {
-            "type": "string"
-          },
-          "onFailure": {
-            "$ref": "#/components/schemas/JobDependencyContinuation"
-          },
-          "onSuccess": {
-            "$ref": "#/components/schemas/JobDependencyContinuation"
-          },
-          "dynamicAssignments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DynamicAssignment"
-            }
-          }
-        },
-        "additionalProperties": false
-      },
-      "JobDependencyContinuation": {
-        "enum": [
-          "fail",
-          "skip",
-          "continue"
-        ],
-        "type": "string"
       },
       "JobSupport": {
         "enum": [
@@ -5081,7 +3596,7 @@
                 "maximum": 3,
                 "minimum": 0,
                 "type": "integer",
-                "description": "If your training images have tags, you can randomly shuffle them. \r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tags option is off.",
+                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tags option is off.",
                 "format": "int32",
                 "default": 0
               },
@@ -5136,7 +3651,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image, \r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n\r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
               },
@@ -5152,7 +3667,7 @@
                 "maximum": 256,
                 "minimum": 1,
                 "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights. \r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5, \r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n\r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
                 "format": "int32",
                 "nullable": true
               },
@@ -5166,7 +3681,7 @@
               },
               "optimizerType": {
                 "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training. \r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning \r\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
+                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\r\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
                 "nullable": true
               },
               "targetSteps": {
@@ -5188,108 +3703,15 @@
           }
         }
       },
-      "LLMPromptAugmentationCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "LLM prompt augmentaition capabilities."
-      },
-      "LLMPromptAugmentationJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "model"
-            ],
-            "type": "object",
-            "properties": {
-              "model": {
-                "type": "string",
-                "description": "The primary model to use."
-              },
-              "basePrompt": {
-                "type": "string",
-                "description": "The base prompt.",
-                "nullable": true
-              },
-              "prompts": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "A list of prompts."
-              },
-              "temp": {
-                "type": "number",
-                "description": "The temp.",
-                "format": "double"
-              },
-              "type": {
-                "type": "string",
-                "description": "The type.",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "llmPromptAugmentation"
-            ],
-            "type": "string"
-          }
-        }
-      },
       "LightricksAspectRatio": {
         "enum": [
           "1:1",
           "16:9",
-          "9:16"
+          "9:16",
+          "3:2",
+          "2:3"
         ],
         "type": "string"
-      },
-      "LightricksImageToVideoGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/LightricksVideoGenInput"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "sourceImage": {
-                "type": "string",
-                "description": "Either A URL, A DataURL or a Base64 string",
-                "nullable": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
-      },
-      "LightricksTextToVideoGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/LightricksVideoGenInput"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "aspectRatio": {
-                "$ref": "#/components/schemas/LightricksAspectRatio"
-              },
-              "resolution": {
-                "$ref": "#/components/schemas/ValueTupleOfInt32AndInt32"
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
       },
       "LightricksVideoGenInput": {
         "required": [
@@ -5300,14 +3722,8 @@
             "$ref": "#/components/schemas/VideoGenInput"
           },
           {
-            "required": [
-              "mode"
-            ],
             "type": "object",
             "properties": {
-              "mode": {
-                "type": "string"
-              },
               "negativePrompt": {
                 "type": "string",
                 "nullable": true
@@ -5342,16 +3758,17 @@
                 "type": "integer",
                 "format": "int32",
                 "default": 20
+              },
+              "aspectRatio": {
+                "$ref": "#/components/schemas/LightricksAspectRatio"
+              },
+              "sourceImage": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "nullable": true
               }
             },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "mode",
-              "mapping": {
-                "textToVideo": "#/components/schemas/LightricksTextToVideoGenInput",
-                "imageToVideo": "#/components/schemas/LightricksImageToVideoGenInput"
-              }
-            }
+            "additionalProperties": false
           }
         ],
         "properties": {
@@ -5437,48 +3854,106 @@
           }
         }
       },
-      "MochiVideoGenJob": {
+      "MusubiImageResourceTrainingInput": {
         "required": [
-          "$type"
+          "engine"
         ],
         "allOf": [
           {
-            "$ref": "#/components/schemas/Job"
+            "$ref": "#/components/schemas/ImageResourceTrainingInput"
           },
           {
-            "required": [
-              "destinationUrl",
-              "mediaHash",
-              "prompt"
-            ],
             "type": "object",
             "properties": {
-              "prompt": {
-                "type": "string"
-              },
-              "seed": {
-                "maximum": 4294967295,
-                "minimum": -1,
+              "maxTrainEpochs": {
+                "maximum": 20,
+                "minimum": 0,
                 "type": "integer",
-                "format": "int64"
+                "description": "An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.",
+                "format": "int32",
+                "default": 5
               },
-              "mediaHash": {
-                "type": "string"
+              "numRepeats": {
+                "maximum": 5000,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.",
+                "format": "int32",
+                "default": 8
               },
-              "destinationUrl": {
+              "trainBatchSize": {
+                "maximum": 9,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.",
+                "format": "int32",
+                "nullable": true
+              },
+              "resolution": {
+                "maximum": 1024,
+                "minimum": 512,
+                "type": "integer",
+                "description": "Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution",
+                "format": "int32",
+                "nullable": true
+              },
+              "enableBucket": {
+                "type": "boolean",
+                "description": "Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.",
+                "default": true
+              },
+              "unetLR": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net",
+                "format": "double",
+                "default": 5E-05
+              },
+              "lrScheduler": {
+                "enum": [
+                  "constant",
+                  "cosine",
+                  "cosine_with_restarts",
+                  "linear"
+                ],
                 "type": "string",
-                "format": "uri"
+                "description": "You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.",
+                "nullable": true
               },
-              "enablePromptEnhancer": {
-                "type": "boolean"
+              "lrSchedulerNumCycles": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "description": "This option specifies how many cycles the scheduler runs during training. It is only used when \"cosine_with_restarts\" or \"polynomial\" is used as the scheduler.",
+                "format": "int32",
+                "default": 3
               },
-              "type": {
+              "networkDim": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": "integer",
+                "description": "The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.",
+                "format": "int32",
+                "nullable": true
+              },
+              "networkAlpha": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": "integer",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "format": "int32",
+                "nullable": true
+              },
+              "optimizerType": {
                 "type": "string",
-                "readOnly": true
+                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\r\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
+                "nullable": true
               },
-              "claimDuration": {
-                "type": "string",
-                "format": "date-span",
+              "targetSteps": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true,
                 "readOnly": true
               }
             },
@@ -5486,9 +3961,9 @@
           }
         ],
         "properties": {
-          "$type": {
+          "engine": {
             "enum": [
-              "mochi"
+              "musubi"
             ],
             "type": "string"
           }
@@ -5541,83 +4016,6 @@
         },
         "additionalProperties": {}
       },
-      "ProcessingStatistics": {
-        "type": "object",
-        "properties": {
-          "totalJobsRequested": {
-            "type": "integer",
-            "description": "The total number of jobs requested.",
-            "format": "int64"
-          },
-          "totalCostRequested": {
-            "type": "number",
-            "description": "The total cost of jobs requested.",
-            "format": "double"
-          },
-          "totalJobsSucceeded": {
-            "type": "integer",
-            "description": "The total number of successful jobs.",
-            "format": "int64"
-          },
-          "totalCostSucceeded": {
-            "type": "number",
-            "description": "The total cost of successful jobs.",
-            "format": "double"
-          },
-          "totalJobsRejected": {
-            "type": "integer",
-            "description": "The total number of rejected jobs.",
-            "format": "int64"
-          },
-          "totalCostRejected": {
-            "type": "number",
-            "description": "The total cost of rejected jobs.",
-            "format": "double"
-          },
-          "totalJobsLateRejected": {
-            "type": "integer",
-            "description": "The total number of late rejected jobs.",
-            "format": "int64"
-          },
-          "totalCostLateRejected": {
-            "type": "number",
-            "description": "The total cost of laterejected jobs.",
-            "format": "double"
-          },
-          "totalJobsExpired": {
-            "type": "integer",
-            "description": "The total number of expired jobs.",
-            "format": "int64"
-          },
-          "totalCostExpired": {
-            "type": "number",
-            "description": "The total cost of expired jobs.",
-            "format": "double"
-          },
-          "totalJobsFailed": {
-            "type": "integer",
-            "description": "The total number of failed jobs.",
-            "format": "int64"
-          },
-          "totalCostFailed": {
-            "type": "number",
-            "description": "The total cost of failed jobs.",
-            "format": "double"
-          },
-          "totalJobsCompleted": {
-            "type": "integer",
-            "description": "The total number of completed jobs.",
-            "format": "int64"
-          },
-          "totalCostCompleted": {
-            "type": "number",
-            "description": "The total cost of completed jobs.",
-            "format": "double"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of processing statistics."
-      },
       "ResourceInfo": {
         "required": [
           "air",
@@ -5628,7 +4026,7 @@
         "type": "object",
         "properties": {
           "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "An AIR ID for the resource."
           },
@@ -5699,55 +4097,27 @@
           "hasMatureContentRestriction": {
             "type": "boolean",
             "description": "A boolean indicating whether this resource restricts mature content generation.\r\nIf resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content"
+          },
+          "popularityRank": {
+            "type": "number",
+            "description": "Get a rank between 0-1 on the popularity of the resource.",
+            "format": "double",
+            "nullable": true
+          },
+          "isFeatured": {
+            "type": "boolean",
+            "description": "Get wether this resource is featured",
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "description": "The date at which this model got published",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false,
         "description": "Details for a specific resource."
-      },
-      "RewritePromptGoal": {
-        "enum": [
-          "preventSexual",
-          "preventSexualMinor"
-        ],
-        "type": "string"
-      },
-      "RewritePromptJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "goal",
-              "prompt"
-            ],
-            "type": "object",
-            "properties": {
-              "prompt": {
-                "type": "string"
-              },
-              "goal": {
-                "$ref": "#/components/schemas/RewritePromptGoal"
-              },
-              "type": {
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "rewritePrompt"
-            ],
-            "type": "string"
-          }
-        }
       },
       "Scheduler": {
         "enum": [
@@ -5780,74 +4150,6 @@
         "type": "string",
         "description": "The available options for schedulers used in image generation."
       },
-      "SimilaritySearchJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "model",
-              "nsfwFilter",
-              "params",
-              "prompt"
-            ],
-            "type": "object",
-            "properties": {
-              "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string",
-                "description": "An AIR ID representing the primary model."
-              },
-              "nsfwFilter": {
-                "type": "string",
-                "description": "A value for the NSFW filter."
-              },
-              "prompt": {
-                "type": "string",
-                "description": "The prompt provided."
-              },
-              "params": {
-                "type": "object",
-                "additionalProperties": {},
-                "description": "A collection of parameters."
-              },
-              "type": {
-                "type": "string",
-                "description": "The job type.",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "similaritySearch"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "Details for a similarity search job."
-      },
-      "Subscription": {
-        "required": [
-          "webhook"
-        ],
-        "type": "object",
-        "properties": {
-          "webhook": {
-            "type": "string",
-            "description": "The webhook url."
-          }
-        },
-        "additionalProperties": false,
-        "description": "A subscription for pushed based notifications."
-      },
       "TextToImageInput": {
         "required": [
           "height",
@@ -5873,7 +4175,7 @@
             "default": 1
           },
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The AIR of the checkpoint model to use for generation.",
             "default": "urn:air:sd1:checkpoint:civitai:4384@128713"
@@ -5963,103 +4265,6 @@
         "additionalProperties": false,
         "description": "Input for an text to image step."
       },
-      "TextToImageJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "imageHash",
-              "model",
-              "params"
-            ],
-            "type": "object",
-            "properties": {
-              "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string",
-                "description": "An AIR representing the model to use."
-              },
-              "params": {
-                "$ref": "#/components/schemas/ImageJobParams"
-              },
-              "imageHash": {
-                "type": "string",
-                "description": "The hash for the output image."
-              },
-              "additionalNetworks": {
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/ImageJobNetworkParams"
-                },
-                "description": "Get or set a associative list of additional networks. Each network is identified by a hash code."
-              },
-              "destinationUrl": {
-                "type": "string",
-                "description": "Get or set the URL where the image will be uploaded to.",
-                "format": "uri",
-                "nullable": true
-              },
-              "storeAsBlob": {
-                "type": "boolean",
-                "description": "A value indicating whether to store the image as a blob or as a legacy image."
-              },
-              "controlNets": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ImageJobControlNet"
-                },
-                "description": "Get or set a list of control nets that should be applied with this textToImage job."
-              },
-              "claimDuration": {
-                "type": "string",
-                "description": "The duration for which this job can be claimed for.",
-                "format": "date-span",
-                "readOnly": true
-              },
-              "type": {
-                "type": "string",
-                "description": "The job type.",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "textToImage"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "A text to image generation job."
-      },
-      "TextToImageJobSlot": {
-        "required": [
-          "destinationUrl",
-          "imageHash"
-        ],
-        "type": "object",
-        "properties": {
-          "imageHash": {
-            "type": "string",
-            "description": "The hash for the image output."
-          },
-          "destinationUrl": {
-            "type": "string",
-            "description": "The destination url for image upload.",
-            "format": "uri"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Contains slot information for an image generated by a TextToImageJob."
-      },
       "TextToImageOutput": {
         "required": [
           "images"
@@ -6142,91 +4347,6 @@
         },
         "description": "TextToImage"
       },
-      "TextToImageV2Job": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "model",
-              "params",
-              "slots"
-            ],
-            "type": "object",
-            "properties": {
-              "baseModel": {
-                "type": "string",
-                "description": "The base model / ecosystem for the model.",
-                "nullable": true,
-                "readOnly": true
-              },
-              "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string",
-                "description": "An AIR representing the model to use."
-              },
-              "params": {
-                "$ref": "#/components/schemas/ImageJobParams"
-              },
-              "slots": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/TextToImageJobSlot"
-                },
-                "description": "Slots for the resulting image outputs."
-              },
-              "additionalNetworks": {
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/ImageJobNetworkParams"
-                },
-                "description": "Get or set a associative list of additional networks. Each network is identified by a hash code"
-              },
-              "controlNets": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ImageJobControlNet"
-                },
-                "description": "Get or set a list of control nets that should be applied with this textToImage job"
-              },
-              "imageMetadata": {
-                "type": "string",
-                "description": "Get or set additional metadata that will be embedded with generated images",
-                "nullable": true
-              },
-              "engine": {
-                "type": "string",
-                "description": "The engine to use for generation",
-                "nullable": true
-              },
-              "claimDuration": {
-                "type": "string",
-                "description": "The duration for which this job can be claimed for.",
-                "format": "date-span",
-                "readOnly": true
-              },
-              "type": {
-                "type": "string",
-                "description": "The job type.",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "textToImageV2"
-            ],
-            "type": "string"
-          }
-        }
-      },
       "TransactionInfo": {
         "required": [
           "amount",
@@ -6300,62 +4420,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "TranscodeJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "destinationUrl",
-              "mediaHash",
-              "sourceUrl"
-            ],
-            "type": "object",
-            "properties": {
-              "sourceUrl": {
-                "type": "string",
-                "format": "uri"
-              },
-              "containerFormat": {
-                "$ref": "#/components/schemas/ContainerFormat"
-              },
-              "width": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "mediaHash": {
-                "type": "string"
-              },
-              "destinationUrl": {
-                "type": "string",
-                "format": "uri"
-              },
-              "type": {
-                "type": "string",
-                "readOnly": true
-              },
-              "claimDuration": {
-                "type": "string",
-                "format": "date-span",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "transcode"
-            ],
-            "type": "string"
-          }
-        }
       },
       "TranscodeOutput": {
         "required": [
@@ -6563,10 +4627,6 @@
         },
         "additionalProperties": {}
       },
-      "ValueTupleOfInt32AndInt32": {
-        "type": "object",
-        "additionalProperties": false
-      },
       "ValueTupleOfStringAndInt32": {
         "type": "object",
         "additionalProperties": false
@@ -6605,6 +4665,138 @@
           }
         }
       },
+      "VideoEnhancementInput": {
+        "required": [
+          "sourceUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "upscaler": {
+            "$ref": "#/components/schemas/VideoEnhancementInputUpscalerOptions"
+          },
+          "interpolation": {
+            "$ref": "#/components/schemas/VideoEnhancementInputInterpolationOptions"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoEnhancementInputInterpolationOptions": {
+        "required": [
+          "multiplier"
+        ],
+        "type": "object",
+        "properties": {
+          "multiplier": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoEnhancementInputUpscalerOptions": {
+        "required": [
+          "height",
+          "model",
+          "width"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoEnhancementOutput": {
+        "required": [
+          "video"
+        ],
+        "type": "object",
+        "properties": {
+          "video": {
+            "$ref": "#/components/schemas/VideoBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoEnhancementStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoEnhancementInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/VideoEnhancementOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoEnhancement"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Upscale videos and/or interpolate frames"
+      },
+      "VideoEnhancementStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoEnhancementInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoEnhancement"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Upscale videos and/or interpolate frames"
+      },
       "VideoGenInput": {
         "required": [
           "engine",
@@ -6628,15 +4820,35 @@
             "kling": "#/components/schemas/KlingVideoGenInput",
             "minimax": "#/components/schemas/MiniMaxVideoGenInput",
             "lightricks": "#/components/schemas/LightricksVideoGenInput",
+            "hunyuan": "#/components/schemas/HunyuanVdeoGenInput",
+            "wan": "#/components/schemas/WanVdeoGenInput",
             "vidu": "#/components/schemas/ViduVideoGenInput"
           }
         }
+      },
+      "VideoGenInputLora": {
+        "required": [
+          "air",
+          "strength"
+        ],
+        "type": "object",
+        "properties": {
+          "air": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string"
+          },
+          "strength": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
       },
       "VideoGenOutput": {
         "type": "object",
         "properties": {
           "video": {
-            "$ref": "#/components/schemas/Blob"
+            "$ref": "#/components/schemas/VideoBlob"
           }
         },
         "additionalProperties": false
@@ -6756,73 +4968,6 @@
           }
         }
       },
-      "ViduVideoGenJob": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Job"
-          },
-          {
-            "required": [
-              "destinationBlobKey",
-              "destinationUrl",
-              "prompt"
-            ],
-            "type": "object",
-            "properties": {
-              "prompt": {
-                "type": "string"
-              },
-              "enablePromptEnhancer": {
-                "type": "boolean"
-              },
-              "destinationUrl": {
-                "type": "string",
-                "format": "uri"
-              },
-              "sourceImageUrl": {
-                "type": "string",
-                "format": "uri",
-                "nullable": true
-              },
-              "destinationBlobKey": {
-                "type": "string"
-              },
-              "seed": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "style": {
-                "$ref": "#/components/schemas/ViduVideoGenStyle"
-              },
-              "duration": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "claimDuration": {
-                "type": "string",
-                "format": "date-span",
-                "readOnly": true
-              },
-              "type": {
-                "type": "string",
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "vidu"
-            ],
-            "type": "string"
-          }
-        }
-      },
       "ViduVideoGenStyle": {
         "enum": [
           "general",
@@ -6830,514 +4975,84 @@
         ],
         "type": "string"
       },
-      "WorkerCapabilities": {
-        "type": "object",
-        "properties": {
-          "image": {
-            "$ref": "#/components/schemas/WorkerImageCapabilities"
-          },
-          "media": {
-            "$ref": "#/components/schemas/WorkerMediaCapabilities"
-          },
-          "modelManagement": {
-            "$ref": "#/components/schemas/WorkerModelPreparationCapabilities"
-          },
-          "configurationManagement": {
-            "$ref": "#/components/schemas/WorkerConfigurationCapabilities"
-          },
-          "similaritySearch": {
-            "$ref": "#/components/schemas/WorkerSimilaritySearchCapabilities"
-          },
-          "llmPromptAugmentation": {
-            "$ref": "#/components/schemas/LLMPromptAugmentationCapabilities"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's capabilities."
-      },
-      "WorkerConfigurationCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's configuration capabilities."
-      },
-      "WorkerDetails": {
+      "WanVdeoGenInput": {
         "required": [
-          "id",
-          "name"
+          "engine"
         ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The worker's ID."
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
           },
-          "name": {
-            "type": "string",
-            "description": "The worker's name."
-          },
-          "activeJobs": {
-            "type": "integer",
-            "description": "The worker's active job count.",
-            "format": "int32"
-          },
-          "queueSize": {
-            "type": "integer",
-            "description": "The number of jobs in the worker's queue.",
-            "format": "int32"
-          },
-          "queueDepth": {
-            "type": "number",
-            "description": "The total cost of job's in the worker's queue.",
-            "format": "double"
-          },
-          "startDate": {
-            "type": "string",
-            "description": "The worker's start date / time.",
-            "format": "date-time"
-          },
-          "lastRequestDate": {
-            "type": "string",
-            "description": "The worker's last request date / time.",
-            "format": "date-time",
-            "nullable": true
-          },
-          "expirationDate": {
-            "type": "string",
-            "description": "The worker's expiration date / time.",
-            "format": "date-time",
-            "nullable": true
-          },
-          "statistics": {
-            "$ref": "#/components/schemas/ProcessingStatistics"
-          },
-          "succeededThroughputRate": {
-            "type": "number",
-            "description": "The worker's succeeded job throughput rate.",
-            "format": "double"
-          },
-          "failedThroughputRate": {
-            "type": "number",
-            "description": "The worker's failed job throughput rate.",
-            "format": "double"
-          },
-          "idleRate": {
-            "type": "number",
-            "description": "The worker's idle rate.",
-            "format": "double"
-          },
-          "lastSuccesfullyCompletedJobDate": {
-            "type": "string",
-            "description": "The date / time of the worker's last successfully completed job.",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastJobUpdateDate": {
-            "type": "string",
-            "description": "The date / time of the worker's last job update.",
-            "format": "date-time",
-            "nullable": true
-          },
-          "subscriptionSetDate": {
-            "type": "string",
-            "description": "The date / time that the worker's subscription was set.",
-            "format": "date-time",
-            "nullable": true
-          },
-          "quarantineDate": {
-            "type": "string",
-            "description": "The date / time that the worker was quarantined.",
-            "format": "date-time",
-            "nullable": true
-          },
-          "resourceDownloadRate": {
-            "type": "number",
-            "description": "The rate at which this worker has been downloading",
-            "format": "double"
-          },
-          "resourceEvictionRate": {
-            "type": "number",
-            "description": "The rate at which this worker has been evicting resources",
-            "format": "double"
-          },
-          "upcomingResourcesSize": {
-            "type": "integer",
-            "description": "The size in bytes of resources that are queued up for this worker to download",
-            "format": "int64",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details for a particular worker."
-      },
-      "WorkerHaiperCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerHumanoidImageMaskCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerImageCapabilities": {
-        "type": "object",
-        "properties": {
-          "textToImage": {
-            "$ref": "#/components/schemas/WorkerImageTextToImageCapabilities"
-          },
-          "imageToImage": {
-            "$ref": "#/components/schemas/WorkerImageImageToImageCapabilities"
-          },
-          "transform": {
-            "$ref": "#/components/schemas/WorkerImageTransformCapabilities"
-          },
-          "resourceTraining": {
-            "$ref": "#/components/schemas/WorkerImageResourceTrainingCapabilities"
-          },
-          "embedding": {
-            "$ref": "#/components/schemas/WorkerImageEmbeddingCapabilities"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's image capabilities."
-      },
-      "WorkerImageEmbeddingCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's image embedding capabilities."
-      },
-      "WorkerImageImageToImageCapabilities": {
-        "type": "object",
-        "properties": {
-          "size": {
-            "type": "integer",
-            "description": "The worker's maximum supported image size for image to image (squared).",
-            "format": "int32"
-          },
-          "schedulers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Scheduler"
-            },
-            "description": "A list of schedulers the worker supports for image to image."
-          },
-          "controlNet": {
-            "maximum": 10,
-            "minimum": 0,
-            "type": "integer",
-            "description": "The number of ControlNets the worker supports for image to image (at once).",
-            "format": "int32"
-          },
-          "inpainting": {
-            "type": "boolean",
-            "description": "Indicates whether the worker supports inpaiting."
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's image to image capabilities."
-      },
-      "WorkerImageResourceTrainingCapabilities": {
-        "type": "object",
-        "properties": {
-          "engines": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's image resource training capabilities."
-      },
-      "WorkerImageTextToImageCapabilities": {
-        "type": "object",
-        "properties": {
-          "size": {
-            "type": "integer",
-            "description": "The worker's maximum supported image size for text to image (squared).",
-            "format": "int32"
-          },
-          "schedulers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Scheduler"
-            },
-            "description": "A list of schedulers the worker supports for text to image."
-          },
-          "controlNet": {
-            "maximum": 10,
-            "minimum": 0,
-            "type": "integer",
-            "description": "The number of ControlNets the worker supports for text to image (at once).",
-            "format": "int32"
-          },
-          "engines": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "A list of engines that this worker supports for text to image.",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's text to image capabilities."
-      },
-      "WorkerImageTransformCapabilities": {
-        "type": "object",
-        "properties": {
-          "transformers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ImageTransformer"
-            },
-            "description": "A list of supported image transformers."
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's image transform capabilities."
-      },
-      "WorkerKlingCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerMediaAgeClassificationCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerMediaCapabilities": {
-        "type": "object",
-        "properties": {
-          "wdTagging": {
-            "$ref": "#/components/schemas/WorkerMediaWDTaggingCapabilities"
-          },
-          "comfy": {
-            "$ref": "#/components/schemas/WorkerMediaComfyCapabilities"
-          },
-          "tagging": {
-            "$ref": "#/components/schemas/WorkerMediaTaggingCapabilities"
-          },
-          "movieRating": {
-            "$ref": "#/components/schemas/WorkerMediaMovieRatingCapabilities"
-          },
-          "transcode": {
-            "$ref": "#/components/schemas/WorkerMediaTranscodeCapabilities"
-          },
-          "captioning": {
-            "$ref": "#/components/schemas/WorkerMediaCaptioningCapabilities"
-          },
-          "ageClassification": {
-            "$ref": "#/components/schemas/WorkerMediaAgeClassificationCapabilities"
-          },
-          "ocrSafetyClassification": {
-            "$ref": "#/components/schemas/WorkerMediaOCRSafetyClassificationCapabilities"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's media capabilities."
-      },
-      "WorkerMediaCaptioningCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerMediaComfyCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's media comfy capabilities."
-      },
-      "WorkerMediaMovieRatingCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's media movie rating capabilities."
-      },
-      "WorkerMediaOCRSafetyClassificationCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerMediaTaggingCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's media tagging capabilities."
-      },
-      "WorkerMediaTranscodeCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerMediaWDTaggingCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's media WD tagging capabilities."
-      },
-      "WorkerMiniMaxCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerModelPreparationCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's model preparation capabilities."
-      },
-      "WorkerPromptRewritingCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerRegistration": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "The worker's name."
-          },
-          "onDemandResourceTypes": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "A hash set of resource types the worker can retrieve on demand."
-          },
-          "capabilities": {
-            "$ref": "#/components/schemas/WorkerCapabilities"
-          },
-          "subscription": {
-            "$ref": "#/components/schemas/Subscription"
-          },
-          "type": {
-            "$ref": "#/components/schemas/WorkerType"
-          },
-          "concurrentLimit": {
-            "type": "integer",
-            "description": "The number of requests the worker can handle at once.",
-            "format": "int32"
-          },
-          "ecosystems": {
+          {
             "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/EcosystemElement"
+            "properties": {
+              "sourceImage": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "nullable": true
+              },
+              "cfgScale": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 4
+              },
+              "frameRate": {
+                "type": "integer",
+                "format": "int32",
+                "default": 25
+              },
+              "duration": {
+                "maximum": 30,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 10,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "width": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "nullable": true
+              },
+              "loras": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VideoGenInputLora"
+                }
+              }
             },
-            "description": "A collection of ecosystems the worker supports."
-          },
-          "resources": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/WorkerResourceStatus"
-            },
-            "description": "A collection of information about the availability of particular resources on this worker."
-          },
-          "cacheLevel": {
-            "type": "string",
-            "description": "The name of the closest cache level that this worker can interact with.",
-            "nullable": true
-          },
-          "maxColdSwapQueueSize": {
-            "type": "integer",
-            "description": "The max queue size before the worker stops accepting requests that require cold swapping.",
-            "format": "int32",
-            "nullable": true
-          },
-          "maxPendingResourceSize": {
-            "type": "integer",
-            "description": "The max size in Mb of downloads that can be pending.",
-            "format": "int32",
-            "nullable": true
-          },
-          "consumeUnavailableJobs": {
-            "type": "boolean",
-            "description": "A value indicating if worker should consume jobs that are not yet available."
-          },
-          "nodeIdentifier": {
-            "type": "string",
-            "description": "An optional identifier unique to this worker.",
-            "nullable": true
-          },
-          "scoreBoost": {
-            "type": "number",
-            "description": "An optional boost to the scoring of this worker. This can be used to make a worker more or less likely to be selected for work",
-            "format": "double",
-            "nullable": true
-          },
-          "supportedFileFormats": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FileFormat"
-            },
-            "description": "A list of file formats that the worker supports. If none are specified then all formats are considered supported",
-            "nullable": true
-          },
-          "preferredDownloadSource": {
-            "$ref": "#/components/schemas/DownloadSource"
-          },
-          "labels": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "description": "A collection of labels that will be applied to metrics produced by these workers",
-            "nullable": true
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": {},
-            "description": "Get additional metadata about this worker. This can be used for debugging purposes as well as to target certain configurations to certain workers.",
-            "nullable": true
+            "additionalProperties": false
           }
-        },
-        "additionalProperties": false,
-        "description": "Details of a worker's registration."
-      },
-      "WorkerResourceAvailability": {
-        "enum": [
-          "unknown",
-          "unsupported",
-          "unavailable",
-          "available",
-          "providerUnsupported"
         ],
-        "type": "string",
-        "description": "Options for representing the status for a resource on a worker."
-      },
-      "WorkerResourceStatus": {
-        "required": [
-          "availability"
-        ],
-        "type": "object",
         "properties": {
-          "availability": {
-            "$ref": "#/components/schemas/WorkerResourceAvailability"
-          },
-          "cost": {
-            "type": "number",
-            "description": "The cost associated with this resource.",
-            "format": "float"
+          "engine": {
+            "enum": [
+              "wan"
+            ],
+            "type": "string"
           }
-        },
-        "additionalProperties": false,
-        "description": "Details for the status of a resource on a particular worker."
-      },
-      "WorkerSimilaritySearchCapabilities": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Details of a worker's similarity search capabilities."
-      },
-      "WorkerTryOnUCapabilities": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "WorkerType": {
-        "enum": [
-          "normal",
-          "deferred",
-          "test"
-        ],
-        "type": "string",
-        "description": "Available values for worker type."
-      },
-      "WorkerViduCapabilities": {
-        "type": "object",
-        "additionalProperties": false
+        }
       },
       "Workflow": {
         "type": "object",
@@ -7620,6 +5335,12 @@
             "type": "object",
             "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
+          },
+          "estimatedProgressRate": {
+            "type": "number",
+            "description": "An estimation on the current progression of this step, or null if there is no estimation",
+            "format": "double",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -7634,6 +5355,7 @@
             "imageUpload": "#/components/schemas/ImageUploadStep",
             "textToImage": "#/components/schemas/TextToImageStep",
             "transcode": "#/components/schemas/TranscodeStep",
+            "videoEnhancement": "#/components/schemas/VideoEnhancementStep",
             "videoGen": "#/components/schemas/VideoGenStep"
           }
         }
@@ -7696,6 +5418,12 @@
             "type": "number",
             "description": "The job's cost.",
             "format": "double"
+          },
+          "estimatedProgressRate": {
+            "type": "number",
+            "description": "An estimation on the current progression of this job, or null if there is no estimation",
+            "format": "double",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -7819,6 +5547,7 @@
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
+            "videoEnhancement": "#/components/schemas/VideoEnhancementStepTemplate",
             "videoGen": "#/components/schemas/VideoGenStepTemplate"
           }
         }
