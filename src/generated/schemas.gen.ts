@@ -209,6 +209,12 @@ export const $Blob = {
     nsfwLevel: {
       $ref: '#/components/schemas/NSFWLevel',
     },
+    blockedReason: {
+      type: 'string',
+      description:
+        'Get an optional reason for why the blob was blocked. This is only set if the blob was blocked.',
+      nullable: true,
+    },
   },
   additionalProperties: false,
   description: 'Represents a blob that gets produced as part of a specific job',
@@ -2347,13 +2353,14 @@ export const $VideoEnhancementInputInterpolationOptions = {
 } as const;
 
 export const $VideoEnhancementInputUpscalerOptions = {
-  required: ['height', 'model', 'width'],
+  required: ['height', 'width'],
   type: 'object',
   properties: {
     model: {
       pattern:
         '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
       type: 'string',
+      nullable: true,
     },
     width: {
       type: 'integer',
@@ -3064,6 +3071,10 @@ export const $WorkflowStepJobEvent = {
       nullable: true,
     },
     reason: {
+      type: 'string',
+      nullable: true,
+    },
+    blockedReason: {
       type: 'string',
       nullable: true,
     },

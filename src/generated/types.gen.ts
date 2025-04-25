@@ -97,6 +97,10 @@ export type Blob = {
    */
   jobId?: string | null;
   nsfwLevel?: NSFWLevel;
+  /**
+   * Get an optional reason for why the blob was blocked. This is only set if the blob was blocked.
+   */
+  blockedReason?: string | null;
 };
 
 export type BuzzClientAccount = 'user' | 'generation';
@@ -1402,7 +1406,7 @@ export type VideoEnhancementInputInterpolationOptions = {
 };
 
 export type VideoEnhancementInputUpscalerOptions = {
-  model: string;
+  model?: string | null;
   width: number;
   height: number;
 };
@@ -1811,6 +1815,7 @@ export type WorkflowStepJobEvent = {
   $type?: string;
   progress?: number | null;
   reason?: string | null;
+  blockedReason?: string | null;
 };
 
 /**
