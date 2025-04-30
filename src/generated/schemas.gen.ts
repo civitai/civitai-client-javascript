@@ -1798,6 +1798,11 @@ If resources with this restriction are used in generation, then generations will
       format: 'date-time',
       nullable: true,
     },
+    hasNSFWContentRestriction: {
+      type: 'boolean',
+      description: `A boolean indicating whether this resource restricts to SFW content generation.
+NSFWContent covers X and AA whereas MatureContent includes R rated content.`,
+    },
   },
   additionalProperties: false,
   description: 'Details for a specific resource.',
@@ -2580,6 +2585,11 @@ export const $ViduVideoGenInput = {
           type: 'integer',
           format: 'int32',
           default: 4,
+        },
+        endSourceImage: {
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
         },
       },
       additionalProperties: false,

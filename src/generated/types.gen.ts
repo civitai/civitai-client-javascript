@@ -1069,6 +1069,11 @@ export type ResourceInfo = {
    * The date at which this model got published
    */
   publishedAt?: string | null;
+  /**
+   * A boolean indicating whether this resource restricts to SFW content generation.
+   * NSFWContent covers X and AA whereas MatureContent includes R rated content.
+   */
+  hasNSFWContentRestriction?: boolean;
 };
 
 /**
@@ -1488,6 +1493,10 @@ export type ViduVideoGenInput = VideoGenInput & {
   sourceImage?: string | null;
   style?: ViduVideoGenStyle;
   duration?: 4 | 8;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  endSourceImage?: string | null;
 } & {
   engine: 'vidu';
 };
