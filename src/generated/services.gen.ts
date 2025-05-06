@@ -15,6 +15,9 @@ import type {
   InvokeEchoStepTemplateData,
   InvokeEchoStepTemplateError,
   InvokeEchoStepTemplateResponse,
+  InvokeImageGenStepTemplateData,
+  InvokeImageGenStepTemplateError,
+  InvokeImageGenStepTemplateResponse,
   InvokeImageResourceTrainingStepTemplateData,
   InvokeImageResourceTrainingStepTemplateError,
   InvokeImageResourceTrainingStepTemplateResponse,
@@ -136,6 +139,20 @@ export const invokeEchoStepTemplate = (options?: Options<InvokeEchoStepTemplateD
   >({
     ...options,
     url: '/v2/consumer/recipes/echo',
+  });
+};
+
+/**
+ * Image Generation
+ * Generate images through text/image inputs using any of our supported engines
+ */
+export const invokeImageGenStepTemplate = (options?: Options<InvokeImageGenStepTemplateData>) => {
+  return (options?.client ?? client).post<
+    InvokeImageGenStepTemplateResponse,
+    InvokeImageGenStepTemplateError
+  >({
+    ...options,
+    url: '/v2/consumer/recipes/imageGen',
   });
 };
 

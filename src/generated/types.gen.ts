@@ -401,6 +401,42 @@ export const engine3 = {
   HUNYUAN: 'hunyuan',
 } as const;
 
+export type ImageGenInput = {
+  engine: string;
+};
+
+export type ImageGenOutput = {
+  /**
+   * A collection of output images.
+   */
+  images: Array<Blob>;
+};
+
+/**
+ * Image Generation
+ */
+export type ImageGenStep = WorkflowStep & {
+  input: ImageGenInput;
+  output?: ImageGenOutput;
+} & {
+  $type: 'imageGen';
+};
+
+export type $type4 = 'imageGen';
+
+export const $type4 = {
+  IMAGE_GEN: 'imageGen',
+} as const;
+
+/**
+ * Image Generation
+ */
+export type ImageGenStepTemplate = WorkflowStepTemplate & {
+  input: ImageGenInput;
+} & {
+  $type: 'imageGen';
+};
+
 /**
  * Information for a controlnet provided for a text to image input.
  */
@@ -506,9 +542,9 @@ export type ImageResourceTrainingStep = WorkflowStep & {
   $type: 'imageResourceTraining';
 };
 
-export type $type4 = 'imageResourceTraining';
+export type $type5 = 'imageResourceTraining';
 
-export const $type4 = {
+export const $type5 = {
   IMAGE_RESOURCE_TRAINING: 'imageResourceTraining',
 } as const;
 
@@ -553,9 +589,9 @@ export type ImageUploadStep = WorkflowStep & {
   $type: 'imageUpload';
 };
 
-export type $type5 = 'imageUpload';
+export type $type6 = 'imageUpload';
 
-export const $type5 = {
+export const $type6 = {
   IMAGE_UPLOAD: 'imageUpload',
 } as const;
 
@@ -974,6 +1010,165 @@ export const NSFWLevel = {
   NA: 'na',
 } as const;
 
+export type OpenAICreateImageInputBackground = 'auto' | 'transparent' | 'opaque';
+
+export const OpenAICreateImageInputBackground = {
+  AUTO: 'auto',
+  TRANSPARENT: 'transparent',
+  OPAQUE: 'opaque',
+} as const;
+
+export type OpenAIDallE2CreateImageGenInput = OpenAIDallE2ImageGenInput & {
+  background?: OpenAICreateImageInputBackground;
+} & {
+  operation: 'createImage';
+};
+
+export type operation = 'createImage';
+
+export const operation = {
+  CREATE_IMAGE: 'createImage',
+} as const;
+
+export type OpenAIDallE2EditImageInput = OpenAIDallE2ImageGenInput & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  mask?: string | null;
+} & {
+  operation: 'editImage';
+};
+
+export type operation2 = 'editImage';
+
+export const operation2 = {
+  EDIT_IMAGE: 'editImage',
+} as const;
+
+export type OpenAIDallE2ImageGenInput = OpenApiImageGenInput & {
+  operation: string;
+  prompt: string;
+  size: OpenAIDallE2ImageGenInputSize;
+  quantity?: number;
+} & {
+  model: 'dall-e-2';
+};
+
+export type model = 'dall-e-2';
+
+export const model = {
+  DALL_E_2: 'dall-e-2',
+} as const;
+
+export type OpenAIDallE2ImageGenInputSize = '256x256' | '512x512' | '1024x1024';
+
+export const OpenAIDallE2ImageGenInputSize = {
+  _256X256: '256x256',
+  _512X512: '512x512',
+  _1024X1024: '1024x1024',
+} as const;
+
+export type OpenAIDallE3CreateImageGenInput = OpenAIDallE3ImageGenInput & {
+  background?: OpenAICreateImageInputBackground;
+} & {
+  operation: 'createImage';
+};
+
+export type OpenAIDallE3ImageGenInput = OpenApiImageGenInput & {
+  operation: string;
+  prompt: string;
+  size: OpenAIDallE3ImageGenInputSize;
+  style?: OpenAIDallE3ImageGenInputStyle;
+  quality?: OpenAIDallE3ImageGenInputQuality;
+} & {
+  model: 'dall-e-3';
+};
+
+export type model2 = 'dall-e-3';
+
+export const model2 = {
+  DALL_E_3: 'dall-e-3',
+} as const;
+
+export type OpenAIDallE3ImageGenInputQuality = 'auto' | 'hd' | 'standard';
+
+export const OpenAIDallE3ImageGenInputQuality = {
+  AUTO: 'auto',
+  HD: 'hd',
+  STANDARD: 'standard',
+} as const;
+
+export type OpenAIDallE3ImageGenInputSize = '1024x1024' | '1792x1024' | '1024x1792';
+
+export const OpenAIDallE3ImageGenInputSize = {
+  _1024X1024: '1024x1024',
+  _1792X1024: '1792x1024',
+  _1024X1792: '1024x1792',
+} as const;
+
+export type OpenAIDallE3ImageGenInputStyle = 'natural' | 'vivid';
+
+export const OpenAIDallE3ImageGenInputStyle = {
+  NATURAL: 'natural',
+  VIVID: 'vivid',
+} as const;
+
+export type OpenAIGpt1CreateImageInput = OpenAIGpt1ImageGenInput & {
+  background?: OpenAICreateImageInputBackground;
+} & {
+  operation: 'createImage';
+};
+
+export type OpenAIGpt1EditImageInput = OpenAIGpt1ImageGenInput & {
+  images: Array<string>;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  mask?: string | null;
+} & {
+  operation: 'editImage';
+};
+
+export type OpenAIGpt1ImageGenInput = OpenApiImageGenInput & {
+  operation: string;
+  prompt: string;
+  size?: OpenAIGpt1ImageGenInputSize;
+  quantity?: number;
+} & {
+  model: 'gpt-image-1';
+};
+
+export type model3 = 'gpt-image-1';
+
+export const model3 = {
+  GPT_IMAGE_1: 'gpt-image-1',
+} as const;
+
+export type OpenAIGpt1ImageGenInputSize = 'auto' | '1024x1024' | '1536x1024' | '1024x1536';
+
+export const OpenAIGpt1ImageGenInputSize = {
+  AUTO: 'auto',
+  _1024X1024: '1024x1024',
+  _1536X1024: '1536x1024',
+  _1024X1536: '1024x1536',
+} as const;
+
+export type OpenApiImageGenInput = ImageGenInput & {
+  model: string;
+} & {
+  engine: 'openai';
+};
+
+export type engine10 = 'openai';
+
+export const engine10 = {
+  OPENAI: 'openai',
+} as const;
+
 /**
  * Available options for priority.
  */
@@ -1226,9 +1421,9 @@ export type TextToImageStep = WorkflowStep & {
   $type: 'textToImage';
 };
 
-export type $type6 = 'textToImage';
+export type $type7 = 'textToImage';
 
-export const $type6 = {
+export const $type7 = {
   TEXT_TO_IMAGE: 'textToImage',
 } as const;
 
@@ -1311,9 +1506,9 @@ export type TranscodeStep = WorkflowStep & {
   $type: 'transcode';
 };
 
-export type $type7 = 'transcode';
+export type $type8 = 'transcode';
 
-export const $type7 = {
+export const $type8 = {
   TRANSCODE: 'transcode',
 } as const;
 
@@ -1430,9 +1625,9 @@ export type VideoEnhancementStep = WorkflowStep & {
   $type: 'videoEnhancement';
 };
 
-export type $type8 = 'videoEnhancement';
+export type $type9 = 'videoEnhancement';
 
-export const $type8 = {
+export const $type9 = {
   VIDEO_ENHANCEMENT: 'videoEnhancement',
 } as const;
 
@@ -1469,9 +1664,9 @@ export type VideoGenStep = WorkflowStep & {
   $type: 'videoGen';
 };
 
-export type $type9 = 'videoGen';
+export type $type10 = 'videoGen';
 
-export const $type9 = {
+export const $type10 = {
   VIDEO_GEN: 'videoGen',
 } as const;
 
@@ -1508,9 +1703,9 @@ export const duration2 = {
   _8: 8,
 } as const;
 
-export type engine10 = 'vidu';
+export type engine11 = 'vidu';
 
-export const engine10 = {
+export const engine11 = {
   VIDU: 'vidu',
 } as const;
 
@@ -1539,9 +1734,9 @@ export type WanVdeoGenInput = VideoGenInput & {
   engine: 'wan';
 };
 
-export type engine11 = 'wan';
+export type engine12 = 'wan';
 
-export const engine11 = {
+export const engine12 = {
   WAN: 'wan',
 } as const;
 
@@ -1973,6 +2168,14 @@ export type InvokeEchoStepTemplateResponse = EchoOutput;
 
 export type InvokeEchoStepTemplateError = ProblemDetails;
 
+export type InvokeImageGenStepTemplateData = {
+  body?: ImageGenInput;
+};
+
+export type InvokeImageGenStepTemplateResponse = ImageGenOutput;
+
+export type InvokeImageGenStepTemplateError = ProblemDetails;
+
 export type InvokeImageResourceTrainingStepTemplateData = {
   body?: ImageResourceTrainingInput;
 };
@@ -2340,6 +2543,25 @@ export type $OpenApiTs = {
          * OK
          */
         '200': EchoOutput;
+        /**
+         * Bad Request
+         */
+        '400': ProblemDetails;
+        /**
+         * Unauthorized
+         */
+        '401': ProblemDetails;
+      };
+    };
+  };
+  '/v2/consumer/recipes/imageGen': {
+    post: {
+      req: InvokeImageGenStepTemplateData;
+      res: {
+        /**
+         * OK
+         */
+        '200': ImageGenOutput;
         /**
          * Bad Request
          */

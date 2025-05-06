@@ -745,6 +745,93 @@ export const $HunyuanVdeoGenInput = {
   },
 } as const;
 
+export const $ImageGenInput = {
+  required: ['engine'],
+  type: 'object',
+  properties: {
+    engine: {
+      type: 'string',
+    },
+  },
+  additionalProperties: false,
+  discriminator: {
+    propertyName: 'engine',
+    mapping: {
+      openai: '#/components/schemas/OpenApiImageGenInput',
+    },
+  },
+} as const;
+
+export const $ImageGenOutput = {
+  required: ['images'],
+  type: 'object',
+  properties: {
+    images: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/Blob',
+      },
+      description: 'A collection of output images.',
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+export const $ImageGenStep = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/WorkflowStep',
+    },
+    {
+      required: ['input'],
+      type: 'object',
+      properties: {
+        input: {
+          $ref: '#/components/schemas/ImageGenInput',
+        },
+        output: {
+          $ref: '#/components/schemas/ImageGenOutput',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['imageGen'],
+      type: 'string',
+    },
+  },
+  description: 'Image Generation',
+} as const;
+
+export const $ImageGenStepTemplate = {
+  required: ['$type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/WorkflowStepTemplate',
+    },
+    {
+      required: ['input'],
+      type: 'object',
+      properties: {
+        input: {
+          $ref: '#/components/schemas/ImageGenInput',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    $type: {
+      enum: ['imageGen'],
+      type: 'string',
+    },
+  },
+  description: 'Image Generation',
+} as const;
+
 export const $ImageJobControlNet = {
   type: 'object',
   properties: {
@@ -1665,6 +1752,345 @@ is "AdamW8bit" or "Adafactor" for SDXL.`,
 export const $NSFWLevel = {
   enum: ['pg', 'pG13', 'r', 'x', 'xxx', 'na'],
   type: 'string',
+} as const;
+
+export const $OpenAICreateImageInputBackground = {
+  enum: ['auto', 'transparent', 'opaque'],
+  type: 'string',
+} as const;
+
+export const $OpenAIDallE2CreateImageGenInput = {
+  required: ['operation'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenAIDallE2ImageGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        background: {
+          $ref: '#/components/schemas/OpenAICreateImageInputBackground',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    operation: {
+      enum: ['createImage'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIDallE2EditImageInput = {
+  required: ['operation'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenAIDallE2ImageGenInput',
+    },
+    {
+      required: ['image'],
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+        },
+        mask: {
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    operation: {
+      enum: ['editImage'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIDallE2ImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenApiImageGenInput',
+    },
+    {
+      required: ['operation', 'prompt', 'size'],
+      type: 'object',
+      properties: {
+        operation: {
+          type: 'string',
+        },
+        prompt: {
+          maxLength: 1000,
+          minLength: 0,
+          type: 'string',
+        },
+        size: {
+          $ref: '#/components/schemas/OpenAIDallE2ImageGenInputSize',
+        },
+        quantity: {
+          maximum: 10,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+        },
+      },
+      additionalProperties: false,
+      discriminator: {
+        propertyName: 'operation',
+        mapping: {
+          createImage: '#/components/schemas/OpenAIDallE2CreateImageGenInput',
+          editImage: '#/components/schemas/OpenAIDallE2EditImageInput',
+        },
+      },
+    },
+  ],
+  properties: {
+    model: {
+      enum: ['dall-e-2'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIDallE2ImageGenInputSize = {
+  enum: ['256x256', '512x512', '1024x1024'],
+  type: 'string',
+} as const;
+
+export const $OpenAIDallE3CreateImageGenInput = {
+  required: ['operation'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenAIDallE3ImageGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        background: {
+          $ref: '#/components/schemas/OpenAICreateImageInputBackground',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    operation: {
+      enum: ['createImage'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIDallE3ImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenApiImageGenInput',
+    },
+    {
+      required: ['operation', 'prompt', 'size'],
+      type: 'object',
+      properties: {
+        operation: {
+          type: 'string',
+        },
+        prompt: {
+          maxLength: 4000,
+          minLength: 0,
+          type: 'string',
+        },
+        size: {
+          $ref: '#/components/schemas/OpenAIDallE3ImageGenInputSize',
+        },
+        style: {
+          $ref: '#/components/schemas/OpenAIDallE3ImageGenInputStyle',
+        },
+        quality: {
+          $ref: '#/components/schemas/OpenAIDallE3ImageGenInputQuality',
+        },
+      },
+      additionalProperties: false,
+      discriminator: {
+        propertyName: 'operation',
+        mapping: {
+          createImage: '#/components/schemas/OpenAIDallE3CreateImageGenInput',
+        },
+      },
+    },
+  ],
+  properties: {
+    model: {
+      enum: ['dall-e-3'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIDallE3ImageGenInputQuality = {
+  enum: ['auto', 'hd', 'standard'],
+  type: 'string',
+} as const;
+
+export const $OpenAIDallE3ImageGenInputSize = {
+  enum: ['1024x1024', '1792x1024', '1024x1792'],
+  type: 'string',
+} as const;
+
+export const $OpenAIDallE3ImageGenInputStyle = {
+  enum: ['natural', 'vivid'],
+  type: 'string',
+} as const;
+
+export const $OpenAIGpt1CreateImageInput = {
+  required: ['operation'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenAIGpt1ImageGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        background: {
+          $ref: '#/components/schemas/OpenAICreateImageInputBackground',
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    operation: {
+      enum: ['createImage'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIGpt1EditImageInput = {
+  required: ['operation'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenAIGpt1ImageGenInput',
+    },
+    {
+      required: ['images'],
+      type: 'object',
+      properties: {
+        images: {
+          maximum: 16,
+          minimum: 1,
+          type: 'array',
+          items: {
+            type: 'string',
+            description: 'Either A URL, A DataURL or a Base64 string',
+          },
+        },
+        mask: {
+          type: 'string',
+          description: 'Either A URL, A DataURL or a Base64 string',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    operation: {
+      enum: ['editImage'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIGpt1ImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/OpenApiImageGenInput',
+    },
+    {
+      required: ['operation', 'prompt'],
+      type: 'object',
+      properties: {
+        operation: {
+          type: 'string',
+        },
+        prompt: {
+          maxLength: 32000,
+          minLength: 0,
+          type: 'string',
+        },
+        size: {
+          $ref: '#/components/schemas/OpenAIGpt1ImageGenInputSize',
+        },
+        quantity: {
+          maximum: 10,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+        },
+      },
+      additionalProperties: false,
+      discriminator: {
+        propertyName: 'operation',
+        mapping: {
+          createImage: '#/components/schemas/OpenAIGpt1CreateImageInput',
+          editImage: '#/components/schemas/OpenAIGpt1EditImageInput',
+        },
+      },
+    },
+  ],
+  properties: {
+    model: {
+      enum: ['gpt-image-1'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $OpenAIGpt1ImageGenInputSize = {
+  enum: ['auto', '1024x1024', '1536x1024', '1024x1536'],
+  type: 'string',
+} as const;
+
+export const $OpenApiImageGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/ImageGenInput',
+    },
+    {
+      required: ['model'],
+      type: 'object',
+      properties: {
+        model: {
+          type: 'string',
+        },
+      },
+      additionalProperties: false,
+      discriminator: {
+        propertyName: 'model',
+        mapping: {
+          'gpt-image-1': '#/components/schemas/OpenAIGpt1ImageGenInput',
+          'dall-e-2': '#/components/schemas/OpenAIDallE2ImageGenInput',
+          'dall-e-3': '#/components/schemas/OpenAIDallE3ImageGenInput',
+        },
+      },
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['openai'],
+      type: 'string',
+    },
+  },
 } as const;
 
 export const $Priority = {
@@ -2977,6 +3403,7 @@ export const $WorkflowStep = {
       ageClassification: '#/components/schemas/AgeClassificationStep',
       comfy: '#/components/schemas/ComfyStep',
       echo: '#/components/schemas/EchoStep',
+      imageGen: '#/components/schemas/ImageGenStep',
       imageResourceTraining: '#/components/schemas/ImageResourceTrainingStep',
       imageUpload: '#/components/schemas/ImageUploadStep',
       textToImage: '#/components/schemas/TextToImageStep',
@@ -3165,6 +3592,7 @@ export const $WorkflowStepTemplate = {
       ageClassification: '#/components/schemas/AgeClassificationStepTemplate',
       comfy: '#/components/schemas/ComfyStepTemplate',
       echo: '#/components/schemas/EchoStepTemplate',
+      imageGen: '#/components/schemas/ImageGenStepTemplate',
       imageResourceTraining: '#/components/schemas/ImageResourceTrainingStepTemplate',
       imageUpload: '#/components/schemas/ImageUploadStepTemplate',
       textToImage: '#/components/schemas/TextToImageStepTemplate',

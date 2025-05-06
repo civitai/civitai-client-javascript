@@ -276,6 +276,67 @@
         }
       }
     },
+    "/v2/consumer/recipes/imageGen": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Image Generation",
+        "description": "Generate images through text/image inputs using any of our supported engines",
+        "operationId": "InvokeImageGenStepTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/imageResourceTraining": {
       "post": {
         "tags": [
@@ -3023,6 +3084,105 @@
           }
         }
       },
+      "ImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "type": "object",
+        "properties": {
+          "engine": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "engine",
+          "mapping": {
+            "openai": "#/components/schemas/OpenApiImageGenInput"
+          }
+        }
+      },
+      "ImageGenOutput": {
+        "required": [
+          "images"
+        ],
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Blob"
+            },
+            "description": "A collection of output images."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageGenStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageGenInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ImageGenOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "imageGen"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Image Generation"
+      },
+      "ImageGenStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageGenInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "imageGen"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Image Generation"
+      },
       "ImageJobControlNet": {
         "type": "object",
         "properties": {
@@ -3985,6 +4145,407 @@
         ],
         "type": "string"
       },
+      "OpenAICreateImageInputBackground": {
+        "enum": [
+          "auto",
+          "transparent",
+          "opaque"
+        ],
+        "type": "string"
+      },
+      "OpenAIDallE2CreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIDallE2ImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "background": {
+                "$ref": "#/components/schemas/OpenAICreateImageInputBackground"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIDallE2EditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIDallE2ImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "mask": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIDallE2ImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt",
+              "size"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 1000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "size": {
+                "$ref": "#/components/schemas/OpenAIDallE2ImageGenInputSize"
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIDallE2CreateImageGenInput",
+                "editImage": "#/components/schemas/OpenAIDallE2EditImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "dall-e-2"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIDallE2ImageGenInputSize": {
+        "enum": [
+          "256x256",
+          "512x512",
+          "1024x1024"
+        ],
+        "type": "string"
+      },
+      "OpenAIDallE3CreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIDallE3ImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "background": {
+                "$ref": "#/components/schemas/OpenAICreateImageInputBackground"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIDallE3ImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt",
+              "size"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 4000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "size": {
+                "$ref": "#/components/schemas/OpenAIDallE3ImageGenInputSize"
+              },
+              "style": {
+                "$ref": "#/components/schemas/OpenAIDallE3ImageGenInputStyle"
+              },
+              "quality": {
+                "$ref": "#/components/schemas/OpenAIDallE3ImageGenInputQuality"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIDallE3CreateImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "dall-e-3"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIDallE3ImageGenInputQuality": {
+        "enum": [
+          "auto",
+          "hd",
+          "standard"
+        ],
+        "type": "string"
+      },
+      "OpenAIDallE3ImageGenInputSize": {
+        "enum": [
+          "1024x1024",
+          "1792x1024",
+          "1024x1792"
+        ],
+        "type": "string"
+      },
+      "OpenAIDallE3ImageGenInputStyle": {
+        "enum": [
+          "natural",
+          "vivid"
+        ],
+        "type": "string"
+      },
+      "OpenAIGpt1CreateImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt1ImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "background": {
+                "$ref": "#/components/schemas/OpenAICreateImageInputBackground"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIGpt1EditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt1ImageGenInput"
+          },
+          {
+            "required": [
+              "images"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maximum": 16,
+                "minimum": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "mask": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIGpt1ImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 32000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "size": {
+                "$ref": "#/components/schemas/OpenAIGpt1ImageGenInputSize"
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIGpt1CreateImageInput",
+                "editImage": "#/components/schemas/OpenAIGpt1EditImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "gpt-image-1"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIGpt1ImageGenInputSize": {
+        "enum": [
+          "auto",
+          "1024x1024",
+          "1536x1024",
+          "1024x1536"
+        ],
+        "type": "string"
+      },
+      "OpenApiImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "gpt-image-1": "#/components/schemas/OpenAIGpt1ImageGenInput",
+                "dall-e-2": "#/components/schemas/OpenAIDallE2ImageGenInput",
+                "dall-e-3": "#/components/schemas/OpenAIDallE3ImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "openai"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "Priority": {
         "enum": [
           "high",
@@ -4119,6 +4680,10 @@
             "description": "The date at which this model got published",
             "format": "date-time",
             "nullable": true
+          },
+          "hasNSFWContentRestriction": {
+            "type": "boolean",
+            "description": "A boolean indicating whether this resource restricts to SFW content generation.\r\nNSFWContent covers X and AA whereas MatureContent includes R rated content."
           }
         },
         "additionalProperties": false,
@@ -4959,6 +5524,11 @@
                 "type": "integer",
                 "format": "int32",
                 "default": 4
+              },
+              "endSourceImage": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "nullable": true
               }
             },
             "additionalProperties": false
@@ -5356,6 +5926,7 @@
             "ageClassification": "#/components/schemas/AgeClassificationStep",
             "comfy": "#/components/schemas/ComfyStep",
             "echo": "#/components/schemas/EchoStep",
+            "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
             "imageUpload": "#/components/schemas/ImageUploadStep",
             "textToImage": "#/components/schemas/TextToImageStep",
@@ -5553,6 +6124,7 @@
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
             "echo": "#/components/schemas/EchoStepTemplate",
+            "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
