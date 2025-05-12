@@ -401,6 +401,19 @@ export const engine3 = {
   HUNYUAN: 'hunyuan',
 } as const;
 
+export type ImageBlob = Blob & {
+  width?: number | null;
+  height?: number | null;
+} & {
+  type: 'image';
+};
+
+export type type = 'image';
+
+export const type = {
+  IMAGE: 'image',
+} as const;
+
 export type ImageGenInput = {
   engine: string;
 };
@@ -409,7 +422,7 @@ export type ImageGenOutput = {
   /**
    * A collection of output images.
    */
-  images: Array<Blob>;
+  images: Array<ImageBlob>;
 };
 
 /**
@@ -1010,19 +1023,19 @@ export const NSFWLevel = {
   NA: 'na',
 } as const;
 
-export type OpenAICreateImageInputBackground = 'auto' | 'transparent' | 'opaque';
+export type OpenAIDallE2CreateImageGenInput = OpenAIDallE2ImageGenInput & {
+  background?: 'auto' | 'transparent' | 'opaque';
+} & {
+  operation: 'createImage';
+};
 
-export const OpenAICreateImageInputBackground = {
+export type background = 'auto' | 'transparent' | 'opaque';
+
+export const background = {
   AUTO: 'auto',
   TRANSPARENT: 'transparent',
   OPAQUE: 'opaque',
 } as const;
-
-export type OpenAIDallE2CreateImageGenInput = OpenAIDallE2ImageGenInput & {
-  background?: OpenAICreateImageInputBackground;
-} & {
-  operation: 'createImage';
-};
 
 export type operation = 'createImage';
 
@@ -1052,11 +1065,19 @@ export const operation2 = {
 export type OpenAIDallE2ImageGenInput = OpenApiImageGenInput & {
   operation: string;
   prompt: string;
-  size: OpenAIDallE2ImageGenInputSize;
+  size: '256x256' | '512x512' | '1024x1024';
   quantity?: number;
 } & {
   model: 'dall-e-2';
 };
+
+export type size = '256x256' | '512x512' | '1024x1024';
+
+export const size = {
+  _256X256: '256x256',
+  _512X512: '512x512',
+  _1024X1024: '1024x1024',
+} as const;
 
 export type model = 'dall-e-2';
 
@@ -1064,16 +1085,8 @@ export const model = {
   DALL_E_2: 'dall-e-2',
 } as const;
 
-export type OpenAIDallE2ImageGenInputSize = '256x256' | '512x512' | '1024x1024';
-
-export const OpenAIDallE2ImageGenInputSize = {
-  _256X256: '256x256',
-  _512X512: '512x512',
-  _1024X1024: '1024x1024',
-} as const;
-
 export type OpenAIDallE3CreateImageGenInput = OpenAIDallE3ImageGenInput & {
-  background?: OpenAICreateImageInputBackground;
+  background?: 'auto' | 'transparent' | 'opaque';
 } & {
   operation: 'createImage';
 };
@@ -1081,12 +1094,35 @@ export type OpenAIDallE3CreateImageGenInput = OpenAIDallE3ImageGenInput & {
 export type OpenAIDallE3ImageGenInput = OpenApiImageGenInput & {
   operation: string;
   prompt: string;
-  size: OpenAIDallE3ImageGenInputSize;
-  style?: OpenAIDallE3ImageGenInputStyle;
-  quality?: OpenAIDallE3ImageGenInputQuality;
+  size: '1024x1024' | '1792x1024' | '1024x1792';
+  style?: 'natural' | 'vivid';
+  quality?: 'auto' | 'hd' | 'standard';
 } & {
   model: 'dall-e-3';
 };
+
+export type size2 = '1024x1024' | '1792x1024' | '1024x1792';
+
+export const size2 = {
+  _1024X1024: '1024x1024',
+  _1792X1024: '1792x1024',
+  _1024X1792: '1024x1792',
+} as const;
+
+export type style = 'natural' | 'vivid';
+
+export const style = {
+  NATURAL: 'natural',
+  VIVID: 'vivid',
+} as const;
+
+export type quality = 'auto' | 'hd' | 'standard';
+
+export const quality = {
+  AUTO: 'auto',
+  HD: 'hd',
+  STANDARD: 'standard',
+} as const;
 
 export type model2 = 'dall-e-3';
 
@@ -1094,31 +1130,8 @@ export const model2 = {
   DALL_E_3: 'dall-e-3',
 } as const;
 
-export type OpenAIDallE3ImageGenInputQuality = 'auto' | 'hd' | 'standard';
-
-export const OpenAIDallE3ImageGenInputQuality = {
-  AUTO: 'auto',
-  HD: 'hd',
-  STANDARD: 'standard',
-} as const;
-
-export type OpenAIDallE3ImageGenInputSize = '1024x1024' | '1792x1024' | '1024x1792';
-
-export const OpenAIDallE3ImageGenInputSize = {
-  _1024X1024: '1024x1024',
-  _1792X1024: '1792x1024',
-  _1024X1792: '1024x1792',
-} as const;
-
-export type OpenAIDallE3ImageGenInputStyle = 'natural' | 'vivid';
-
-export const OpenAIDallE3ImageGenInputStyle = {
-  NATURAL: 'natural',
-  VIVID: 'vivid',
-} as const;
-
 export type OpenAIGpt1CreateImageInput = OpenAIGpt1ImageGenInput & {
-  background?: OpenAICreateImageInputBackground;
+  [key: string]: unknown;
 } & {
   operation: 'createImage';
 };
@@ -1136,11 +1149,30 @@ export type OpenAIGpt1EditImageInput = OpenAIGpt1ImageGenInput & {
 export type OpenAIGpt1ImageGenInput = OpenApiImageGenInput & {
   operation: string;
   prompt: string;
-  size?: OpenAIGpt1ImageGenInputSize;
+  size?: '1024x1024' | '1536x1024' | '1024x1536';
   quantity?: number;
+  background?: 'auto' | 'transparent' | 'opaque';
+  quality?: 'auto' | 'high' | 'medium' | 'low' | null;
 } & {
   model: 'gpt-image-1';
 };
+
+export type size3 = '1024x1024' | '1536x1024' | '1024x1536';
+
+export const size3 = {
+  _1024X1024: '1024x1024',
+  _1536X1024: '1536x1024',
+  _1024X1536: '1024x1536',
+} as const;
+
+export type quality2 = 'auto' | 'high' | 'medium' | 'low';
+
+export const quality2 = {
+  AUTO: 'auto',
+  HIGH: 'high',
+  MEDIUM: 'medium',
+  LOW: 'low',
+} as const;
 
 export type model3 = 'gpt-image-1';
 
@@ -1148,17 +1180,9 @@ export const model3 = {
   GPT_IMAGE_1: 'gpt-image-1',
 } as const;
 
-export type OpenAIGpt1ImageGenInputSize = 'auto' | '1024x1024' | '1536x1024' | '1024x1536';
-
-export const OpenAIGpt1ImageGenInputSize = {
-  AUTO: 'auto',
-  _1024X1024: '1024x1024',
-  _1536X1024: '1536x1024',
-  _1024X1536: '1024x1536',
-} as const;
-
 export type OpenApiImageGenInput = ImageGenInput & {
   model: string;
+  prompt: string;
 } & {
   engine: 'openai';
 };
@@ -1408,7 +1432,7 @@ export type TextToImageOutput = {
   /**
    * A collection of output images.
    */
-  images: Array<Blob>;
+  images: Array<ImageBlob>;
 };
 
 /**
@@ -1589,9 +1613,9 @@ export type VideoBlob = Blob & {
   type: 'video';
 };
 
-export type type = 'video';
+export type type2 = 'video';
 
-export const type = {
+export const type2 = {
   VIDEO: 'video',
 } as const;
 
@@ -1692,6 +1716,7 @@ export type ViduVideoGenInput = VideoGenInput & {
    * Either A URL, A DataURL or a Base64 string
    */
   endSourceImage?: string | null;
+  model?: ViduVideoGenModel;
 } & {
   engine: 'vidu';
 };
@@ -1707,6 +1732,13 @@ export type engine11 = 'vidu';
 
 export const engine11 = {
   VIDU: 'vidu',
+} as const;
+
+export type ViduVideoGenModel = 'default' | 'q1';
+
+export const ViduVideoGenModel = {
+  DEFAULT: 'default',
+  Q1: 'q1',
 } as const;
 
 export type ViduVideoGenStyle = 'general' | 'anime';

@@ -221,6 +221,7 @@ export const $Blob = {
   discriminator: {
     propertyName: 'type',
     mapping: {
+      image: '#/components/schemas/ImageBlob',
       video: '#/components/schemas/VideoBlob',
     },
   },
@@ -745,6 +746,37 @@ export const $HunyuanVdeoGenInput = {
   },
 } as const;
 
+export const $ImageBlob = {
+  required: ['type'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Blob',
+    },
+    {
+      type: 'object',
+      properties: {
+        width: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+        height: {
+          type: 'integer',
+          format: 'int32',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    type: {
+      enum: ['image'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $ImageGenInput = {
   required: ['engine'],
   type: 'object',
@@ -769,7 +801,7 @@ export const $ImageGenOutput = {
     images: {
       type: 'array',
       items: {
-        $ref: '#/components/schemas/Blob',
+        $ref: '#/components/schemas/ImageBlob',
       },
       description: 'A collection of output images.',
     },
@@ -1754,11 +1786,6 @@ export const $NSFWLevel = {
   type: 'string',
 } as const;
 
-export const $OpenAICreateImageInputBackground = {
-  enum: ['auto', 'transparent', 'opaque'],
-  type: 'string',
-} as const;
-
 export const $OpenAIDallE2CreateImageGenInput = {
   required: ['operation'],
   allOf: [
@@ -1769,7 +1796,8 @@ export const $OpenAIDallE2CreateImageGenInput = {
       type: 'object',
       properties: {
         background: {
-          $ref: '#/components/schemas/OpenAICreateImageInputBackground',
+          enum: ['auto', 'transparent', 'opaque'],
+          type: 'string',
         },
       },
       additionalProperties: false,
@@ -1833,7 +1861,8 @@ export const $OpenAIDallE2ImageGenInput = {
           type: 'string',
         },
         size: {
-          $ref: '#/components/schemas/OpenAIDallE2ImageGenInputSize',
+          enum: ['256x256', '512x512', '1024x1024'],
+          type: 'string',
         },
         quantity: {
           maximum: 10,
@@ -1860,11 +1889,6 @@ export const $OpenAIDallE2ImageGenInput = {
   },
 } as const;
 
-export const $OpenAIDallE2ImageGenInputSize = {
-  enum: ['256x256', '512x512', '1024x1024'],
-  type: 'string',
-} as const;
-
 export const $OpenAIDallE3CreateImageGenInput = {
   required: ['operation'],
   allOf: [
@@ -1875,7 +1899,8 @@ export const $OpenAIDallE3CreateImageGenInput = {
       type: 'object',
       properties: {
         background: {
-          $ref: '#/components/schemas/OpenAICreateImageInputBackground',
+          enum: ['auto', 'transparent', 'opaque'],
+          type: 'string',
         },
       },
       additionalProperties: false,
@@ -1908,13 +1933,16 @@ export const $OpenAIDallE3ImageGenInput = {
           type: 'string',
         },
         size: {
-          $ref: '#/components/schemas/OpenAIDallE3ImageGenInputSize',
+          enum: ['1024x1024', '1792x1024', '1024x1792'],
+          type: 'string',
         },
         style: {
-          $ref: '#/components/schemas/OpenAIDallE3ImageGenInputStyle',
+          enum: ['natural', 'vivid'],
+          type: 'string',
         },
         quality: {
-          $ref: '#/components/schemas/OpenAIDallE3ImageGenInputQuality',
+          enum: ['auto', 'hd', 'standard'],
+          type: 'string',
         },
       },
       additionalProperties: false,
@@ -1934,21 +1962,6 @@ export const $OpenAIDallE3ImageGenInput = {
   },
 } as const;
 
-export const $OpenAIDallE3ImageGenInputQuality = {
-  enum: ['auto', 'hd', 'standard'],
-  type: 'string',
-} as const;
-
-export const $OpenAIDallE3ImageGenInputSize = {
-  enum: ['1024x1024', '1792x1024', '1024x1792'],
-  type: 'string',
-} as const;
-
-export const $OpenAIDallE3ImageGenInputStyle = {
-  enum: ['natural', 'vivid'],
-  type: 'string',
-} as const;
-
 export const $OpenAIGpt1CreateImageInput = {
   required: ['operation'],
   allOf: [
@@ -1957,11 +1970,6 @@ export const $OpenAIGpt1CreateImageInput = {
     },
     {
       type: 'object',
-      properties: {
-        background: {
-          $ref: '#/components/schemas/OpenAICreateImageInputBackground',
-        },
-      },
       additionalProperties: false,
     },
   ],
@@ -1984,8 +1992,6 @@ export const $OpenAIGpt1EditImageInput = {
       type: 'object',
       properties: {
         images: {
-          maximum: 16,
-          minimum: 1,
           type: 'array',
           items: {
             type: 'string',
@@ -2028,13 +2034,23 @@ export const $OpenAIGpt1ImageGenInput = {
           type: 'string',
         },
         size: {
-          $ref: '#/components/schemas/OpenAIGpt1ImageGenInputSize',
+          enum: ['1024x1024', '1536x1024', '1024x1536'],
+          type: 'string',
         },
         quantity: {
           maximum: 10,
           minimum: 1,
           type: 'integer',
           format: 'int32',
+        },
+        background: {
+          enum: ['auto', 'transparent', 'opaque'],
+          type: 'string',
+        },
+        quality: {
+          enum: ['auto', 'high', 'medium', 'low'],
+          type: 'string',
+          nullable: true,
         },
       },
       additionalProperties: false,
@@ -2055,11 +2071,6 @@ export const $OpenAIGpt1ImageGenInput = {
   },
 } as const;
 
-export const $OpenAIGpt1ImageGenInputSize = {
-  enum: ['auto', '1024x1024', '1536x1024', '1024x1536'],
-  type: 'string',
-} as const;
-
 export const $OpenApiImageGenInput = {
   required: ['engine'],
   allOf: [
@@ -2067,10 +2078,13 @@ export const $OpenApiImageGenInput = {
       $ref: '#/components/schemas/ImageGenInput',
     },
     {
-      required: ['model'],
+      required: ['model', 'prompt'],
       type: 'object',
       properties: {
         model: {
+          type: 'string',
+        },
+        prompt: {
           type: 'string',
         },
       },
@@ -2388,7 +2402,7 @@ export const $TextToImageOutput = {
     images: {
       type: 'array',
       items: {
-        $ref: '#/components/schemas/Blob',
+        $ref: '#/components/schemas/ImageBlob',
       },
       description: 'A collection of output images.',
     },
@@ -3017,6 +3031,9 @@ export const $ViduVideoGenInput = {
           description: 'Either A URL, A DataURL or a Base64 string',
           nullable: true,
         },
+        model: {
+          $ref: '#/components/schemas/ViduVideoGenModel',
+        },
       },
       additionalProperties: false,
     },
@@ -3027,6 +3044,11 @@ export const $ViduVideoGenInput = {
       type: 'string',
     },
   },
+} as const;
+
+export const $ViduVideoGenModel = {
+  enum: ['default', 'q1'],
+  type: 'string',
 } as const;
 
 export const $ViduVideoGenStyle = {

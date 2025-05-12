@@ -2488,6 +2488,7 @@
         "discriminator": {
           "propertyName": "type",
           "mapping": {
+            "image": "#/components/schemas/ImageBlob",
             "video": "#/components/schemas/VideoBlob"
           }
         }
@@ -3084,6 +3085,40 @@
           }
         }
       },
+      "ImageBlob": {
+        "required": [
+          "type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Blob"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "image"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "ImageGenInput": {
         "required": [
           "engine"
@@ -3111,7 +3146,7 @@
           "images": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Blob"
+              "$ref": "#/components/schemas/ImageBlob"
             },
             "description": "A collection of output images."
           }
@@ -4145,14 +4180,6 @@
         ],
         "type": "string"
       },
-      "OpenAICreateImageInputBackground": {
-        "enum": [
-          "auto",
-          "transparent",
-          "opaque"
-        ],
-        "type": "string"
-      },
       "OpenAIDallE2CreateImageGenInput": {
         "required": [
           "operation"
@@ -4165,7 +4192,12 @@
             "type": "object",
             "properties": {
               "background": {
-                "$ref": "#/components/schemas/OpenAICreateImageInputBackground"
+                "enum": [
+                  "auto",
+                  "transparent",
+                  "opaque"
+                ],
+                "type": "string"
               }
             },
             "additionalProperties": false
@@ -4241,7 +4273,12 @@
                 "type": "string"
               },
               "size": {
-                "$ref": "#/components/schemas/OpenAIDallE2ImageGenInputSize"
+                "enum": [
+                  "256x256",
+                  "512x512",
+                  "1024x1024"
+                ],
+                "type": "string"
               },
               "quantity": {
                 "maximum": 10,
@@ -4269,14 +4306,6 @@
           }
         }
       },
-      "OpenAIDallE2ImageGenInputSize": {
-        "enum": [
-          "256x256",
-          "512x512",
-          "1024x1024"
-        ],
-        "type": "string"
-      },
       "OpenAIDallE3CreateImageGenInput": {
         "required": [
           "operation"
@@ -4289,7 +4318,12 @@
             "type": "object",
             "properties": {
               "background": {
-                "$ref": "#/components/schemas/OpenAICreateImageInputBackground"
+                "enum": [
+                  "auto",
+                  "transparent",
+                  "opaque"
+                ],
+                "type": "string"
               }
             },
             "additionalProperties": false
@@ -4329,13 +4363,27 @@
                 "type": "string"
               },
               "size": {
-                "$ref": "#/components/schemas/OpenAIDallE3ImageGenInputSize"
+                "enum": [
+                  "1024x1024",
+                  "1792x1024",
+                  "1024x1792"
+                ],
+                "type": "string"
               },
               "style": {
-                "$ref": "#/components/schemas/OpenAIDallE3ImageGenInputStyle"
+                "enum": [
+                  "natural",
+                  "vivid"
+                ],
+                "type": "string"
               },
               "quality": {
-                "$ref": "#/components/schemas/OpenAIDallE3ImageGenInputQuality"
+                "enum": [
+                  "auto",
+                  "hd",
+                  "standard"
+                ],
+                "type": "string"
               }
             },
             "additionalProperties": false,
@@ -4356,29 +4404,6 @@
           }
         }
       },
-      "OpenAIDallE3ImageGenInputQuality": {
-        "enum": [
-          "auto",
-          "hd",
-          "standard"
-        ],
-        "type": "string"
-      },
-      "OpenAIDallE3ImageGenInputSize": {
-        "enum": [
-          "1024x1024",
-          "1792x1024",
-          "1024x1792"
-        ],
-        "type": "string"
-      },
-      "OpenAIDallE3ImageGenInputStyle": {
-        "enum": [
-          "natural",
-          "vivid"
-        ],
-        "type": "string"
-      },
       "OpenAIGpt1CreateImageInput": {
         "required": [
           "operation"
@@ -4389,11 +4414,6 @@
           },
           {
             "type": "object",
-            "properties": {
-              "background": {
-                "$ref": "#/components/schemas/OpenAICreateImageInputBackground"
-              }
-            },
             "additionalProperties": false
           }
         ],
@@ -4421,8 +4441,6 @@
             "type": "object",
             "properties": {
               "images": {
-                "maximum": 16,
-                "minimum": 1,
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -4471,13 +4489,36 @@
                 "type": "string"
               },
               "size": {
-                "$ref": "#/components/schemas/OpenAIGpt1ImageGenInputSize"
+                "enum": [
+                  "1024x1024",
+                  "1536x1024",
+                  "1024x1536"
+                ],
+                "type": "string"
               },
               "quantity": {
                 "maximum": 10,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32"
+              },
+              "background": {
+                "enum": [
+                  "auto",
+                  "transparent",
+                  "opaque"
+                ],
+                "type": "string"
+              },
+              "quality": {
+                "enum": [
+                  "auto",
+                  "high",
+                  "medium",
+                  "low"
+                ],
+                "type": "string",
+                "nullable": true
               }
             },
             "additionalProperties": false,
@@ -4499,15 +4540,6 @@
           }
         }
       },
-      "OpenAIGpt1ImageGenInputSize": {
-        "enum": [
-          "auto",
-          "1024x1024",
-          "1536x1024",
-          "1024x1536"
-        ],
-        "type": "string"
-      },
       "OpenApiImageGenInput": {
         "required": [
           "engine"
@@ -4518,11 +4550,15 @@
           },
           {
             "required": [
-              "model"
+              "model",
+              "prompt"
             ],
             "type": "object",
             "properties": {
               "model": {
+                "type": "string"
+              },
+              "prompt": {
                 "type": "string"
               }
             },
@@ -4844,7 +4880,7 @@
           "images": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Blob"
+              "$ref": "#/components/schemas/ImageBlob"
             },
             "description": "A collection of output images."
           }
@@ -5529,6 +5565,9 @@
                 "type": "string",
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "nullable": true
+              },
+              "model": {
+                "$ref": "#/components/schemas/ViduVideoGenModel"
               }
             },
             "additionalProperties": false
@@ -5542,6 +5581,13 @@
             "type": "string"
           }
         }
+      },
+      "ViduVideoGenModel": {
+        "enum": [
+          "default",
+          "q1"
+        ],
+        "type": "string"
       },
       "ViduVideoGenStyle": {
         "enum": [
