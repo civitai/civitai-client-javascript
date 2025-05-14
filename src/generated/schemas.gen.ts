@@ -3034,6 +3034,16 @@ export const $ViduVideoGenInput = {
         model: {
           $ref: '#/components/schemas/ViduVideoGenModel',
         },
+        aspectRatio: {
+          enum: ['16:9', '9:16', '1:1'],
+          type: 'string',
+          nullable: true,
+        },
+        movementAmplitude: {
+          enum: ['auto', 'small', 'medium', 'large'],
+          type: 'string',
+          nullable: true,
+        },
       },
       additionalProperties: false,
     },

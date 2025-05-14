@@ -1717,6 +1717,8 @@ export type ViduVideoGenInput = VideoGenInput & {
    */
   endSourceImage?: string | null;
   model?: ViduVideoGenModel;
+  aspectRatio?: '16:9' | '9:16' | '1:1' | null;
+  movementAmplitude?: 'auto' | 'small' | 'medium' | 'large' | null;
 } & {
   engine: 'vidu';
 };
@@ -1726,6 +1728,23 @@ export type duration2 = 4 | 8;
 export const duration2 = {
   _4: 4,
   _8: 8,
+} as const;
+
+export type aspectRatio = '16:9' | '9:16' | '1:1';
+
+export const aspectRatio = {
+  _16_9: '16:9',
+  _9_16: '9:16',
+  _1_1: '1:1',
+} as const;
+
+export type movementAmplitude = 'auto' | 'small' | 'medium' | 'large';
+
+export const movementAmplitude = {
+  AUTO: 'auto',
+  SMALL: 'small',
+  MEDIUM: 'medium',
+  LARGE: 'large',
 } as const;
 
 export type engine11 = 'vidu';
