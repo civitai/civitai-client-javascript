@@ -535,6 +535,10 @@ export type ImageResourceTrainingOutput = {
    */
   sampleImagesPrompts: Array<string>;
   /**
+   * The selected images for sample images
+   */
+  sampleInputImages?: Array<string> | null;
+  /**
    * Get wether the blobs are actually stored as assets
    * Assets are deprecated and require a different retrieval mechanism
    */
@@ -1606,6 +1610,31 @@ export type ValueTupleOfStringAndInt32 = {
   [key: string]: unknown;
 };
 
+export type Veo3AspectRatio = '16:9' | '9:16' | '1:1';
+
+export const Veo3AspectRatio = {
+  _16_9: '16:9',
+  _9_16: '9:16',
+  _1_1: '1:1',
+} as const;
+
+export type Veo3VideoGenInput = VideoGenInput & {
+  negativePrompt?: string | null;
+  enablePromptEnhancer?: boolean;
+  aspectRatio?: Veo3AspectRatio;
+  duration?: number;
+  generateAudio?: boolean;
+  seed?: number | null;
+} & {
+  engine: 'veo3';
+};
+
+export type engine11 = 'veo3';
+
+export const engine11 = {
+  VEO3: 'veo3',
+} as const;
+
 export type VideoBlob = Blob & {
   width?: number | null;
   height?: number | null;
@@ -1747,9 +1776,9 @@ export const movementAmplitude = {
   LARGE: 'large',
 } as const;
 
-export type engine11 = 'vidu';
+export type engine12 = 'vidu';
 
-export const engine11 = {
+export const engine12 = {
   VIDU: 'vidu',
 } as const;
 
@@ -1785,9 +1814,9 @@ export type WanVdeoGenInput = VideoGenInput & {
   engine: 'wan';
 };
 
-export type engine12 = 'wan';
+export type engine13 = 'wan';
 
-export const engine12 = {
+export const engine13 = {
   WAN: 'wan',
 } as const;
 
@@ -2288,6 +2317,7 @@ export type InvalidateResourceData = {
     air: string;
   };
   query?: {
+    etag?: string;
     /**
      * One or more userIds to invalidate early access for
      */
