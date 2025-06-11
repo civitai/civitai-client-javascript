@@ -524,6 +524,101 @@ export const $FileFormat = {
   type: 'string',
 } as const;
 
+export const $Flux1ImageGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/ImageGenInput',
+    },
+    {
+      required: ['model', 'prompt'],
+      type: 'object',
+      properties: {
+        model: {
+          type: 'string',
+        },
+        prompt: {
+          type: 'string',
+        },
+      },
+      additionalProperties: false,
+      discriminator: {
+        propertyName: 'model',
+        mapping: {
+          'pro-kontext': '#/components/schemas/Flux1ProKontextImageGenInput',
+        },
+      },
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['flux1'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $Flux1ProKontextImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Flux1ImageGenInput',
+    },
+    {
+      required: ['imageUrl', 'prompt'],
+      type: 'object',
+      properties: {
+        prompt: {
+          maxLength: 1000,
+          minLength: 0,
+          type: 'string',
+        },
+        imageUrl: {
+          type: 'string',
+          format: 'uri',
+        },
+        aspectRatio: {
+          enum: ['21:9', '16:9', '4:3', '3:2', '1:1', '2:3', '3:4', '9:16', '9:21'],
+          type: 'string',
+        },
+        outputFormat: {
+          enum: ['jpeg', 'png'],
+          type: 'string',
+        },
+        safetyTolerance: {
+          maximum: 6,
+          minimum: 1,
+          type: 'string',
+        },
+        guidanceScale: {
+          maximum: 20,
+          minimum: 1,
+          type: 'number',
+          format: 'double',
+        },
+        numImages: {
+          maximum: 4,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+        },
+        seed: {
+          type: 'integer',
+          format: 'int64',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    model: {
+      enum: ['pro-kontext'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $FluxDevFastImageResourceTrainingInput = {
   required: ['engine'],
   allOf: [
@@ -538,6 +633,40 @@ export const $FluxDevFastImageResourceTrainingInput = {
   properties: {
     engine: {
       enum: ['flux-dev-fast'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $GoogleImageGenInput = {
+  required: ['engine'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/ImageGenInput',
+    },
+    {
+      required: ['model', 'prompt'],
+      type: 'object',
+      properties: {
+        model: {
+          type: 'string',
+        },
+        prompt: {
+          type: 'string',
+        },
+      },
+      additionalProperties: false,
+      discriminator: {
+        propertyName: 'model',
+        mapping: {
+          imagen4: '#/components/schemas/Imagen4ImageGenInput',
+        },
+      },
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['google'],
       type: 'string',
     },
   },
@@ -790,6 +919,8 @@ export const $ImageGenInput = {
     propertyName: 'engine',
     mapping: {
       openai: '#/components/schemas/OpenApiImageGenInput',
+      flux1: '#/components/schemas/Flux1ImageGenInput',
+      google: '#/components/schemas/GoogleImageGenInput',
     },
   },
 } as const;
@@ -1143,6 +1274,53 @@ export const $ImageUploadStepTemplate = {
   description: 'Image upload',
 } as const;
 
+export const $Imagen4ImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/GoogleImageGenInput',
+    },
+    {
+      required: ['prompt'],
+      type: 'object',
+      properties: {
+        prompt: {
+          maxLength: 1000,
+          minLength: 0,
+          type: 'string',
+        },
+        negativePrompt: {
+          maxLength: 1000,
+          minLength: 0,
+          type: 'string',
+        },
+        aspectRatio: {
+          enum: ['1:1', '16:9', '9:16', '3:4', '4:3'],
+          type: 'string',
+        },
+        numImages: {
+          maximum: 4,
+          minimum: 1,
+          type: 'integer',
+          format: 'int32',
+        },
+        seed: {
+          type: 'integer',
+          format: 'int64',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    model: {
+      enum: ['imagen4'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $JobSupport = {
   enum: ['unsupported', 'unavailable', 'available'],
   type: 'string',
@@ -1279,7 +1457,7 @@ export const $KlingMode = {
 } as const;
 
 export const $KlingModel = {
-  enum: ['v1', 'v1_5', 'v1_6'],
+  enum: ['v1', 'v1_5', 'v1_6', 'v2'],
   type: 'string',
 } as const;
 

@@ -271,16 +271,82 @@ export const FileFormat = {
   ONNX: 'onnx',
 } as const;
 
+export type Flux1ImageGenInput = ImageGenInput & {
+  model: string;
+  prompt: string;
+} & {
+  engine: 'flux1';
+};
+
+export type engine = 'flux1';
+
+export const engine = {
+  FLUX1: 'flux1',
+} as const;
+
+export type Flux1ProKontextImageGenInput = Flux1ImageGenInput & {
+  prompt: string;
+  imageUrl: string;
+  aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+  outputFormat?: 'jpeg' | 'png';
+  safetyTolerance?: string;
+  guidanceScale?: number;
+  numImages?: number;
+  seed?: number | null;
+} & {
+  model: 'pro-kontext';
+};
+
+export type aspectRatio = '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+
+export const aspectRatio = {
+  _21_9: '21:9',
+  _16_9: '16:9',
+  _4_3: '4:3',
+  _3_2: '3:2',
+  _1_1: '1:1',
+  _2_3: '2:3',
+  _3_4: '3:4',
+  _9_16: '9:16',
+  _9_21: '9:21',
+} as const;
+
+export type outputFormat = 'jpeg' | 'png';
+
+export const outputFormat = {
+  JPEG: 'jpeg',
+  PNG: 'png',
+} as const;
+
+export type model = 'pro-kontext';
+
+export const model = {
+  PRO_KONTEXT: 'pro-kontext',
+} as const;
+
 export type FluxDevFastImageResourceTrainingInput = ImageResourceTrainingInput & {
   [key: string]: unknown;
 } & {
   engine: 'flux-dev-fast';
 };
 
-export type engine = 'flux-dev-fast';
+export type engine2 = 'flux-dev-fast';
 
-export const engine = {
+export const engine2 = {
   FLUX_DEV_FAST: 'flux-dev-fast',
+} as const;
+
+export type GoogleImageGenInput = ImageGenInput & {
+  model: string;
+  prompt: string;
+} & {
+  engine: 'google';
+};
+
+export type engine3 = 'google';
+
+export const engine3 = {
+  GOOGLE: 'google',
 } as const;
 
 export type HaiperVideoGenAspectRatio = '16:9' | '4:3' | '1:1' | '9:16' | '3:4';
@@ -345,9 +411,9 @@ export const resolution = {
   _2160: 2160,
 } as const;
 
-export type engine2 = 'haiper';
+export type engine4 = 'haiper';
 
-export const engine2 = {
+export const engine4 = {
   HAIPER: 'haiper',
 } as const;
 
@@ -395,9 +461,9 @@ export type HunyuanVdeoGenInput = VideoGenInput & {
   engine: 'hunyuan';
 };
 
-export type engine3 = 'hunyuan';
+export type engine5 = 'hunyuan';
 
-export const engine3 = {
+export const engine5 = {
   HUNYUAN: 'hunyuan',
 } as const;
 
@@ -624,6 +690,32 @@ export type ImageUploadStepTemplate = WorkflowStepTemplate & {
   $type: 'imageUpload';
 };
 
+export type Imagen4ImageGenInput = GoogleImageGenInput & {
+  prompt: string;
+  negativePrompt?: string;
+  aspectRatio?: '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
+  numImages?: number;
+  seed?: number | null;
+} & {
+  model: 'imagen4';
+};
+
+export type aspectRatio2 = '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
+
+export const aspectRatio2 = {
+  _1_1: '1:1',
+  _16_9: '16:9',
+  _9_16: '9:16',
+  _3_4: '3:4',
+  _4_3: '4:3',
+} as const;
+
+export type model2 = 'imagen4';
+
+export const model2 = {
+  IMAGEN4: 'imagen4',
+} as const;
+
 /**
  * Available levels of job support.
  */
@@ -728,12 +820,13 @@ export const KlingMode = {
   PROFESSIONAL: 'professional',
 } as const;
 
-export type KlingModel = 'v1' | 'v1_5' | 'v1_6';
+export type KlingModel = 'v1' | 'v1_5' | 'v1_6' | 'v2';
 
 export const KlingModel = {
   V1: 'v1',
   V1_5: 'v1_5',
   V1_6: 'v1_6',
+  V2: 'v2',
 } as const;
 
 export type KlingVideoGenAspectRatio = '16:9' | '9:16' | '1:1';
@@ -768,9 +861,9 @@ export type KlingVideoGenInput = VideoGenInput & {
   engine: 'kling';
 };
 
-export type engine4 = 'kling';
+export type engine6 = 'kling';
 
-export const engine4 = {
+export const engine6 = {
   KLING: 'kling',
 } as const;
 
@@ -880,9 +973,9 @@ export const lrScheduler = {
   LINEAR: 'linear',
 } as const;
 
-export type engine5 = 'kohya';
+export type engine7 = 'kohya';
 
-export const engine5 = {
+export const engine7 = {
   KOHYA: 'kohya',
 } as const;
 
@@ -912,9 +1005,9 @@ export type LightricksVideoGenInput = VideoGenInput & {
   engine: 'lightricks';
 };
 
-export type engine6 = 'lightricks';
+export type engine8 = 'lightricks';
 
-export const engine6 = {
+export const engine8 = {
   LIGHTRICKS: 'lightricks',
 } as const;
 
@@ -929,9 +1022,9 @@ export type MiniMaxVideoGenInput = VideoGenInput & {
   engine: 'minimax';
 };
 
-export type engine7 = 'minimax';
+export type engine9 = 'minimax';
 
-export const engine7 = {
+export const engine9 = {
   MINIMAX: 'minimax',
 } as const;
 
@@ -948,9 +1041,9 @@ export type MochiVideoGenInput = VideoGenInput & {
   engine: 'mochi';
 };
 
-export type engine8 = 'mochi';
+export type engine10 = 'mochi';
 
-export const engine8 = {
+export const engine10 = {
   MOCHI: 'mochi',
 } as const;
 
@@ -1010,9 +1103,9 @@ export type MusubiImageResourceTrainingInput = ImageResourceTrainingInput & {
   engine: 'musubi';
 };
 
-export type engine9 = 'musubi';
+export type engine11 = 'musubi';
 
-export const engine9 = {
+export const engine11 = {
   MUSUBI: 'musubi',
 } as const;
 
@@ -1083,9 +1176,9 @@ export const size = {
   _1024X1024: '1024x1024',
 } as const;
 
-export type model = 'dall-e-2';
+export type model3 = 'dall-e-2';
 
-export const model = {
+export const model3 = {
   DALL_E_2: 'dall-e-2',
 } as const;
 
@@ -1128,9 +1221,9 @@ export const quality = {
   STANDARD: 'standard',
 } as const;
 
-export type model2 = 'dall-e-3';
+export type model4 = 'dall-e-3';
 
-export const model2 = {
+export const model4 = {
   DALL_E_3: 'dall-e-3',
 } as const;
 
@@ -1178,9 +1271,9 @@ export const quality2 = {
   LOW: 'low',
 } as const;
 
-export type model3 = 'gpt-image-1';
+export type model5 = 'gpt-image-1';
 
-export const model3 = {
+export const model5 = {
   GPT_IMAGE_1: 'gpt-image-1',
 } as const;
 
@@ -1191,9 +1284,9 @@ export type OpenApiImageGenInput = ImageGenInput & {
   engine: 'openai';
 };
 
-export type engine10 = 'openai';
+export type engine12 = 'openai';
 
-export const engine10 = {
+export const engine12 = {
   OPENAI: 'openai',
 } as const;
 
@@ -1629,9 +1722,9 @@ export type Veo3VideoGenInput = VideoGenInput & {
   engine: 'veo3';
 };
 
-export type engine11 = 'veo3';
+export type engine13 = 'veo3';
 
-export const engine11 = {
+export const engine13 = {
   VEO3: 'veo3',
 } as const;
 
@@ -1759,9 +1852,9 @@ export const duration2 = {
   _8: 8,
 } as const;
 
-export type aspectRatio = '16:9' | '9:16' | '1:1';
+export type aspectRatio3 = '16:9' | '9:16' | '1:1';
 
-export const aspectRatio = {
+export const aspectRatio3 = {
   _16_9: '16:9',
   _9_16: '9:16',
   _1_1: '1:1',
@@ -1776,9 +1869,9 @@ export const movementAmplitude = {
   LARGE: 'large',
 } as const;
 
-export type engine12 = 'vidu';
+export type engine14 = 'vidu';
 
-export const engine12 = {
+export const engine14 = {
   VIDU: 'vidu',
 } as const;
 
@@ -1814,9 +1907,9 @@ export type WanVdeoGenInput = VideoGenInput & {
   engine: 'wan';
 };
 
-export type engine13 = 'wan';
+export type engine15 = 'wan';
 
-export const engine13 = {
+export const engine15 = {
   WAN: 'wan',
 } as const;
 
