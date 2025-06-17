@@ -524,7 +524,7 @@ export const $FileFormat = {
   type: 'string',
 } as const;
 
-export const $Flux1ImageGenInput = {
+export const $Flux1KontextImageGenInput = {
   required: ['engine'],
   allOf: [
     {
@@ -538,44 +538,16 @@ export const $Flux1ImageGenInput = {
           type: 'string',
         },
         prompt: {
-          type: 'string',
-        },
-      },
-      additionalProperties: false,
-      discriminator: {
-        propertyName: 'model',
-        mapping: {
-          'pro-kontext': '#/components/schemas/Flux1ProKontextImageGenInput',
-        },
-      },
-    },
-  ],
-  properties: {
-    engine: {
-      enum: ['flux1'],
-      type: 'string',
-    },
-  },
-} as const;
-
-export const $Flux1ProKontextImageGenInput = {
-  required: ['model'],
-  allOf: [
-    {
-      $ref: '#/components/schemas/Flux1ImageGenInput',
-    },
-    {
-      required: ['imageUrl', 'prompt'],
-      type: 'object',
-      properties: {
-        prompt: {
           maxLength: 1000,
           minLength: 0,
           type: 'string',
         },
-        imageUrl: {
-          type: 'string',
-          format: 'uri',
+        images: {
+          type: 'array',
+          items: {
+            type: 'string',
+            description: 'Either A URL, A DataURL or a Base64 string',
+          },
         },
         aspectRatio: {
           enum: ['21:9', '16:9', '4:3', '3:2', '1:1', '2:3', '3:4', '9:16', '9:21'],
@@ -585,18 +557,13 @@ export const $Flux1ProKontextImageGenInput = {
           enum: ['jpeg', 'png'],
           type: 'string',
         },
-        safetyTolerance: {
-          maximum: 6,
-          minimum: 1,
-          type: 'string',
-        },
         guidanceScale: {
           maximum: 20,
           minimum: 1,
           type: 'number',
           format: 'double',
         },
-        numImages: {
+        quantity: {
           maximum: 4,
           minimum: 1,
           type: 'integer',
@@ -609,11 +576,56 @@ export const $Flux1ProKontextImageGenInput = {
         },
       },
       additionalProperties: false,
+      discriminator: {
+        propertyName: 'model',
+        mapping: {
+          pro: '#/components/schemas/Flux1KontextProImageGenInput',
+          max: '#/components/schemas/Flux1KontextMaxImageGenInput',
+        },
+      },
+    },
+  ],
+  properties: {
+    engine: {
+      enum: ['flux1-kontext'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $Flux1KontextMaxImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Flux1KontextImageGenInput',
+    },
+    {
+      type: 'object',
+      additionalProperties: false,
     },
   ],
   properties: {
     model: {
-      enum: ['pro-kontext'],
+      enum: ['max'],
+      type: 'string',
+    },
+  },
+} as const;
+
+export const $Flux1KontextProImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Flux1KontextImageGenInput',
+    },
+    {
+      type: 'object',
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    model: {
+      enum: ['pro'],
       type: 'string',
     },
   },
@@ -919,7 +931,7 @@ export const $ImageGenInput = {
     propertyName: 'engine',
     mapping: {
       openai: '#/components/schemas/OpenApiImageGenInput',
-      flux1: '#/components/schemas/Flux1ImageGenInput',
+      'flux1-kontext': '#/components/schemas/Flux1KontextImageGenInput',
       google: '#/components/schemas/GoogleImageGenInput',
     },
   },

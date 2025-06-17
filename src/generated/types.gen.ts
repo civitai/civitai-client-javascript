@@ -271,30 +271,17 @@ export const FileFormat = {
   ONNX: 'onnx',
 } as const;
 
-export type Flux1ImageGenInput = ImageGenInput & {
+export type Flux1KontextImageGenInput = ImageGenInput & {
   model: string;
   prompt: string;
-} & {
-  engine: 'flux1';
-};
-
-export type engine = 'flux1';
-
-export const engine = {
-  FLUX1: 'flux1',
-} as const;
-
-export type Flux1ProKontextImageGenInput = Flux1ImageGenInput & {
-  prompt: string;
-  imageUrl: string;
+  images?: Array<string>;
   aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
   outputFormat?: 'jpeg' | 'png';
-  safetyTolerance?: string;
   guidanceScale?: number;
-  numImages?: number;
+  quantity?: number;
   seed?: number | null;
 } & {
-  model: 'pro-kontext';
+  engine: 'flux1-kontext';
 };
 
 export type aspectRatio = '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
@@ -318,10 +305,34 @@ export const outputFormat = {
   PNG: 'png',
 } as const;
 
-export type model = 'pro-kontext';
+export type engine = 'flux1-kontext';
+
+export const engine = {
+  FLUX1_KONTEXT: 'flux1-kontext',
+} as const;
+
+export type Flux1KontextMaxImageGenInput = Flux1KontextImageGenInput & {
+  [key: string]: unknown;
+} & {
+  model: 'max';
+};
+
+export type model = 'max';
 
 export const model = {
-  PRO_KONTEXT: 'pro-kontext',
+  MAX: 'max',
+} as const;
+
+export type Flux1KontextProImageGenInput = Flux1KontextImageGenInput & {
+  [key: string]: unknown;
+} & {
+  model: 'pro';
+};
+
+export type model2 = 'pro';
+
+export const model2 = {
+  PRO: 'pro',
 } as const;
 
 export type FluxDevFastImageResourceTrainingInput = ImageResourceTrainingInput & {
@@ -710,9 +721,9 @@ export const aspectRatio2 = {
   _4_3: '4:3',
 } as const;
 
-export type model2 = 'imagen4';
+export type model3 = 'imagen4';
 
-export const model2 = {
+export const model3 = {
   IMAGEN4: 'imagen4',
 } as const;
 
@@ -1176,9 +1187,9 @@ export const size = {
   _1024X1024: '1024x1024',
 } as const;
 
-export type model3 = 'dall-e-2';
+export type model4 = 'dall-e-2';
 
-export const model3 = {
+export const model4 = {
   DALL_E_2: 'dall-e-2',
 } as const;
 
@@ -1221,9 +1232,9 @@ export const quality = {
   STANDARD: 'standard',
 } as const;
 
-export type model4 = 'dall-e-3';
+export type model5 = 'dall-e-3';
 
-export const model4 = {
+export const model5 = {
   DALL_E_3: 'dall-e-3',
 } as const;
 
@@ -1271,9 +1282,9 @@ export const quality2 = {
   LOW: 'low',
 } as const;
 
-export type model5 = 'gpt-image-1';
+export type model6 = 'gpt-image-1';
 
-export const model5 = {
+export const model6 = {
   GPT_IMAGE_1: 'gpt-image-1',
 } as const;
 
