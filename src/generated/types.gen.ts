@@ -1012,6 +1012,7 @@ export type LightricksVideoGenInput = VideoGenInput & {
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: string | null;
+  expandPrompt?: boolean;
 } & {
   engine: 'lightricks';
 };

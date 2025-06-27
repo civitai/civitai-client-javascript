@@ -1,10 +1,10 @@
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
-const tsParser = require('@typescript-eslint/parser');
-const prettierPlugin = require('eslint-plugin-prettier');
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import prettierPlugin from 'eslint-plugin-prettier';
 
-module.exports = [
+export default [
   {
-    files: [ "**/*.ts" ],
+    files: ["**/*.ts"],
     languageOptions: {
       parser: tsParser
     },
@@ -36,7 +36,7 @@ module.exports = [
       // allows ignoring ts checks
       '@typescript-eslint/ban-ts-comment': 'off',
       // allows destructuring to ignore fields
-      '@typescript-eslint/no-unused-vars': ['warn', { 'ignoreRestSiblings': true }],
+      '@typescript-eslint/no-unused-vars': ['warn', {'ignoreRestSiblings': true}],
       '@typescript-eslint/no-namespace': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',

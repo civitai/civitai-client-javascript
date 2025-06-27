@@ -1779,6 +1779,10 @@ export const $LightricksVideoGenInput = {
           description: 'Either A URL, A DataURL or a Base64 string',
           nullable: true,
         },
+        expandPrompt: {
+          type: 'boolean',
+          default: true,
+        },
       },
       additionalProperties: false,
     },

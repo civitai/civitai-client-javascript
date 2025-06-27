@@ -1,10 +1,11 @@
 {
   "name": "@civitai/client",
-  "version": "0.1.9-beta.40",
+  "version": "0.1.9-beta.41",
   "description": "Civitai's javascript client for generating ai content",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/civitai/civitai-client-javascript.git"
