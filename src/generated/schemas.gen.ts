@@ -232,6 +232,41 @@ export const $BuzzClientAccount = {
   type: 'string',
 } as const;
 
+export const $CivitaiWanVideoGenInput = {
+  required: ['provider'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/WanVdeoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        width: {
+          type: 'integer',
+          format: 'int32',
+        },
+        height: {
+          type: 'integer',
+          format: 'int32',
+        },
+        model: {
+          pattern:
+            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
+          type: 'string',
+          nullable: true,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    provider: {
+      enum: ['civitai'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $ComfyInput = {
   required: ['comfyWorkflow'],
   type: 'object',
@@ -517,6 +552,36 @@ export const $EpochResult = {
   },
   additionalProperties: false,
   description: 'An epock result.',
+} as const;
+
+export const $FALWanVideoGenInput = {
+  required: ['provider'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/WanVdeoGenInput',
+    },
+    {
+      type: 'object',
+      properties: {
+        aspectRatio: {
+          enum: ['4:3', '16:9', '9:16'],
+          type: 'string',
+          default: '16:9',
+        },
+        enablePromptExpansion: {
+          type: 'boolean',
+          default: false,
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    provider: {
+      enum: ['fal'],
+      type: 'string',
+    },
+  },
 } as const;
 
 export const $FileFormat = {
@@ -3317,6 +3382,13 @@ export const $ViduVideoGenInput = {
           type: 'string',
           nullable: true,
         },
+        images: {
+          type: 'array',
+          items: {
+            type: 'string',
+            description: 'Either A URL, A DataURL or a Base64 string',
+          },
+        },
       },
       additionalProperties: false,
     },
@@ -3346,8 +3418,12 @@ export const $WanVdeoGenInput = {
       $ref: '#/components/schemas/VideoGenInput',
     },
     {
+      required: ['provider'],
       type: 'object',
       properties: {
+        provider: {
+          type: 'string',
+        },
         sourceImage: {
           type: 'string',
           description: 'Either A URL, A DataURL or a Base64 string',
@@ -3384,41 +3460,21 @@ export const $WanVdeoGenInput = {
           format: 'int32',
           default: 20,
         },
-        width: {
-          type: 'integer',
-          format: 'int32',
-        },
-        height: {
-          type: 'integer',
-          format: 'int32',
-        },
-        model: {
-          pattern:
-            '^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$',
-          type: 'string',
-          nullable: true,
-        },
         loras: {
           type: 'array',
           items: {
             $ref: '#/components/schemas/VideoGenInputLora',
           },
         },
-        aspectRatio: {
-          enum: ['4:3', '16:9', '9:16'],
-          type: 'string',
-          description:
-            'Aspect ratio of the output video. Only applicable when using the 720p model.',
-          default: '16:9',
-        },
-        enablePromptExpansion: {
-          type: 'boolean',
-          description:
-            'Whether to enable prompt expansion. Only applicable when using the 720p model.',
-          default: false,
-        },
       },
       additionalProperties: false,
+      discriminator: {
+        propertyName: 'provider',
+        mapping: {
+          civitai: '#/components/schemas/CivitaiWanVideoGenInput',
+          fal: '#/components/schemas/FALWanVideoGenInput',
+        },
+      },
     },
   ],
   properties: {

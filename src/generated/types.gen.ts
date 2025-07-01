@@ -110,6 +110,20 @@ export const BuzzClientAccount = {
   GENERATION: 'generation',
 } as const;
 
+export type CivitaiWanVideoGenInput = WanVdeoGenInput & {
+  width?: number;
+  height?: number;
+  model?: string | null;
+} & {
+  provider: 'civitai';
+};
+
+export type provider = 'civitai';
+
+export const provider = {
+  CIVITAI: 'civitai',
+} as const;
+
 export type ComfyInput = {
   /**
    * Get the comfy workflow that needs to be executed
@@ -254,6 +268,27 @@ export type EpochResult = {
   blobUrl: string;
 };
 
+export type FALWanVideoGenInput = WanVdeoGenInput & {
+  aspectRatio?: '4:3' | '16:9' | '9:16';
+  enablePromptExpansion?: boolean;
+} & {
+  provider: 'fal';
+};
+
+export type aspectRatio = '4:3' | '16:9' | '9:16';
+
+export const aspectRatio = {
+  _4_3: '4:3',
+  _16_9: '16:9',
+  _9_16: '9:16',
+} as const;
+
+export type provider2 = 'fal';
+
+export const provider2 = {
+  FAL: 'fal',
+} as const;
+
 export type FileFormat =
   | 'unknown'
   | 'safeTensor'
@@ -296,9 +331,18 @@ export type Flux1KontextImageGenInput = ImageGenInput & {
   engine: 'flux1-kontext';
 };
 
-export type aspectRatio = '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+export type aspectRatio2 =
+  | '21:9'
+  | '16:9'
+  | '4:3'
+  | '3:2'
+  | '1:1'
+  | '2:3'
+  | '3:4'
+  | '9:16'
+  | '9:21';
 
-export const aspectRatio = {
+export const aspectRatio2 = {
   _21_9: '21:9',
   _16_9: '16:9',
   _4_3: '4:3',
@@ -723,9 +767,9 @@ export type Imagen4ImageGenInput = GoogleImageGenInput & {
   model: 'imagen4';
 };
 
-export type aspectRatio2 = '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
+export type aspectRatio3 = '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
 
-export const aspectRatio2 = {
+export const aspectRatio3 = {
   _1_1: '1:1',
   _16_9: '16:9',
   _9_16: '9:16',
@@ -1865,6 +1909,7 @@ export type ViduVideoGenInput = VideoGenInput & {
   model?: ViduVideoGenModel;
   aspectRatio?: '16:9' | '9:16' | '1:1' | null;
   movementAmplitude?: 'auto' | 'small' | 'medium' | 'large' | null;
+  images?: Array<string>;
 } & {
   engine: 'vidu';
 };
@@ -1876,9 +1921,9 @@ export const duration2 = {
   _8: 8,
 } as const;
 
-export type aspectRatio3 = '16:9' | '9:16' | '1:1';
+export type aspectRatio4 = '16:9' | '9:16' | '1:1';
 
-export const aspectRatio3 = {
+export const aspectRatio4 = {
   _16_9: '16:9',
   _9_16: '9:16',
   _1_1: '1:1',
@@ -1914,6 +1959,7 @@ export const ViduVideoGenStyle = {
 } as const;
 
 export type WanVdeoGenInput = VideoGenInput & {
+  provider: string;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
@@ -1923,35 +1969,10 @@ export type WanVdeoGenInput = VideoGenInput & {
   duration?: number;
   seed?: number | null;
   steps?: number;
-  width?: number;
-  height?: number;
-  model?: string | null;
   loras?: Array<VideoGenInputLora>;
-  /**
-   * Aspect ratio of the output video. Only applicable when using the 720p model.
-   */
-  aspectRatio?: '4:3' | '16:9' | '9:16';
-  /**
-   * Whether to enable prompt expansion. Only applicable when using the 720p model.
-   */
-  enablePromptExpansion?: boolean;
 } & {
   engine: 'wan';
 };
-
-/**
- * Aspect ratio of the output video. Only applicable when using the 720p model.
- */
-export type aspectRatio4 = '4:3' | '16:9' | '9:16';
-
-/**
- * Aspect ratio of the output video. Only applicable when using the 720p model.
- */
-export const aspectRatio4 = {
-  _4_3: '4:3',
-  _16_9: '16:9',
-  _9_16: '9:16',
-} as const;
 
 export type engine15 = 'wan';
 
