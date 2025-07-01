@@ -271,6 +271,18 @@ export const FileFormat = {
   ONNX: 'onnx',
 } as const;
 
+export type Flux1KontextDevImageGenInput = Flux1KontextImageGenInput & {
+  [key: string]: unknown;
+} & {
+  model: 'dev';
+};
+
+export type model = 'dev';
+
+export const model = {
+  DEV: 'dev',
+} as const;
+
 export type Flux1KontextImageGenInput = ImageGenInput & {
   model: string;
   prompt: string;
@@ -317,9 +329,9 @@ export type Flux1KontextMaxImageGenInput = Flux1KontextImageGenInput & {
   model: 'max';
 };
 
-export type model = 'max';
+export type model2 = 'max';
 
-export const model = {
+export const model2 = {
   MAX: 'max',
 } as const;
 
@@ -329,9 +341,9 @@ export type Flux1KontextProImageGenInput = Flux1KontextImageGenInput & {
   model: 'pro';
 };
 
-export type model2 = 'pro';
+export type model3 = 'pro';
 
-export const model2 = {
+export const model3 = {
   PRO: 'pro',
 } as const;
 
@@ -721,9 +733,9 @@ export const aspectRatio2 = {
   _4_3: '4:3',
 } as const;
 
-export type model3 = 'imagen4';
+export type model4 = 'imagen4';
 
-export const model3 = {
+export const model4 = {
   IMAGEN4: 'imagen4',
 } as const;
 
@@ -1188,9 +1200,9 @@ export const size = {
   _1024X1024: '1024x1024',
 } as const;
 
-export type model4 = 'dall-e-2';
+export type model5 = 'dall-e-2';
 
-export const model4 = {
+export const model5 = {
   DALL_E_2: 'dall-e-2',
 } as const;
 
@@ -1233,9 +1245,9 @@ export const quality = {
   STANDARD: 'standard',
 } as const;
 
-export type model5 = 'dall-e-3';
+export type model6 = 'dall-e-3';
 
-export const model5 = {
+export const model6 = {
   DALL_E_3: 'dall-e-3',
 } as const;
 
@@ -1283,9 +1295,9 @@ export const quality2 = {
   LOW: 'low',
 } as const;
 
-export type model6 = 'gpt-image-1';
+export type model7 = 'gpt-image-1';
 
-export const model6 = {
+export const model7 = {
   GPT_IMAGE_1: 'gpt-image-1',
 } as const;
 
@@ -1915,9 +1927,31 @@ export type WanVdeoGenInput = VideoGenInput & {
   height?: number;
   model?: string | null;
   loras?: Array<VideoGenInputLora>;
+  /**
+   * Aspect ratio of the output video. Only applicable when using the 720p model.
+   */
+  aspectRatio?: '4:3' | '16:9' | '9:16';
+  /**
+   * Whether to enable prompt expansion. Only applicable when using the 720p model.
+   */
+  enablePromptExpansion?: boolean;
 } & {
   engine: 'wan';
 };
+
+/**
+ * Aspect ratio of the output video. Only applicable when using the 720p model.
+ */
+export type aspectRatio4 = '4:3' | '16:9' | '9:16';
+
+/**
+ * Aspect ratio of the output video. Only applicable when using the 720p model.
+ */
+export const aspectRatio4 = {
+  _4_3: '4:3',
+  _16_9: '16:9',
+  _9_16: '9:16',
+} as const;
 
 export type engine15 = 'wan';
 

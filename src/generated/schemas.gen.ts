@@ -524,6 +524,25 @@ export const $FileFormat = {
   type: 'string',
 } as const;
 
+export const $Flux1KontextDevImageGenInput = {
+  required: ['model'],
+  allOf: [
+    {
+      $ref: '#/components/schemas/Flux1KontextImageGenInput',
+    },
+    {
+      type: 'object',
+      additionalProperties: false,
+    },
+  ],
+  properties: {
+    model: {
+      enum: ['dev'],
+      type: 'string',
+    },
+  },
+} as const;
+
 export const $Flux1KontextImageGenInput = {
   required: ['engine'],
   allOf: [
@@ -581,6 +600,7 @@ export const $Flux1KontextImageGenInput = {
         mapping: {
           pro: '#/components/schemas/Flux1KontextProImageGenInput',
           max: '#/components/schemas/Flux1KontextMaxImageGenInput',
+          dev: '#/components/schemas/Flux1KontextDevImageGenInput',
         },
       },
     },
@@ -3383,6 +3403,19 @@ export const $WanVdeoGenInput = {
           items: {
             $ref: '#/components/schemas/VideoGenInputLora',
           },
+        },
+        aspectRatio: {
+          enum: ['4:3', '16:9', '9:16'],
+          type: 'string',
+          description:
+            'Aspect ratio of the output video. Only applicable when using the 720p model.',
+          default: '16:9',
+        },
+        enablePromptExpansion: {
+          type: 'boolean',
+          description:
+            'Whether to enable prompt expansion. Only applicable when using the 720p model.',
+          default: false,
         },
       },
       additionalProperties: false,
