@@ -2514,7 +2514,7 @@
         ],
         "allOf": [
           {
-            "$ref": "#/components/schemas/WanVdeoGenInput"
+            "$ref": "#/components/schemas/WanVideoGenInput"
           },
           {
             "type": "object",
@@ -2868,7 +2868,7 @@
         ],
         "allOf": [
           {
-            "$ref": "#/components/schemas/WanVdeoGenInput"
+            "$ref": "#/components/schemas/WanVideoGenInput"
           },
           {
             "type": "object",
@@ -5833,7 +5833,7 @@
             "minimax": "#/components/schemas/MiniMaxVideoGenInput",
             "lightricks": "#/components/schemas/LightricksVideoGenInput",
             "hunyuan": "#/components/schemas/HunyuanVdeoGenInput",
-            "wan": "#/components/schemas/WanVdeoGenInput",
+            "wan": "#/components/schemas/WanVideoGenInput",
             "vidu": "#/components/schemas/ViduVideoGenInput",
             "veo3": "#/components/schemas/Veo3VideoGenInput"
           }
@@ -6001,6 +6001,10 @@
                   "type": "string",
                   "description": "Either A URL, A DataURL or a Base64 string"
                 }
+              },
+              "enableBackgroundMusic": {
+                "type": "boolean",
+                "default": false
               }
             },
             "additionalProperties": false
@@ -6029,8 +6033,9 @@
         ],
         "type": "string"
       },
-      "WanVdeoGenInput": {
+      "WanVideoGenInput": {
         "required": [
+          "provider",
           "engine"
         ],
         "allOf": [
@@ -6061,7 +6066,7 @@
               "frameRate": {
                 "type": "integer",
                 "format": "int32",
-                "default": 25
+                "default": 24
               },
               "duration": {
                 "maximum": 30,
@@ -6093,6 +6098,7 @@
             "discriminator": {
               "propertyName": "provider",
               "mapping": {
+                "wan": "#/components/schemas/WanVideoGenInput",
                 "civitai": "#/components/schemas/CivitaiWanVideoGenInput",
                 "fal": "#/components/schemas/FALWanVideoGenInput"
               }
@@ -6100,6 +6106,12 @@
           }
         ],
         "properties": {
+          "provider": {
+            "enum": [
+              "wan"
+            ],
+            "type": "string"
+          },
           "engine": {
             "enum": [
               "wan"

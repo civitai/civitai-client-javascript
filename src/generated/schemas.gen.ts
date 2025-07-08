@@ -236,7 +236,7 @@ export const $CivitaiWanVideoGenInput = {
   required: ['provider'],
   allOf: [
     {
-      $ref: '#/components/schemas/WanVdeoGenInput',
+      $ref: '#/components/schemas/WanVideoGenInput',
     },
     {
       type: 'object',
@@ -558,7 +558,7 @@ export const $FALWanVideoGenInput = {
   required: ['provider'],
   allOf: [
     {
-      $ref: '#/components/schemas/WanVdeoGenInput',
+      $ref: '#/components/schemas/WanVideoGenInput',
     },
     {
       type: 'object',
@@ -3243,7 +3243,7 @@ export const $VideoGenInput = {
       minimax: '#/components/schemas/MiniMaxVideoGenInput',
       lightricks: '#/components/schemas/LightricksVideoGenInput',
       hunyuan: '#/components/schemas/HunyuanVdeoGenInput',
-      wan: '#/components/schemas/WanVdeoGenInput',
+      wan: '#/components/schemas/WanVideoGenInput',
       vidu: '#/components/schemas/ViduVideoGenInput',
       veo3: '#/components/schemas/Veo3VideoGenInput',
     },
@@ -3389,6 +3389,10 @@ export const $ViduVideoGenInput = {
             description: 'Either A URL, A DataURL or a Base64 string',
           },
         },
+        enableBackgroundMusic: {
+          type: 'boolean',
+          default: false,
+        },
       },
       additionalProperties: false,
     },
@@ -3411,8 +3415,8 @@ export const $ViduVideoGenStyle = {
   type: 'string',
 } as const;
 
-export const $WanVdeoGenInput = {
-  required: ['engine'],
+export const $WanVideoGenInput = {
+  required: ['provider', 'engine'],
   allOf: [
     {
       $ref: '#/components/schemas/VideoGenInput',
@@ -3439,7 +3443,7 @@ export const $WanVdeoGenInput = {
         frameRate: {
           type: 'integer',
           format: 'int32',
-          default: 25,
+          default: 24,
         },
         duration: {
           maximum: 30,
@@ -3471,6 +3475,7 @@ export const $WanVdeoGenInput = {
       discriminator: {
         propertyName: 'provider',
         mapping: {
+          wan: '#/components/schemas/WanVideoGenInput',
           civitai: '#/components/schemas/CivitaiWanVideoGenInput',
           fal: '#/components/schemas/FALWanVideoGenInput',
         },
@@ -3478,6 +3483,10 @@ export const $WanVdeoGenInput = {
     },
   ],
   properties: {
+    provider: {
+      enum: ['wan'],
+      type: 'string',
+    },
     engine: {
       enum: ['wan'],
       type: 'string',

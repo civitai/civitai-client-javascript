@@ -110,7 +110,7 @@ export const BuzzClientAccount = {
   GENERATION: 'generation',
 } as const;
 
-export type CivitaiWanVideoGenInput = WanVdeoGenInput & {
+export type CivitaiWanVideoGenInput = WanVideoGenInput & {
   width?: number;
   height?: number;
   model?: string | null;
@@ -268,7 +268,7 @@ export type EpochResult = {
   blobUrl: string;
 };
 
-export type FALWanVideoGenInput = WanVdeoGenInput & {
+export type FALWanVideoGenInput = WanVideoGenInput & {
   aspectRatio?: '4:3' | '16:9' | '9:16';
   enablePromptExpansion?: boolean;
 } & {
@@ -1910,6 +1910,7 @@ export type ViduVideoGenInput = VideoGenInput & {
   aspectRatio?: '16:9' | '9:16' | '1:1' | null;
   movementAmplitude?: 'auto' | 'small' | 'medium' | 'large' | null;
   images?: Array<string>;
+  enableBackgroundMusic?: boolean;
 } & {
   engine: 'vidu';
 };
@@ -1958,7 +1959,7 @@ export const ViduVideoGenStyle = {
   ANIME: 'anime',
 } as const;
 
-export type WanVdeoGenInput = VideoGenInput & {
+export type WanVideoGenInput = VideoGenInput & {
   provider: string;
   /**
    * Either A URL, A DataURL or a Base64 string
@@ -1971,8 +1972,15 @@ export type WanVdeoGenInput = VideoGenInput & {
   steps?: number;
   loras?: Array<VideoGenInputLora>;
 } & {
+  provider: 'wan';
   engine: 'wan';
 };
+
+export type provider3 = 'wan';
+
+export const provider3 = {
+  WAN: 'wan',
+} as const;
 
 export type engine15 = 'wan';
 
