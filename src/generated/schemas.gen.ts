@@ -3061,6 +3061,9 @@ export const $Veo3VideoGenInput = {
           format: 'int32',
           nullable: true,
         },
+        fastMode: {
+          type: 'boolean',
+        },
       },
       additionalProperties: false,
     },

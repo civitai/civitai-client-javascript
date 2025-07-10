@@ -1786,6 +1786,7 @@ export type Veo3VideoGenInput = VideoGenInput & {
   duration?: number;
   generateAudio?: boolean;
   seed?: number | null;
+  fastMode?: boolean;
 } & {
   engine: 'veo3';
 };
