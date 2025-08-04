@@ -269,16 +269,16 @@ export type EpochResult = {
 };
 
 export type FALWanVideoGenInput = WanVideoGenInput & {
-  aspectRatio?: '4:3' | '16:9' | '9:16';
+  aspectRatio?: '1:1' | '16:9' | '9:16';
   enablePromptExpansion?: boolean;
 } & {
   provider: 'fal';
 };
 
-export type aspectRatio = '4:3' | '16:9' | '9:16';
+export type aspectRatio = '1:1' | '16:9' | '9:16';
 
 export const aspectRatio = {
-  _4_3: '4:3',
+  _1_1: '1:1',
   _16_9: '16:9',
   _9_16: '9:16',
 } as const;
@@ -1787,6 +1787,7 @@ export type Veo3VideoGenInput = VideoGenInput & {
   generateAudio?: boolean;
   seed?: number | null;
   fastMode?: boolean;
+  images?: Array<string>;
 } & {
   engine: 'veo3';
 };
@@ -1921,14 +1922,6 @@ export type duration2 = 4 | 8;
 export const duration2 = {
   _4: 4,
   _8: 8,
-} as const;
-
-export type aspectRatio4 = '16:9' | '9:16' | '1:1';
-
-export const aspectRatio4 = {
-  _16_9: '16:9',
-  _9_16: '9:16',
-  _1_1: '1:1',
 } as const;
 
 export type movementAmplitude = 'auto' | 'small' | 'medium' | 'large';
@@ -2516,7 +2509,7 @@ export type SubmitWorkflowData = {
 
 export type SubmitWorkflowResponse = Workflow;
 
-export type SubmitWorkflowError = ProblemDetails;
+export type SubmitWorkflowError = ProblemDetails & string;
 
 export type QueryWorkflowsData = {
   headers?: {
@@ -2966,6 +2959,10 @@ export type $OpenApiTs = {
          * Unauthorized
          */
         '401': ProblemDetails;
+        /**
+         * Forbidden
+         */
+        '403': string;
         /**
          * Too Many Requests
          */

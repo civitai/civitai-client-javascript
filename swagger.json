@@ -1449,6 +1449,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "callbacks": {
@@ -2875,7 +2885,7 @@
             "properties": {
               "aspectRatio": {
                 "enum": [
-                  "4:3",
+                  "1:1",
                   "16:9",
                   "9:16"
                 ],
@@ -5632,6 +5642,13 @@
               },
               "fastMode": {
                 "type": "boolean"
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
               }
             },
             "additionalProperties": false

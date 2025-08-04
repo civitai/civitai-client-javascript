@@ -564,7 +564,7 @@ export const $FALWanVideoGenInput = {
       type: 'object',
       properties: {
         aspectRatio: {
-          enum: ['4:3', '16:9', '9:16'],
+          enum: ['1:1', '16:9', '9:16'],
           type: 'string',
           default: '16:9',
         },
@@ -3063,6 +3063,13 @@ export const $Veo3VideoGenInput = {
         },
         fastMode: {
           type: 'boolean',
+        },
+        images: {
+          type: 'array',
+          items: {
+            type: 'string',
+            description: 'Either A URL, A DataURL or a Base64 string',
+          },
         },
       },
       additionalProperties: false,
