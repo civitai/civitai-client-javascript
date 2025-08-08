@@ -19,33 +19,32 @@ export type AgeClassificationOutput = {
   prediction: AgeClassificationPrediction;
 };
 
-export type AgeClassificationPrediction = 'pass' | 'fail';
-
 export const AgeClassificationPrediction = {
   PASS: 'pass',
   FAIL: 'fail',
 } as const;
 
+export type AgeClassificationPrediction =
+  (typeof AgeClassificationPrediction)[keyof typeof AgeClassificationPrediction];
+
 /**
  * Age classification
  */
 export type AgeClassificationStep = WorkflowStep & {
+  $type: 'ageClassification';
+} & {
   input: AgeClassificationInput;
   output?: AgeClassificationOutput;
 } & {
   $type: 'ageClassification';
 };
 
-export type $type = 'ageClassification';
-
-export const $type = {
-  AGE_CLASSIFICATION: 'ageClassification',
-} as const;
-
 /**
  * Age classification
  */
 export type AgeClassificationStepTemplate = WorkflowStepTemplate & {
+  $type: 'ageClassification';
+} & {
   input: AgeClassificationInput;
 } & {
   $type: 'ageClassification';
@@ -57,15 +56,15 @@ export type AgeClassifierLabel = {
   boundingBox: Array<number>;
 };
 
-export type BatchOCRSafetyClassificationInput = {
+export type BatchOcrSafetyClassificationInput = {
   mediaUrls: Array<string>;
 };
 
-export type BatchOCRSafetyClassificationOutput = {
-  results: Array<BatchOCRSafetyClassificationResult>;
+export type BatchOcrSafetyClassificationOutput = {
+  results: Array<BatchOcrSafetyClassificationResult>;
 };
 
-export type BatchOCRSafetyClassificationResult = {
+export type BatchOcrSafetyClassificationResult = {
   mediaUrl: string;
   classification: string;
   text?: string | null;
@@ -96,19 +95,19 @@ export type Blob = {
    * Get the id of the job that is associated with this blob.
    */
   jobId?: string | null;
-  nsfwLevel?: NSFWLevel;
+  nsfwLevel?: NsfwLevel;
   /**
    * Get an optional reason for why the blob was blocked. This is only set if the blob was blocked.
    */
   blockedReason?: string | null;
 };
 
-export type BuzzClientAccount = 'user' | 'generation';
-
 export const BuzzClientAccount = {
   USER: 'user',
   GENERATION: 'generation',
 } as const;
+
+export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
 
 export type CivitaiWanVideoGenInput = WanVideoGenInput & {
   width?: number;
@@ -117,12 +116,6 @@ export type CivitaiWanVideoGenInput = WanVideoGenInput & {
 } & {
   provider: 'civitai';
 };
-
-export type provider = 'civitai';
-
-export const provider = {
-  CIVITAI: 'civitai',
-} as const;
 
 export type ComfyInput = {
   /**
@@ -167,33 +160,31 @@ export type ComfyOutput = {
  * Comfy workflows
  */
 export type ComfyStep = WorkflowStep & {
+  $type: 'comfy';
+} & {
   input: ComfyInput;
   output?: ComfyOutput;
 } & {
   $type: 'comfy';
 };
 
-export type $type2 = 'comfy';
-
-export const $type2 = {
-  COMFY: 'comfy',
-} as const;
-
 /**
  * Comfy workflows
  */
 export type ComfyStepTemplate = WorkflowStepTemplate & {
+  $type: 'comfy';
+} & {
   input: ComfyInput;
 } & {
   $type: 'comfy';
 };
 
-export type ContainerFormat = 'mp4' | 'webM';
-
 export const ContainerFormat = {
   MP4: 'mp4',
   WEB_M: 'webM',
 } as const;
+
+export type ContainerFormat = (typeof ContainerFormat)[keyof typeof ContainerFormat];
 
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
   next: string;
@@ -224,22 +215,20 @@ export type EchoOutput = {
  * Echo
  */
 export type EchoStep = WorkflowStep & {
+  $type: 'echo';
+} & {
   input: EchoInput;
   output?: EchoOutput;
 } & {
   $type: 'echo';
 };
 
-export type $type3 = 'echo';
-
-export const $type3 = {
-  ECHO: 'echo',
-} as const;
-
 /**
  * Echo
  */
 export type EchoStepTemplate = WorkflowStepTemplate & {
+  $type: 'echo';
+} & {
   input: EchoInput;
 } & {
   $type: 'echo';
@@ -268,34 +257,12 @@ export type EpochResult = {
   blobUrl: string;
 };
 
-export type FALWanVideoGenInput = WanVideoGenInput & {
+export type FalWanVideoGenInput = WanVideoGenInput & {
   aspectRatio?: '1:1' | '16:9' | '9:16';
   enablePromptExpansion?: boolean;
 } & {
   provider: 'fal';
 };
-
-export type aspectRatio = '1:1' | '16:9' | '9:16';
-
-export const aspectRatio = {
-  _1_1: '1:1',
-  _16_9: '16:9',
-  _9_16: '9:16',
-} as const;
-
-export type provider2 = 'fal';
-
-export const provider2 = {
-  FAL: 'fal',
-} as const;
-
-export type FileFormat =
-  | 'unknown'
-  | 'safeTensor'
-  | 'pickleTensor'
-  | 'diffusers'
-  | 'coreML'
-  | 'onnx';
 
 export const FileFormat = {
   UNKNOWN: 'unknown',
@@ -306,19 +273,15 @@ export const FileFormat = {
   ONNX: 'onnx',
 } as const;
 
-export type Flux1KontextDevImageGenInput = Flux1KontextImageGenInput & {
-  [key: string]: unknown;
-} & {
+export type FileFormat = (typeof FileFormat)[keyof typeof FileFormat];
+
+export type Flux1KontextDevImageGenInput = Flux1KontextImageGenInput & {} & {
   model: 'dev';
 };
 
-export type model = 'dev';
-
-export const model = {
-  DEV: 'dev',
-} as const;
-
 export type Flux1KontextImageGenInput = ImageGenInput & {
+  engine: 'flux1-kontext';
+} & {
   model: string;
   prompt: string;
   images?: Array<string>;
@@ -331,109 +294,39 @@ export type Flux1KontextImageGenInput = ImageGenInput & {
   engine: 'flux1-kontext';
 };
 
-export type aspectRatio2 =
-  | '21:9'
-  | '16:9'
-  | '4:3'
-  | '3:2'
-  | '1:1'
-  | '2:3'
-  | '3:4'
-  | '9:16'
-  | '9:21';
-
-export const aspectRatio2 = {
-  _21_9: '21:9',
-  _16_9: '16:9',
-  _4_3: '4:3',
-  _3_2: '3:2',
-  _1_1: '1:1',
-  _2_3: '2:3',
-  _3_4: '3:4',
-  _9_16: '9:16',
-  _9_21: '9:21',
-} as const;
-
-export type outputFormat = 'jpeg' | 'png';
-
-export const outputFormat = {
-  JPEG: 'jpeg',
-  PNG: 'png',
-} as const;
-
-export type engine = 'flux1-kontext';
-
-export const engine = {
-  FLUX1_KONTEXT: 'flux1-kontext',
-} as const;
-
-export type Flux1KontextMaxImageGenInput = Flux1KontextImageGenInput & {
-  [key: string]: unknown;
-} & {
+export type Flux1KontextMaxImageGenInput = Flux1KontextImageGenInput & {} & {
   model: 'max';
 };
 
-export type model2 = 'max';
-
-export const model2 = {
-  MAX: 'max',
-} as const;
-
-export type Flux1KontextProImageGenInput = Flux1KontextImageGenInput & {
-  [key: string]: unknown;
-} & {
+export type Flux1KontextProImageGenInput = Flux1KontextImageGenInput & {} & {
   model: 'pro';
 };
 
-export type model3 = 'pro';
-
-export const model3 = {
-  PRO: 'pro',
-} as const;
-
 export type FluxDevFastImageResourceTrainingInput = ImageResourceTrainingInput & {
-  [key: string]: unknown;
-} & {
+  engine: 'flux-dev-fast';
+} & {} & {
   engine: 'flux-dev-fast';
 };
 
-export type engine2 = 'flux-dev-fast';
-
-export const engine2 = {
-  FLUX_DEV_FAST: 'flux-dev-fast',
-} as const;
-
 export type GoogleImageGenInput = ImageGenInput & {
+  engine: 'google';
+} & {
   model: string;
   prompt: string;
 } & {
   engine: 'google';
 };
 
-export type engine3 = 'google';
-
-export const engine3 = {
-  GOOGLE: 'google',
-} as const;
-
-export type HaiperVideoGenAspectRatio = '16:9' | '4:3' | '1:1' | '9:16' | '3:4';
-
 export const HaiperVideoGenAspectRatio = {
-  _16_9: '16:9',
-  _4_3: '4:3',
-  _1_1: '1:1',
-  _9_16: '9:16',
-  _3_4: '3:4',
+  '16:9': '16:9',
+  '4:3': '4:3',
+  '1:1': '1:1',
+  '9:16': '9:16',
+  '3:4': '3:4',
 } as const;
 
-export type HaiperVideoGenCameraMovement =
-  | 'none'
-  | 'panRight'
-  | 'panLeft'
-  | 'tiltUp'
-  | 'tiltDown'
-  | 'zoomIn'
-  | 'zoomOut';
+export type HaiperVideoGenAspectRatio =
+  (typeof HaiperVideoGenAspectRatio)[keyof typeof HaiperVideoGenAspectRatio];
 
 export const HaiperVideoGenCameraMovement = {
   NONE: 'none',
@@ -445,7 +338,12 @@ export const HaiperVideoGenCameraMovement = {
   ZOOM_OUT: 'zoomOut',
 } as const;
 
+export type HaiperVideoGenCameraMovement =
+  (typeof HaiperVideoGenCameraMovement)[keyof typeof HaiperVideoGenCameraMovement];
+
 export type HaiperVideoGenInput = VideoGenInput & {
+  engine: 'haiper';
+} & {
   negativePrompt?: string | null;
   cameraMovement?: HaiperVideoGenCameraMovement;
   seed?: number;
@@ -462,34 +360,12 @@ export type HaiperVideoGenInput = VideoGenInput & {
   engine: 'haiper';
 };
 
-export type duration = 2 | 4 | 8;
-
-export const duration = {
-  _2: 2,
-  _4: 4,
-  _8: 8,
-} as const;
-
-export type resolution = 720 | 1080 | 2160;
-
-export const resolution = {
-  _720: 720,
-  _1080: 1080,
-  _2160: 2160,
-} as const;
-
-export type engine4 = 'haiper';
-
-export const engine4 = {
-  HAIPER: 'haiper',
-} as const;
-
-export type HaiperVideoGenModel = 'v1_5' | 'v2';
-
 export const HaiperVideoGenModel = {
   V1_5: 'v1_5',
   V2: 'v2',
 } as const;
+
+export type HaiperVideoGenModel = (typeof HaiperVideoGenModel)[keyof typeof HaiperVideoGenModel];
 
 export type HaiperVideoGenOutput = VideoGenOutput & {
   progress?: number | null;
@@ -497,13 +373,14 @@ export type HaiperVideoGenOutput = VideoGenOutput & {
   message?: string | null;
 };
 
-export type HumanoidImageMaskCategory = 'dresses' | 'upperBody' | 'lowerBody';
-
 export const HumanoidImageMaskCategory = {
   DRESSES: 'dresses',
   UPPER_BODY: 'upperBody',
   LOWER_BODY: 'lowerBody',
 } as const;
+
+export type HumanoidImageMaskCategory =
+  (typeof HumanoidImageMaskCategory)[keyof typeof HumanoidImageMaskCategory];
 
 export type HumanoidImageMaskInput = {
   imageUrl: string;
@@ -515,6 +392,8 @@ export type HumanoidImageMaskOutput = {
 };
 
 export type HunyuanVdeoGenInput = VideoGenInput & {
+  engine: 'hunyuan';
+} & {
   cfgScale?: number;
   frameRate?: number;
   duration?: number;
@@ -528,24 +407,14 @@ export type HunyuanVdeoGenInput = VideoGenInput & {
   engine: 'hunyuan';
 };
 
-export type engine5 = 'hunyuan';
-
-export const engine5 = {
-  HUNYUAN: 'hunyuan',
-} as const;
-
 export type ImageBlob = Blob & {
+  type: 'image';
+} & {
   width?: number | null;
   height?: number | null;
 } & {
   type: 'image';
 };
-
-export type type = 'image';
-
-export const type = {
-  IMAGE: 'image',
-} as const;
 
 export type ImageGenInput = {
   engine: string;
@@ -562,22 +431,20 @@ export type ImageGenOutput = {
  * Image Generation
  */
 export type ImageGenStep = WorkflowStep & {
+  $type: 'imageGen';
+} & {
   input: ImageGenInput;
   output?: ImageGenOutput;
 } & {
   $type: 'imageGen';
 };
 
-export type $type4 = 'imageGen';
-
-export const $type4 = {
-  IMAGE_GEN: 'imageGen',
-} as const;
-
 /**
  * Image Generation
  */
 export type ImageGenStepTemplate = WorkflowStepTemplate & {
+  $type: 'imageGen';
+} & {
   input: ImageGenInput;
 } & {
   $type: 'imageGen';
@@ -617,18 +484,15 @@ export type ImageJobNetworkParams = {
   type?: string | null;
 };
 
-export type ImageResouceTrainingModerationStatus =
-  | 'evaluating'
-  | 'underReview'
-  | 'approved'
-  | 'rejected';
-
 export const ImageResouceTrainingModerationStatus = {
   EVALUATING: 'evaluating',
   UNDER_REVIEW: 'underReview',
   APPROVED: 'approved',
   REJECTED: 'rejected',
 } as const;
+
+export type ImageResouceTrainingModerationStatus =
+  (typeof ImageResouceTrainingModerationStatus)[keyof typeof ImageResouceTrainingModerationStatus];
 
 /**
  * Input for an image resource training step.
@@ -686,31 +550,24 @@ export type ImageResourceTrainingOutput = {
  * LORA Training
  */
 export type ImageResourceTrainingStep = WorkflowStep & {
+  $type: 'imageResourceTraining';
+} & {
   input: ImageResourceTrainingInput;
   output?: ImageResourceTrainingOutput;
 } & {
   $type: 'imageResourceTraining';
 };
 
-export type $type5 = 'imageResourceTraining';
-
-export const $type5 = {
-  IMAGE_RESOURCE_TRAINING: 'imageResourceTraining',
-} as const;
-
 /**
  * LORA Training
  */
 export type ImageResourceTrainingStepTemplate = WorkflowStepTemplate & {
+  $type: 'imageResourceTraining';
+} & {
   input: ImageResourceTrainingInput;
 } & {
   $type: 'imageResourceTraining';
 };
-
-/**
- * Available image transformers.
- */
-export type ImageTransformer = 'canny' | 'depthZoe' | 'softedgePidinet' | 'rembg';
 
 /**
  * Available image transformers.
@@ -722,6 +579,11 @@ export const ImageTransformer = {
   REMBG: 'rembg',
 } as const;
 
+/**
+ * Available image transformers.
+ */
+export type ImageTransformer = (typeof ImageTransformer)[keyof typeof ImageTransformer];
+
 export type ImageUploadOutput = {
   blob: Blob;
 };
@@ -730,6 +592,8 @@ export type ImageUploadOutput = {
  * Image upload
  */
 export type ImageUploadStep = WorkflowStep & {
+  $type: 'imageUpload';
+} & {
   /**
    * The workflow's input.
    */
@@ -739,16 +603,12 @@ export type ImageUploadStep = WorkflowStep & {
   $type: 'imageUpload';
 };
 
-export type $type6 = 'imageUpload';
-
-export const $type6 = {
-  IMAGE_UPLOAD: 'imageUpload',
-} as const;
-
 /**
  * Image upload
  */
 export type ImageUploadStepTemplate = WorkflowStepTemplate & {
+  $type: 'imageUpload';
+} & {
   /**
    * Input for the ImageUploadStep step.
    */
@@ -767,27 +627,6 @@ export type Imagen4ImageGenInput = GoogleImageGenInput & {
   model: 'imagen4';
 };
 
-export type aspectRatio3 = '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
-
-export const aspectRatio3 = {
-  _1_1: '1:1',
-  _16_9: '16:9',
-  _9_16: '9:16',
-  _3_4: '3:4',
-  _4_3: '4:3',
-} as const;
-
-export type model4 = 'imagen4';
-
-export const model4 = {
-  IMAGEN4: 'imagen4',
-} as const;
-
-/**
- * Available levels of job support.
- */
-export type JobSupport = 'unsupported' | 'unavailable' | 'available';
-
 /**
  * Available levels of job support.
  */
@@ -796,6 +635,11 @@ export const JobSupport = {
   UNAVAILABLE: 'unavailable',
   AVAILABLE: 'available',
 } as const;
+
+/**
+ * Available levels of job support.
+ */
+export type JobSupport = (typeof JobSupport)[keyof typeof JobSupport];
 
 /**
  * Array of operations to perform
@@ -828,26 +672,9 @@ export type JsonPatchOperation = {
     | {
         [key: string]: unknown;
       }
-    | unknown[]
+    | Array<unknown>
     | null;
 };
-
-/**
- * The operation type. Allowed values: 'add', 'remove', 'replace', 'move', 'copy', 'test'.
- */
-export type op = 'add' | 'remove' | 'replace' | 'move' | 'copy' | 'test';
-
-/**
- * The operation type. Allowed values: 'add', 'remove', 'replace', 'move', 'copy', 'test'.
- */
-export const op = {
-  ADD: 'add',
-  REMOVE: 'remove',
-  REPLACE: 'replace',
-  MOVE: 'move',
-  COPY: 'copy',
-  TEST: 'test',
-} as const;
 
 export type KlingCameraControl = {
   config?: KlingCameraControlConfig;
@@ -880,14 +707,12 @@ export type KlingCameraControlConfig = {
   zoom?: number | null;
 };
 
-export type KlingMode = 'standard' | 'professional';
-
 export const KlingMode = {
   STANDARD: 'standard',
   PROFESSIONAL: 'professional',
 } as const;
 
-export type KlingModel = 'v1' | 'v1_5' | 'v1_6' | 'v2';
+export type KlingMode = (typeof KlingMode)[keyof typeof KlingMode];
 
 export const KlingModel = {
   V1: 'v1',
@@ -896,22 +721,28 @@ export const KlingModel = {
   V2: 'v2',
 } as const;
 
-export type KlingVideoGenAspectRatio = '16:9' | '9:16' | '1:1';
+export type KlingModel = (typeof KlingModel)[keyof typeof KlingModel];
 
 export const KlingVideoGenAspectRatio = {
-  _16_9: '16:9',
-  _9_16: '9:16',
-  _1_1: '1:1',
+  '16:9': '16:9',
+  '9:16': '9:16',
+  '1:1': '1:1',
 } as const;
 
-export type KlingVideoGenDuration = '5' | '10';
+export type KlingVideoGenAspectRatio =
+  (typeof KlingVideoGenAspectRatio)[keyof typeof KlingVideoGenAspectRatio];
 
 export const KlingVideoGenDuration = {
-  _5: '5',
-  _10: '10',
+  5: '5',
+  10: '10',
 } as const;
 
+export type KlingVideoGenDuration =
+  (typeof KlingVideoGenDuration)[keyof typeof KlingVideoGenDuration];
+
 export type KlingVideoGenInput = VideoGenInput & {
+  engine: 'kling';
+} & {
   model?: KlingModel;
   negativePrompt?: string | null;
   cfgScale?: number;
@@ -928,13 +759,9 @@ export type KlingVideoGenInput = VideoGenInput & {
   engine: 'kling';
 };
 
-export type engine6 = 'kling';
-
-export const engine6 = {
-  KLING: 'kling',
-} as const;
-
 export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
+  engine: 'kohya';
+} & {
   /**
    * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
    */
@@ -984,7 +811,7 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
-  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear' | null;
+  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear';
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
@@ -1025,38 +852,20 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   engine: 'kohya';
 };
 
-/**
- * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
- */
-export type lrScheduler = 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear';
-
-/**
- * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
- */
-export const lrScheduler = {
-  CONSTANT: 'constant',
-  COSINE: 'cosine',
-  COSINE_WITH_RESTARTS: 'cosine_with_restarts',
-  LINEAR: 'linear',
-} as const;
-
-export type engine7 = 'kohya';
-
-export const engine7 = {
-  KOHYA: 'kohya',
-} as const;
-
-export type LightricksAspectRatio = '1:1' | '16:9' | '9:16' | '3:2' | '2:3';
-
 export const LightricksAspectRatio = {
-  _1_1: '1:1',
-  _16_9: '16:9',
-  _9_16: '9:16',
-  _3_2: '3:2',
-  _2_3: '2:3',
+  '1:1': '1:1',
+  '16:9': '16:9',
+  '9:16': '9:16',
+  '3:2': '3:2',
+  '2:3': '2:3',
 } as const;
+
+export type LightricksAspectRatio =
+  (typeof LightricksAspectRatio)[keyof typeof LightricksAspectRatio];
 
 export type LightricksVideoGenInput = VideoGenInput & {
+  engine: 'lightricks';
+} & {
   negativePrompt?: string | null;
   cfgScale?: number;
   frameRate?: number;
@@ -1073,13 +882,9 @@ export type LightricksVideoGenInput = VideoGenInput & {
   engine: 'lightricks';
 };
 
-export type engine8 = 'lightricks';
-
-export const engine8 = {
-  LIGHTRICKS: 'lightricks',
-} as const;
-
 export type MiniMaxVideoGenInput = VideoGenInput & {
+  engine: 'minimax';
+} & {
   model?: MiniMaxVideoGenModel;
   enablePromptEnhancer?: boolean;
   /**
@@ -1090,32 +895,24 @@ export type MiniMaxVideoGenInput = VideoGenInput & {
   engine: 'minimax';
 };
 
-export type engine9 = 'minimax';
-
-export const engine9 = {
-  MINIMAX: 'minimax',
-} as const;
-
-export type MiniMaxVideoGenModel = 'hailou';
-
 export const MiniMaxVideoGenModel = {
   HAILOU: 'hailou',
 } as const;
 
+export type MiniMaxVideoGenModel = (typeof MiniMaxVideoGenModel)[keyof typeof MiniMaxVideoGenModel];
+
 export type MochiVideoGenInput = VideoGenInput & {
+  engine: 'mochi';
+} & {
   seed?: number;
   enablePromptEnhancer?: boolean;
 } & {
   engine: 'mochi';
 };
 
-export type engine10 = 'mochi';
-
-export const engine10 = {
-  MOCHI: 'mochi',
-} as const;
-
 export type MusubiImageResourceTrainingInput = ImageResourceTrainingInput & {
+  engine: 'musubi';
+} & {
   /**
    * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
    */
@@ -1143,7 +940,7 @@ export type MusubiImageResourceTrainingInput = ImageResourceTrainingInput & {
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
-  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear' | null;
+  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear';
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
@@ -1171,15 +968,7 @@ export type MusubiImageResourceTrainingInput = ImageResourceTrainingInput & {
   engine: 'musubi';
 };
 
-export type engine11 = 'musubi';
-
-export const engine11 = {
-  MUSUBI: 'musubi',
-} as const;
-
-export type NSFWLevel = 'pg' | 'pG13' | 'r' | 'x' | 'xxx' | 'na';
-
-export const NSFWLevel = {
+export const NsfwLevel = {
   PG: 'pg',
   P_G13: 'pG13',
   R: 'r',
@@ -1188,27 +977,15 @@ export const NSFWLevel = {
   NA: 'na',
 } as const;
 
-export type OpenAIDallE2CreateImageGenInput = OpenAIDallE2ImageGenInput & {
+export type NsfwLevel = (typeof NsfwLevel)[keyof typeof NsfwLevel];
+
+export type OpenAiDallE2CreateImageGenInput = OpenAiDallE2ImageGenInput & {
   background?: 'auto' | 'transparent' | 'opaque';
 } & {
   operation: 'createImage';
 };
 
-export type background = 'auto' | 'transparent' | 'opaque';
-
-export const background = {
-  AUTO: 'auto',
-  TRANSPARENT: 'transparent',
-  OPAQUE: 'opaque',
-} as const;
-
-export type operation = 'createImage';
-
-export const operation = {
-  CREATE_IMAGE: 'createImage',
-} as const;
-
-export type OpenAIDallE2EditImageInput = OpenAIDallE2ImageGenInput & {
+export type OpenAiDallE2EditImageInput = OpenAiDallE2ImageGenInput & {
   /**
    * Either A URL, A DataURL or a Base64 string
    */
@@ -1221,13 +998,7 @@ export type OpenAIDallE2EditImageInput = OpenAIDallE2ImageGenInput & {
   operation: 'editImage';
 };
 
-export type operation2 = 'editImage';
-
-export const operation2 = {
-  EDIT_IMAGE: 'editImage',
-} as const;
-
-export type OpenAIDallE2ImageGenInput = OpenApiImageGenInput & {
+export type OpenAiDallE2ImageGenInput = OpenApiImageGenInput & {
   operation: string;
   prompt: string;
   size: '256x256' | '512x512' | '1024x1024';
@@ -1236,27 +1007,13 @@ export type OpenAIDallE2ImageGenInput = OpenApiImageGenInput & {
   model: 'dall-e-2';
 };
 
-export type size = '256x256' | '512x512' | '1024x1024';
-
-export const size = {
-  _256X256: '256x256',
-  _512X512: '512x512',
-  _1024X1024: '1024x1024',
-} as const;
-
-export type model5 = 'dall-e-2';
-
-export const model5 = {
-  DALL_E_2: 'dall-e-2',
-} as const;
-
-export type OpenAIDallE3CreateImageGenInput = OpenAIDallE3ImageGenInput & {
+export type OpenAiDallE3CreateImageGenInput = OpenAiDallE3ImageGenInput & {
   background?: 'auto' | 'transparent' | 'opaque';
 } & {
   operation: 'createImage';
 };
 
-export type OpenAIDallE3ImageGenInput = OpenApiImageGenInput & {
+export type OpenAiDallE3ImageGenInput = OpenApiImageGenInput & {
   operation: string;
   prompt: string;
   size: '1024x1024' | '1792x1024' | '1024x1792';
@@ -1266,42 +1023,11 @@ export type OpenAIDallE3ImageGenInput = OpenApiImageGenInput & {
   model: 'dall-e-3';
 };
 
-export type size2 = '1024x1024' | '1792x1024' | '1024x1792';
-
-export const size2 = {
-  _1024X1024: '1024x1024',
-  _1792X1024: '1792x1024',
-  _1024X1792: '1024x1792',
-} as const;
-
-export type style = 'natural' | 'vivid';
-
-export const style = {
-  NATURAL: 'natural',
-  VIVID: 'vivid',
-} as const;
-
-export type quality = 'auto' | 'hd' | 'standard';
-
-export const quality = {
-  AUTO: 'auto',
-  HD: 'hd',
-  STANDARD: 'standard',
-} as const;
-
-export type model6 = 'dall-e-3';
-
-export const model6 = {
-  DALL_E_3: 'dall-e-3',
-} as const;
-
-export type OpenAIGpt1CreateImageInput = OpenAIGpt1ImageGenInput & {
-  [key: string]: unknown;
-} & {
+export type OpenAiGpt1CreateImageInput = OpenAiGpt1ImageGenInput & {} & {
   operation: 'createImage';
 };
 
-export type OpenAIGpt1EditImageInput = OpenAIGpt1ImageGenInput & {
+export type OpenAiGpt1EditImageInput = OpenAiGpt1ImageGenInput & {
   images: Array<string>;
   /**
    * Either A URL, A DataURL or a Base64 string
@@ -1311,57 +1037,25 @@ export type OpenAIGpt1EditImageInput = OpenAIGpt1ImageGenInput & {
   operation: 'editImage';
 };
 
-export type OpenAIGpt1ImageGenInput = OpenApiImageGenInput & {
+export type OpenAiGpt1ImageGenInput = OpenApiImageGenInput & {
   operation: string;
   prompt: string;
   size?: '1024x1024' | '1536x1024' | '1024x1536';
   quantity?: number;
   background?: 'auto' | 'transparent' | 'opaque';
-  quality?: 'auto' | 'high' | 'medium' | 'low' | null;
+  quality?: 'auto' | 'high' | 'medium' | 'low';
 } & {
   model: 'gpt-image-1';
 };
 
-export type size3 = '1024x1024' | '1536x1024' | '1024x1536';
-
-export const size3 = {
-  _1024X1024: '1024x1024',
-  _1536X1024: '1536x1024',
-  _1024X1536: '1024x1536',
-} as const;
-
-export type quality2 = 'auto' | 'high' | 'medium' | 'low';
-
-export const quality2 = {
-  AUTO: 'auto',
-  HIGH: 'high',
-  MEDIUM: 'medium',
-  LOW: 'low',
-} as const;
-
-export type model7 = 'gpt-image-1';
-
-export const model7 = {
-  GPT_IMAGE_1: 'gpt-image-1',
-} as const;
-
 export type OpenApiImageGenInput = ImageGenInput & {
+  engine: 'openai';
+} & {
   model: string;
   prompt: string;
 } & {
   engine: 'openai';
 };
-
-export type engine12 = 'openai';
-
-export const engine12 = {
-  OPENAI: 'openai',
-} as const;
-
-/**
- * Available options for priority.
- */
-export type Priority = 'high' | 'normal' | 'low';
 
 /**
  * Available options for priority.
@@ -1372,13 +1066,25 @@ export const Priority = {
   LOW: 'low',
 } as const;
 
+/**
+ * Available options for priority.
+ */
+export type Priority = (typeof Priority)[keyof typeof Priority];
+
 export type ProblemDetails = {
   type?: string | null;
   title?: string | null;
   status?: number | null;
   detail?: string | null;
   instance?: string | null;
-  '[key: string]': (unknown | string | number) | undefined;
+  [key: string]:
+    | unknown
+    | (string | null)
+    | (string | null)
+    | (number | null)
+    | (string | null)
+    | (string | null)
+    | undefined;
 };
 
 /**
@@ -1463,36 +1169,6 @@ export type ResourceInfo = {
 /**
  * The available options for schedulers used in image generation.
  */
-export type Scheduler =
-  | 'eulerA'
-  | 'euler'
-  | 'lms'
-  | 'heun'
-  | 'dpM2'
-  | 'dpM2A'
-  | 'dpM2SA'
-  | 'dpM2M'
-  | 'dpmsde'
-  | 'dpmFast'
-  | 'dpmAdaptive'
-  | 'lmsKarras'
-  | 'dpM2Karras'
-  | 'dpM2AKarras'
-  | 'dpM2SAKarras'
-  | 'dpM2MKarras'
-  | 'dpmsdeKarras'
-  | 'ddim'
-  | 'plms'
-  | 'uniPC'
-  | 'undefined'
-  | 'lcm'
-  | 'ddpm'
-  | 'deis'
-  | 'dpM3MSDE';
-
-/**
- * The available options for schedulers used in image generation.
- */
 export const Scheduler = {
   EULER_A: 'eulerA',
   EULER: 'euler',
@@ -1506,10 +1182,10 @@ export const Scheduler = {
   DPM_FAST: 'dpmFast',
   DPM_ADAPTIVE: 'dpmAdaptive',
   LMS_KARRAS: 'lmsKarras',
-  DP_M2KARRAS: 'dpM2Karras',
-  DP_M2AKARRAS: 'dpM2AKarras',
-  DP_M2SAKARRAS: 'dpM2SAKarras',
-  DP_M2MKARRAS: 'dpM2MKarras',
+  DP_M2_KARRAS: 'dpM2Karras',
+  DP_M2A_KARRAS: 'dpM2AKarras',
+  DP_M2SA_KARRAS: 'dpM2SAKarras',
+  DP_M2M_KARRAS: 'dpM2MKarras',
   DPMSDE_KARRAS: 'dpmsdeKarras',
   DDIM: 'ddim',
   PLMS: 'plms',
@@ -1520,6 +1196,11 @@ export const Scheduler = {
   DEIS: 'deis',
   DP_M3MSDE: 'dpM3MSDE',
 } as const;
+
+/**
+ * The available options for schedulers used in image generation.
+ */
+export type Scheduler = (typeof Scheduler)[keyof typeof Scheduler];
 
 /**
  * Input for an text to image step.
@@ -1604,22 +1285,20 @@ export type TextToImageOutput = {
  * TextToImage
  */
 export type TextToImageStep = WorkflowStep & {
+  $type: 'textToImage';
+} & {
   input: TextToImageInput;
   output?: TextToImageOutput;
 } & {
   $type: 'textToImage';
 };
 
-export type $type7 = 'textToImage';
-
-export const $type7 = {
-  TEXT_TO_IMAGE: 'textToImage',
-} as const;
-
 /**
  * TextToImage
  */
 export type TextToImageStepTemplate = WorkflowStepTemplate & {
+  $type: 'textToImage';
+} & {
   input: TextToImageInput;
 } & {
   $type: 'textToImage';
@@ -1648,12 +1327,12 @@ export type TransactionSummary = {
   list?: Array<TransactionInfo>;
 };
 
-export type TransactionType = 'debit' | 'credit';
-
 export const TransactionType = {
   DEBIT: 'debit',
   CREDIT: 'credit',
 } as const;
+
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
 export type TranscodeInput = {
   sourceUrl: string;
@@ -1689,17 +1368,13 @@ export type TranscodeOutput = {
  * Transcoding
  */
 export type TranscodeStep = WorkflowStep & {
+  $type: 'transcode';
+} & {
   input: TranscodeInput;
   output?: TranscodeOutput;
 } & {
   $type: 'transcode';
 };
-
-export type $type8 = 'transcode';
-
-export const $type8 = {
-  TRANSCODE: 'transcode',
-} as const;
 
 export type TryOnUInput = {
   subjectUrl: string;
@@ -1737,14 +1412,14 @@ export type UpdateWorkflowRequest = {
 /**
  * Available statuses for updating workflows.
  */
-export type UpdateWorkflowStatus = 'canceled';
+export const UpdateWorkflowStatus = {
+  CANCELED: 'canceled',
+} as const;
 
 /**
  * Available statuses for updating workflows.
  */
-export const UpdateWorkflowStatus = {
-  CANCELED: 'canceled',
-} as const;
+export type UpdateWorkflowStatus = (typeof UpdateWorkflowStatus)[keyof typeof UpdateWorkflowStatus];
 
 export type UpdateWorkflowStepRequest = {
   /**
@@ -1764,22 +1439,34 @@ export type ValidationProblemDetails = {
   errors?: {
     [key: string]: Array<string>;
   };
-  '[key: string]': (unknown | string | number) | undefined;
+  [key: string]:
+    | unknown
+    | (string | null)
+    | (string | null)
+    | (number | null)
+    | (string | null)
+    | (string | null)
+    | {
+        [key: string]: Array<string>;
+      }
+    | undefined;
 };
 
 export type ValueTupleOfStringAndInt32 = {
-  [key: string]: unknown;
+  [key: string]: never;
 };
 
-export type Veo3AspectRatio = '16:9' | '9:16' | '1:1';
-
 export const Veo3AspectRatio = {
-  _16_9: '16:9',
-  _9_16: '9:16',
-  _1_1: '1:1',
+  '16:9': '16:9',
+  '9:16': '9:16',
+  '1:1': '1:1',
 } as const;
 
+export type Veo3AspectRatio = (typeof Veo3AspectRatio)[keyof typeof Veo3AspectRatio];
+
 export type Veo3VideoGenInput = VideoGenInput & {
+  engine: 'veo3';
+} & {
   negativePrompt?: string | null;
   enablePromptEnhancer?: boolean;
   aspectRatio?: Veo3AspectRatio;
@@ -1792,24 +1479,14 @@ export type Veo3VideoGenInput = VideoGenInput & {
   engine: 'veo3';
 };
 
-export type engine13 = 'veo3';
-
-export const engine13 = {
-  VEO3: 'veo3',
-} as const;
-
 export type VideoBlob = Blob & {
+  type: 'video';
+} & {
   width?: number | null;
   height?: number | null;
 } & {
   type: 'video';
 };
-
-export type type2 = 'video';
-
-export const type2 = {
-  VIDEO: 'video',
-} as const;
 
 export type VideoEnhancementInput = {
   sourceUrl: string;
@@ -1835,22 +1512,20 @@ export type VideoEnhancementOutput = {
  * Upscale videos and/or interpolate frames
  */
 export type VideoEnhancementStep = WorkflowStep & {
+  $type: 'videoEnhancement';
+} & {
   input: VideoEnhancementInput;
   output?: VideoEnhancementOutput;
 } & {
   $type: 'videoEnhancement';
 };
 
-export type $type9 = 'videoEnhancement';
-
-export const $type9 = {
-  VIDEO_ENHANCEMENT: 'videoEnhancement',
-} as const;
-
 /**
  * Upscale videos and/or interpolate frames
  */
 export type VideoEnhancementStepTemplate = WorkflowStepTemplate & {
+  $type: 'videoEnhancement';
+} & {
   input: VideoEnhancementInput;
 } & {
   $type: 'videoEnhancement';
@@ -1874,28 +1549,28 @@ export type VideoGenOutput = {
  * Video generation
  */
 export type VideoGenStep = WorkflowStep & {
+  $type: 'videoGen';
+} & {
   input: VideoGenInput;
   output?: VideoGenOutput;
 } & {
   $type: 'videoGen';
 };
 
-export type $type10 = 'videoGen';
-
-export const $type10 = {
-  VIDEO_GEN: 'videoGen',
-} as const;
-
 /**
  * Video generation
  */
 export type VideoGenStepTemplate = WorkflowStepTemplate & {
+  $type: 'videoGen';
+} & {
   input: VideoGenInput;
 } & {
   $type: 'videoGen';
 };
 
 export type ViduVideoGenInput = VideoGenInput & {
+  engine: 'vidu';
+} & {
   enablePromptEnhancer?: boolean;
   seed?: number | null;
   /**
@@ -1909,51 +1584,31 @@ export type ViduVideoGenInput = VideoGenInput & {
    */
   endSourceImage?: string | null;
   model?: ViduVideoGenModel;
-  aspectRatio?: '16:9' | '9:16' | '1:1' | null;
-  movementAmplitude?: 'auto' | 'small' | 'medium' | 'large' | null;
+  aspectRatio?: '16:9' | '9:16' | '1:1';
+  movementAmplitude?: 'auto' | 'small' | 'medium' | 'large';
   images?: Array<string>;
   enableBackgroundMusic?: boolean;
 } & {
   engine: 'vidu';
 };
 
-export type duration2 = 4 | 8;
-
-export const duration2 = {
-  _4: 4,
-  _8: 8,
-} as const;
-
-export type movementAmplitude = 'auto' | 'small' | 'medium' | 'large';
-
-export const movementAmplitude = {
-  AUTO: 'auto',
-  SMALL: 'small',
-  MEDIUM: 'medium',
-  LARGE: 'large',
-} as const;
-
-export type engine14 = 'vidu';
-
-export const engine14 = {
-  VIDU: 'vidu',
-} as const;
-
-export type ViduVideoGenModel = 'default' | 'q1';
-
 export const ViduVideoGenModel = {
   DEFAULT: 'default',
   Q1: 'q1',
 } as const;
 
-export type ViduVideoGenStyle = 'general' | 'anime';
+export type ViduVideoGenModel = (typeof ViduVideoGenModel)[keyof typeof ViduVideoGenModel];
 
 export const ViduVideoGenStyle = {
   GENERAL: 'general',
   ANIME: 'anime',
 } as const;
 
+export type ViduVideoGenStyle = (typeof ViduVideoGenStyle)[keyof typeof ViduVideoGenStyle];
+
 export type WanVideoGenInput = VideoGenInput & {
+  engine: 'wan';
+} & {
   provider: string;
   /**
    * Either A URL, A DataURL or a Base64 string
@@ -1969,18 +1624,6 @@ export type WanVideoGenInput = VideoGenInput & {
   provider: 'wan';
   engine: 'wan';
 };
-
-export type provider3 = 'wan';
-
-export const provider3 = {
-  WAN: 'wan',
-} as const;
-
-export type engine15 = 'wan';
-
-export const engine15 = {
-  WAN: 'wan',
-} as const;
 
 /**
  * Details of a workflow.
@@ -2030,7 +1673,7 @@ export type Workflow = {
   callbacks?: Array<WorkflowCallback>;
   tips?: WorkflowTips;
   cost?: WorkflowCost;
-  nsfwLevel?: NSFWLevel;
+  nsfwLevel?: NsfwLevel;
   /**
    * Get or set whether this workflow is experimental
    */
@@ -2130,19 +1773,6 @@ export type WorkflowEvent = {
 /**
  * Values available to represent workflow status.
  */
-export type WorkflowStatus =
-  | 'unassigned'
-  | 'preparing'
-  | 'scheduled'
-  | 'processing'
-  | 'succeeded'
-  | 'failed'
-  | 'expired'
-  | 'canceled';
-
-/**
- * Values available to represent workflow status.
- */
 export const WorkflowStatus = {
   UNASSIGNED: 'unassigned',
   PREPARING: 'preparing',
@@ -2153,6 +1783,11 @@ export const WorkflowStatus = {
   EXPIRED: 'expired',
   CANCELED: 'canceled',
 } as const;
+
+/**
+ * Values available to represent workflow status.
+ */
+export type WorkflowStatus = (typeof WorkflowStatus)[keyof typeof WorkflowStatus];
 
 /**
  * Details of a workflow step.
@@ -2340,7 +1975,7 @@ export type WorkflowTemplate = {
   arguments?: {
     [key: string]: unknown;
   } | null;
-  nsfwLevel?: NSFWLevel;
+  nsfwLevel?: NsfwLevel;
   /**
    * Get or set whether this workflow is experimental
    */
@@ -2359,6 +1994,7 @@ export type WorkflowTips = {
 };
 
 export type GetBlobData = {
+  body?: never;
   path: {
     /**
      * The blob ID to retrieve.
@@ -2369,109 +2005,335 @@ export type GetBlobData = {
     /**
      * A maximum nsfw level. If this is specified and the blob does not have a NSFW level specified or the NSFW level exceeds our max then we'll return an error
      */
-    nsfwLevel?: NSFWLevel;
+    nsfwLevel?: NsfwLevel;
   };
+  url: '/v2/consumer/blobs/{blobId}';
 };
 
+export type GetBlobErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type GetBlobError = GetBlobErrors[keyof GetBlobErrors];
+
 export type HeadBlobData = {
+  body?: never;
   path: {
     /**
      * Identifies the specific blob to check for existence and NSFW level.
      */
     blobId: string;
   };
+  query?: never;
+  url: '/v2/consumer/blobs/{blobId}';
 };
 
-export type HeadBlobResponse = void;
+export type HeadBlobErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
 
-export type HeadBlobError = ProblemDetails;
+export type HeadBlobError = HeadBlobErrors[keyof HeadBlobErrors];
+
+export type HeadBlobResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type HeadBlobResponse = HeadBlobResponses[keyof HeadBlobResponses];
 
 export type InvokeAgeClassificationStepTemplateData = {
   body?: AgeClassificationInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/ageClassification';
 };
 
-export type InvokeAgeClassificationStepTemplateResponse = AgeClassificationOutput;
+export type InvokeAgeClassificationStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeAgeClassificationStepTemplateError = ProblemDetails;
+export type InvokeAgeClassificationStepTemplateError =
+  InvokeAgeClassificationStepTemplateErrors[keyof InvokeAgeClassificationStepTemplateErrors];
+
+export type InvokeAgeClassificationStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: AgeClassificationOutput;
+};
+
+export type InvokeAgeClassificationStepTemplateResponse =
+  InvokeAgeClassificationStepTemplateResponses[keyof InvokeAgeClassificationStepTemplateResponses];
 
 export type InvokeComfyStepTemplateData = {
   body?: ComfyInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/comfy';
 };
 
-export type InvokeComfyStepTemplateResponse = ComfyOutput;
+export type InvokeComfyStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeComfyStepTemplateError = ProblemDetails;
+export type InvokeComfyStepTemplateError =
+  InvokeComfyStepTemplateErrors[keyof InvokeComfyStepTemplateErrors];
+
+export type InvokeComfyStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ComfyOutput;
+};
+
+export type InvokeComfyStepTemplateResponse =
+  InvokeComfyStepTemplateResponses[keyof InvokeComfyStepTemplateResponses];
 
 export type InvokeEchoStepTemplateData = {
   body?: EchoInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/echo';
 };
 
-export type InvokeEchoStepTemplateResponse = EchoOutput;
+export type InvokeEchoStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeEchoStepTemplateError = ProblemDetails;
+export type InvokeEchoStepTemplateError =
+  InvokeEchoStepTemplateErrors[keyof InvokeEchoStepTemplateErrors];
+
+export type InvokeEchoStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: EchoOutput;
+};
+
+export type InvokeEchoStepTemplateResponse =
+  InvokeEchoStepTemplateResponses[keyof InvokeEchoStepTemplateResponses];
 
 export type InvokeImageGenStepTemplateData = {
   body?: ImageGenInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/imageGen';
 };
 
-export type InvokeImageGenStepTemplateResponse = ImageGenOutput;
+export type InvokeImageGenStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeImageGenStepTemplateError = ProblemDetails;
+export type InvokeImageGenStepTemplateError =
+  InvokeImageGenStepTemplateErrors[keyof InvokeImageGenStepTemplateErrors];
+
+export type InvokeImageGenStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ImageGenOutput;
+};
+
+export type InvokeImageGenStepTemplateResponse =
+  InvokeImageGenStepTemplateResponses[keyof InvokeImageGenStepTemplateResponses];
 
 export type InvokeImageResourceTrainingStepTemplateData = {
   body?: ImageResourceTrainingInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/imageResourceTraining';
 };
 
-export type InvokeImageResourceTrainingStepTemplateResponse = ImageResourceTrainingOutput;
+export type InvokeImageResourceTrainingStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeImageResourceTrainingStepTemplateError = ProblemDetails;
+export type InvokeImageResourceTrainingStepTemplateError =
+  InvokeImageResourceTrainingStepTemplateErrors[keyof InvokeImageResourceTrainingStepTemplateErrors];
+
+export type InvokeImageResourceTrainingStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ImageResourceTrainingOutput;
+};
+
+export type InvokeImageResourceTrainingStepTemplateResponse =
+  InvokeImageResourceTrainingStepTemplateResponses[keyof InvokeImageResourceTrainingStepTemplateResponses];
 
 export type InvokeImageUploadStepTemplateData = {
   body?: string;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/imageUpload';
 };
 
-export type InvokeImageUploadStepTemplateResponse = ImageUploadOutput;
+export type InvokeImageUploadStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeImageUploadStepTemplateError = ProblemDetails;
+export type InvokeImageUploadStepTemplateError =
+  InvokeImageUploadStepTemplateErrors[keyof InvokeImageUploadStepTemplateErrors];
+
+export type InvokeImageUploadStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ImageUploadOutput;
+};
+
+export type InvokeImageUploadStepTemplateResponse =
+  InvokeImageUploadStepTemplateResponses[keyof InvokeImageUploadStepTemplateResponses];
 
 export type InvokeTextToImageStepTemplateData = {
   body?: TextToImageInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/textToImage';
 };
 
-export type InvokeTextToImageStepTemplateResponse = TextToImageOutput;
+export type InvokeTextToImageStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeTextToImageStepTemplateError = ProblemDetails;
+export type InvokeTextToImageStepTemplateError =
+  InvokeTextToImageStepTemplateErrors[keyof InvokeTextToImageStepTemplateErrors];
+
+export type InvokeTextToImageStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: TextToImageOutput;
+};
+
+export type InvokeTextToImageStepTemplateResponse =
+  InvokeTextToImageStepTemplateResponses[keyof InvokeTextToImageStepTemplateResponses];
 
 export type InvokeVideoEnhancementStepTemplateData = {
   body?: VideoEnhancementInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/videoEnhancement';
 };
 
-export type InvokeVideoEnhancementStepTemplateResponse = VideoEnhancementOutput;
+export type InvokeVideoEnhancementStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
 
-export type InvokeVideoEnhancementStepTemplateError = ProblemDetails;
+export type InvokeVideoEnhancementStepTemplateError =
+  InvokeVideoEnhancementStepTemplateErrors[keyof InvokeVideoEnhancementStepTemplateErrors];
+
+export type InvokeVideoEnhancementStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: VideoEnhancementOutput;
+};
+
+export type InvokeVideoEnhancementStepTemplateResponse =
+  InvokeVideoEnhancementStepTemplateResponses[keyof InvokeVideoEnhancementStepTemplateResponses];
 
 export type InvokeVideoGenStepTemplateData = {
   body?: VideoGenInput;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/recipes/videoGen';
 };
 
-export type InvokeVideoGenStepTemplateResponse = VideoGenOutput;
-
-export type InvokeVideoGenStepTemplateError = ProblemDetails;
-
-export type GetResourceData = {
-  path: {
-    /**
-     * A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.
-     */
-    air: string;
-  };
+export type InvokeVideoGenStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
 };
 
-export type GetResourceResponse = ResourceInfo;
+export type InvokeVideoGenStepTemplateError =
+  InvokeVideoGenStepTemplateErrors[keyof InvokeVideoGenStepTemplateErrors];
 
-export type GetResourceError = ProblemDetails;
+export type InvokeVideoGenStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: VideoGenOutput;
+};
+
+export type InvokeVideoGenStepTemplateResponse =
+  InvokeVideoGenStepTemplateResponses[keyof InvokeVideoGenStepTemplateResponses];
 
 export type InvalidateResourceData = {
+  body?: never;
   path: {
     /**
      * A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.
@@ -2479,20 +2341,123 @@ export type InvalidateResourceData = {
     air: string;
   };
   query?: {
-    etag?: string;
     /**
      * One or more userIds to invalidate early access for
      */
     userId?: Array<number>;
+    etag?: string;
   };
+  url: '/v2/resources/{air}';
 };
 
-export type InvalidateResourceResponse = void;
+export type InvalidateResourceErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+};
 
-export type InvalidateResourceError = ProblemDetails;
+export type InvalidateResourceError = InvalidateResourceErrors[keyof InvalidateResourceErrors];
+
+export type InvalidateResourceResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type InvalidateResourceResponse =
+  InvalidateResourceResponses[keyof InvalidateResourceResponses];
+
+export type GetResourceData = {
+  body?: never;
+  path: {
+    /**
+     * A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.
+     */
+    air: string;
+  };
+  query?: never;
+  url: '/v2/resources/{air}';
+};
+
+export type GetResourceErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetResourceError = GetResourceErrors[keyof GetResourceErrors];
+
+export type GetResourceResponses = {
+  /**
+   * OK
+   */
+  200: ResourceInfo;
+};
+
+export type GetResourceResponse = GetResourceResponses[keyof GetResourceResponses];
+
+export type QueryWorkflowsData = {
+  body?: never;
+  headers?: {
+    /**
+     * Specify 'application/zip' to get the response as a zip file
+     */
+    Accept?: string;
+  };
+  path?: never;
+  query?: {
+    /**
+     * An optional cursor to continue querying workflows from a previous query.
+     */
+    cursor?: string;
+    /**
+     * How many workflows to return
+     */
+    take?: number;
+    /**
+     * An optional list of tags to query by
+     */
+    tags?: Array<string>;
+    /**
+     * An optional additional query that is used to match workflows through metadata
+     */
+    query?: string;
+    /**
+     * Whether to return data from oldest to newest
+     */
+    ascending?: boolean;
+  };
+  url: '/v2/consumer/workflows';
+};
+
+export type QueryWorkflowsErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type QueryWorkflowsError = QueryWorkflowsErrors[keyof QueryWorkflowsErrors];
+
+export type QueryWorkflowsResponses = {
+  /**
+   * OK
+   */
+  200: CursedArrayOfTelemetryCursorAndWorkflow;
+};
+
+export type QueryWorkflowsResponse = QueryWorkflowsResponses[keyof QueryWorkflowsResponses];
 
 export type SubmitWorkflowData = {
   body?: WorkflowTemplate;
+  path?: never;
   query?: {
     /**
      * Whether to wait for the workflow to complete before returning or to return immediately
@@ -2505,48 +2470,79 @@ export type SubmitWorkflowData = {
      */
     whatif?: boolean;
   };
+  url: '/v2/consumer/workflows';
 };
 
-export type SubmitWorkflowResponse = Workflow;
-
-export type SubmitWorkflowError = ProblemDetails & string;
-
-export type QueryWorkflowsData = {
-  headers?: {
-    /**
-     * Specify 'application/zip' to get the response as a zip file
-     */
-    Accept?: string;
-  };
-  query?: {
-    /**
-     * Whether to return data from oldest to newest
-     */
-    ascending?: boolean;
-    /**
-     * An optional cursor to continue querying workflows from a previous query.
-     */
-    cursor?: string;
-    /**
-     * An optional additional query that is used to match workflows through metadata
-     */
-    query?: string;
-    /**
-     * An optional list of tags to query by
-     */
-    tags?: Array<string>;
-    /**
-     * How many workflows to return
-     */
-    take?: number;
-  };
+export type SubmitWorkflowErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: string;
+  /**
+   * Too Many Requests
+   */
+  429: ProblemDetails;
 };
 
-export type QueryWorkflowsResponse = CursedArrayOfTelemetryCursorAndWorkflow;
+export type SubmitWorkflowError = SubmitWorkflowErrors[keyof SubmitWorkflowErrors];
 
-export type QueryWorkflowsError = ProblemDetails;
+export type SubmitWorkflowResponses = {
+  /**
+   * OK
+   */
+  200: Workflow;
+  /**
+   * Accepted
+   */
+  202: Workflow;
+};
+
+export type SubmitWorkflowResponse = SubmitWorkflowResponses[keyof SubmitWorkflowResponses];
+
+export type DeleteWorkflowData = {
+  body?: never;
+  path: {
+    /**
+     * The ID of the workflow to delete.
+     */
+    workflowId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}';
+};
+
+export type DeleteWorkflowErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type DeleteWorkflowError = DeleteWorkflowErrors[keyof DeleteWorkflowErrors];
+
+export type DeleteWorkflowResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type DeleteWorkflowResponse = DeleteWorkflowResponses[keyof DeleteWorkflowResponses];
 
 export type GetWorkflowData = {
+  body?: never;
   path: {
     /**
      * The ID of the workflow to get status for
@@ -2561,28 +2557,30 @@ export type GetWorkflowData = {
      */
     wait?: boolean;
   };
+  url: '/v2/consumer/workflows/{workflowId}';
 };
 
-export type GetWorkflowResponse = Workflow;
-
-export type GetWorkflowError = ProblemDetails;
-
-export type UpdateWorkflowData = {
+export type GetWorkflowErrors = {
   /**
-   * The details to update on the workflow.
+   * Unauthorized
    */
-  body?: UpdateWorkflowRequest;
-  path: {
-    /**
-     * The ID of the worfklow to update.
-     */
-    workflowId: string;
-  };
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
 };
 
-export type UpdateWorkflowResponse = void;
+export type GetWorkflowError = GetWorkflowErrors[keyof GetWorkflowErrors];
 
-export type UpdateWorkflowError = ProblemDetails;
+export type GetWorkflowResponses = {
+  /**
+   * OK
+   */
+  200: Workflow;
+};
+
+export type GetWorkflowResponse = GetWorkflowResponses[keyof GetWorkflowResponses];
 
 export type PatchWorkflowData = {
   /**
@@ -2595,24 +2593,112 @@ export type PatchWorkflowData = {
      */
     workflowId: string;
   };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}';
 };
 
-export type PatchWorkflowResponse = void;
+export type PatchWorkflowErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
 
-export type PatchWorkflowError = ProblemDetails;
+export type PatchWorkflowError = PatchWorkflowErrors[keyof PatchWorkflowErrors];
 
-export type DeleteWorkflowData = {
+export type PatchWorkflowResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type PatchWorkflowResponse = PatchWorkflowResponses[keyof PatchWorkflowResponses];
+
+export type UpdateWorkflowData = {
+  /**
+   * The details to update on the workflow.
+   */
+  body?: UpdateWorkflowRequest;
   path: {
     /**
-     * The ID of the workflow to delete.
+     * The ID of the worfklow to update.
      */
     workflowId: string;
   };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}';
 };
 
-export type DeleteWorkflowResponse = void;
+export type UpdateWorkflowErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
 
-export type DeleteWorkflowError = ProblemDetails;
+export type UpdateWorkflowError = UpdateWorkflowErrors[keyof UpdateWorkflowErrors];
+
+export type UpdateWorkflowResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type UpdateWorkflowResponse = UpdateWorkflowResponses[keyof UpdateWorkflowResponses];
+
+export type RemoveAllWorkflowTagsData = {
+  body?: never;
+  path: {
+    /**
+     * The ID of the worfklow to update.
+     */
+    workflowId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}/tags';
+};
+
+export type RemoveAllWorkflowTagsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type RemoveAllWorkflowTagsError =
+  RemoveAllWorkflowTagsErrors[keyof RemoveAllWorkflowTagsErrors];
+
+export type RemoveAllWorkflowTagsResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type RemoveAllWorkflowTagsResponse =
+  RemoveAllWorkflowTagsResponses[keyof RemoveAllWorkflowTagsResponses];
 
 export type AddWorkflowTagData = {
   /**
@@ -2625,58 +2711,149 @@ export type AddWorkflowTagData = {
      */
     workflowId: string;
   };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}/tags';
 };
 
-export type AddWorkflowTagResponse = void;
+export type AddWorkflowTagErrors = {
+  /**
+   * Bad Request
+   */
+  400: ValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
 
-export type AddWorkflowTagError = ValidationProblemDetails & ProblemDetails;
+export type AddWorkflowTagError = AddWorkflowTagErrors[keyof AddWorkflowTagErrors];
 
-export type RemoveAllWorkflowTagsData = {
+export type AddWorkflowTagResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type AddWorkflowTagResponse = AddWorkflowTagResponses[keyof AddWorkflowTagResponses];
+
+export type RemoveWorkflowTagData = {
+  body?: never;
   path: {
     /**
      * The ID of the worfklow to update.
      */
     workflowId: string;
-  };
-};
-
-export type RemoveAllWorkflowTagsResponse = void;
-
-export type RemoveAllWorkflowTagsError = ValidationProblemDetails & ProblemDetails;
-
-export type RemoveWorkflowTagData = {
-  path: {
     /**
      * The the tag to remove from the workflow.
      */
     tag: string;
-    /**
-     * The ID of the worfklow to update.
-     */
-    workflowId: string;
   };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}/tags/{tag}';
 };
 
-export type RemoveWorkflowTagResponse = void;
+export type RemoveWorkflowTagErrors = {
+  /**
+   * Bad Request
+   */
+  400: ValidationProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
 
-export type RemoveWorkflowTagError = ValidationProblemDetails & ProblemDetails;
+export type RemoveWorkflowTagError = RemoveWorkflowTagErrors[keyof RemoveWorkflowTagErrors];
+
+export type RemoveWorkflowTagResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type RemoveWorkflowTagResponse =
+  RemoveWorkflowTagResponses[keyof RemoveWorkflowTagResponses];
 
 export type GetWorkflowStepData = {
+  body?: never;
   path: {
-    /**
-     * The name of the step within the workflow to get status for
-     */
-    stepName: string;
     /**
      * The id of the workflow to get status for
      */
     workflowId: string;
+    /**
+     * The name of the step within the workflow to get status for
+     */
+    stepName: string;
   };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}/steps/{stepName}';
 };
 
-export type GetWorkflowStepResponse = WorkflowStep;
+export type GetWorkflowStepErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
 
-export type GetWorkflowStepError = ProblemDetails;
+export type GetWorkflowStepError = GetWorkflowStepErrors[keyof GetWorkflowStepErrors];
+
+export type GetWorkflowStepResponses = {
+  /**
+   * OK
+   */
+  200: WorkflowStep;
+};
+
+export type GetWorkflowStepResponse = GetWorkflowStepResponses[keyof GetWorkflowStepResponses];
+
+export type PatchWorkflowStepData = {
+  body?: JsonPatchDocument;
+  path: {
+    workflowId: string;
+    stepName: string;
+  };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}/steps/{stepName}';
+};
+
+export type PatchWorkflowStepErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type PatchWorkflowStepError = PatchWorkflowStepErrors[keyof PatchWorkflowStepErrors];
+
+export type PatchWorkflowStepResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type PatchWorkflowStepResponse =
+  PatchWorkflowStepResponses[keyof PatchWorkflowStepResponses];
 
 export type UpdateWorkflowStepData = {
   /**
@@ -2685,500 +2862,45 @@ export type UpdateWorkflowStepData = {
   body?: UpdateWorkflowStepRequest;
   path: {
     /**
-     * The name of the step to update.
-     */
-    stepName: string;
-    /**
      * The id of the workflow to update.
      */
     workflowId: string;
-  };
-};
-
-export type UpdateWorkflowStepResponse = void;
-
-export type UpdateWorkflowStepError = ProblemDetails;
-
-export type PatchWorkflowStepData = {
-  body?: JsonPatchDocument;
-  path: {
+    /**
+     * The name of the step to update.
+     */
     stepName: string;
-    workflowId: string;
   };
+  query?: never;
+  url: '/v2/consumer/workflows/{workflowId}/steps/{stepName}';
 };
 
-export type PatchWorkflowStepResponse = void;
+export type UpdateWorkflowStepErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
 
-export type PatchWorkflowStepError = ProblemDetails;
+export type UpdateWorkflowStepError = UpdateWorkflowStepErrors[keyof UpdateWorkflowStepErrors];
 
-export type $OpenApiTs = {
-  '/v2/consumer/blobs/{blobId}': {
-    get: {
-      req: GetBlobData;
-      res: {
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-    head: {
-      req: HeadBlobData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/ageClassification': {
-    post: {
-      req: InvokeAgeClassificationStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': AgeClassificationOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/comfy': {
-    post: {
-      req: InvokeComfyStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': ComfyOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/echo': {
-    post: {
-      req: InvokeEchoStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': EchoOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/imageGen': {
-    post: {
-      req: InvokeImageGenStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': ImageGenOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/imageResourceTraining': {
-    post: {
-      req: InvokeImageResourceTrainingStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': ImageResourceTrainingOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/imageUpload': {
-    post: {
-      req: InvokeImageUploadStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': ImageUploadOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/textToImage': {
-    post: {
-      req: InvokeTextToImageStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': TextToImageOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/videoEnhancement': {
-    post: {
-      req: InvokeVideoEnhancementStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': VideoEnhancementOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/recipes/videoGen': {
-    post: {
-      req: InvokeVideoGenStepTemplateData;
-      res: {
-        /**
-         * OK
-         */
-        '200': VideoGenOutput;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/resources/{air}': {
-    get: {
-      req: GetResourceData;
-      res: {
-        /**
-         * OK
-         */
-        '200': ResourceInfo;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-    delete: {
-      req: InvalidateResourceData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/workflows': {
-    post: {
-      req: SubmitWorkflowData;
-      res: {
-        /**
-         * OK
-         */
-        '200': Workflow;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Forbidden
-         */
-        '403': string;
-        /**
-         * Too Many Requests
-         */
-        '429': ProblemDetails;
-      };
-    };
-    get: {
-      req: QueryWorkflowsData;
-      res: {
-        /**
-         * OK
-         */
-        '200': CursedArrayOfTelemetryCursorAndWorkflow;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/workflows/{workflowId}': {
-    get: {
-      req: GetWorkflowData;
-      res: {
-        /**
-         * OK
-         */
-        '200': Workflow;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-    put: {
-      req: UpdateWorkflowData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-    patch: {
-      req: PatchWorkflowData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-    delete: {
-      req: DeleteWorkflowData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/workflows/{workflowId}/tags': {
-    post: {
-      req: AddWorkflowTagData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Bad Request
-         */
-        '400': ValidationProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-    delete: {
-      req: RemoveAllWorkflowTagsData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Bad Request
-         */
-        '400': ValidationProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/workflows/{workflowId}/tags/{tag}': {
-    delete: {
-      req: RemoveWorkflowTagData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Bad Request
-         */
-        '400': ValidationProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-  };
-  '/v2/consumer/workflows/{workflowId}/steps/{stepName}': {
-    get: {
-      req: GetWorkflowStepData;
-      res: {
-        /**
-         * OK
-         */
-        '200': WorkflowStep;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-    put: {
-      req: UpdateWorkflowStepData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Bad Request
-         */
-        '400': ProblemDetails;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-    patch: {
-      req: PatchWorkflowStepData;
-      res: {
-        /**
-         * No Content
-         */
-        '204': void;
-        /**
-         * Unauthorized
-         */
-        '401': ProblemDetails;
-        /**
-         * Not Found
-         */
-        '404': ProblemDetails;
-      };
-    };
-  };
+export type UpdateWorkflowStepResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type UpdateWorkflowStepResponse =
+  UpdateWorkflowStepResponses[keyof UpdateWorkflowStepResponses];
+
+export type ClientOptions = {
+  baseUrl: `${string}://swagger.json` | (string & {});
 };

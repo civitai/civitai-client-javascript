@@ -1,4 +1,4 @@
-import { createClient } from '@hey-api/client-fetch';
+import { createClient, createConfig } from '../generated/client';
 import { ProblemDetails } from '../generated';
 
 type ClientConfig = {
@@ -9,17 +9,18 @@ type ClientConfig = {
 };
 
 export function createCivitaiClient(config: ClientConfig) {
-  const client = createClient({
-    baseUrl:
-      config.baseUrl ? config.baseUrl :
-      config.env === 'dev'
-        ? 'https://orchestration-dev.civitai.com'
-        : 'https://orchestration.civitai.com',
-    global: false,
-    headers: {
-      Authorization: `Bearer ${config.auth}`,
-    },
-  });
+  const client = createClient(
+    createConfig({
+      baseUrl: config.baseUrl
+        ? config.baseUrl
+        : config.env === 'dev'
+          ? 'https://orchestration-dev.civitai.com'
+          : 'https://orchestration.civitai.com',
+      headers: {
+        Authorization: `Bearer ${config.auth}`,
+      },
+    })
+  );
 
   client.interceptors.response.use(async (response) => {
     if (!response.ok) {

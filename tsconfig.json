@@ -13,7 +13,7 @@
     "target": "ES2018",
     "module": "esnext",
     "typeRoots": ["node_modules/@types"],
-    "lib": ["es2020", "es6", "dom"],
+    "lib": ["es2020", "es6", "dom", "dom.iterable"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "outDir": "./dist",

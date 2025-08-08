@@ -8,8 +8,10 @@ export default defineConfig({
     lint: 'eslint',
     path: 'src/generated',
   },
-  types: {
-    enums: 'javascript',
-  },
-  client: '@hey-api/client-fetch',
+  plugins: ['@hey-api/client-fetch', { enums: true, name: '@hey-api/typescript' }, '@hey-api/sdk'],
+  // parser: {
+  //   transforms: {
+  //     enums: 'root',
+  //   },
+  // },
 });
