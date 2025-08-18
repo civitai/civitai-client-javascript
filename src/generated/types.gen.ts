@@ -103,19 +103,13 @@ export type Blob = {
 };
 
 export const BuzzClientAccount = {
-  USER: 'user',
-  GENERATION: 'generation',
+  YELLOW: 'yellow',
+  BLUE: 'blue',
+  GREEN: 'green',
+  FAKE_RED: 'fakeRed',
 } as const;
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
-
-export type CivitaiWanVideoGenInput = WanVideoGenInput & {
-  width?: number;
-  height?: number;
-  model?: string | null;
-} & {
-  provider: 'civitai';
-};
 
 export type ComfyInput = {
   /**
@@ -257,13 +251,6 @@ export type EpochResult = {
   blobUrl: string;
 };
 
-export type FalWanVideoGenInput = WanVideoGenInput & {
-  aspectRatio?: '1:1' | '16:9' | '9:16';
-  enablePromptExpansion?: boolean;
-} & {
-  provider: 'fal';
-};
-
 export const FileFormat = {
   UNKNOWN: 'unknown',
   SAFE_TENSOR: 'safeTensor',
@@ -275,14 +262,16 @@ export const FileFormat = {
 
 export type FileFormat = (typeof FileFormat)[keyof typeof FileFormat];
 
-export type Flux1KontextDevImageGenInput = Flux1KontextImageGenInput & {} & {
+export type Flux1KontextDevImageGenInput = Flux1KontextImageGenInput & {
+  readonly model: string;
+} & {
   model: 'dev';
 };
 
 export type Flux1KontextImageGenInput = ImageGenInput & {
   engine: 'flux1-kontext';
 } & {
-  model: string;
+  readonly model: string;
   prompt: string;
   images?: Array<string>;
   aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
@@ -294,11 +283,15 @@ export type Flux1KontextImageGenInput = ImageGenInput & {
   engine: 'flux1-kontext';
 };
 
-export type Flux1KontextMaxImageGenInput = Flux1KontextImageGenInput & {} & {
+export type Flux1KontextMaxImageGenInput = Flux1KontextImageGenInput & {
+  readonly model: string;
+} & {
   model: 'max';
 };
 
-export type Flux1KontextProImageGenInput = Flux1KontextImageGenInput & {} & {
+export type Flux1KontextProImageGenInput = Flux1KontextImageGenInput & {
+  readonly model: string;
+} & {
   model: 'pro';
 };
 
@@ -418,6 +411,11 @@ export type ImageBlob = Blob & {
 
 export type ImageGenInput = {
   engine: string;
+};
+
+export type ImageGenInputLora = {
+  air: string;
+  strength?: number;
 };
 
 export type ImageGenOutput = {
@@ -1325,6 +1323,10 @@ export type TransactionSummary = {
    * Get a list of individual transactions.
    */
   list?: Array<TransactionInfo>;
+  /**
+   * A boolean returned with whatif requests to indicate whether the user has nsufficient buzz to run a workflow.
+   */
+  insufficientBuzz?: boolean | null;
 };
 
 export const TransactionType = {
@@ -1407,6 +1409,10 @@ export type UpdateWorkflowRequest = {
    * An optional set of new tags to set on the workflow.
    */
   tags?: Array<string> | null;
+  /**
+   * Set to true to remove the mature content restriction on the workflow.
+   */
+  allowMatureContent?: boolean | null;
 };
 
 /**
@@ -1606,10 +1612,134 @@ export const ViduVideoGenStyle = {
 
 export type ViduVideoGenStyle = (typeof ViduVideoGenStyle)[keyof typeof ViduVideoGenStyle];
 
+export type Wan21CivitaiVideoGenInput = Wan21VideoGenInput & {
+  width?: number;
+  height?: number;
+  model?: string | null;
+  images?: Array<string>;
+} & {
+  provider: 'civitai';
+};
+
+export type Wan21FalVideoGenInput = Wan21VideoGenInput & {
+  aspectRatio?: '1:1' | '16:9' | '9:16';
+  enablePromptExpansion?: boolean;
+} & {
+  provider: 'fal';
+};
+
+export type Wan21VideoGenInput = WanVideoGenInput & {
+  provider: string | null;
+} & {
+  version: 'v2.1';
+};
+
+export type Wan225bFalImageGenInput = Wan225bImageGenInput & {} & {
+  provider: 'fal';
+};
+
+export type Wan225bFalImageToVideoInput = Wan225bFalVideoGenInput & {
+  images?: Array<string>;
+} & {
+  operation: 'image-to-video';
+};
+
+export type Wan225bFalTextToVideoInput = Wan225bFalVideoGenInput & {} & {
+  operation: 'text-to-video';
+};
+
+export type Wan225bFalVideoGenInput = Wan225bVideoGenInput & {
+  operation: string | null;
+  resolution?: '480p' | '580p' | '720p';
+  aspectRatio?: '1:1' | '16:9' | '9:16' | 'auto';
+  enablePromptExpansion?: boolean;
+  useDistill?: boolean;
+  interpolatorModel?: 'none' | 'film' | 'rife';
+  negativePrompt?: string | null;
+  enableSafetyChecker?: boolean;
+  numInferenceSteps?: number;
+} & {
+  provider: 'fal';
+};
+
+export type Wan225bImageGenInput = WanImageGenInput & {
+  provider: string | null;
+  steps?: number;
+  shift?: number;
+} & {
+  version: 'v2.2-5b';
+};
+
+export type Wan225bVideoGenInput = WanVideoGenInput & {
+  provider: string | null;
+} & {
+  version: 'v2.2-5b';
+};
+
+export type Wan22FalImageGenInput = Wan22ImageGenInput & {
+  acceleration?: 'none' | 'fast' | 'faster';
+} & {
+  provider: 'fal';
+};
+
+export type Wan22FalImageToVideoInput = Wan22FalVideoGenInput & {
+  images?: Array<string>;
+} & {
+  operation: 'image-to-video';
+};
+
+export type Wan22FalTextToVideoInput = Wan22FalVideoGenInput & {} & {
+  operation: 'text-to-video';
+};
+
+export type Wan22FalVideoGenInput = Wan22VideoGenInput & {
+  operation: string | null;
+  resolution?: '480p' | '720p';
+  aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '4:5' | '5:4';
+  enablePromptExpansion?: boolean;
+  shift?: number;
+  interpolatorModel?: 'film' | 'rife';
+  useTurbo?: boolean;
+  negativePrompt?: string | null;
+  enableSafetyChecker?: boolean;
+} & {
+  provider: 'fal';
+};
+
+export type Wan22ImageGenInput = WanImageGenInput & {
+  provider: string | null;
+  steps?: number;
+} & {
+  version: 'v2.2';
+};
+
+export type Wan22VideoGenInput = WanVideoGenInput & {
+  provider: string | null;
+} & {
+  version: 'v2.2';
+};
+
+export type WanImageGenInput = ImageGenInput & {
+  engine: 'wan';
+} & {
+  version: string | null;
+  prompt: string;
+  negativePrompt?: string | null;
+  guidanceScale?: number;
+  seed?: number | null;
+  quantity?: number;
+  imageSize?: string;
+  enablePromptExpansion?: boolean;
+  enableSafetyChecker?: boolean;
+  loras?: Array<ImageGenInputLora>;
+} & {
+  engine: 'wan';
+};
+
 export type WanVideoGenInput = VideoGenInput & {
   engine: 'wan';
 } & {
-  provider: string;
+  version: string | null;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
@@ -1621,7 +1751,6 @@ export type WanVideoGenInput = VideoGenInput & {
   steps?: number;
   loras?: Array<VideoGenInputLora>;
 } & {
-  provider: 'wan';
   engine: 'wan';
 };
 
@@ -1678,6 +1807,11 @@ export type Workflow = {
    * Get or set whether this workflow is experimental
    */
   experimental?: boolean | null;
+  /**
+   * Gets or sets a value indicating whether mature content is allowed in this workflow.
+   */
+  allowMatureContent?: boolean | null;
+  upgradeMode?: WorkflowUpgradeMode;
 };
 
 /**
@@ -1897,6 +2031,7 @@ export type WorkflowStepJobEvent = {
   progress?: number | null;
   reason?: string | null;
   blockedReason?: string | null;
+  matureContent?: boolean | null;
 };
 
 /**
@@ -1980,6 +2115,13 @@ export type WorkflowTemplate = {
    * Get or set whether this workflow is experimental
    */
   experimental?: boolean | null;
+  /**
+   * Get or set whether this workflow should allow mature content.
+   * When set to false, the workflow will not return any content that is marked as mature.
+   * Additional payment options are available for workflows that do not allow mature content.
+   */
+  allowMatureContent?: boolean | null;
+  upgradeMode?: WorkflowUpgradeMode;
 };
 
 export type WorkflowTips = {
@@ -1993,6 +2135,19 @@ export type WorkflowTips = {
   creators: number;
 };
 
+/**
+ * Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.
+ */
+export const WorkflowUpgradeMode = {
+  MANUAL: 'manual',
+  AUTOMATIC: 'automatic',
+} as const;
+
+/**
+ * Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.
+ */
+export type WorkflowUpgradeMode = (typeof WorkflowUpgradeMode)[keyof typeof WorkflowUpgradeMode];
+
 export type GetBlobData = {
   body?: never;
   path: {
@@ -2002,6 +2157,10 @@ export type GetBlobData = {
     blobId: string;
   };
   query?: {
+    /**
+     * The id of the workflow to obtain
+     */
+    workflowId?: string;
     /**
      * A maximum nsfw level. If this is specified and the blob does not have a NSFW level specified or the NSFW level exceeds our max then we'll return an error
      */
@@ -2433,6 +2592,10 @@ export type QueryWorkflowsData = {
      * Whether to return data from oldest to newest
      */
     ascending?: boolean;
+    /**
+     * When set to true, any blob that has mature won't be available and won't have a URL
+     */
+    hideMatureContent?: boolean;
   };
   url: '/v2/consumer/workflows';
 };
@@ -2469,6 +2632,10 @@ export type SubmitWorkflowData = {
      * Whether to actually submit the workflow or return an estimate on what would happen upon submission
      */
     whatif?: boolean;
+    /**
+     * When set to true, any blob that has mature won't be available and won't have a URL
+     */
+    hideMatureContent?: boolean;
   };
   url: '/v2/consumer/workflows';
 };
@@ -2556,6 +2723,10 @@ export type GetWorkflowData = {
      * In which case the client should use the token to query the status of the workflow.
      */
     wait?: boolean;
+    /**
+     * When set to true, any blob that has mature won't be available and won't have a URL
+     */
+    hideMatureContent?: boolean;
   };
   url: '/v2/consumer/workflows/{workflowId}';
 };
@@ -2598,6 +2769,10 @@ export type PatchWorkflowData = {
 };
 
 export type PatchWorkflowErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
   /**
    * Unauthorized
    */

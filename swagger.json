@@ -28,6 +28,14 @@
             }
           },
           {
+            "name": "workflowId",
+            "in": "query",
+            "description": "The id of the workflow to obtain",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "nsfwLevel",
             "in": "query",
             "description": "A maximum nsfw level. If this is specified and the blob does not have a NSFW level specified or the NSFW level exceeds our max then we'll return an error",
@@ -774,6 +782,15 @@
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "name": "hideMatureContent",
+            "in": "query",
+            "description": "When set to true, any blob that has mature won't be available and won't have a URL",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "requestBody": {
@@ -826,7 +843,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 },
                 "LORA training": {
@@ -839,7 +857,6 @@
                       {
                         "$type": "imageResourceTraining",
                         "input": {
-                          "engine": "kohya",
                           "maxTrainEpochs": 5,
                           "numRepeats": 8,
                           "resolution": 512,
@@ -851,6 +868,7 @@
                           "unetLR": 5E-05,
                           "textEncoderLR": 5E-05,
                           "lrSchedulerNumCycles": 3,
+                          "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
@@ -869,7 +887,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 },
                 "Comfy job": {
@@ -980,7 +999,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 }
               }
@@ -1032,7 +1052,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 },
                 "LORA training": {
@@ -1045,7 +1066,6 @@
                       {
                         "$type": "imageResourceTraining",
                         "input": {
-                          "engine": "kohya",
                           "maxTrainEpochs": 5,
                           "numRepeats": 8,
                           "resolution": 512,
@@ -1057,6 +1077,7 @@
                           "unetLR": 5E-05,
                           "textEncoderLR": 5E-05,
                           "lrSchedulerNumCycles": 3,
+                          "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
@@ -1075,7 +1096,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 },
                 "Comfy job": {
@@ -1186,7 +1208,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 }
               }
@@ -1238,7 +1261,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 },
                 "LORA training": {
@@ -1251,7 +1275,6 @@
                       {
                         "$type": "imageResourceTraining",
                         "input": {
-                          "engine": "kohya",
                           "maxTrainEpochs": 5,
                           "numRepeats": 8,
                           "resolution": 512,
@@ -1263,6 +1286,7 @@
                           "unetLR": 5E-05,
                           "textEncoderLR": 5E-05,
                           "lrSchedulerNumCycles": 3,
+                          "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
@@ -1281,7 +1305,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 },
                 "Comfy job": {
@@ -1392,7 +1417,8 @@
                           "workflow:failed"
                         ]
                       }
-                    ]
+                    ],
+                    "upgradeMode": "manual"
                   }
                 }
               }
@@ -1595,6 +1621,15 @@
             }
           },
           {
+            "name": "hideMatureContent",
+            "in": "query",
+            "description": "When set to true, any blob that has mature won't be available and won't have a URL",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
             "name": "Accept",
             "in": "header",
             "description": "Specify 'application/zip' to get the response as a zip file",
@@ -1656,6 +1691,15 @@
             "description": "Whether to wait for the workflow to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "hideMatureContent",
+            "in": "query",
+            "description": "When set to true, any blob that has mature won't be available and won't have a URL",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
@@ -1810,6 +1854,16 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2513,47 +2567,12 @@
       },
       "BuzzClientAccount": {
         "enum": [
-          "user",
-          "generation"
+          "yellow",
+          "blue",
+          "green",
+          "fakeRed"
         ],
         "type": "string"
-      },
-      "CivitaiWanVideoGenInput": {
-        "required": [
-          "provider"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WanVideoGenInput"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "width": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "height": {
-                "type": "integer",
-                "format": "int32"
-              },
-              "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string",
-                "nullable": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "provider": {
-            "enum": [
-              "civitai"
-            ],
-            "type": "string"
-          }
-        }
       },
       "ComfyInput": {
         "required": [
@@ -2872,43 +2891,6 @@
         "additionalProperties": false,
         "description": "An epock result."
       },
-      "FALWanVideoGenInput": {
-        "required": [
-          "provider"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WanVideoGenInput"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "aspectRatio": {
-                "enum": [
-                  "1:1",
-                  "16:9",
-                  "9:16"
-                ],
-                "type": "string",
-                "default": "16:9"
-              },
-              "enablePromptExpansion": {
-                "type": "boolean",
-                "default": false
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "provider": {
-            "enum": [
-              "fal"
-            ],
-            "type": "string"
-          }
-        }
-      },
       "FileFormat": {
         "enum": [
           "unknown",
@@ -2930,6 +2912,12 @@
           },
           {
             "type": "object",
+            "properties": {
+              "model": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
             "additionalProperties": false
           }
         ],
@@ -2958,7 +2946,8 @@
             "type": "object",
             "properties": {
               "model": {
-                "type": "string"
+                "type": "string",
+                "readOnly": true
               },
               "prompt": {
                 "maxLength": 1000,
@@ -3041,6 +3030,12 @@
           },
           {
             "type": "object",
+            "properties": {
+              "model": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
             "additionalProperties": false
           }
         ],
@@ -3063,6 +3058,12 @@
           },
           {
             "type": "object",
+            "properties": {
+              "model": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
             "additionalProperties": false
           }
         ],
@@ -3422,9 +3423,30 @@
           "mapping": {
             "openai": "#/components/schemas/OpenApiImageGenInput",
             "flux1-kontext": "#/components/schemas/Flux1KontextImageGenInput",
-            "google": "#/components/schemas/GoogleImageGenInput"
+            "google": "#/components/schemas/GoogleImageGenInput",
+            "wan": "#/components/schemas/WanImageGenInput"
           }
         }
+      },
+      "ImageGenInputLora": {
+        "required": [
+          "air"
+        ],
+        "type": "object",
+        "properties": {
+          "air": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string"
+          },
+          "strength": {
+            "maximum": 4,
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "default": 1
+          }
+        },
+        "additionalProperties": false
       },
       "ImageGenOutput": {
         "required": [
@@ -5352,6 +5374,11 @@
               "$ref": "#/components/schemas/TransactionInfo"
             },
             "description": "Get a list of individual transactions."
+          },
+          "insufficientBuzz": {
+            "type": "boolean",
+            "description": "A boolean returned with whatif requests to indicate whether the user has nsufficient buzz to run a workflow.",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5531,6 +5558,11 @@
               "type": "string"
             },
             "description": "An optional set of new tags to set on the workflow.",
+            "nullable": true
+          },
+          "allowMatureContent": {
+            "type": "boolean",
+            "description": "Set to true to remove the mature content restriction on the workflow.",
             "nullable": true
           }
         },
@@ -6053,14 +6085,94 @@
         ],
         "type": "string"
       },
-      "WanVideoGenInput": {
+      "Wan21CivitaiVideoGenInput": {
         "required": [
-          "provider",
-          "engine"
+          "provider"
         ],
         "allOf": [
           {
-            "$ref": "#/components/schemas/VideoGenInput"
+            "$ref": "#/components/schemas/Wan21VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "nullable": true
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "civitai"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan21FalVideoGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan21VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "1:1",
+                  "16:9",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan21VideoGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanVideoGenInput"
           },
           {
             "required": [
@@ -6069,7 +6181,648 @@
             "type": "object",
             "properties": {
               "provider": {
+                "type": "string",
+                "default": "civitai",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "civitai": "#/components/schemas/Wan21CivitaiVideoGenInput",
+                "fal": "#/components/schemas/Wan21FalVideoGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.1"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan225bFalImageGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan225bImageGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan225bFalImageToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan225bFalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "image-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan225bFalTextToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan225bFalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "text-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan225bFalVideoGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan225bVideoGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "text-to-video",
+                "nullable": true
+              },
+              "resolution": {
+                "enum": [
+                  "480p",
+                  "580p",
+                  "720p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "1:1",
+                  "16:9",
+                  "9:16",
+                  "auto"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": false
+              },
+              "useDistill": {
+                "type": "boolean",
+                "default": false
+              },
+              "interpolatorModel": {
+                "enum": [
+                  "none",
+                  "film",
+                  "rife"
+                ],
+                "type": "string",
+                "default": "film"
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": false
+              },
+              "numInferenceSteps": {
+                "maximum": 50,
+                "minimum": 2,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "text-to-video": "#/components/schemas/Wan225bFalTextToVideoInput",
+                "image-to-video": "#/components/schemas/Wan225bFalImageToVideoInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan225bImageGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanImageGenInput"
+          },
+          {
+            "required": [
+              "provider"
+            ],
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "fal",
+                "nullable": true
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 2,
+                "type": "integer",
+                "format": "int32",
+                "default": 40
+              },
+              "shift": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 2
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "fal": "#/components/schemas/Wan225bFalImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.2-5b"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan225bVideoGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanVideoGenInput"
+          },
+          {
+            "required": [
+              "provider"
+            ],
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "fal",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "fal": "#/components/schemas/Wan225bFalVideoGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.2-5b"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan22FalImageGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan22ImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "acceleration": {
+                "enum": [
+                  "none",
+                  "fast",
+                  "faster"
+                ],
+                "type": "string",
+                "default": "none"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan22FalImageToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan22FalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "image-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan22FalTextToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan22FalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "text-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan22FalVideoGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan22VideoGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "text-to-video",
+                "nullable": true
+              },
+              "resolution": {
+                "enum": [
+                  "480p",
+                  "720p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "1:1",
+                  "16:9",
+                  "9:16",
+                  "4:3",
+                  "3:4",
+                  "4:5",
+                  "5:4"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": false
+              },
+              "shift": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 5
+              },
+              "interpolatorModel": {
+                "enum": [
+                  "film",
+                  "rife"
+                ],
+                "type": "string",
+                "default": "film"
+              },
+              "useTurbo": {
+                "type": "boolean",
+                "default": false
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "text-to-video": "#/components/schemas/Wan22FalTextToVideoInput",
+                "image-to-video": "#/components/schemas/Wan22FalImageToVideoInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan22ImageGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanImageGenInput"
+          },
+          {
+            "required": [
+              "provider"
+            ],
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "fal",
+                "nullable": true
+              },
+              "steps": {
+                "maximum": 40,
+                "minimum": 2,
+                "type": "integer",
+                "format": "int32",
+                "default": 27
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "fal": "#/components/schemas/Wan22FalImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.2"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan22VideoGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanVideoGenInput"
+          },
+          {
+            "required": [
+              "provider"
+            ],
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "fal",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "fal": "#/components/schemas/Wan22FalVideoGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.2"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "WanImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "prompt",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "default": "v2.2",
+                "nullable": true
+              },
+              "prompt": {
+                "minLength": 1,
                 "type": "string"
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "guidanceScale": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 3.5
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "imageSize": {
+                "type": "string",
+                "default": "square_hd"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": false
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": false
+              },
+              "loras": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageGenInputLora"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "version",
+              "mapping": {
+                "v2.2": "#/components/schemas/Wan22ImageGenInput",
+                "v2.2-5b": "#/components/schemas/Wan225bImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "wan"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "WanVideoGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "default": "v2.1",
+                "nullable": true
               },
               "sourceImage": {
                 "type": "string",
@@ -6116,22 +6869,16 @@
             },
             "additionalProperties": false,
             "discriminator": {
-              "propertyName": "provider",
+              "propertyName": "version",
               "mapping": {
-                "wan": "#/components/schemas/WanVideoGenInput",
-                "civitai": "#/components/schemas/CivitaiWanVideoGenInput",
-                "fal": "#/components/schemas/FALWanVideoGenInput"
+                "v2.1": "#/components/schemas/Wan21VideoGenInput",
+                "v2.2": "#/components/schemas/Wan22VideoGenInput",
+                "v2.2-5b": "#/components/schemas/Wan225bVideoGenInput"
               }
             }
           }
         ],
         "properties": {
-          "provider": {
-            "enum": [
-              "wan"
-            ],
-            "type": "string"
-          },
           "engine": {
             "enum": [
               "wan"
@@ -6215,6 +6962,14 @@
             "type": "boolean",
             "description": "Get or set whether this workflow is experimental",
             "nullable": true
+          },
+          "allowMatureContent": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether mature content is allowed in this workflow.",
+            "nullable": true
+          },
+          "upgradeMode": {
+            "$ref": "#/components/schemas/WorkflowUpgradeMode"
           }
         },
         "additionalProperties": false,
@@ -6555,6 +7310,10 @@
           "blockedReason": {
             "type": "string",
             "nullable": true
+          },
+          "matureContent": {
+            "type": "boolean",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -6698,6 +7457,14 @@
             "type": "boolean",
             "description": "Get or set whether this workflow is experimental",
             "nullable": true
+          },
+          "allowMatureContent": {
+            "type": "boolean",
+            "description": "Get or set whether this workflow should allow mature content.\r\nWhen set to false, the workflow will not return any content that is marked as mature.\r\nAdditional payment options are available for workflows that do not allow mature content.",
+            "nullable": true
+          },
+          "upgradeMode": {
+            "$ref": "#/components/schemas/WorkflowUpgradeMode"
           }
         },
         "additionalProperties": false,
@@ -6722,6 +7489,14 @@
           }
         },
         "additionalProperties": false
+      },
+      "WorkflowUpgradeMode": {
+        "enum": [
+          "manual",
+          "automatic"
+        ],
+        "type": "string",
+        "description": "Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment."
       }
     },
     "securitySchemes": {
