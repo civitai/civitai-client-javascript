@@ -103,10 +103,8 @@ export type Blob = {
 };
 
 export const BuzzClientAccount = {
-  YELLOW: 'yellow',
-  BLUE: 'blue',
-  GREEN: 'green',
-  FAKE_RED: 'fakeRed',
+  USER: 'user',
+  GENERATION: 'generation',
 } as const;
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
