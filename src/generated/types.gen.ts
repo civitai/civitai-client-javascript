@@ -2213,7 +2213,10 @@ export type HeadBlobResponse = HeadBlobResponses[keyof HeadBlobResponses];
 export type InvokeAgeClassificationStepTemplateData = {
   body?: AgeClassificationInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/ageClassification';
 };
 
@@ -2244,7 +2247,10 @@ export type InvokeAgeClassificationStepTemplateResponse =
 export type InvokeComfyStepTemplateData = {
   body?: ComfyInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/comfy';
 };
 
@@ -2275,7 +2281,10 @@ export type InvokeComfyStepTemplateResponse =
 export type InvokeEchoStepTemplateData = {
   body?: EchoInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/echo';
 };
 
@@ -2306,7 +2315,10 @@ export type InvokeEchoStepTemplateResponse =
 export type InvokeImageGenStepTemplateData = {
   body?: ImageGenInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/imageGen';
 };
 
@@ -2337,7 +2349,10 @@ export type InvokeImageGenStepTemplateResponse =
 export type InvokeImageResourceTrainingStepTemplateData = {
   body?: ImageResourceTrainingInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/imageResourceTraining';
 };
 
@@ -2368,7 +2383,10 @@ export type InvokeImageResourceTrainingStepTemplateResponse =
 export type InvokeImageUploadStepTemplateData = {
   body?: string;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/imageUpload';
 };
 
@@ -2399,7 +2417,10 @@ export type InvokeImageUploadStepTemplateResponse =
 export type InvokeTextToImageStepTemplateData = {
   body?: TextToImageInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/textToImage';
 };
 
@@ -2430,7 +2451,10 @@ export type InvokeTextToImageStepTemplateResponse =
 export type InvokeVideoEnhancementStepTemplateData = {
   body?: VideoEnhancementInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/videoEnhancement';
 };
 
@@ -2461,7 +2485,10 @@ export type InvokeVideoEnhancementStepTemplateResponse =
 export type InvokeVideoGenStepTemplateData = {
   body?: VideoGenInput;
   path?: never;
-  query?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
   url: '/v2/consumer/recipes/videoGen';
 };
 

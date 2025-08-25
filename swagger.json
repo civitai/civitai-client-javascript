@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.4",
   "info": {
     "title": "Civitai Orchestration Consumer API",
     "description": "The Civitai Orchestration API is a RESTful API that allows you to interact with the Civitai Orchestration system. The API is designed to be simple and easy to use, and is built on top of the OpenAPI specification.",
@@ -109,6 +109,22 @@
         "summary": "Age classification",
         "description": "Detects minors in media content. Returns a boolean value indicating whether the content contains minors as well as details on where minors are detected.",
         "operationId": "InvokeAgeClassificationStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -170,6 +186,22 @@
         "summary": "Comfy workflows",
         "description": "Runs a comfy workflow. Currently there are limited nodes available. Contact support for more information.",
         "operationId": "InvokeComfyStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -231,6 +263,22 @@
         "summary": "Echo",
         "description": "A workflow step that takes a message string and retuns it.\r\n/// This step is intended for testing purposes.",
         "operationId": "InvokeEchoStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -292,6 +340,22 @@
         "summary": "Image Generation",
         "description": "Generate images through text/image inputs using any of our supported engines",
         "operationId": "InvokeImageGenStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -353,6 +417,22 @@
         "summary": "LORA Training",
         "description": "Train LORA's",
         "operationId": "InvokeImageResourceTrainingStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -414,6 +494,22 @@
         "summary": "Image upload",
         "description": "Uploads an image to be used in a workflow",
         "operationId": "InvokeImageUploadStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -475,6 +571,22 @@
         "summary": "TextToImage",
         "description": "Generate images using text as input",
         "operationId": "InvokeTextToImageStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -535,6 +647,22 @@
         ],
         "summary": "Upscale videos and/or interpolate frames",
         "operationId": "InvokeVideoEnhancementStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -596,6 +724,22 @@
         "summary": "Video generation",
         "description": "Generate videos through text/image inputs using any of our supported engines",
         "operationId": "InvokeVideoGenStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
