@@ -3242,6 +3242,147 @@
           }
         }
       },
+      "Gemini25FlashCreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Gemini25FlashImageGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Gemini25FlashEditImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Gemini25FlashImageGenInput"
+          },
+          {
+            "required": [
+              "images"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Gemini25FlashImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GeminiImageGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Gemini25FlashCreateImageGenInput",
+                "editImage": "#/components/schemas/Gemini25FlashEditImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "2.5-flash"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "GeminiImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "model",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "prompt": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "2.5-flash": "#/components/schemas/Gemini25FlashImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "gemini"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "GoogleImageGenInput": {
         "required": [
           "engine"
@@ -3568,7 +3709,8 @@
             "openai": "#/components/schemas/OpenApiImageGenInput",
             "flux1-kontext": "#/components/schemas/Flux1KontextImageGenInput",
             "google": "#/components/schemas/GoogleImageGenInput",
-            "wan": "#/components/schemas/WanImageGenInput"
+            "wan": "#/components/schemas/WanImageGenInput",
+            "gemini": "#/components/schemas/GeminiImageGenInput"
           }
         }
       },

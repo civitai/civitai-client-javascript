@@ -103,8 +103,10 @@ export type Blob = {
 };
 
 export const BuzzClientAccount = {
-  USER: 'user',
-  GENERATION: 'generation',
+  YELLOW: 'yellow',
+  BLUE: 'blue',
+  GREEN: 'green',
+  FAKE_RED: 'fakeRed',
 } as const;
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
@@ -297,6 +299,32 @@ export type FluxDevFastImageResourceTrainingInput = ImageResourceTrainingInput &
   engine: 'flux-dev-fast';
 } & {} & {
   engine: 'flux-dev-fast';
+};
+
+export type Gemini25FlashCreateImageGenInput = Gemini25FlashImageGenInput & {} & {
+  operation: 'createImage';
+};
+
+export type Gemini25FlashEditImageGenInput = Gemini25FlashImageGenInput & {
+  images: Array<string>;
+} & {
+  operation: 'editImage';
+};
+
+export type Gemini25FlashImageGenInput = GeminiImageGenInput & {
+  operation: string;
+  quantity?: number;
+} & {
+  model: '2.5-flash';
+};
+
+export type GeminiImageGenInput = ImageGenInput & {
+  engine: 'gemini';
+} & {
+  model: string;
+  prompt: string;
+} & {
+  engine: 'gemini';
 };
 
 export type GoogleImageGenInput = ImageGenInput & {
