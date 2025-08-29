@@ -3710,7 +3710,8 @@
             "flux1-kontext": "#/components/schemas/Flux1KontextImageGenInput",
             "google": "#/components/schemas/GoogleImageGenInput",
             "wan": "#/components/schemas/WanImageGenInput",
-            "gemini": "#/components/schemas/GeminiImageGenInput"
+            "gemini": "#/components/schemas/GeminiImageGenInput",
+            "qwen": "#/components/schemas/QwenImageGenInput"
           }
         }
       },
@@ -3746,6 +3747,14 @@
               "$ref": "#/components/schemas/ImageBlob"
             },
             "description": "A collection of output images."
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An optional list of errors related to generation failures",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5287,6 +5296,194 @@
         },
         "additionalProperties": {}
       },
+      "Qwen20bCreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Qwen20bImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Qwen20bEditImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Qwen20bImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "denoise": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Qwen20bImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/QwenImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "unet": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string",
+                "nullable": true
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/Scheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Qwen20bCreateImageGenInput",
+                "editImage": "#/components/schemas/Qwen20bEditImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "20b"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "QwenImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "20b": "#/components/schemas/Qwen20bImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "qwen"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "ResourceInfo": {
         "required": [
           "air",
@@ -6612,6 +6809,10 @@
                 "type": "boolean",
                 "default": false
               },
+              "useFastWan": {
+                "type": "boolean",
+                "default": false
+              },
               "interpolatorModel": {
                 "enum": [
                   "none",
@@ -7490,6 +7691,7 @@
       },
       "WorkflowStepEvent": {
         "required": [
+          "output",
           "status",
           "stepName",
           "workflowId"
@@ -7506,6 +7708,10 @@
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "output": {
+            "description": "An up-to-date output of the workflow step at the moment when this event got raised",
+            "nullable": true
           },
           "$type": {
             "type": "string"

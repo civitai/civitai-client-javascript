@@ -449,6 +449,10 @@ export type ImageGenOutput = {
    * A collection of output images.
    */
   images: Array<ImageBlob>;
+  /**
+   * An optional list of errors related to generation failures
+   */
+  errors?: Array<string> | null;
 };
 
 /**
@@ -1111,6 +1115,45 @@ export type ProblemDetails = {
     | undefined;
 };
 
+export type Qwen20bCreateImageGenInput = Qwen20bImageGenInput & {
+  width?: number;
+  height?: number;
+} & {
+  operation: 'createImage';
+};
+
+export type Qwen20bEditImageGenInput = Qwen20bImageGenInput & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  denoise?: number;
+} & {
+  operation: 'editImage';
+};
+
+export type Qwen20bImageGenInput = QwenImageGenInput & {
+  operation: string;
+  unet?: string;
+  prompt: string;
+  negativePrompt?: string | null;
+  scheduler?: Scheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: number | null;
+  quantity?: number;
+} & {
+  model: '20b';
+};
+
+export type QwenImageGenInput = ImageGenInput & {
+  engine: 'qwen';
+} & {
+  model: string;
+} & {
+  engine: 'qwen';
+};
+
 /**
  * Details for a specific resource.
  */
@@ -1680,6 +1723,7 @@ export type Wan225bFalVideoGenInput = Wan225bVideoGenInput & {
   aspectRatio?: '1:1' | '16:9' | '9:16' | 'auto';
   enablePromptExpansion?: boolean;
   useDistill?: boolean;
+  useFastWan?: boolean;
   interpolatorModel?: 'none' | 'film' | 'rife';
   negativePrompt?: string | null;
   enableSafetyChecker?: boolean;
@@ -2005,6 +2049,10 @@ export type WorkflowStepEvent = {
    */
   stepName: string;
   status: WorkflowStatus;
+  /**
+   * An up-to-date output of the workflow step at the moment when this event got raised
+   */
+  output: unknown;
   $type?: string;
 };
 
