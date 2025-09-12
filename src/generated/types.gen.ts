@@ -548,7 +548,7 @@ export type ImageResourceTrainingInput = {
    */
   samplePrompts?: Array<string>;
   /**
-   * An optional negative prompt to use during training.
+   * An optional negative prompt that will get applied when generating samples
    */
   negativePrompt?: string | null;
 };
@@ -1272,6 +1272,29 @@ export const Scheduler = {
  * The available options for schedulers used in image generation.
  */
 export type Scheduler = (typeof Scheduler)[keyof typeof Scheduler];
+
+export type SeedreamImageGenInput = ImageGenInput & {
+  engine: 'seedream';
+} & {
+  prompt: string;
+  quantity?: number;
+  width?: number;
+  height?: number;
+  guidanceScale?: number;
+  seed?: number | null;
+  enableSafetyChecker?: boolean;
+  version?: SeedreamVersion;
+  images?: Array<string>;
+} & {
+  engine: 'seedream';
+};
+
+export const SeedreamVersion = {
+  V3: 'v3',
+  V4: 'v4',
+} as const;
+
+export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
 
 /**
  * Input for an text to image step.
@@ -2053,10 +2076,6 @@ export type WorkflowStepEvent = {
    */
   stepName: string;
   status: WorkflowStatus;
-  /**
-   * An up-to-date output of the workflow step at the moment when this event got raised
-   */
-  output: unknown;
   $type?: string;
 };
 

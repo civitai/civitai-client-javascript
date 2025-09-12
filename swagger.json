@@ -1017,8 +1017,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [],
-                          "negativePrompt": ""
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -1227,8 +1226,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [],
-                          "negativePrompt": ""
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -3713,7 +3711,8 @@
             "google": "#/components/schemas/GoogleImageGenInput",
             "wan": "#/components/schemas/WanImageGenInput",
             "gemini": "#/components/schemas/GeminiImageGenInput",
-            "qwen": "#/components/schemas/QwenImageGenInput"
+            "qwen": "#/components/schemas/QwenImageGenInput",
+            "seedream": "#/components/schemas/SeedreamImageGenInput"
           }
         }
       },
@@ -3923,7 +3922,7 @@
           },
           "negativePrompt": {
             "type": "string",
-            "description": "An optional negative prompt to use during training.",
+            "description": "An optional negative prompt that will get applied when generating samples",
             "nullable": true
           }
         },
@@ -5628,6 +5627,92 @@
         ],
         "type": "string",
         "description": "The available options for schedulers used in image generation."
+      },
+      "SeedreamImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "guidanceScale": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 2.5
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": false
+              },
+              "version": {
+                "$ref": "#/components/schemas/SeedreamVersion"
+              },
+              "images": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "seedream"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "SeedreamVersion": {
+        "enum": [
+          "v3",
+          "v4"
+        ],
+        "type": "string"
       },
       "TextToImageInput": {
         "required": [
@@ -7698,7 +7783,6 @@
       },
       "WorkflowStepEvent": {
         "required": [
-          "output",
           "status",
           "stepName",
           "workflowId"
@@ -7715,10 +7799,6 @@
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
-          },
-          "output": {
-            "description": "An up-to-date output of the workflow step at the moment when this event got raised",
-            "nullable": true
           },
           "$type": {
             "type": "string"
