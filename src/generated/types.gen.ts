@@ -547,6 +547,10 @@ export type ImageResourceTrainingInput = {
    * A selection of sample prompts.
    */
   samplePrompts?: Array<string>;
+  /**
+   * An optional negative prompt to use during training.
+   */
+  negativePrompt?: string | null;
 };
 
 export type ImageResourceTrainingOutput = {

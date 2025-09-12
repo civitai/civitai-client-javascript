@@ -1017,7 +1017,8 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [],
+                          "negativePrompt": ""
                         },
                         "priority": "normal",
                         "retries": 1
@@ -1226,7 +1227,8 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [],
+                          "negativePrompt": ""
                         },
                         "priority": "normal",
                         "retries": 1
@@ -3918,6 +3920,11 @@
               "type": "string"
             },
             "description": "A selection of sample prompts."
+          },
+          "negativePrompt": {
+            "type": "string",
+            "description": "An optional negative prompt to use during training.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
