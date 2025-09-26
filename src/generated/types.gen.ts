@@ -748,9 +748,10 @@ export type KlingMode = (typeof KlingMode)[keyof typeof KlingMode];
 
 export const KlingModel = {
   V1: 'v1',
-  V1_5: 'v1_5',
-  V1_6: 'v1_6',
+  V1_5: 'v1.5',
+  V1_6: 'v1.6',
   V2: 'v2',
+  V2_5_TURBO: 'v2.5-turbo',
 } as const;
 
 export type KlingModel = (typeof KlingModel)[keyof typeof KlingModel];
@@ -1814,6 +1815,54 @@ export type Wan22VideoGenInput = WanVideoGenInput & {
   provider: string | null;
 } & {
   version: 'v2.2';
+};
+
+export type Wan25FalImageGenInput = Wan25ImageGenInput & {
+  operation: string | null;
+} & {
+  provider: 'fal';
+};
+
+export type Wan25FalImageToImageInput = Wan25FalImageGenInput & {
+  images?: Array<string>;
+} & {
+  operation: 'image-to-image';
+};
+
+export type Wan25FalImageToVideoInput = Wan25FalVideoGenInput & {
+  images?: Array<string>;
+} & {
+  operation: 'image-to-video';
+};
+
+export type Wan25FalTextToImageInput = Wan25FalImageGenInput & {} & {
+  operation: 'text-to-image';
+};
+
+export type Wan25FalTextToVideoInput = Wan25FalVideoGenInput & {} & {
+  operation: 'text-to-video';
+};
+
+export type Wan25FalVideoGenInput = Wan25VideoGenInput & {
+  operation: string | null;
+  resolution?: '480p' | '720p' | '1080p';
+  aspectRatio?: '16:9' | '9:16' | '1:1';
+  enablePromptExpansion?: boolean;
+  negativePrompt?: string | null;
+} & {
+  provider: 'fal';
+};
+
+export type Wan25ImageGenInput = WanImageGenInput & {
+  provider: string | null;
+} & {
+  version: 'v2.5';
+};
+
+export type Wan25VideoGenInput = WanVideoGenInput & {
+  provider: string | null;
+} & {
+  version: 'v2.5';
 };
 
 export type WanImageGenInput = ImageGenInput & {

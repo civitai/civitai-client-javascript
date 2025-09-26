@@ -4338,9 +4338,10 @@
       "KlingModel": {
         "enum": [
           "v1",
-          "v1_5",
-          "v1_6",
-          "v2"
+          "v1.5",
+          "v1.6",
+          "v2",
+          "v2.5-turbo"
         ],
         "type": "string"
       },
@@ -7299,6 +7300,292 @@
           }
         }
       },
+      "Wan25FalImageGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan25ImageGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "text-to-image",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "text-to-image": "#/components/schemas/Wan25FalTextToImageInput",
+                "image-to-image": "#/components/schemas/Wan25FalImageToImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan25FalImageToImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan25FalImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "image-to-image"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan25FalImageToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan25FalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "image-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan25FalTextToImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan25FalImageGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "text-to-image"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan25FalTextToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan25FalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "text-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan25FalVideoGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan25VideoGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "text-to-video",
+                "nullable": true
+              },
+              "resolution": {
+                "enum": [
+                  "480p",
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "1080p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "1:1"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": true
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "text-to-video": "#/components/schemas/Wan25FalTextToVideoInput",
+                "image-to-video": "#/components/schemas/Wan25FalImageToVideoInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan25ImageGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanImageGenInput"
+          },
+          {
+            "required": [
+              "provider"
+            ],
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "fal",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "fal": "#/components/schemas/Wan25FalImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.5"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan25VideoGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanVideoGenInput"
+          },
+          {
+            "required": [
+              "provider"
+            ],
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "fal",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "fal": "#/components/schemas/Wan25FalVideoGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.5"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "WanImageGenInput": {
         "required": [
           "engine"
@@ -7370,7 +7657,8 @@
               "propertyName": "version",
               "mapping": {
                 "v2.2": "#/components/schemas/Wan22ImageGenInput",
-                "v2.2-5b": "#/components/schemas/Wan225bImageGenInput"
+                "v2.2-5b": "#/components/schemas/Wan225bImageGenInput",
+                "v2.5": "#/components/schemas/Wan25ImageGenInput"
               }
             }
           }
@@ -7452,7 +7740,8 @@
               "mapping": {
                 "v2.1": "#/components/schemas/Wan21VideoGenInput",
                 "v2.2": "#/components/schemas/Wan22VideoGenInput",
-                "v2.2-5b": "#/components/schemas/Wan225bVideoGenInput"
+                "v2.2-5b": "#/components/schemas/Wan225bVideoGenInput",
+                "v2.5": "#/components/schemas/Wan25VideoGenInput"
               }
             }
           }
