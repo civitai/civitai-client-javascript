@@ -7838,6 +7838,14 @@
           },
           "upgradeMode": {
             "$ref": "#/components/schemas/WorkflowUpgradeMode"
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BuzzClientAccount"
+            },
+            "description": "The currencies used for this workflow.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -8333,6 +8341,14 @@
           },
           "upgradeMode": {
             "$ref": "#/components/schemas/WorkflowUpgradeMode"
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BuzzClientAccount"
+            },
+            "description": "The currencies used for this workflow.",
+            "nullable": true
           }
         },
         "additionalProperties": false,

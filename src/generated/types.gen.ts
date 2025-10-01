@@ -1958,6 +1958,10 @@ export type Workflow = {
    */
   allowMatureContent?: boolean | null;
   upgradeMode?: WorkflowUpgradeMode;
+  /**
+   * The currencies used for this workflow.
+   */
+  currencies?: Array<BuzzClientAccount> | null;
 };
 
 /**
@@ -2268,6 +2272,10 @@ export type WorkflowTemplate = {
    */
   allowMatureContent?: boolean | null;
   upgradeMode?: WorkflowUpgradeMode;
+  /**
+   * The currencies used for this workflow.
+   */
+  currencies?: Array<BuzzClientAccount> | null;
 };
 
 export type WorkflowTips = {
