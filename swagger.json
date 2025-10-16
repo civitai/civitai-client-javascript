@@ -972,7 +972,8 @@
                           "width": 512,
                           "height": 512,
                           "seed": 1790693947,
-                          "clipSkip": 2
+                          "clipSkip": 2,
+                          "outputFormat": "jpeg"
                         },
                         "priority": "high",
                         "timeout": "00:05:00",
@@ -988,7 +989,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -1032,7 +1034,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -1144,7 +1147,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 }
               }
@@ -1181,7 +1185,8 @@
                           "width": 512,
                           "height": 512,
                           "seed": 1790693947,
-                          "clipSkip": 2
+                          "clipSkip": 2,
+                          "outputFormat": "jpeg"
                         },
                         "priority": "high",
                         "timeout": "00:05:00",
@@ -1197,7 +1202,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -1241,7 +1247,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -1353,7 +1360,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 }
               }
@@ -1390,7 +1398,8 @@
                           "width": 512,
                           "height": 512,
                           "seed": 1790693947,
-                          "clipSkip": 2
+                          "clipSkip": 2,
+                          "outputFormat": "jpeg"
                         },
                         "priority": "high",
                         "timeout": "00:05:00",
@@ -1406,7 +1415,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -1450,7 +1460,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -1562,7 +1573,8 @@
                         ]
                       }
                     ],
-                    "upgradeMode": "manual"
+                    "upgradeMode": "automatic",
+                    "currencies": []
                   }
                 }
               }
@@ -2601,6 +2613,168 @@
           }
         },
         "additionalProperties": false
+      },
+      "AiToolkitImageResourceTrainingInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageResourceTrainingInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "maxTrainEpochs": {
+                "maximum": 20,
+                "minimum": 0,
+                "type": "integer",
+                "description": "An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.\r\nNote: ai-toolkit uses steps internally, calculated as epochs * images * repeats / batch_size.",
+                "format": "int32",
+                "default": 5
+              },
+              "numRepeats": {
+                "maximum": 5000,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.",
+                "format": "int32",
+                "default": 8
+              },
+              "trainBatchSize": {
+                "maximum": 9,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.",
+                "format": "int32",
+                "nullable": true
+              },
+              "resolution": {
+                "maximum": 1024,
+                "minimum": 512,
+                "type": "integer",
+                "description": "Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution",
+                "format": "int32",
+                "nullable": true
+              },
+              "lr": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).",
+                "format": "double",
+                "default": 0.0001
+              },
+              "textEncoderLr": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.",
+                "format": "double",
+                "nullable": true
+              },
+              "trainTextEncoder": {
+                "type": "boolean",
+                "description": "Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage.",
+                "nullable": true
+              },
+              "lrScheduler": {
+                "enum": [
+                  "constant",
+                  "constant_with_warmup",
+                  "cosine",
+                  "linear",
+                  "step"
+                ],
+                "type": "string",
+                "description": "You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.",
+                "nullable": true
+              },
+              "optimizerType": {
+                "enum": [
+                  "adam",
+                  "adamw",
+                  "adamw8bit",
+                  "adam8bit",
+                  "lion",
+                  "lion8bit",
+                  "adafactor",
+                  "adagrad",
+                  "prodigy",
+                  "prodigy8bit"
+                ],
+                "type": "string",
+                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",
+                "nullable": true
+              },
+              "networkDim": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": "integer",
+                "description": "The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.",
+                "format": "int32",
+                "nullable": true
+              },
+              "networkAlpha": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": "integer",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "format": "int32",
+                "nullable": true
+              },
+              "noiseOffset": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.",
+                "format": "double",
+                "nullable": true
+              },
+              "minSnrGamma": {
+                "maximum": 20,
+                "minimum": 0,
+                "type": "integer",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "format": "int32",
+                "nullable": true
+              },
+              "flipAugmentation": {
+                "type": "boolean",
+                "description": "If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.",
+                "default": false
+              },
+              "shuffleTokens": {
+                "type": "boolean",
+                "description": "Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.",
+                "default": false
+              },
+              "keepTokens": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "integer",
+                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tokens option is off.",
+                "format": "int32",
+                "default": 0
+              },
+              "targetSteps": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true,
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "ai-toolkit"
+            ],
+            "type": "string"
+          }
+        }
       },
       "BatchOCRSafetyClassificationInput": {
         "required": [
@@ -3933,7 +4107,8 @@
           "mapping": {
             "kohya": "#/components/schemas/KohyaImageResourceTrainingInput",
             "flux-dev-fast": "#/components/schemas/FluxDevFastImageResourceTrainingInput",
-            "musubi": "#/components/schemas/MusubiImageResourceTrainingInput"
+            "musubi": "#/components/schemas/MusubiImageResourceTrainingInput",
+            "ai-toolkit": "#/components/schemas/AiToolkitImageResourceTrainingInput"
           }
         }
       },
@@ -5267,6 +5442,14 @@
           }
         }
       },
+      "OutputFormat": {
+        "enum": [
+          "png",
+          "jpeg",
+          "webP"
+        ],
+        "type": "string"
+      },
       "Priority": {
         "enum": [
           "high",
@@ -5715,6 +5898,133 @@
         ],
         "type": "string"
       },
+      "Sora2ImageToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SoraVideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "image-to-video"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Sora 2 Image-to-Video\r\nFAL Endpoints:\r\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video\r\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro"
+      },
+      "Sora2TextToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SoraVideoGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "text-to-video"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Sora 2 Text-to-Video\r\nFAL Endpoints:\r\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video\r\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video/pro"
+      },
+      "SoraVideoGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "text-to-video",
+                "nullable": true
+              },
+              "duration": {
+                "maximum": 12,
+                "minimum": 4,
+                "type": "integer",
+                "format": "int32",
+                "default": 4
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "usePro": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "text-to-video": "#/components/schemas/Sora2TextToVideoInput",
+                "image-to-video": "#/components/schemas/Sora2ImageToVideoInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "sora"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)\r\nSince FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.\r\nDiscriminator: operation (text-to-video or image-to-video)"
+      },
       "TextToImageInput": {
         "required": [
           "height",
@@ -5825,6 +6135,9 @@
             "type": "string",
             "description": "An optional engine to use for generation.",
             "nullable": true
+          },
+          "outputFormat": {
+            "$ref": "#/components/schemas/OutputFormat"
           }
         },
         "additionalProperties": false,
@@ -6463,7 +6776,8 @@
             "hunyuan": "#/components/schemas/HunyuanVdeoGenInput",
             "wan": "#/components/schemas/WanVideoGenInput",
             "vidu": "#/components/schemas/ViduVideoGenInput",
-            "veo3": "#/components/schemas/Veo3VideoGenInput"
+            "veo3": "#/components/schemas/Veo3VideoGenInput",
+            "sora": "#/components/schemas/SoraVideoGenInput"
           }
         }
       },
@@ -7844,8 +8158,7 @@
             "items": {
               "$ref": "#/components/schemas/BuzzClientAccount"
             },
-            "description": "The currencies used for this workflow.",
-            "nullable": true
+            "description": "An optional set of currencies to use for this workflow."
           }
         },
         "additionalProperties": false,
@@ -8347,8 +8660,7 @@
             "items": {
               "$ref": "#/components/schemas/BuzzClientAccount"
             },
-            "description": "The currencies used for this workflow.",
-            "nullable": true
+            "description": "Limit the currencies that can be used to pay for this workflow."
           }
         },
         "additionalProperties": false,

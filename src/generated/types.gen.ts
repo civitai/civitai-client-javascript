@@ -56,6 +56,101 @@ export type AgeClassifierLabel = {
   boundingBox: Array<number>;
 };
 
+export type AiToolkitImageResourceTrainingInput = ImageResourceTrainingInput & {
+  engine: 'ai-toolkit';
+} & {
+  /**
+   * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
+   * Note: ai-toolkit uses steps internally, calculated as epochs * images * repeats / batch_size.
+   */
+  maxTrainEpochs?: number;
+  /**
+   * Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.
+   */
+  numRepeats?: number;
+  /**
+   * Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.
+   */
+  trainBatchSize?: number | null;
+  /**
+   * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
+   */
+  resolution?: number | null;
+  /**
+   * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
+   */
+  lr?: number;
+  /**
+   * Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.
+   */
+  textEncoderLr?: number | null;
+  /**
+   * Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage.
+   */
+  trainTextEncoder?: boolean | null;
+  /**
+   * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+   */
+  lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
+  /**
+   * The optimizer determines how to update the neural net weights during training.
+   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
+   */
+  optimizerType?:
+    | 'adam'
+    | 'adamw'
+    | 'adamw8bit'
+    | 'adam8bit'
+    | 'lion'
+    | 'lion8bit'
+    | 'adafactor'
+    | 'adagrad'
+    | 'prodigy'
+    | 'prodigy8bit';
+  /**
+   * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
+   */
+  networkDim?: number | null;
+  /**
+   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
+   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
+   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
+   *
+   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   */
+  networkAlpha?: number | null;
+  /**
+   * Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.
+   */
+  noiseOffset?: number | null;
+  /**
+   * Learning is performed by putting noise of various strengths on the training image,
+   * but depending on the difference in strength of the noise on which it is placed, learning will be
+   * stable by moving closer to or farther from the learning target.
+   *
+   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
+   * it may deviate greatly from the target, so try to suppress this jump.
+   */
+  minSnrGamma?: number | null;
+  /**
+   * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
+   */
+  flipAugmentation?: boolean;
+  /**
+   * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
+   */
+  shuffleTokens?: boolean;
+  /**
+   * If your training images have tags, you can randomly shuffle them.
+   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
+   * This option does nothing if the Shuffle Tokens option is off.
+   */
+  keepTokens?: number;
+  readonly targetSteps?: number | null;
+} & {
+  engine: 'ai-toolkit';
+};
+
 export type BatchOcrSafetyClassificationInput = {
   mediaUrls: Array<string>;
 };
@@ -1090,6 +1185,14 @@ export type OpenApiImageGenInput = ImageGenInput & {
   engine: 'openai';
 };
 
+export const OutputFormat = {
+  PNG: 'png',
+  JPEG: 'jpeg',
+  WEB_P: 'webP',
+} as const;
+
+export type OutputFormat = (typeof OutputFormat)[keyof typeof OutputFormat];
+
 /**
  * Available options for priority.
  */
@@ -1298,6 +1401,46 @@ export const SeedreamVersion = {
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
 
 /**
+ * Sora 2 Image-to-Video
+ * FAL Endpoints:
+ * - Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video
+ * - Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro
+ */
+export type Sora2ImageToVideoInput = SoraVideoGenInput & {
+  images?: Array<string>;
+} & {
+  operation: 'image-to-video';
+};
+
+/**
+ * Sora 2 Text-to-Video
+ * FAL Endpoints:
+ * - Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video
+ * - Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video/pro
+ */
+export type Sora2TextToVideoInput = SoraVideoGenInput & {} & {
+  operation: 'text-to-video';
+};
+
+/**
+ * Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)
+ * Since FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.
+ * Discriminator: operation (text-to-video or image-to-video)
+ */
+export type SoraVideoGenInput = VideoGenInput & {
+  engine: 'sora';
+} & {
+  operation: string | null;
+  duration?: number;
+  seed?: number | null;
+  resolution?: '720p' | '1080p';
+  aspectRatio?: '16:9' | '9:16';
+  usePro?: boolean;
+} & {
+  engine: 'sora';
+};
+
+/**
  * Input for an text to image step.
  */
 export type TextToImageInput = {
@@ -1364,6 +1507,7 @@ export type TextToImageInput = {
    * An optional engine to use for generation.
    */
   engine?: string | null;
+  outputFormat?: OutputFormat;
 };
 
 /**
@@ -1959,9 +2103,9 @@ export type Workflow = {
   allowMatureContent?: boolean | null;
   upgradeMode?: WorkflowUpgradeMode;
   /**
-   * The currencies used for this workflow.
+   * An optional set of currencies to use for this workflow.
    */
-  currencies?: Array<BuzzClientAccount> | null;
+  currencies?: Array<BuzzClientAccount>;
 };
 
 /**
@@ -2273,9 +2417,9 @@ export type WorkflowTemplate = {
   allowMatureContent?: boolean | null;
   upgradeMode?: WorkflowUpgradeMode;
   /**
-   * The currencies used for this workflow.
+   * Limit the currencies that can be used to pay for this workflow.
    */
-  currencies?: Array<BuzzClientAccount> | null;
+  currencies?: Array<BuzzClientAccount>;
 };
 
 export type WorkflowTips = {
