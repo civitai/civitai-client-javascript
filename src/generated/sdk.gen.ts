@@ -7,6 +7,9 @@ import type {
   HeadBlobData,
   HeadBlobResponses,
   HeadBlobErrors,
+  GetBlobContentData,
+  GetBlobContentResponses,
+  GetBlobContentErrors,
   InvokeAgeClassificationStepTemplateData,
   InvokeAgeClassificationStepTemplateResponses,
   InvokeAgeClassificationStepTemplateErrors,
@@ -97,7 +100,7 @@ export type Options<
 };
 
 /**
- * Get blob by ID. This will return the blob as a binary stream.
+ * Get blob by ID. This will redirect to a cacheable content URL.
  */
 export const getBlob = <ThrowOnError extends boolean = false>(
   options: Options<GetBlobData, ThrowOnError>
@@ -128,6 +131,28 @@ export const headBlob = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/v2/consumer/blobs/{blobId}',
+    ...options,
+  });
+};
+
+/**
+ * Serves cacheable blob content using a deterministic encrypted token
+ */
+export const getBlobContent = <ThrowOnError extends boolean = false>(
+  options: Options<GetBlobContentData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetBlobContentResponses,
+    GetBlobContentErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/blobs/content/{encryptedToken}',
     ...options,
   });
 };

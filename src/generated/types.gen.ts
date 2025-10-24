@@ -1434,7 +1434,7 @@ export type SoraVideoGenInput = VideoGenInput & {
   duration?: number;
   seed?: number | null;
   resolution?: '720p' | '1080p';
-  aspectRatio?: '16:9' | '9:16';
+  aspectRatio?: 'auto' | '16:9' | '9:16';
   usePro?: boolean;
 } & {
   engine: 'sora';
@@ -1711,6 +1711,13 @@ export const Veo3AspectRatio = {
 
 export type Veo3AspectRatio = (typeof Veo3AspectRatio)[keyof typeof Veo3AspectRatio];
 
+export const Veo3Version = {
+  '3_0': '3.0',
+  '3_1': '3.1',
+} as const;
+
+export type Veo3Version = (typeof Veo3Version)[keyof typeof Veo3Version];
+
 export type Veo3VideoGenInput = VideoGenInput & {
   engine: 'veo3';
 } & {
@@ -1722,6 +1729,7 @@ export type Veo3VideoGenInput = VideoGenInput & {
   seed?: number | null;
   fastMode?: boolean;
   images?: Array<string>;
+  version?: Veo3Version;
 } & {
   engine: 'veo3';
 };
@@ -2472,6 +2480,14 @@ export type GetBlobErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
 };
 
 export type GetBlobError = GetBlobErrors[keyof GetBlobErrors];
@@ -2509,6 +2525,46 @@ export type HeadBlobResponses = {
 };
 
 export type HeadBlobResponse = HeadBlobResponses[keyof HeadBlobResponses];
+
+export type GetBlobContentData = {
+  body?: never;
+  path: {
+    /**
+     * The encrypted token containing blob access parameters
+     */
+    encryptedToken: string;
+  };
+  query?: never;
+  url: '/v2/consumer/blobs/content/{encryptedToken}';
+};
+
+export type GetBlobContentErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+  /**
+   * Internal Server Error
+   */
+  500: unknown;
+};
+
+export type GetBlobContentError = GetBlobContentErrors[keyof GetBlobContentErrors];
+
+export type GetBlobContentResponses = {
+  /**
+   * OK
+   */
+  200: unknown;
+};
 
 export type InvokeAgeClassificationStepTemplateData = {
   body?: AgeClassificationInput;

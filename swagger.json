@@ -15,7 +15,7 @@
         "tags": [
           "Blobs"
         ],
-        "summary": "Get blob by ID. This will return the blob as a binary stream.",
+        "summary": "Get blob by ID. This will redirect to a cacheable content URL.",
         "operationId": "GetBlob",
         "parameters": [
           {
@@ -47,6 +47,29 @@
         "responses": {
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "308": {
+            "description": "Permanent Redirect"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -97,6 +120,64 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v2/consumer/blobs/content/{encryptedToken}": {
+      "get": {
+        "tags": [
+          "Blobs"
+        ],
+        "summary": "Serves cacheable blob content using a deterministic encrypted token",
+        "operationId": "GetBlobContent",
+        "parameters": [
+          {
+            "name": "encryptedToken",
+            "in": "path",
+            "description": "The encrypted token containing blob access parameters",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -5994,11 +6075,12 @@
               },
               "aspectRatio": {
                 "enum": [
+                  "auto",
                   "16:9",
                   "9:16"
                 ],
                 "type": "string",
-                "default": "16:9"
+                "default": "auto"
               },
               "usePro": {
                 "type": "boolean",
@@ -6527,6 +6609,13 @@
         ],
         "type": "string"
       },
+      "Veo3Version": {
+        "enum": [
+          "3.0",
+          "3.1"
+        ],
+        "type": "string"
+      },
       "Veo3VideoGenInput": {
         "required": [
           "engine"
@@ -6570,6 +6659,9 @@
                   "type": "string",
                   "description": "Either A URL, A DataURL or a Base64 string"
                 }
+              },
+              "version": {
+                "$ref": "#/components/schemas/Veo3Version"
               }
             },
             "additionalProperties": false
