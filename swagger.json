@@ -567,6 +567,83 @@
         }
       }
     },
+    "/v2/consumer/recipes/training": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "AI Toolkit Training",
+        "description": "Train models using AI Toolkit engine",
+        "operationId": "InvokeTrainingStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/imageUpload": {
       "post": {
         "tags": [
@@ -4305,6 +4382,304 @@
           }
         },
         "description": "LORA Training"
+      },
+      "TrainingInput": {
+        "required": [
+          "engine",
+          "ecosystem",
+          "model",
+          "trainingData",
+          "samples"
+        ],
+        "type": "object",
+        "properties": {
+          "engine": {
+            "enum": [
+              "ai-toolkit"
+            ],
+            "type": "string",
+            "description": "The training engine to use"
+          },
+          "ecosystem": {
+            "type": "string",
+            "description": "The model ecosystem (sd1, sdxl, flux1, sd3, wan)"
+          },
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The model URN to train upon"
+          },
+          "modelVariant": {
+            "type": "string",
+            "description": "Model variant (e.g., 'dev', 'large', '2.1')",
+            "nullable": true
+          },
+          "trainingData": {
+            "type": "object",
+            "required": [
+              "type",
+              "sourceUrl",
+              "count"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Type of training data (e.g., 'zip')"
+              },
+              "sourceUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "URN/URL to training data"
+              },
+              "count": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Number of training items"
+              }
+            },
+            "description": "Training data specification"
+          },
+          "samples": {
+            "type": "object",
+            "required": [
+              "prompts"
+            ],
+            "properties": {
+              "prompts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Sample generation prompts"
+              }
+            },
+            "description": "Sample generation configuration"
+          },
+          "epochs": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of training epochs",
+            "default": 5
+          },
+          "numRepeats": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 5000,
+            "description": "Number of repeats per image",
+            "default": 8
+          },
+          "trainBatchSize": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 9,
+            "description": "Training batch size",
+            "nullable": true
+          },
+          "resolution": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Training resolution (512, 1024, etc.)",
+            "nullable": true
+          },
+          "lr": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Learning rate",
+            "default": 0.0001
+          },
+          "textEncoderLr": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Text encoder learning rate",
+            "nullable": true
+          },
+          "trainTextEncoder": {
+            "type": "boolean",
+            "description": "Whether to train text encoder",
+            "default": false
+          },
+          "lrScheduler": {
+            "type": "string",
+            "description": "Learning rate scheduler type",
+            "default": "cosine"
+          },
+          "optimizerType": {
+            "type": "string",
+            "description": "Optimizer type",
+            "default": "adamw8bit"
+          },
+          "networkDim": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 128,
+            "description": "LoRA network dimension",
+            "default": 32
+          },
+          "networkAlpha": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 128,
+            "description": "LoRA network alpha",
+            "default": 32
+          },
+          "noiseOffset": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Noise offset for training",
+            "default": 0
+          },
+          "minSnrGamma": {
+            "type": "number",
+            "format": "double",
+            "description": "Min SNR gamma value",
+            "nullable": true
+          },
+          "flipAugmentation": {
+            "type": "boolean",
+            "description": "Enable horizontal flip augmentation",
+            "default": false
+          },
+          "shuffleTokens": {
+            "type": "boolean",
+            "description": "Shuffle tokens during training",
+            "default": false
+          },
+          "keepTokens": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "Number of tokens to keep at start",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for a training step."
+      },
+      "TrainingOutput": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Training status"
+          },
+          "epochs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EpochResult"
+            },
+            "description": "Training epoch results",
+            "nullable": true
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string"
+                },
+                "blob": {
+                  "$ref": "#/components/schemas/Blob"
+                }
+              }
+            },
+            "description": "Generated sample images",
+            "nullable": true
+          },
+          "modelBlob": {
+            "$ref": "#/components/schemas/Blob",
+            "description": "Trained model blob reference",
+            "nullable": true
+          },
+          "eta": {
+            "type": "number",
+            "format": "double",
+            "description": "Estimated time remaining (minutes)",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TrainingStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TrainingInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/TrainingOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "training"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit Training Step"
+      },
+      "TrainingStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "training"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit Training Step Template"
       },
       "ImageTransformer": {
         "enum": [
@@ -8477,6 +8852,7 @@
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
             "imageUpload": "#/components/schemas/ImageUploadStep",
             "textToImage": "#/components/schemas/TextToImageStep",
+            "training": "#/components/schemas/TrainingStep",
             "transcode": "#/components/schemas/TranscodeStep",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStep",
             "videoGen": "#/components/schemas/VideoGenStep"
@@ -8679,6 +9055,7 @@
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
+            "training": "#/components/schemas/TrainingStepTemplate",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStepTemplate",
             "videoGen": "#/components/schemas/VideoGenStepTemplate"
           }

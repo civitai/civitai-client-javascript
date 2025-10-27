@@ -697,6 +697,164 @@ export type ImageResourceTrainingStepTemplate = WorkflowStepTemplate & {
 };
 
 /**
+ * Input for a training step.
+ */
+export type TrainingInput = {
+  /**
+   * The training engine to use
+   */
+  engine: 'ai-toolkit';
+  /**
+   * The model ecosystem (sd1, sdxl, flux1, sd3, wan)
+   */
+  ecosystem: string;
+  /**
+   * The model URN to train upon
+   */
+  model: string;
+  /**
+   * Model variant (e.g., 'dev', 'large', '2.1')
+   */
+  modelVariant?: string | null;
+  /**
+   * Training data specification
+   */
+  trainingData: {
+    /**
+     * Type of training data (e.g., 'zip')
+     */
+    type: string;
+    /**
+     * URN/URL to training data
+     */
+    sourceUrl: string;
+    /**
+     * Number of training items
+     */
+    count: number;
+  };
+  /**
+   * Sample generation configuration
+   */
+  samples: {
+    /**
+     * Sample generation prompts
+     */
+    prompts: Array<string>;
+  };
+  /**
+   * Number of training epochs
+   */
+  epochs?: number;
+  /**
+   * Number of repeats per image
+   */
+  numRepeats?: number;
+  /**
+   * Training batch size
+   */
+  trainBatchSize?: number | null;
+  /**
+   * Training resolution (512, 1024, etc.)
+   */
+  resolution?: number | null;
+  /**
+   * Learning rate
+   */
+  lr?: number;
+  /**
+   * Text encoder learning rate
+   */
+  textEncoderLr?: number | null;
+  /**
+   * Whether to train text encoder
+   */
+  trainTextEncoder?: boolean;
+  /**
+   * Learning rate scheduler type
+   */
+  lrScheduler?: string;
+  /**
+   * Optimizer type
+   */
+  optimizerType?: string;
+  /**
+   * LoRA network dimension
+   */
+  networkDim?: number;
+  /**
+   * LoRA network alpha
+   */
+  networkAlpha?: number;
+  /**
+   * Noise offset for training
+   */
+  noiseOffset?: number;
+  /**
+   * Min SNR gamma value
+   */
+  minSnrGamma?: number | null;
+  /**
+   * Enable horizontal flip augmentation
+   */
+  flipAugmentation?: boolean;
+  /**
+   * Shuffle tokens during training
+   */
+  shuffleTokens?: boolean;
+  /**
+   * Number of tokens to keep at start
+   */
+  keepTokens?: number;
+};
+
+export type TrainingOutput = {
+  /**
+   * Training status
+   */
+  status: string;
+  /**
+   * Training epoch results
+   */
+  epochs?: Array<EpochResult> | null;
+  /**
+   * Generated sample images
+   */
+  samples?: Array<{
+    prompt?: string;
+    blob?: Blob;
+  }> | null;
+  modelBlob?: Blob;
+  /**
+   * Estimated time remaining (minutes)
+   */
+  eta?: number | null;
+};
+
+/**
+ * AI Toolkit Training Step
+ */
+export type TrainingStep = WorkflowStep & {
+  $type: 'training';
+} & {
+  input: TrainingInput;
+  output?: TrainingOutput;
+} & {
+  $type: 'training';
+};
+
+/**
+ * AI Toolkit Training Step Template
+ */
+export type TrainingStepTemplate = WorkflowStepTemplate & {
+  $type: 'training';
+} & {
+  input: TrainingInput;
+} & {
+  $type: 'training';
+};
+
+/**
  * Available image transformers.
  */
 export const ImageTransformer = {
@@ -2735,6 +2893,40 @@ export type InvokeImageResourceTrainingStepTemplateResponses = {
 
 export type InvokeImageResourceTrainingStepTemplateResponse =
   InvokeImageResourceTrainingStepTemplateResponses[keyof InvokeImageResourceTrainingStepTemplateResponses];
+
+export type InvokeTrainingStepTemplateData = {
+  body?: TrainingInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
+  url: '/v2/consumer/recipes/training';
+};
+
+export type InvokeTrainingStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeTrainingStepTemplateError =
+  InvokeTrainingStepTemplateErrors[keyof InvokeTrainingStepTemplateErrors];
+
+export type InvokeTrainingStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: TrainingOutput;
+};
+
+export type InvokeTrainingStepTemplateResponse =
+  InvokeTrainingStepTemplateResponses[keyof InvokeTrainingStepTemplateResponses];
 
 export type InvokeImageUploadStepTemplateData = {
   body?: string;

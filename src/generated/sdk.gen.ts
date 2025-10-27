@@ -25,6 +25,9 @@ import type {
   InvokeImageResourceTrainingStepTemplateData,
   InvokeImageResourceTrainingStepTemplateResponses,
   InvokeImageResourceTrainingStepTemplateErrors,
+  InvokeTrainingStepTemplateData,
+  InvokeTrainingStepTemplateResponses,
+  InvokeTrainingStepTemplateErrors,
   InvokeImageUploadStepTemplateData,
   InvokeImageUploadStepTemplateResponses,
   InvokeImageUploadStepTemplateErrors,
@@ -285,6 +288,33 @@ export const invokeImageResourceTrainingStepTemplate = <ThrowOnError extends boo
       },
     ],
     url: '/v2/consumer/recipes/imageResourceTraining',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * AI Toolkit Training
+ * Train models using AI Toolkit engine
+ */
+export const invokeTrainingStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeTrainingStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeTrainingStepTemplateResponses,
+    InvokeTrainingStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/training',
     ...options,
     headers: {
       'Content-Type': 'application/json',
