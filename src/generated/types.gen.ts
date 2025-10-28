@@ -705,15 +705,15 @@ export type TrainingInput = {
    */
   engine: 'ai-toolkit';
   /**
-   * The model ecosystem (sd1, sdxl, flux1, sd3, wan)
+   * The model ecosystem
    */
-  ecosystem: string;
+  ecosystem: 'sd1' | 'sdxl' | 'sd3' | 'flux1' | 'wan';
   /**
    * The model URN to train upon
    */
   model: string;
   /**
-   * Model variant (e.g., 'dev', 'large', '2.1')
+   * Model variant. Required for: sd3 ('large'), flux1 ('dev' or 'schnell'), wan ('2.1' or '2.2'). Not used for sd1 or sdxl.
    */
   modelVariant?: string | null;
   /**
@@ -746,14 +746,6 @@ export type TrainingInput = {
    * Number of training epochs
    */
   epochs?: number;
-  /**
-   * Number of repeats per image
-   */
-  numRepeats?: number;
-  /**
-   * Training batch size
-   */
-  trainBatchSize?: number | null;
   /**
    * Training resolution (512, 1024, etc.)
    */
