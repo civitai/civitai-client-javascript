@@ -4559,49 +4559,106 @@
         "additionalProperties": false,
         "description": "Input for a training step."
       },
-      "TrainingOutput": {
+      "TrainingEpochResult": {
         "required": [
-          "status"
+          "model",
+          "samples"
         ],
         "type": "object",
         "properties": {
-          "status": {
-            "type": "string",
-            "description": "Training status"
+          "epochNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The epoch number"
           },
-          "epochs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EpochResult"
+          "model": {
+            "type": "object",
+            "required": [
+              "id",
+              "available"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The blob id of the trained model file"
+              },
+              "available": {
+                "type": "boolean",
+                "description": "Whether the model blob is available"
+              },
+              "url": {
+                "type": "string",
+                "description": "Presigned URL to download the model",
+                "format": "uri",
+                "nullable": true
+              },
+              "urlExpiresAt": {
+                "type": "string",
+                "description": "When the presigned URL expires",
+                "format": "date-time",
+                "nullable": true
+              }
             },
-            "description": "Training epoch results",
-            "nullable": true
+            "description": "The trained model blob for this epoch"
           },
           "samples": {
             "type": "array",
             "items": {
               "type": "object",
+              "required": [
+                "id",
+                "available"
+              ],
               "properties": {
-                "prompt": {
-                  "type": "string"
+                "id": {
+                  "type": "string",
+                  "description": "The blob id of the sample image"
                 },
-                "blob": {
-                  "$ref": "#/components/schemas/Blob"
+                "available": {
+                  "type": "boolean",
+                  "description": "Whether the sample image is available"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "Presigned URL to view the sample image",
+                  "format": "uri",
+                  "nullable": true
+                },
+                "urlExpiresAt": {
+                  "type": "string",
+                  "description": "When the presigned URL expires",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "nsfwLevel": {
+                  "type": "string",
+                  "description": "NSFW level of the sample image",
+                  "nullable": true
                 }
               }
             },
-            "description": "Generated sample images",
-            "nullable": true
+            "description": "Generated sample images for this epoch"
+          }
+        },
+        "additionalProperties": false,
+        "description": "An epoch result for training output."
+      },
+      "TrainingOutput": {
+        "required": [
+          "moderationStatus"
+        ],
+        "type": "object",
+        "properties": {
+          "moderationStatus": {
+            "type": "string",
+            "description": "Moderation status of the training output"
           },
-          "modelBlob": {
-            "$ref": "#/components/schemas/Blob",
-            "description": "Trained model blob reference",
-            "nullable": true
-          },
-          "eta": {
-            "type": "number",
-            "format": "double",
-            "description": "Estimated time remaining (minutes)",
+          "epochs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrainingEpochResult"
+            },
+            "description": "Training epoch results",
             "nullable": true
           }
         },

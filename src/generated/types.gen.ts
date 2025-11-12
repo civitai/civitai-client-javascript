@@ -800,27 +800,71 @@ export type TrainingInput = {
   keepTokens?: number;
 };
 
+/**
+ * An epoch result for training output.
+ */
+export type TrainingEpochResult = {
+  /**
+   * The epoch number
+   */
+  epochNumber?: number;
+  /**
+   * The trained model blob for this epoch
+   */
+  model: {
+    /**
+     * The blob id of the trained model file
+     */
+    id: string;
+    /**
+     * Whether the model blob is available
+     */
+    available: boolean;
+    /**
+     * Presigned URL to download the model
+     */
+    url?: string | null;
+    /**
+     * When the presigned URL expires
+     */
+    urlExpiresAt?: string | null;
+  };
+  /**
+   * Generated sample images for this epoch
+   */
+  samples: Array<{
+    /**
+     * The blob id of the sample image
+     */
+    id: string;
+    /**
+     * Whether the sample image is available
+     */
+    available: boolean;
+    /**
+     * Presigned URL to view the sample image
+     */
+    url?: string | null;
+    /**
+     * When the presigned URL expires
+     */
+    urlExpiresAt?: string | null;
+    /**
+     * NSFW level of the sample image
+     */
+    nsfwLevel?: string | null;
+  }>;
+};
+
 export type TrainingOutput = {
   /**
-   * Training status
+   * Moderation status of the training output
    */
-  status: string;
+  moderationStatus: string;
   /**
    * Training epoch results
    */
-  epochs?: Array<EpochResult> | null;
-  /**
-   * Generated sample images
-   */
-  samples?: Array<{
-    prompt?: string;
-    blob?: Blob;
-  }> | null;
-  modelBlob?: Blob;
-  /**
-   * Estimated time remaining (minutes)
-   */
-  eta?: number | null;
+  epochs?: Array<TrainingEpochResult> | null;
 };
 
 /**
