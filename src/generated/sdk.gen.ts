@@ -25,21 +25,42 @@ import type {
   InvokeImageResourceTrainingStepTemplateData,
   InvokeImageResourceTrainingStepTemplateResponses,
   InvokeImageResourceTrainingStepTemplateErrors,
-  InvokeTrainingStepTemplateData,
-  InvokeTrainingStepTemplateResponses,
-  InvokeTrainingStepTemplateErrors,
   InvokeImageUploadStepTemplateData,
   InvokeImageUploadStepTemplateResponses,
   InvokeImageUploadStepTemplateErrors,
+  InvokeImageUpscalerStepTemplateData,
+  InvokeImageUpscalerStepTemplateResponses,
+  InvokeImageUpscalerStepTemplateErrors,
+  InvokeMediaHashStepTemplateData,
+  InvokeMediaHashStepTemplateResponses,
+  InvokeMediaHashStepTemplateErrors,
+  InvokeMediaRatingStepTemplateData,
+  InvokeMediaRatingStepTemplateResponses,
+  InvokeMediaRatingStepTemplateErrors,
   InvokeTextToImageStepTemplateData,
   InvokeTextToImageStepTemplateResponses,
   InvokeTextToImageStepTemplateErrors,
+  InvokeTrainingStepTemplateData,
+  InvokeTrainingStepTemplateResponses,
+  InvokeTrainingStepTemplateErrors,
   InvokeVideoEnhancementStepTemplateData,
   InvokeVideoEnhancementStepTemplateResponses,
   InvokeVideoEnhancementStepTemplateErrors,
+  InvokeVideoFrameExtractionStepTemplateData,
+  InvokeVideoFrameExtractionStepTemplateResponses,
+  InvokeVideoFrameExtractionStepTemplateErrors,
   InvokeVideoGenStepTemplateData,
   InvokeVideoGenStepTemplateResponses,
   InvokeVideoGenStepTemplateErrors,
+  InvokeVideoInterpolationStepTemplateData,
+  InvokeVideoInterpolationStepTemplateResponses,
+  InvokeVideoInterpolationStepTemplateErrors,
+  InvokeVideoUpscalerStepTemplateData,
+  InvokeVideoUpscalerStepTemplateResponses,
+  InvokeVideoUpscalerStepTemplateErrors,
+  InvokeWdTaggingStepTemplateData,
+  InvokeWdTaggingStepTemplateResponses,
+  InvokeWdTaggingStepTemplateErrors,
   InvalidateResourceData,
   InvalidateResourceResponses,
   InvalidateResourceErrors,
@@ -297,33 +318,6 @@ export const invokeImageResourceTrainingStepTemplate = <ThrowOnError extends boo
 };
 
 /**
- * AI Toolkit Training
- * Train models using AI Toolkit engine
- */
-export const invokeTrainingStepTemplate = <ThrowOnError extends boolean = false>(
-  options?: Options<InvokeTrainingStepTemplateData, ThrowOnError>
-) => {
-  return (options?.client ?? _heyApiClient).post<
-    InvokeTrainingStepTemplateResponses,
-    InvokeTrainingStepTemplateErrors,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/v2/consumer/recipes/training',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-};
-
-/**
  * Image upload
  * Uploads an image to be used in a workflow
  */
@@ -342,6 +336,83 @@ export const invokeImageUploadStepTemplate = <ThrowOnError extends boolean = fal
       },
     ],
     url: '/v2/consumer/recipes/imageUpload',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+export const invokeImageUpscalerStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeImageUpscalerStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeImageUpscalerStepTemplateResponses,
+    InvokeImageUpscalerStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/imageUpscaler',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * MediaHash
+ * Generates perceptual hashes for media content to enable similarity detection and duplicate identification.
+ */
+export const invokeMediaHashStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeMediaHashStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeMediaHashStepTemplateResponses,
+    InvokeMediaHashStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/mediaHash',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * MediaRating
+ * Performs NSFW level detection and content safety classification on media content.
+ */
+export const invokeMediaRatingStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeMediaRatingStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeMediaRatingStepTemplateResponses,
+    InvokeMediaRatingStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/mediaRating',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -378,6 +449,35 @@ export const invokeTextToImageStepTemplate = <ThrowOnError extends boolean = fal
 };
 
 /**
+ * Training
+ * A workflow step for training machine learning models (LoRAs, checkpoints, etc.)
+ * /// on various types of data (images, videos, audio). This replaces ImageResourceTraining
+ * /// with a cleaner architecture that creates one job per epoch instead of a single monolithic job.
+ */
+export const invokeTrainingStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeTrainingStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeTrainingStepTemplateResponses,
+    InvokeTrainingStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/training',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
  * Upscale videos and/or interpolate frames
  */
 export const invokeVideoEnhancementStepTemplate = <ThrowOnError extends boolean = false>(
@@ -395,6 +495,34 @@ export const invokeVideoEnhancementStepTemplate = <ThrowOnError extends boolean 
       },
     ],
     url: '/v2/consumer/recipes/videoEnhancement',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Video Frame Extraction
+ * Extracts unique frames from a video at a specified rate using perceptual hashing to filter out duplicate/similar frames.
+ * /// Useful for generating video previews, storyboards, or analyzing video content.
+ */
+export const invokeVideoFrameExtractionStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeVideoFrameExtractionStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeVideoFrameExtractionStepTemplateResponses,
+    InvokeVideoFrameExtractionStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/videoFrameExtraction',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -422,6 +550,85 @@ export const invokeVideoGenStepTemplate = <ThrowOnError extends boolean = false>
       },
     ],
     url: '/v2/consumer/recipes/videoGen',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Interpolate videos using VFI Mamba
+ */
+export const invokeVideoInterpolationStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeVideoInterpolationStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeVideoInterpolationStepTemplateResponses,
+    InvokeVideoInterpolationStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/videoInterpolation',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Upscale videos using FlashVSR
+ */
+export const invokeVideoUpscalerStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeVideoUpscalerStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeVideoUpscalerStepTemplateResponses,
+    InvokeVideoUpscalerStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/videoUpscaler',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * WDTagging
+ * Performs Waifu Diffusion tagging on media content to identify characteristics, objects, and themes.
+ */
+export const invokeWdTaggingStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeWdTaggingStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeWdTaggingStepTemplateResponses,
+    InvokeWdTaggingStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/wdTagging',
     ...options,
     headers: {
       'Content-Type': 'application/json',

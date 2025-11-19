@@ -567,83 +567,6 @@
         }
       }
     },
-    "/v2/consumer/recipes/training": {
-      "post": {
-        "tags": [
-          "Recipes"
-        ],
-        "summary": "AI Toolkit Training",
-        "description": "Train models using AI Toolkit engine",
-        "operationId": "InvokeTrainingStepTemplate",
-        "parameters": [
-          {
-            "name": "experimental",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "allowMatureContent",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrainingInput"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrainingInput"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrainingInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrainingOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v2/consumer/recipes/imageUpload": {
       "post": {
         "tags": [
@@ -704,6 +627,235 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ImageUploadOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/imageUpscaler": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "operationId": "InvokeImageUpscalerStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageUpscalerInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageUpscalerInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageUpscalerInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUpscalerOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/mediaHash": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "MediaHash",
+        "description": "Generates perceptual hashes for media content to enable similarity detection and duplicate identification.",
+        "operationId": "InvokeMediaHashStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaHashInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaHashInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaHashInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaHashOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/mediaRating": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "MediaRating",
+        "description": "Performs NSFW level detection and content safety classification on media content.",
+        "operationId": "InvokeMediaRatingStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaRatingInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaRatingInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaRatingInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaRatingOutput"
                 }
               }
             }
@@ -798,6 +950,83 @@
         }
       }
     },
+    "/v2/consumer/recipes/training": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Training",
+        "description": "A workflow step for training machine learning models (LoRAs, checkpoints, etc.)\r\n/// on various types of data (images, videos, audio). This replaces ImageResourceTraining\r\n/// with a cleaner architecture that creates one job per epoch instead of a single monolithic job.",
+        "operationId": "InvokeTrainingStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/videoEnhancement": {
       "post": {
         "tags": [
@@ -857,6 +1086,83 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/VideoEnhancementOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/videoFrameExtraction": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Video Frame Extraction",
+        "description": "Extracts unique frames from a video at a specified rate using perceptual hashing to filter out duplicate/similar frames.\r\n/// Useful for generating video previews, storyboards, or analyzing video content.",
+        "operationId": "InvokeVideoFrameExtractionStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoFrameExtractionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoFrameExtractionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoFrameExtractionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoFrameExtractionOutput"
                 }
               }
             }
@@ -934,6 +1240,235 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/VideoGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/videoInterpolation": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Interpolate videos using VFI Mamba",
+        "operationId": "InvokeVideoInterpolationStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoInterpolationInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoInterpolationInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoInterpolationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoInterpolationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/videoUpscaler": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Upscale videos using FlashVSR",
+        "operationId": "InvokeVideoUpscalerStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoUpscalerInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoUpscalerInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoUpscalerInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoUpscalerOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/wdTagging": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "WDTagging",
+        "description": "Performs Waifu Diffusion tagging on media content to identify characteristics, objects, and themes.",
+        "operationId": "InvokeWDTaggingStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WDTaggingInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WDTaggingInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WDTaggingInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WDTaggingOutput"
                 }
               }
             }
@@ -2630,6 +3165,163 @@
   },
   "components": {
     "schemas": {
+      "AIToolkitTrainingInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "type": "string"
+              },
+              "epochs": {
+                "maximum": 20,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\r\nMaximum of 20 epochs can be specified.\r\nNote: ai-toolkit uses steps internally, calculated based on epochs, image count, and internal parameters.",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "maximum": 1024,
+                "minimum": 512,
+                "type": "integer",
+                "description": "Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution",
+                "format": "int32",
+                "nullable": true
+              },
+              "lr": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).",
+                "format": "double",
+                "default": 0.0001
+              },
+              "textEncoderLr": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.",
+                "format": "double",
+                "nullable": true
+              },
+              "trainTextEncoder": {
+                "type": "boolean",
+                "description": "Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage.",
+                "nullable": true
+              },
+              "lrScheduler": {
+                "enum": [
+                  "constant",
+                  "constant_with_warmup",
+                  "cosine",
+                  "linear",
+                  "step"
+                ],
+                "type": "string",
+                "description": "You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.",
+                "nullable": true
+              },
+              "optimizerType": {
+                "enum": [
+                  "adam",
+                  "adamw",
+                  "adamw8bit",
+                  "adam8bit",
+                  "lion",
+                  "lion8bit",
+                  "adafactor",
+                  "adagrad",
+                  "prodigy",
+                  "prodigy8bit"
+                ],
+                "type": "string",
+                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",
+                "nullable": true
+              },
+              "networkDim": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": "integer",
+                "description": "The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.",
+                "format": "int32",
+                "nullable": true
+              },
+              "networkAlpha": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": "integer",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "format": "int32",
+                "nullable": true
+              },
+              "noiseOffset": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.",
+                "format": "double",
+                "nullable": true
+              },
+              "minSnrGamma": {
+                "maximum": 20,
+                "minimum": 0,
+                "type": "integer",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "format": "int32",
+                "nullable": true
+              },
+              "flipAugmentation": {
+                "type": "boolean",
+                "description": "If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.",
+                "default": false
+              },
+              "shuffleTokens": {
+                "type": "boolean",
+                "description": "Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.",
+                "default": false
+              },
+              "keepTokens": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "integer",
+                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tokens option is off.",
+                "format": "int32",
+                "default": 0
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "ecosystem",
+              "mapping": {
+                "flux1": "#/components/schemas/Flux1AIToolkitTrainingInput",
+                "sd3": "#/components/schemas/SD3AIToolkitTrainingInput",
+                "sdxl": "#/components/schemas/SdxlAIToolkitTrainingInput",
+                "sd1": "#/components/schemas/SD1AIToolkitTrainingInput",
+                "wan": "#/components/schemas/WanAIToolkitTrainingInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "ai-toolkit"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Base input for AI Toolkit training across all ecosystems"
+      },
       "AgeClassificationInput": {
         "required": [
           "mediaUrl"
@@ -2771,168 +3463,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "AiToolkitImageResourceTrainingInput": {
-        "required": [
-          "engine"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ImageResourceTrainingInput"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "maxTrainEpochs": {
-                "maximum": 20,
-                "minimum": 0,
-                "type": "integer",
-                "description": "An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.\r\nNote: ai-toolkit uses steps internally, calculated as epochs * images * repeats / batch_size.",
-                "format": "int32",
-                "default": 5
-              },
-              "numRepeats": {
-                "maximum": 5000,
-                "minimum": 1,
-                "type": "integer",
-                "description": "Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.",
-                "format": "int32",
-                "default": 8
-              },
-              "trainBatchSize": {
-                "maximum": 9,
-                "minimum": 1,
-                "type": "integer",
-                "description": "Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.",
-                "format": "int32",
-                "nullable": true
-              },
-              "resolution": {
-                "maximum": 1024,
-                "minimum": 512,
-                "type": "integer",
-                "description": "Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution",
-                "format": "int32",
-                "nullable": true
-              },
-              "lr": {
-                "maximum": 1,
-                "minimum": 0,
-                "type": "number",
-                "description": "Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).",
-                "format": "double",
-                "default": 0.0001
-              },
-              "textEncoderLr": {
-                "maximum": 1,
-                "minimum": 0,
-                "type": "number",
-                "description": "Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.",
-                "format": "double",
-                "nullable": true
-              },
-              "trainTextEncoder": {
-                "type": "boolean",
-                "description": "Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage.",
-                "nullable": true
-              },
-              "lrScheduler": {
-                "enum": [
-                  "constant",
-                  "constant_with_warmup",
-                  "cosine",
-                  "linear",
-                  "step"
-                ],
-                "type": "string",
-                "description": "You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.",
-                "nullable": true
-              },
-              "optimizerType": {
-                "enum": [
-                  "adam",
-                  "adamw",
-                  "adamw8bit",
-                  "adam8bit",
-                  "lion",
-                  "lion8bit",
-                  "adafactor",
-                  "adagrad",
-                  "prodigy",
-                  "prodigy8bit"
-                ],
-                "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",
-                "nullable": true
-              },
-              "networkDim": {
-                "maximum": 256,
-                "minimum": 1,
-                "type": "integer",
-                "description": "The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.",
-                "format": "int32",
-                "nullable": true
-              },
-              "networkAlpha": {
-                "maximum": 256,
-                "minimum": 1,
-                "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
-                "format": "int32",
-                "nullable": true
-              },
-              "noiseOffset": {
-                "maximum": 1,
-                "minimum": 0,
-                "type": "number",
-                "description": "Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.",
-                "format": "double",
-                "nullable": true
-              },
-              "minSnrGamma": {
-                "maximum": 20,
-                "minimum": 0,
-                "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
-                "format": "int32",
-                "nullable": true
-              },
-              "flipAugmentation": {
-                "type": "boolean",
-                "description": "If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.",
-                "default": false
-              },
-              "shuffleTokens": {
-                "type": "boolean",
-                "description": "Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.",
-                "default": false
-              },
-              "keepTokens": {
-                "maximum": 10,
-                "minimum": 0,
-                "type": "integer",
-                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tokens option is off.",
-                "format": "int32",
-                "default": 0
-              },
-              "targetSteps": {
-                "type": "integer",
-                "format": "int32",
-                "nullable": true,
-                "readOnly": true
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "engine": {
-            "enum": [
-              "ai-toolkit"
-            ],
-            "type": "string"
-          }
-        }
       },
       "BatchOCRSafetyClassificationInput": {
         "required": [
@@ -3378,6 +3908,67 @@
         ],
         "type": "string"
       },
+      "Flux1AIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "modelVariant"
+            ],
+            "type": "object",
+            "properties": {
+              "modelVariant": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "modelVariant",
+              "mapping": {
+                "dev": "#/components/schemas/Flux1DevAIToolkitTrainingInput",
+                "schnell": "#/components/schemas/Flux1SchnellAIToolkitTrainingInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "flux1"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Flux.1 models"
+      },
+      "Flux1DevAIToolkitTrainingInput": {
+        "required": [
+          "modelVariant"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux1AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "modelVariant": {
+            "enum": [
+              "dev"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Flux.1 Dev models"
+      },
       "Flux1KontextDevImageGenInput": {
         "required": [
           "model"
@@ -3551,6 +4142,29 @@
             "type": "string"
           }
         }
+      },
+      "Flux1SchnellAIToolkitTrainingInput": {
+        "required": [
+          "modelVariant"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux1AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "modelVariant": {
+            "enum": [
+              "schnell"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Flux.1 Schnell models"
       },
       "FluxDevFastImageResourceTrainingInput": {
         "required": [
@@ -4265,8 +4879,7 @@
           "mapping": {
             "kohya": "#/components/schemas/KohyaImageResourceTrainingInput",
             "flux-dev-fast": "#/components/schemas/FluxDevFastImageResourceTrainingInput",
-            "musubi": "#/components/schemas/MusubiImageResourceTrainingInput",
-            "ai-toolkit": "#/components/schemas/AiToolkitImageResourceTrainingInput"
+            "musubi": "#/components/schemas/MusubiImageResourceTrainingInput"
           }
         }
       },
@@ -4383,352 +4996,6 @@
         },
         "description": "LORA Training"
       },
-      "TrainingInput": {
-        "required": [
-          "engine",
-          "ecosystem",
-          "model",
-          "trainingData",
-          "samples"
-        ],
-        "type": "object",
-        "properties": {
-          "engine": {
-            "enum": [
-              "ai-toolkit"
-            ],
-            "type": "string",
-            "description": "The training engine to use"
-          },
-          "ecosystem": {
-            "enum": [
-              "sd1",
-              "sdxl",
-              "sd3",
-              "flux1",
-              "wan"
-            ],
-            "type": "string",
-            "description": "The model ecosystem"
-          },
-          "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string",
-            "description": "The model URN to train upon"
-          },
-          "modelVariant": {
-            "type": "string",
-            "description": "Model variant. Required for: sd3 ('large'), flux1 ('dev' or 'schnell'), wan ('2.1' or '2.2'). Not used for sd1 or sdxl.",
-            "nullable": true
-          },
-          "trainingData": {
-            "type": "object",
-            "required": [
-              "type",
-              "sourceUrl",
-              "count"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "description": "Type of training data (e.g., 'zip')"
-              },
-              "sourceUrl": {
-                "type": "string",
-                "format": "uri",
-                "description": "URN/URL to training data"
-              },
-              "count": {
-                "type": "integer",
-                "format": "int32",
-                "description": "Number of training items"
-              }
-            },
-            "description": "Training data specification"
-          },
-          "samples": {
-            "type": "object",
-            "required": [
-              "prompts"
-            ],
-            "properties": {
-              "prompts": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "Sample generation prompts"
-              }
-            },
-            "description": "Sample generation configuration"
-          },
-          "epochs": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 1,
-            "maximum": 20,
-            "description": "Number of training epochs",
-            "default": 5
-          },
-          "resolution": {
-            "type": "integer",
-            "format": "int32",
-            "description": "Training resolution (512, 1024, etc.)",
-            "nullable": true
-          },
-          "lr": {
-            "type": "number",
-            "format": "double",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "Learning rate",
-            "default": 0.0001
-          },
-          "textEncoderLr": {
-            "type": "number",
-            "format": "double",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "Text encoder learning rate",
-            "nullable": true
-          },
-          "trainTextEncoder": {
-            "type": "boolean",
-            "description": "Whether to train text encoder",
-            "default": false
-          },
-          "lrScheduler": {
-            "type": "string",
-            "description": "Learning rate scheduler type",
-            "default": "cosine"
-          },
-          "optimizerType": {
-            "type": "string",
-            "description": "Optimizer type",
-            "default": "adamw8bit"
-          },
-          "networkDim": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 1,
-            "maximum": 128,
-            "description": "LoRA network dimension",
-            "default": 32
-          },
-          "networkAlpha": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 1,
-            "maximum": 128,
-            "description": "LoRA network alpha",
-            "default": 32
-          },
-          "noiseOffset": {
-            "type": "number",
-            "format": "double",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "Noise offset for training",
-            "default": 0
-          },
-          "minSnrGamma": {
-            "type": "number",
-            "format": "double",
-            "description": "Min SNR gamma value",
-            "nullable": true
-          },
-          "flipAugmentation": {
-            "type": "boolean",
-            "description": "Enable horizontal flip augmentation",
-            "default": false
-          },
-          "shuffleTokens": {
-            "type": "boolean",
-            "description": "Shuffle tokens during training",
-            "default": false
-          },
-          "keepTokens": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0,
-            "maximum": 10,
-            "description": "Number of tokens to keep at start",
-            "default": 0
-          }
-        },
-        "additionalProperties": false,
-        "description": "Input for a training step."
-      },
-      "TrainingEpochResult": {
-        "required": [
-          "model",
-          "samples"
-        ],
-        "type": "object",
-        "properties": {
-          "epochNumber": {
-            "type": "integer",
-            "format": "int32",
-            "description": "The epoch number"
-          },
-          "model": {
-            "type": "object",
-            "required": [
-              "id",
-              "available"
-            ],
-            "properties": {
-              "id": {
-                "type": "string",
-                "description": "The blob id of the trained model file"
-              },
-              "available": {
-                "type": "boolean",
-                "description": "Whether the model blob is available"
-              },
-              "url": {
-                "type": "string",
-                "description": "Presigned URL to download the model",
-                "format": "uri",
-                "nullable": true
-              },
-              "urlExpiresAt": {
-                "type": "string",
-                "description": "When the presigned URL expires",
-                "format": "date-time",
-                "nullable": true
-              }
-            },
-            "description": "The trained model blob for this epoch"
-          },
-          "samples": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "available"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "The blob id of the sample image"
-                },
-                "available": {
-                  "type": "boolean",
-                  "description": "Whether the sample image is available"
-                },
-                "url": {
-                  "type": "string",
-                  "description": "Presigned URL to view the sample image",
-                  "format": "uri",
-                  "nullable": true
-                },
-                "urlExpiresAt": {
-                  "type": "string",
-                  "description": "When the presigned URL expires",
-                  "format": "date-time",
-                  "nullable": true
-                },
-                "nsfwLevel": {
-                  "type": "string",
-                  "description": "NSFW level of the sample image",
-                  "nullable": true
-                }
-              }
-            },
-            "description": "Generated sample images for this epoch"
-          }
-        },
-        "additionalProperties": false,
-        "description": "An epoch result for training output."
-      },
-      "TrainingOutput": {
-        "required": [
-          "moderationStatus"
-        ],
-        "type": "object",
-        "properties": {
-          "moderationStatus": {
-            "type": "string",
-            "description": "Moderation status of the training output"
-          },
-          "epochs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TrainingEpochResult"
-            },
-            "description": "Training epoch results",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "TrainingStep": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WorkflowStep"
-          },
-          {
-            "required": [
-              "input"
-            ],
-            "type": "object",
-            "properties": {
-              "input": {
-                "$ref": "#/components/schemas/TrainingInput"
-              },
-              "output": {
-                "$ref": "#/components/schemas/TrainingOutput"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "training"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "AI Toolkit Training Step"
-      },
-      "TrainingStepTemplate": {
-        "required": [
-          "$type"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WorkflowStepTemplate"
-          },
-          {
-            "required": [
-              "input"
-            ],
-            "type": "object",
-            "properties": {
-              "input": {
-                "$ref": "#/components/schemas/TrainingInput"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "$type": {
-            "enum": [
-              "training"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "AI Toolkit Training Step Template"
-      },
       "ImageTransformer": {
         "enum": [
           "canny",
@@ -4818,6 +5085,100 @@
           }
         },
         "description": "Image upload"
+      },
+      "ImageUpscalerInput": {
+        "required": [
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "Either A URL, A DataURL or a Base64 string"
+          },
+          "scaleFactor": {
+            "maximum": 4,
+            "minimum": 2,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageUpscalerOutput": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/ImageBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageUpscalerStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageUpscalerInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ImageUpscalerOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "imageUpscaler"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ImageUpscalerStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageUpscalerInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "imageUpscaler"
+            ],
+            "type": "string"
+          }
+        }
       },
       "Imagen4ImageGenInput": {
         "required": [
@@ -5344,6 +5705,232 @@
           }
         }
       },
+      "MediaHashInput": {
+        "required": [
+          "hashTypes",
+          "mediaUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "hashTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaHashType"
+            },
+            "description": "The types of hashes to generate."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the MediaHash workflow step."
+      },
+      "MediaHashOutput": {
+        "required": [
+          "hashes"
+        ],
+        "type": "object",
+        "properties": {
+          "hashes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The generated hashes, keyed by hash type (e.g., \"perceptual\" -> \"12345678\")."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the MediaHash workflow step."
+      },
+      "MediaHashStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MediaHashInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/MediaHashOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "mediaHash"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "MediaHash"
+      },
+      "MediaHashStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MediaHashInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "mediaHash"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "MediaHash"
+      },
+      "MediaHashType": {
+        "enum": [
+          "perceptual"
+        ],
+        "type": "string",
+        "description": "Represents the type of hash algorithm to use for media content."
+      },
+      "MediaRatingInput": {
+        "required": [
+          "mediaUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "engine": {
+            "type": "string",
+            "description": "The engine to use for media rating. Valid values: \"default\" (HiveVLM) or \"civitai\"."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the MediaRating workflow step."
+      },
+      "MediaRatingOutput": {
+        "required": [
+          "isBlocked",
+          "nsfwLevel"
+        ],
+        "type": "object",
+        "properties": {
+          "nsfwLevel": {
+            "$ref": "#/components/schemas/NSFWLevel"
+          },
+          "blockedReason": {
+            "type": "string",
+            "description": "The reason the content was blocked, if any.",
+            "nullable": true
+          },
+          "isBlocked": {
+            "type": "boolean",
+            "description": "Whether the content is blocked."
+          },
+          "labels": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Detected content labels (e.g., \"Animal\", \"Child\", etc.).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the MediaRating workflow step."
+      },
+      "MediaRatingStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MediaRatingInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/MediaRatingOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "mediaRating"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "MediaRating"
+      },
+      "MediaRatingStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MediaRatingInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "mediaRating"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "MediaRating"
+      },
       "MiniMaxVideoGenInput": {
         "required": [
           "engine"
@@ -5429,29 +6016,13 @@
           {
             "type": "object",
             "properties": {
-              "maxTrainEpochs": {
+              "epochs": {
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.",
+                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\r\nMaximum of 20 epochs can be specified.",
                 "format": "int32",
                 "default": 5
-              },
-              "numRepeats": {
-                "maximum": 5000,
-                "minimum": 1,
-                "type": "integer",
-                "description": "Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.",
-                "format": "int32",
-                "default": 8
-              },
-              "trainBatchSize": {
-                "maximum": 9,
-                "minimum": 1,
-                "type": "integer",
-                "description": "Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.",
-                "format": "int32",
-                "nullable": true
               },
               "resolution": {
                 "maximum": 1024,
@@ -5536,7 +6107,7 @@
       "NSFWLevel": {
         "enum": [
           "pg",
-          "pG13",
+          "pg13",
           "r",
           "x",
           "xxx",
@@ -6178,6 +6749,63 @@
           }
         }
       },
+      "RepeatForClause": {
+        "required": [
+          "$ref",
+          "as",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "$ref": {
+            "type": "string",
+            "description": "The dynamic assignment reference to the array to iterate over (e.g., \"$stepName\")."
+          },
+          "path": {
+            "type": "string",
+            "description": "The path to the array property in the referenced step's output (e.g., \"output.frames\")."
+          },
+          "as": {
+            "type": "string",
+            "description": "The variable name to use when referencing the current iteration item in template steps (e.g., \"frame\")."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the \"for\" clause in a repeat step that specifies what to iterate over."
+      },
+      "RepeatInput": {
+        "required": [
+          "for",
+          "template"
+        ],
+        "type": "object",
+        "properties": {
+          "for": {
+            "$ref": "#/components/schemas/RepeatForClause"
+          },
+          "template": {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the Repeat workflow step."
+      },
+      "RepeatOutput": {
+        "required": [
+          "steps"
+        ],
+        "type": "object",
+        "properties": {
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStep"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the Repeat workflow step."
+      },
       "ResourceInfo": {
         "required": [
           "air",
@@ -6285,6 +6913,89 @@
         "additionalProperties": false,
         "description": "Details for a specific resource."
       },
+      "SD1AIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "sd1"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Stable Diffusion 1.5 models"
+      },
+      "SD35LargeAIToolkitTrainingInput": {
+        "required": [
+          "modelVariant"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SD3AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "modelVariant": {
+            "enum": [
+              "large"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Stable Diffusion 3.5 Large models"
+      },
+      "SD3AIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "modelVariant"
+            ],
+            "type": "object",
+            "properties": {
+              "modelVariant": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "modelVariant",
+              "mapping": {
+                "large": "#/components/schemas/SD35LargeAIToolkitTrainingInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "sd3"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Stable Diffusion 3 models"
+      },
       "Scheduler": {
         "enum": [
           "eulerA",
@@ -6315,6 +7026,29 @@
         ],
         "type": "string",
         "description": "The available options for schedulers used in image generation."
+      },
+      "SdxlAIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "sdxl"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Stable Diffusion XL models"
       },
       "SeedreamImageGenInput": {
         "required": [
@@ -6729,6 +7463,193 @@
           }
         },
         "description": "TextToImage"
+      },
+      "TrainingData": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents training data in various formats",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "zip": "#/components/schemas/ZipTrainingData"
+          }
+        }
+      },
+      "TrainingInput": {
+        "required": [
+          "engine",
+          "model",
+          "trainingData"
+        ],
+        "type": "object",
+        "properties": {
+          "engine": {
+            "type": "string"
+          },
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The primary model to train upon."
+          },
+          "trainingData": {
+            "$ref": "#/components/schemas/TrainingData"
+          },
+          "samples": {
+            "$ref": "#/components/schemas/TrainingInputSamples"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for a training step.",
+        "discriminator": {
+          "propertyName": "engine",
+          "mapping": {
+            "ai-toolkit": "#/components/schemas/AIToolkitTrainingInput"
+          }
+        }
+      },
+      "TrainingInputSamples": {
+        "type": "object",
+        "properties": {
+          "prompts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "A selection of sample prompts to generate preview outputs during training."
+          },
+          "negativePrompt": {
+            "type": "string",
+            "description": "An optional negative prompt that will be applied when generating samples",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Sample generation configuration for training workflows"
+      },
+      "TrainingModerationStatus": {
+        "enum": [
+          "evaluating",
+          "underReview",
+          "approved",
+          "rejected"
+        ],
+        "type": "string",
+        "description": "The moderation status of the training data"
+      },
+      "TrainingOutput": {
+        "type": "object",
+        "properties": {
+          "moderationStatus": {
+            "$ref": "#/components/schemas/TrainingModerationStatus"
+          },
+          "epochs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrainingOutputEpochResult"
+            },
+            "description": "The trained model artifacts for each epoch"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from a training step."
+      },
+      "TrainingOutputEpochResult": {
+        "required": [
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "epochNumber": {
+            "type": "integer",
+            "description": "The epoch number (1-based)",
+            "format": "int32"
+          },
+          "model": {
+            "$ref": "#/components/schemas/Blob"
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Blob"
+            },
+            "description": "Sample outputs (images/videos/audio) generated with this epoch's model"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output of a single training epoch"
+      },
+      "TrainingStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TrainingInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/TrainingOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "training"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Training"
+      },
+      "TrainingStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TrainingInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "training"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Training"
       },
       "TransactionInfo": {
         "required": [
@@ -7265,6 +8186,119 @@
         },
         "description": "Upscale videos and/or interpolate frames"
       },
+      "VideoFrameExtractionInput": {
+        "required": [
+          "videoUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "videoUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "frameRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "uniqueThreshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxFrames": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the VideoFrameExtraction workflow step."
+      },
+      "VideoFrameExtractionOutput": {
+        "required": [
+          "frames"
+        ],
+        "type": "object",
+        "properties": {
+          "frames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageBlob"
+            },
+            "description": "A collection of extracted unique video frames as image blobs."
+          },
+          "totalFramesExtracted": {
+            "type": "integer",
+            "description": "The total number of unique frames extracted from the video.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output from the VideoFrameExtraction workflow step."
+      },
+      "VideoFrameExtractionStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoFrameExtractionInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/VideoFrameExtractionOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoFrameExtraction"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Video Frame Extraction"
+      },
+      "VideoFrameExtractionStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoFrameExtractionInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoFrameExtraction"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Video Frame Extraction"
+      },
       "VideoGenInput": {
         "required": [
           "engine",
@@ -7388,6 +8422,202 @@
         },
         "description": "Video generation"
       },
+      "VideoInterpolationInput": {
+        "required": [
+          "videoUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "videoUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "interpolationFactor": {
+            "maximum": 3,
+            "minimum": 2,
+            "type": "integer",
+            "format": "int32"
+          },
+          "model": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoInterpolationOutput": {
+        "required": [
+          "videoUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "videoUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoInterpolationStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoInterpolationInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/VideoInterpolationOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoInterpolation"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Interpolate videos using VFI Mamba"
+      },
+      "VideoInterpolationStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoInterpolationInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoInterpolation"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Interpolate videos using VFI Mamba"
+      },
+      "VideoUpscalerInput": {
+        "required": [
+          "video"
+        ],
+        "type": "object",
+        "properties": {
+          "video": {
+            "type": "string",
+            "format": "uri"
+          },
+          "scaleFactor": {
+            "maximum": 4,
+            "minimum": 2,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoUpscalerOutput": {
+        "required": [
+          "video"
+        ],
+        "type": "object",
+        "properties": {
+          "video": {
+            "$ref": "#/components/schemas/VideoBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoUpscalerStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoUpscalerInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/VideoUpscalerOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoUpscaler"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Upscale videos using FlashVSR"
+      },
+      "VideoUpscalerStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoUpscalerInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoUpscaler"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Upscale videos using FlashVSR"
+      },
       "ViduVideoGenInput": {
         "required": [
           "engine"
@@ -7489,6 +8719,151 @@
           "anime"
         ],
         "type": "string"
+      },
+      "WDTaggingInput": {
+        "required": [
+          "mediaUrl",
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "The model to use for tagging (e.g., \"wd14-vit.v1\")."
+          },
+          "mediaUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "threshold": {
+            "type": "number",
+            "description": "Optional threshold for tag confidence filtering. Tags below this threshold will be excluded.",
+            "format": "double",
+            "nullable": true
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Optional prompt to guide the tagging process.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the WDTagging workflow step."
+      },
+      "WDTaggingOutput": {
+        "required": [
+          "tags"
+        ],
+        "type": "object",
+        "properties": {
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "The detected tags with their confidence scores."
+          },
+          "rating": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "The content rating scores (general, sensitive, questionable, explicit).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the WDTagging workflow step."
+      },
+      "WDTaggingStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/WDTaggingInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/WDTaggingOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "wdTagging"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "WDTagging"
+      },
+      "WDTaggingStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/WDTaggingInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "wdTagging"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "WDTagging"
+      },
+      "Wan21AIToolkitTrainingInput": {
+        "required": [
+          "modelVariant"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanAIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "modelVariant": {
+            "enum": [
+              "2.1"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Wan 2.1 models"
       },
       "Wan21CivitaiVideoGenInput": {
         "required": [
@@ -7868,6 +9243,29 @@
             "type": "string"
           }
         }
+      },
+      "Wan22AIToolkitTrainingInput": {
+        "required": [
+          "modelVariant"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanAIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "modelVariant": {
+            "enum": [
+              "2.2"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Wan 2.2 models"
       },
       "Wan22FalImageGenInput": {
         "required": [
@@ -8415,6 +9813,44 @@
           }
         }
       },
+      "WanAIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "modelVariant"
+            ],
+            "type": "object",
+            "properties": {
+              "modelVariant": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "modelVariant",
+              "mapping": {
+                "2.1": "#/components/schemas/Wan21AIToolkitTrainingInput",
+                "2.2": "#/components/schemas/Wan22AIToolkitTrainingInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "wan"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Wan (video) models"
+      },
       "WanImageGenInput": {
         "required": [
           "engine"
@@ -8721,6 +10157,11 @@
               "example": "workflow:succeeded"
             },
             "description": "An array of event types to send to the callback."
+          },
+          "detailed": {
+            "type": "boolean",
+            "description": "Whether to include detailed output (step/workflow results) in the callback payload.",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -8805,10 +10246,112 @@
           },
           "$type": {
             "type": "string"
+          },
+          "details": {
+            "$ref": "#/components/schemas/WorkflowEventDetails"
           }
         },
         "additionalProperties": false,
         "description": "Details of a workflow event."
+      },
+      "WorkflowEventDetails": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "description": "Custom metadata associated with the workflow",
+            "nullable": true
+          },
+          "arguments": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "description": "Arguments provided to the workflow",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the workflow was created",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "When the workflow completed execution",
+            "format": "date-time",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "When the workflow started execution",
+            "format": "date-time",
+            "nullable": true
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowEventStepDetails"
+            },
+            "description": "Details about each step in the workflow"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Detailed information about a workflow included in webhook callbacks when detailed mode is enabled."
+      },
+      "WorkflowEventStepDetails": {
+        "required": [
+          "name",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the step"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "When the step started execution",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "When the step completed execution",
+            "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "description": "Custom metadata associated with the step",
+            "nullable": true
+          },
+          "input": {
+            "description": "The input configuration for the step",
+            "nullable": true
+          },
+          "output": {
+            "description": "The output result from the step",
+            "nullable": true
+          },
+          "cost": {
+            "type": "number",
+            "description": "The cost of executing the step",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Detailed information about a workflow step within a workflow event."
       },
       "WorkflowStatus": {
         "enum": [
@@ -8899,18 +10442,25 @@
             "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
             "imageUpload": "#/components/schemas/ImageUploadStep",
+            "imageUpscaler": "#/components/schemas/ImageUpscalerStep",
+            "mediaHash": "#/components/schemas/MediaHashStep",
+            "mediaRating": "#/components/schemas/MediaRatingStep",
             "textToImage": "#/components/schemas/TextToImageStep",
             "training": "#/components/schemas/TrainingStep",
             "transcode": "#/components/schemas/TranscodeStep",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStep",
-            "videoGen": "#/components/schemas/VideoGenStep"
+            "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStep",
+            "videoGen": "#/components/schemas/VideoGenStep",
+            "videoInterpolation": "#/components/schemas/VideoInterpolationStep",
+            "videoUpscaler": "#/components/schemas/VideoUpscalerStep",
+            "wdTagging": "#/components/schemas/WDTaggingStep"
           }
         }
       },
       "WorkflowStepEvent": {
         "required": [
+          "name",
           "status",
-          "stepName",
           "workflowId"
         ],
         "type": "object",
@@ -8919,7 +10469,7 @@
             "type": "string",
             "description": "The workflow ID."
           },
-          "stepName": {
+          "name": {
             "type": "string",
             "description": "The workflow step's name."
           },
@@ -8928,10 +10478,59 @@
           },
           "$type": {
             "type": "string"
+          },
+          "details": {
+            "$ref": "#/components/schemas/WorkflowStepEventDetails"
           }
         },
         "additionalProperties": false,
         "description": "Details of a workflow step event."
+      },
+      "WorkflowStepEventDetails": {
+        "type": "object",
+        "properties": {
+          "startedAt": {
+            "type": "string",
+            "description": "When the step started execution",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "When the step completed execution",
+            "format": "date-time",
+            "nullable": true
+          },
+          "estimatedProgressRate": {
+            "type": "number",
+            "description": "Estimated progress rate of the step (0.0 to 1.0)",
+            "format": "double",
+            "nullable": true
+          },
+          "retries": {
+            "type": "integer",
+            "description": "Number of times the step has been retried",
+            "format": "int32"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "description": "Custom metadata associated with the step",
+            "nullable": true
+          },
+          "input": {
+            "description": "The input configuration for the step",
+            "nullable": true
+          },
+          "output": {
+            "description": "The output result from the step",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Detailed information about a workflow step included in webhook callbacks when detailed mode is enabled."
       },
       "WorkflowStepJob": {
         "required": [
@@ -9102,10 +10701,17 @@
             "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
+            "imageUpscaler": "#/components/schemas/ImageUpscalerStepTemplate",
+            "mediaHash": "#/components/schemas/MediaHashStepTemplate",
+            "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
             "training": "#/components/schemas/TrainingStepTemplate",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStepTemplate",
-            "videoGen": "#/components/schemas/VideoGenStepTemplate"
+            "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStepTemplate",
+            "videoGen": "#/components/schemas/VideoGenStepTemplate",
+            "videoInterpolation": "#/components/schemas/VideoInterpolationStepTemplate",
+            "videoUpscaler": "#/components/schemas/VideoUpscalerStepTemplate",
+            "wdTagging": "#/components/schemas/WDTaggingStepTemplate"
           }
         }
       },
@@ -9210,6 +10816,45 @@
         ],
         "type": "string",
         "description": "Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment."
+      },
+      "ZipTrainingData": {
+        "required": [
+          "type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TrainingData"
+          },
+          {
+            "required": [
+              "count",
+              "sourceUrl"
+            ],
+            "type": "object",
+            "properties": {
+              "sourceUrl": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "description": "AIR pointing to the zip file containing training data"
+              },
+              "count": {
+                "type": "integer",
+                "description": "The number of images/frames/items in this training data",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "zip"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Training data packaged as a zip file"
       }
     },
     "securitySchemes": {
