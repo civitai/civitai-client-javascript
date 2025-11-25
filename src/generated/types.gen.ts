@@ -202,6 +202,13 @@ export const BuzzClientAccount = {
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
 
+/**
+ * AI Toolkit training for Chroma models
+ */
+export type ChromaAiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+  ecosystem: 'chroma';
+};
+
 export type ComfyInput = {
   /**
    * Get the comfy workflow that needs to be executed
@@ -407,6 +414,143 @@ export type Flux1KontextProImageGenInput = Flux1KontextImageGenInput & {
  */
 export type Flux1SchnellAiToolkitTrainingInput = Flux1AiToolkitTrainingInput & {} & {
   modelVariant: 'schnell';
+};
+
+export type Flux2DevCreateImageInput = Flux2DevImageGenInput & {
+  readonly operation: string;
+} & {
+  operation: 'createImage';
+};
+
+export type Flux2DevEditImageInput = Flux2DevImageGenInput & {
+  images?: Array<string>;
+  readonly operation: string;
+} & {
+  operation: 'editImage';
+};
+
+/**
+ * Input for Flux 2 Dev image editing LoRA training via FAL.
+ */
+export type Flux2DevEditImageResourceTrainingInput = ImageResourceTrainingInput & {
+  engine: 'flux2-dev-edit';
+} & {
+  /**
+   * Number of training steps. Must be in increments of 100.
+   */
+  steps?: number;
+  /**
+   * Learning rate for training.
+   */
+  learningRate?: number;
+  /**
+   * Default caption to use if caption files are missing from training data.
+   */
+  defaultCaption?: string | null;
+  /**
+   * Number of reference images per training pair (1-4).
+   * Affects cost calculation via reference multiplier.
+   */
+  referenceImageCount?: number;
+} & {
+  engine: 'flux2-dev-edit';
+};
+
+export type Flux2DevImageGenInput = Flux2ImageGenInput & {
+  operation: string;
+  guidanceScale?: number;
+  numInferenceSteps?: number;
+  loras?: Array<ImageGenInputLora>;
+  readonly modelVariant?: string;
+} & {
+  model: 'dev';
+};
+
+/**
+ * Input for Flux 2 Dev text-to-image LoRA training via FAL.
+ */
+export type Flux2DevImageResourceTrainingInput = ImageResourceTrainingInput & {
+  engine: 'flux2-dev';
+} & {
+  /**
+   * Number of training steps. Must be in increments of 100.
+   */
+  steps?: number;
+  /**
+   * Learning rate for training.
+   */
+  learningRate?: number;
+  /**
+   * Default caption to use if caption files are missing from training data.
+   */
+  defaultCaption?: string | null;
+} & {
+  engine: 'flux2-dev';
+};
+
+export type Flux2FlexCreateImageInput = Flux2FlexImageGenInput & {
+  readonly operation: string;
+} & {
+  operation: 'createImage';
+};
+
+export type Flux2FlexEditImageInput = Flux2FlexImageGenInput & {
+  images?: Array<string>;
+  readonly operation: string;
+} & {
+  operation: 'editImage';
+};
+
+export type Flux2FlexImageGenInput = Flux2ImageGenInput & {
+  operation: string;
+  guidanceScale?: number;
+  numInferenceSteps?: number;
+  readonly modelVariant?: string;
+} & {
+  model: 'flex';
+};
+
+export type Flux2ImageGenInput = ImageGenInput & {
+  engine: 'flux2';
+} & {
+  model: string;
+  prompt: string;
+  width?: number;
+  height?: number;
+  outputFormat?: 'jpeg' | 'png';
+  seed?: number | null;
+  quantity?: number;
+  enablePromptExpansion?: boolean;
+  /**
+   * The model variant (dev, flex, pro)
+   */
+  readonly modelVariant?: string;
+  /**
+   * The operation type (createImage, editImage)
+   */
+  readonly operation?: string;
+} & {
+  engine: 'flux2';
+};
+
+export type Flux2ProCreateImageInput = Flux2ProImageGenInput & {
+  readonly operation: string;
+} & {
+  operation: 'createImage';
+};
+
+export type Flux2ProEditImageInput = Flux2ProImageGenInput & {
+  images?: Array<string>;
+  readonly operation: string;
+} & {
+  operation: 'editImage';
+};
+
+export type Flux2ProImageGenInput = Flux2ImageGenInput & {
+  operation: string;
+  readonly modelVariant?: string;
+} & {
+  model: 'pro';
 };
 
 export type FluxDevFastImageResourceTrainingInput = ImageResourceTrainingInput & {
@@ -1259,6 +1403,17 @@ export const NsfwLevel = {
 
 export type NsfwLevel = (typeof NsfwLevel)[keyof typeof NsfwLevel];
 
+export type NanoBananaProImageGenInput = GoogleImageGenInput & {
+  prompt: string;
+  aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
+  numImages?: number;
+  resolution?: '1K' | '2K' | '4K';
+  outputFormat?: 'jpeg' | 'png' | 'webp';
+  images?: Array<string>;
+} & {
+  model: 'nano-banana-pro';
+};
+
 export type OpenAiDallE2CreateImageGenInput = OpenAiDallE2ImageGenInput & {
   background?: 'auto' | 'transparent' | 'opaque';
 } & {
@@ -1383,11 +1538,9 @@ export type Qwen20bCreateImageGenInput = Qwen20bImageGenInput & {
 };
 
 export type Qwen20bEditImageGenInput = Qwen20bImageGenInput & {
-  /**
-   * Either A URL, A DataURL or a Base64 string
-   */
-  image: string;
-  denoise?: number;
+  images: Array<string>;
+  readonly width?: number;
+  readonly height?: number;
 } & {
   operation: 'editImage';
 };
@@ -1406,12 +1559,29 @@ export type Qwen20bImageGenInput = QwenImageGenInput & {
   model: '20b';
 };
 
-export type QwenImageGenInput = ImageGenInput & {
-  engine: 'qwen';
+export type Qwen20bVariantImageGenInput = Qwen20bImageGenInput & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  strength?: number;
+  readonly width?: number;
+  readonly height?: number;
 } & {
+  operation: 'createVariant';
+};
+
+/**
+ * AI Toolkit training for Qwen Image models
+ */
+export type QwenAiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+  ecosystem: 'qwen';
+};
+
+export type QwenImageGenInput = SdCppImageGenInput & {
   model: string;
 } & {
-  engine: 'qwen';
+  ecosystem: 'qwen';
 };
 
 /**
@@ -1584,6 +1754,14 @@ export const Scheduler = {
  * The available options for schedulers used in image generation.
  */
 export type Scheduler = (typeof Scheduler)[keyof typeof Scheduler];
+
+export type SdCppImageGenInput = ImageGenInput & {
+  engine: 'sdcpp';
+} & {
+  ecosystem: string;
+} & {
+  engine: 'sdcpp';
+};
 
 /**
  * AI Toolkit training for Stable Diffusion XL models
@@ -2215,6 +2393,61 @@ export type VideoInterpolationStepTemplate = WorkflowStepTemplate & {
   input: VideoInterpolationInput;
 } & {
   $type: 'videoInterpolation';
+};
+
+/**
+ * Represents the input information needed for the VideoMetadata workflow step.
+ */
+export type VideoMetadataInput = {
+  /**
+   * The video file to extract metadata from.
+   */
+  video: string;
+};
+
+/**
+ * Represents the output information returned from the VideoMetadata workflow step.
+ */
+export type VideoMetadataOutput = {
+  /**
+   * The width of the video in pixels.
+   */
+  width: number;
+  /**
+   * The height of the video in pixels.
+   */
+  height: number;
+  /**
+   * The frame rate of the video in frames per second.
+   */
+  fps: number;
+  /**
+   * The duration of the video.
+   */
+  duration: string;
+};
+
+/**
+ * Extract metadata from videos including width, height, FPS, and duration
+ */
+export type VideoMetadataStep = WorkflowStep & {
+  $type: 'videoMetadata';
+} & {
+  input: VideoMetadataInput;
+  output?: VideoMetadataOutput;
+} & {
+  $type: 'videoMetadata';
+};
+
+/**
+ * Extract metadata from videos including width, height, FPS, and duration
+ */
+export type VideoMetadataStepTemplate = WorkflowStepTemplate & {
+  $type: 'videoMetadata';
+} & {
+  input: VideoMetadataInput;
+} & {
+  $type: 'videoMetadata';
 };
 
 export type VideoUpscalerInput = {
@@ -3715,6 +3948,40 @@ export type InvokeVideoInterpolationStepTemplateResponses = {
 
 export type InvokeVideoInterpolationStepTemplateResponse =
   InvokeVideoInterpolationStepTemplateResponses[keyof InvokeVideoInterpolationStepTemplateResponses];
+
+export type InvokeVideoMetadataStepTemplateData = {
+  body?: VideoMetadataInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
+  url: '/v2/consumer/recipes/videoMetadata';
+};
+
+export type InvokeVideoMetadataStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeVideoMetadataStepTemplateError =
+  InvokeVideoMetadataStepTemplateErrors[keyof InvokeVideoMetadataStepTemplateErrors];
+
+export type InvokeVideoMetadataStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: VideoMetadataOutput;
+};
+
+export type InvokeVideoMetadataStepTemplateResponse =
+  InvokeVideoMetadataStepTemplateResponses[keyof InvokeVideoMetadataStepTemplateResponses];
 
 export type InvokeVideoUpscalerStepTemplateData = {
   body?: VideoUpscalerInput;

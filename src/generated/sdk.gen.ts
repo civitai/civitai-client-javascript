@@ -55,6 +55,9 @@ import type {
   InvokeVideoInterpolationStepTemplateData,
   InvokeVideoInterpolationStepTemplateResponses,
   InvokeVideoInterpolationStepTemplateErrors,
+  InvokeVideoMetadataStepTemplateData,
+  InvokeVideoMetadataStepTemplateResponses,
+  InvokeVideoMetadataStepTemplateErrors,
   InvokeVideoUpscalerStepTemplateData,
   InvokeVideoUpscalerStepTemplateResponses,
   InvokeVideoUpscalerStepTemplateErrors,
@@ -576,6 +579,32 @@ export const invokeVideoInterpolationStepTemplate = <ThrowOnError extends boolea
       },
     ],
     url: '/v2/consumer/recipes/videoInterpolation',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Extract metadata from videos including width, height, FPS, and duration
+ */
+export const invokeVideoMetadataStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeVideoMetadataStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeVideoMetadataStepTemplateResponses,
+    InvokeVideoMetadataStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/videoMetadata',
     ...options,
     headers: {
       'Content-Type': 'application/json',

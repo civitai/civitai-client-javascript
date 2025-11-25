@@ -1333,6 +1333,82 @@
         }
       }
     },
+    "/v2/consumer/recipes/videoMetadata": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Extract metadata from videos including width, height, FPS, and duration",
+        "operationId": "InvokeVideoMetadataStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoMetadataInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoMetadataInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoMetadataInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoMetadataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/videoUpscaler": {
       "post": {
         "tags": [
@@ -1639,210 +1715,13 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "textToImage",
-                        "input": {
-                          "quantity": 2,
-                          "batchSize": 4,
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "additionalNetworks": {
-                            "urn:air:sd1:embedding:civitai:7808@9208": {
-                              "triggerWord": "easynegative"
-                            }
-                          },
-                          "controlNets": [],
-                          "prompt": "A curious cat",
-                          "negativePrompt": "nsfw",
-                          "scheduler": "eulerA",
-                          "steps": 30,
-                          "cfgScale": 7.5,
-                          "width": 512,
-                          "height": 512,
-                          "seed": 1790693947,
-                          "clipSkip": 2,
-                          "outputFormat": "jpeg"
-                        },
-                        "priority": "high",
-                        "timeout": "00:05:00",
-                        "retries": 5
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "LORA training": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "imageResourceTraining",
-                        "input": {
-                          "maxTrainEpochs": 5,
-                          "numRepeats": 8,
-                          "resolution": 512,
-                          "enableBucket": true,
-                          "shuffleCaption": false,
-                          "keepTokens": 0,
-                          "clipSkip": 1,
-                          "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
-                          "lrSchedulerNumCycles": 3,
-                          "engine": "kohya",
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "trainingData": "https://example.com/training-data",
-                          "trainingDataImagesCount": 10,
-                          "loraName": "mylora",
-                          "samplePrompts": []
-                        },
-                        "priority": "normal",
-                        "retries": 1
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "Comfy job": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "comfy",
-                        "input": {
-                          "comfyWorkflow": {
-                            "3": {
-                              "class_type": "KSampler",
-                              "inputs": {
-                                "sampler_name": "euler",
-                                "scheduler": "normal",
-                                "seed": 740593329207015,
-                                "steps": 20,
-                                "cfg": 8,
-                                "denoise": 1,
-                                "model": [
-                                  "4",
-                                  0
-                                ],
-                                "positive": [
-                                  "6",
-                                  0
-                                ],
-                                "negative": [
-                                  "7",
-                                  0
-                                ],
-                                "latent_image": [
-                                  "5",
-                                  0
-                                ]
-                              }
-                            },
-                            "4": {
-                              "class_type": "CheckpointLoaderSimple",
-                              "inputs": {
-                                "ckpt_name": "@civitai/46846"
-                              }
-                            },
-                            "5": {
-                              "class_type": "EmptyLatentImage",
-                              "inputs": {
-                                "width": 512,
-                                "height": 512,
-                                "batch_size": 1
-                              }
-                            },
-                            "6": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "7": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "text, watermark",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "8": {
-                              "class_type": "VAEDecode",
-                              "inputs": {
-                                "samples": [
-                                  "3",
-                                  0
-                                ],
-                                "vae": [
-                                  "4",
-                                  2
-                                ]
-                              }
-                            },
-                            "9": {
-                              "class_type": "SaveImage",
-                              "inputs": {
-                                "filename_prefix": "ComfyUI",
-                                "images": [
-                                  "8",
-                                  0
-                                ]
-                              }
-                            }
-                          },
-                          "quantity": 1
-                        }
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 }
               }
             },
@@ -1852,210 +1731,13 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "textToImage",
-                        "input": {
-                          "quantity": 2,
-                          "batchSize": 4,
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "additionalNetworks": {
-                            "urn:air:sd1:embedding:civitai:7808@9208": {
-                              "triggerWord": "easynegative"
-                            }
-                          },
-                          "controlNets": [],
-                          "prompt": "A curious cat",
-                          "negativePrompt": "nsfw",
-                          "scheduler": "eulerA",
-                          "steps": 30,
-                          "cfgScale": 7.5,
-                          "width": 512,
-                          "height": 512,
-                          "seed": 1790693947,
-                          "clipSkip": 2,
-                          "outputFormat": "jpeg"
-                        },
-                        "priority": "high",
-                        "timeout": "00:05:00",
-                        "retries": 5
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "LORA training": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "imageResourceTraining",
-                        "input": {
-                          "maxTrainEpochs": 5,
-                          "numRepeats": 8,
-                          "resolution": 512,
-                          "enableBucket": true,
-                          "shuffleCaption": false,
-                          "keepTokens": 0,
-                          "clipSkip": 1,
-                          "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
-                          "lrSchedulerNumCycles": 3,
-                          "engine": "kohya",
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "trainingData": "https://example.com/training-data",
-                          "trainingDataImagesCount": 10,
-                          "loraName": "mylora",
-                          "samplePrompts": []
-                        },
-                        "priority": "normal",
-                        "retries": 1
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "Comfy job": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "comfy",
-                        "input": {
-                          "comfyWorkflow": {
-                            "3": {
-                              "class_type": "KSampler",
-                              "inputs": {
-                                "sampler_name": "euler",
-                                "scheduler": "normal",
-                                "seed": 740593329207015,
-                                "steps": 20,
-                                "cfg": 8,
-                                "denoise": 1,
-                                "model": [
-                                  "4",
-                                  0
-                                ],
-                                "positive": [
-                                  "6",
-                                  0
-                                ],
-                                "negative": [
-                                  "7",
-                                  0
-                                ],
-                                "latent_image": [
-                                  "5",
-                                  0
-                                ]
-                              }
-                            },
-                            "4": {
-                              "class_type": "CheckpointLoaderSimple",
-                              "inputs": {
-                                "ckpt_name": "@civitai/46846"
-                              }
-                            },
-                            "5": {
-                              "class_type": "EmptyLatentImage",
-                              "inputs": {
-                                "width": 512,
-                                "height": 512,
-                                "batch_size": 1
-                              }
-                            },
-                            "6": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "7": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "text, watermark",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "8": {
-                              "class_type": "VAEDecode",
-                              "inputs": {
-                                "samples": [
-                                  "3",
-                                  0
-                                ],
-                                "vae": [
-                                  "4",
-                                  2
-                                ]
-                              }
-                            },
-                            "9": {
-                              "class_type": "SaveImage",
-                              "inputs": {
-                                "filename_prefix": "ComfyUI",
-                                "images": [
-                                  "8",
-                                  0
-                                ]
-                              }
-                            }
-                          },
-                          "quantity": 1
-                        }
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 }
               }
             },
@@ -2065,210 +1747,13 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "textToImage",
-                        "input": {
-                          "quantity": 2,
-                          "batchSize": 4,
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "additionalNetworks": {
-                            "urn:air:sd1:embedding:civitai:7808@9208": {
-                              "triggerWord": "easynegative"
-                            }
-                          },
-                          "controlNets": [],
-                          "prompt": "A curious cat",
-                          "negativePrompt": "nsfw",
-                          "scheduler": "eulerA",
-                          "steps": 30,
-                          "cfgScale": 7.5,
-                          "width": 512,
-                          "height": 512,
-                          "seed": 1790693947,
-                          "clipSkip": 2,
-                          "outputFormat": "jpeg"
-                        },
-                        "priority": "high",
-                        "timeout": "00:05:00",
-                        "retries": 5
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "LORA training": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "imageResourceTraining",
-                        "input": {
-                          "maxTrainEpochs": 5,
-                          "numRepeats": 8,
-                          "resolution": 512,
-                          "enableBucket": true,
-                          "shuffleCaption": false,
-                          "keepTokens": 0,
-                          "clipSkip": 1,
-                          "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
-                          "lrSchedulerNumCycles": 3,
-                          "engine": "kohya",
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "trainingData": "https://example.com/training-data",
-                          "trainingDataImagesCount": 10,
-                          "loraName": "mylora",
-                          "samplePrompts": []
-                        },
-                        "priority": "normal",
-                        "retries": 1
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "Comfy job": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "comfy",
-                        "input": {
-                          "comfyWorkflow": {
-                            "3": {
-                              "class_type": "KSampler",
-                              "inputs": {
-                                "sampler_name": "euler",
-                                "scheduler": "normal",
-                                "seed": 740593329207015,
-                                "steps": 20,
-                                "cfg": 8,
-                                "denoise": 1,
-                                "model": [
-                                  "4",
-                                  0
-                                ],
-                                "positive": [
-                                  "6",
-                                  0
-                                ],
-                                "negative": [
-                                  "7",
-                                  0
-                                ],
-                                "latent_image": [
-                                  "5",
-                                  0
-                                ]
-                              }
-                            },
-                            "4": {
-                              "class_type": "CheckpointLoaderSimple",
-                              "inputs": {
-                                "ckpt_name": "@civitai/46846"
-                              }
-                            },
-                            "5": {
-                              "class_type": "EmptyLatentImage",
-                              "inputs": {
-                                "width": 512,
-                                "height": 512,
-                                "batch_size": 1
-                              }
-                            },
-                            "6": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "7": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "text, watermark",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "8": {
-                              "class_type": "VAEDecode",
-                              "inputs": {
-                                "samples": [
-                                  "3",
-                                  0
-                                ],
-                                "vae": [
-                                  "4",
-                                  2
-                                ]
-                              }
-                            },
-                            "9": {
-                              "class_type": "SaveImage",
-                              "inputs": {
-                                "filename_prefix": "ComfyUI",
-                                "images": [
-                                  "8",
-                                  0
-                                ]
-                              }
-                            }
-                          },
-                          "quantity": 1
-                        }
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 }
               }
             }
@@ -3307,7 +2792,9 @@
                 "sd3": "#/components/schemas/SD3AIToolkitTrainingInput",
                 "sdxl": "#/components/schemas/SdxlAIToolkitTrainingInput",
                 "sd1": "#/components/schemas/SD1AIToolkitTrainingInput",
-                "wan": "#/components/schemas/WanAIToolkitTrainingInput"
+                "wan": "#/components/schemas/WanAIToolkitTrainingInput",
+                "chroma": "#/components/schemas/ChromaAIToolkitTrainingInput",
+                "qwen": "#/components/schemas/QwenAIToolkitTrainingInput"
               }
             }
           }
@@ -3579,6 +3066,29 @@
           "fakeRed"
         ],
         "type": "string"
+      },
+      "ChromaAIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "chroma"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Chroma models"
       },
       "ComfyInput": {
         "required": [
@@ -4166,6 +3676,526 @@
         },
         "description": "AI Toolkit training for Flux.1 Schnell models"
       },
+      "Flux2DevCreateImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2DevImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2DevEditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2DevImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2DevEditImageResourceTrainingInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageResourceTrainingInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "steps": {
+                "maximum": 10000,
+                "minimum": 100,
+                "type": "integer",
+                "description": "Number of training steps. Must be in increments of 100.",
+                "format": "int32"
+              },
+              "learningRate": {
+                "type": "number",
+                "description": "Learning rate for training.",
+                "format": "double"
+              },
+              "defaultCaption": {
+                "type": "string",
+                "description": "Default caption to use if caption files are missing from training data.",
+                "nullable": true
+              },
+              "referenceImageCount": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Number of reference images per training pair (1-4).\r\nAffects cost calculation via reference multiplier.",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "flux2-dev-edit"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Input for Flux 2 Dev image editing LoRA training via FAL."
+      },
+      "Flux2DevImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2ImageGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "guidanceScale": {
+                "maximum": 20,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "numInferenceSteps": {
+                "maximum": 50,
+                "minimum": 4,
+                "type": "integer",
+                "format": "int32"
+              },
+              "loras": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageGenInputLora"
+                }
+              },
+              "modelVariant": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Flux2DevCreateImageInput",
+                "editImage": "#/components/schemas/Flux2DevEditImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "dev"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2DevImageResourceTrainingInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageResourceTrainingInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "steps": {
+                "maximum": 10000,
+                "minimum": 100,
+                "type": "integer",
+                "description": "Number of training steps. Must be in increments of 100.",
+                "format": "int32"
+              },
+              "learningRate": {
+                "type": "number",
+                "description": "Learning rate for training.",
+                "format": "double"
+              },
+              "defaultCaption": {
+                "type": "string",
+                "description": "Default caption to use if caption files are missing from training data.",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "flux2-dev"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Input for Flux 2 Dev text-to-image LoRA training via FAL."
+      },
+      "Flux2FlexCreateImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2FlexImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2FlexEditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2FlexImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2FlexImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2ImageGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "guidanceScale": {
+                "maximum": 100,
+                "minimum": 1.5,
+                "type": "number",
+                "format": "double"
+              },
+              "numInferenceSteps": {
+                "maximum": 50,
+                "minimum": 2,
+                "type": "integer",
+                "format": "int32"
+              },
+              "modelVariant": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Flux2FlexCreateImageInput",
+                "editImage": "#/components/schemas/Flux2FlexEditImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "flex"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2ImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "model",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 1000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32"
+              },
+              "outputFormat": {
+                "enum": [
+                  "jpeg",
+                  "png"
+                ],
+                "type": "string"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean"
+              },
+              "modelVariant": {
+                "type": "string",
+                "description": "The model variant (dev, flex, pro)",
+                "readOnly": true
+              },
+              "operation": {
+                "type": "string",
+                "description": "The operation type (createImage, editImage)",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "dev": "#/components/schemas/Flux2DevImageGenInput",
+                "flex": "#/components/schemas/Flux2FlexImageGenInput",
+                "pro": "#/components/schemas/Flux2ProImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "flux2"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2ProCreateImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2ProImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2ProEditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2ProImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2ProImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2ImageGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "modelVariant": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Flux2ProCreateImageInput",
+                "editImage": "#/components/schemas/Flux2ProEditImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "pro"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "FluxDevFastImageResourceTrainingInput": {
         "required": [
           "engine"
@@ -4355,7 +4385,8 @@
             "discriminator": {
               "propertyName": "model",
               "mapping": {
-                "imagen4": "#/components/schemas/Imagen4ImageGenInput"
+                "imagen4": "#/components/schemas/Imagen4ImageGenInput",
+                "nano-banana-pro": "#/components/schemas/NanoBananaProImageGenInput"
               }
             }
           }
@@ -4654,10 +4685,11 @@
           "mapping": {
             "openai": "#/components/schemas/OpenApiImageGenInput",
             "flux1-kontext": "#/components/schemas/Flux1KontextImageGenInput",
+            "flux2": "#/components/schemas/Flux2ImageGenInput",
             "google": "#/components/schemas/GoogleImageGenInput",
             "wan": "#/components/schemas/WanImageGenInput",
             "gemini": "#/components/schemas/GeminiImageGenInput",
-            "qwen": "#/components/schemas/QwenImageGenInput",
+            "sdcpp": "#/components/schemas/SdCppImageGenInput",
             "seedream": "#/components/schemas/SeedreamImageGenInput"
           }
         }
@@ -4879,7 +4911,9 @@
           "mapping": {
             "kohya": "#/components/schemas/KohyaImageResourceTrainingInput",
             "flux-dev-fast": "#/components/schemas/FluxDevFastImageResourceTrainingInput",
-            "musubi": "#/components/schemas/MusubiImageResourceTrainingInput"
+            "musubi": "#/components/schemas/MusubiImageResourceTrainingInput",
+            "flux2-dev": "#/components/schemas/Flux2DevImageResourceTrainingInput",
+            "flux2-dev-edit": "#/components/schemas/Flux2DevEditImageResourceTrainingInput"
           }
         }
       },
@@ -6115,6 +6149,87 @@
         ],
         "type": "string"
       },
+      "NanoBananaProImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GoogleImageGenInput"
+          },
+          {
+            "required": [
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "maxLength": 50000,
+                "minLength": 3,
+                "type": "string"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "21:9",
+                  "16:9",
+                  "3:2",
+                  "4:3",
+                  "5:4",
+                  "1:1",
+                  "4:5",
+                  "3:4",
+                  "2:3",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "1:1"
+              },
+              "numImages": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "resolution": {
+                "enum": [
+                  "1K",
+                  "2K",
+                  "4K"
+                ],
+                "type": "string",
+                "default": "1K"
+              },
+              "outputFormat": {
+                "enum": [
+                  "jpeg",
+                  "png",
+                  "webp"
+                ],
+                "type": "string",
+                "default": "png"
+              },
+              "images": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "nano-banana-pro"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "OpenAIDallE2CreateImageGenInput": {
         "required": [
           "operation"
@@ -6559,7 +6674,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "Qwen20bCreateImageGenInput": {
         "required": [
@@ -6607,19 +6722,32 @@
           },
           {
             "required": [
-              "image"
+              "images"
             ],
             "type": "object",
             "properties": {
-              "image": {
-                "type": "string",
-                "description": "Either A URL, A DataURL or a Base64 string"
+              "images": {
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
               },
-              "denoise": {
-                "maximum": 1,
+              "width": {
+                "maximum": 2048,
                 "minimum": 0,
-                "type": "number",
-                "format": "double"
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
               }
             },
             "additionalProperties": false
@@ -6699,7 +6827,8 @@
               "propertyName": "operation",
               "mapping": {
                 "createImage": "#/components/schemas/Qwen20bCreateImageGenInput",
-                "editImage": "#/components/schemas/Qwen20bEditImageGenInput"
+                "editImage": "#/components/schemas/Qwen20bEditImageGenInput",
+                "createVariant": "#/components/schemas/Qwen20bVariantImageGenInput"
               }
             }
           }
@@ -6713,13 +6842,87 @@
           }
         }
       },
-      "QwenImageGenInput": {
+      "Qwen20bVariantImageGenInput": {
         "required": [
-          "engine"
+          "operation"
         ],
         "allOf": [
           {
-            "$ref": "#/components/schemas/ImageGenInput"
+            "$ref": "#/components/schemas/Qwen20bImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "strength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVariant"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "QwenAIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "qwen"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Qwen Image models"
+      },
+      "QwenImageGenInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdCppImageGenInput"
           },
           {
             "required": [
@@ -6741,7 +6944,7 @@
           }
         ],
         "properties": {
-          "engine": {
+          "ecosystem": {
             "enum": [
               "qwen"
             ],
@@ -7026,6 +7229,42 @@
         ],
         "type": "string",
         "description": "The available options for schedulers used in image generation."
+      },
+      "SdCppImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "ecosystem",
+              "mapping": {
+                "qwen": "#/components/schemas/QwenImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "sdcpp"
+            ],
+            "type": "string"
+          }
+        }
       },
       "SdxlAIToolkitTrainingInput": {
         "required": [
@@ -7863,7 +8102,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An optional set of new properties to set on the workflow.",
             "nullable": true
           },
@@ -7899,7 +8138,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -7939,7 +8178,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfStringAndInt32": {
         "type": "object",
@@ -8521,6 +8760,119 @@
           }
         },
         "description": "Interpolate videos using VFI Mamba"
+      },
+      "VideoMetadataInput": {
+        "required": [
+          "video"
+        ],
+        "type": "object",
+        "properties": {
+          "video": {
+            "type": "string",
+            "description": "The video file to extract metadata from.",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the VideoMetadata workflow step."
+      },
+      "VideoMetadataOutput": {
+        "required": [
+          "duration",
+          "fps",
+          "height",
+          "width"
+        ],
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "description": "The width of the video in pixels.",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "description": "The height of the video in pixels.",
+            "format": "int32"
+          },
+          "fps": {
+            "type": "number",
+            "description": "The frame rate of the video in frames per second.",
+            "format": "double"
+          },
+          "duration": {
+            "type": "string",
+            "description": "The duration of the video.",
+            "format": "date-span"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the VideoMetadata workflow step."
+      },
+      "VideoMetadataStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoMetadataInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/VideoMetadataOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoMetadata"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Extract metadata from videos including width, height, FPS, and duration"
+      },
+      "VideoMetadataStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoMetadataInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "videoMetadata"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Extract metadata from videos including width, height, FPS, and duration"
       },
       "VideoUpscalerInput": {
         "required": [
@@ -10038,7 +10390,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -10065,7 +10417,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -10421,7 +10773,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -10452,6 +10804,7 @@
             "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStep",
             "videoGen": "#/components/schemas/VideoGenStep",
             "videoInterpolation": "#/components/schemas/VideoInterpolationStep",
+            "videoMetadata": "#/components/schemas/VideoMetadataStep",
             "videoUpscaler": "#/components/schemas/VideoUpscalerStep",
             "wdTagging": "#/components/schemas/WDTaggingStep"
           }
@@ -10685,7 +11038,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           }
@@ -10710,6 +11063,7 @@
             "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStepTemplate",
             "videoGen": "#/components/schemas/VideoGenStepTemplate",
             "videoInterpolation": "#/components/schemas/VideoInterpolationStepTemplate",
+            "videoMetadata": "#/components/schemas/VideoMetadataStepTemplate",
             "videoUpscaler": "#/components/schemas/VideoUpscalerStepTemplate",
             "wdTagging": "#/components/schemas/WDTaggingStepTemplate"
           }
@@ -10723,7 +11077,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow.",
             "nullable": true
           },
@@ -10758,7 +11112,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments",
             "nullable": true
           },
@@ -10868,7 +11222,7 @@
   },
   "security": [
     {
-      "ApiKey": []
+      "ApiKey": [ ]
     }
   ],
   "x-tagGroups": [
