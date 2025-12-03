@@ -65,15 +65,6 @@ export type AiToolkitTrainingInput = TrainingInput & {
    */
   noiseOffset?: number | null;
   /**
-   * Learning is performed by putting noise of various strengths on the training image,
-   * but depending on the difference in strength of the noise on which it is placed, learning will be
-   * stable by moving closer to or farther from the learning target.
-   *
-   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
-   * it may deviate greatly from the target, so try to suppress this jump.
-   */
-  minSnrGamma?: number | null;
-  /**
    * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
    */
   flipAugmentation?: boolean;
@@ -107,16 +98,7 @@ export type AgeClassificationOutput = {
     [key: string]: Array<AgeClassifierLabel>;
   };
   hasMinor: boolean;
-  prediction: AgeClassificationPrediction;
 };
-
-export const AgeClassificationPrediction = {
-  PASS: 'pass',
-  FAIL: 'fail',
-} as const;
-
-export type AgeClassificationPrediction =
-  (typeof AgeClassificationPrediction)[keyof typeof AgeClassificationPrediction];
 
 /**
  * Age classification
@@ -1547,10 +1529,11 @@ export type Qwen20bEditImageGenInput = Qwen20bImageGenInput & {
 
 export type Qwen20bImageGenInput = QwenImageGenInput & {
   operation: string;
-  unet?: string;
+  diffuserModel?: string;
   prompt: string;
   negativePrompt?: string | null;
-  scheduler?: Scheduler;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
   steps?: number;
   cfgScale?: number;
   seed?: number | null;
@@ -1699,7 +1682,17 @@ export type ResourceInfo = {
 /**
  * AI Toolkit training for Stable Diffusion 1.5 models
  */
-export type Sd1AiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+export type Sd1AiToolkitTrainingInput = AiToolkitTrainingInput & {
+  /**
+   * Learning is performed by putting noise of various strengths on the training image,
+   * but depending on the difference in strength of the noise on which it is placed, learning will be
+   * stable by moving closer to or farther from the learning target.
+   *
+   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
+   * it may deviate greatly from the target, so try to suppress this jump.
+   */
+  minSnrGamma?: number | null;
+} & {
   ecosystem: 'sd1';
 };
 
@@ -1763,10 +1756,46 @@ export type SdCppImageGenInput = ImageGenInput & {
   engine: 'sdcpp';
 };
 
+export const SdCppSampleMethod = {
+  EULER: 'euler',
+  HEUN: 'heun',
+  DPM2: 'dpm2',
+  'DPM++2S_A': 'dpm++2s_a',
+  'DPM++2M': 'dpm++2m',
+  'DPM++2MV2': 'dpm++2mv2',
+  IPNDM: 'ipndm',
+  IPNDM_V: 'ipndm_v',
+  DDIM_TRAILING: 'ddim_trailing',
+  EULER_A: 'euler_a',
+  LCM: 'lcm',
+} as const;
+
+export type SdCppSampleMethod = (typeof SdCppSampleMethod)[keyof typeof SdCppSampleMethod];
+
+export const SdCppSchedule = {
+  SIMPLE: 'simple',
+  DISCRETE: 'discrete',
+  KARRAS: 'karras',
+  EXPONENTIAL: 'exponential',
+  AYS: 'ays',
+} as const;
+
+export type SdCppSchedule = (typeof SdCppSchedule)[keyof typeof SdCppSchedule];
+
 /**
  * AI Toolkit training for Stable Diffusion XL models
  */
-export type SdxlAiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+export type SdxlAiToolkitTrainingInput = AiToolkitTrainingInput & {
+  /**
+   * Learning is performed by putting noise of various strengths on the training image,
+   * but depending on the difference in strength of the noise on which it is placed, learning will be
+   * stable by moving closer to or farther from the learning target.
+   *
+   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
+   * it may deviate greatly from the target, so try to suppress this jump.
+   */
+  minSnrGamma?: number | null;
+} & {
   ecosystem: 'sdxl';
 };
 
@@ -2363,13 +2392,13 @@ export type VideoGenStepTemplate = WorkflowStepTemplate & {
 };
 
 export type VideoInterpolationInput = {
-  videoUrl: string;
+  video: string;
   interpolationFactor?: number;
   model?: string;
 };
 
 export type VideoInterpolationOutput = {
-  videoUrl: string;
+  video: VideoBlob;
 };
 
 /**
@@ -3308,6 +3337,40 @@ export const WorkflowUpgradeMode = {
  * Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.
  */
 export type WorkflowUpgradeMode = (typeof WorkflowUpgradeMode)[keyof typeof WorkflowUpgradeMode];
+
+export type ZImageImageGenInput = SdCppImageGenInput & {
+  model: string;
+} & {
+  ecosystem: 'zImage';
+};
+
+/**
+ * AI Toolkit training for Z Image Turbo models
+ */
+export type ZImageTurboAiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+  ecosystem: 'zimageturbo';
+};
+
+export type ZImageTurboCreateImageGenInput = ZImageTurboImageGenInput & {
+  width?: number;
+  height?: number;
+} & {
+  operation: 'createImage';
+};
+
+export type ZImageTurboImageGenInput = ZImageImageGenInput & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: string | null;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
+  seed?: number | null;
+  quantity?: number;
+} & {
+  model: 'turbo';
+};
 
 /**
  * Training data packaged as a zip file
