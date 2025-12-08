@@ -129,6 +129,33 @@ export type AgeClassifierLabel = {
   boundingBox: Array<number>;
 };
 
+export const AnimalPoseBboxDetector = {
+  YOLOX_L_TORCHSCRIPT_PT: 'yolox_l.torchscript.pt',
+  YOLOX_L_ONNX: 'yolox_l.onnx',
+  YOLO_NAS_L_FP16_ONNX: 'yolo_nas_l_fp16.onnx',
+  YOLO_NAS_M_FP16_ONNX: 'yolo_nas_m_fp16.onnx',
+  YOLO_NAS_S_FP16_ONNX: 'yolo_nas_s_fp16.onnx',
+} as const;
+
+export type AnimalPoseBboxDetector =
+  (typeof AnimalPoseBboxDetector)[keyof typeof AnimalPoseBboxDetector];
+
+export const AnimalPoseEstimator = {
+  RTMPOSE_M_AP10K_256_BS5_TORCHSCRIPT_PT: 'rtmpose-m_ap10k_256_bs5.torchscript.pt',
+  RTMPOSE_M_AP10K_256_ONNX: 'rtmpose-m_ap10k_256.onnx',
+} as const;
+
+export type AnimalPoseEstimator = (typeof AnimalPoseEstimator)[keyof typeof AnimalPoseEstimator];
+
+export const AnylineMergeWith = {
+  LINEART_STANDARD: 'lineart_standard',
+  LINEART_REALISTIC: 'lineart_realistic',
+  LINEART_ANIME: 'lineart_anime',
+  MANGA_LINE: 'manga_line',
+} as const;
+
+export type AnylineMergeWith = (typeof AnylineMergeWith)[keyof typeof AnylineMergeWith];
+
 export type BatchOcrSafetyClassificationInput = {
   mediaUrls: Array<string>;
 };
@@ -190,6 +217,13 @@ export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClie
 export type ChromaAiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
   ecosystem: 'chroma';
 };
+
+export const CoarseMode = {
+  DISABLE: 'disable',
+  ENABLE: 'enable',
+} as const;
+
+export type CoarseMode = (typeof CoarseMode)[keyof typeof CoarseMode];
 
 export type ComfyInput = {
   /**
@@ -265,6 +299,57 @@ export type CursedArrayOfTelemetryCursorAndWorkflow = {
   items: Array<Workflow>;
 };
 
+export const DensePoseColormap = {
+  'VIRIDIS (_MAGIC_ANIMATE)': 'Viridis (MagicAnimate)',
+  'PARULA (_CIVIT_AI)': 'Parula (CivitAI)',
+} as const;
+
+export type DensePoseColormap = (typeof DensePoseColormap)[keyof typeof DensePoseColormap];
+
+export const DensePoseModel = {
+  DENSEPOSE_R50_FPN_DL_TORCHSCRIPT: 'densepose_r50_fpn_dl.torchscript',
+  DENSEPOSE_R101_FPN_DL_TORCHSCRIPT: 'densepose_r101_fpn_dl.torchscript',
+} as const;
+
+export type DensePoseModel = (typeof DensePoseModel)[keyof typeof DensePoseModel];
+
+export const DepthAnythingCheckpoint = {
+  DEPTH_ANYTHING_VITL14_PTH: 'depth_anything_vitl14.pth',
+  DEPTH_ANYTHING_VITB14_PTH: 'depth_anything_vitb14.pth',
+  DEPTH_ANYTHING_VITS14_PTH: 'depth_anything_vits14.pth',
+} as const;
+
+export type DepthAnythingCheckpoint =
+  (typeof DepthAnythingCheckpoint)[keyof typeof DepthAnythingCheckpoint];
+
+export const DepthAnythingV2Checkpoint = {
+  DEPTH_ANYTHING_V2_VITG_PTH: 'depth_anything_v2_vitg.pth',
+  DEPTH_ANYTHING_V2_VITL_PTH: 'depth_anything_v2_vitl.pth',
+  DEPTH_ANYTHING_V2_VITB_PTH: 'depth_anything_v2_vitb.pth',
+  DEPTH_ANYTHING_V2_VITS_PTH: 'depth_anything_v2_vits.pth',
+} as const;
+
+export type DepthAnythingV2Checkpoint =
+  (typeof DepthAnythingV2Checkpoint)[keyof typeof DepthAnythingV2Checkpoint];
+
+export const DwPoseBboxDetector = {
+  YOLOX_L_ONNX: 'yolox_l.onnx',
+  YOLOX_L_TORCHSCRIPT_PT: 'yolox_l.torchscript.pt',
+  YOLO_NAS_L_FP16_ONNX: 'yolo_nas_l_fp16.onnx',
+  YOLO_NAS_M_FP16_ONNX: 'yolo_nas_m_fp16.onnx',
+  YOLO_NAS_S_FP16_ONNX: 'yolo_nas_s_fp16.onnx',
+} as const;
+
+export type DwPoseBboxDetector = (typeof DwPoseBboxDetector)[keyof typeof DwPoseBboxDetector];
+
+export const DwPoseEstimator = {
+  DW_LL_UCOCO_384_BS5_TORCHSCRIPT_PT: 'dw-ll_ucoco_384_bs5.torchscript.pt',
+  DW_LL_UCOCO_384_ONNX: 'dw-ll_ucoco_384.onnx',
+  DW_LL_UCOCO_ONNX: 'dw-ll_ucoco.onnx',
+} as const;
+
+export type DwPoseEstimator = (typeof DwPoseEstimator)[keyof typeof DwPoseEstimator];
+
 /**
  * Represents the input information needed for the Echo workflow step.
  */
@@ -338,6 +423,7 @@ export const FileFormat = {
   DIFFUSERS: 'diffusers',
   CORE_ML: 'coreML',
   ONNX: 'onnx',
+  TAR: 'tar',
 } as const;
 
 export type FileFormat = (typeof FileFormat)[keyof typeof FileFormat];
@@ -1154,6 +1240,13 @@ export type KohyaImageResourceTrainingInput = ImageResourceTrainingInput & {
   engine: 'kohya';
 };
 
+export const LeresBoost = {
+  DISABLE: 'disable',
+  ENABLE: 'enable',
+} as const;
+
+export type LeresBoost = (typeof LeresBoost)[keyof typeof LeresBoost];
+
 export const LightricksAspectRatio = {
   '1:1': '1:1',
   '16:9': '16:9',
@@ -1294,6 +1387,14 @@ export type MediaRatingStepTemplate = WorkflowStepTemplate & {
 } & {
   $type: 'mediaRating';
 };
+
+export const Metric3dBackbone = {
+  VIT_SMALL: 'vit-small',
+  VIT_LARGE: 'vit-large',
+  VIT_GIANT2: 'vit-giant2',
+} as const;
+
+export type Metric3dBackbone = (typeof Metric3dBackbone)[keyof typeof Metric3dBackbone];
 
 export type MiniMaxVideoGenInput = VideoGenInput & {
   engine: 'minimax';
@@ -1481,6 +1582,344 @@ export const OutputFormat = {
 } as const;
 
 export type OutputFormat = (typeof OutputFormat)[keyof typeof OutputFormat];
+
+export type PreprocessImageAnimalPoseInput = PreprocessImageInput & {
+  kind: 'animal-pose';
+} & {
+  bboxDetector?: AnimalPoseBboxDetector;
+  poseEstimator?: AnimalPoseEstimator;
+} & {
+  kind: 'animal-pose';
+};
+
+export type PreprocessImageAnimeLineartInput = PreprocessImageInput & {
+  kind: 'lineart-anime';
+} & {} & {
+  kind: 'lineart-anime';
+};
+
+export type PreprocessImageAnylineInput = PreprocessImageInput & {
+  kind: 'anyline';
+} & {
+  mergeWithLineart?: AnylineMergeWith;
+  lineartLowerBound?: number;
+  lineartUpperBound?: number;
+  objectMinSize?: number;
+  objectConnectivity?: number;
+} & {
+  kind: 'anyline';
+};
+
+export type PreprocessImageBaeNormalInput = PreprocessImageInput & {
+  kind: 'bae-normal';
+} & {} & {
+  kind: 'bae-normal';
+};
+
+export type PreprocessImageBinaryInput = PreprocessImageInput & {
+  kind: 'binary';
+} & {
+  binThreshold?: number;
+} & {
+  kind: 'binary';
+};
+
+export type PreprocessImageCannyInput = PreprocessImageInput & {
+  kind: 'canny';
+} & {
+  lowThreshold?: number;
+  highThreshold?: number;
+} & {
+  kind: 'canny';
+};
+
+export type PreprocessImageColorInput = PreprocessImageInput & {
+  kind: 'color';
+} & {} & {
+  kind: 'color';
+};
+
+export type PreprocessImageDensePoseInput = PreprocessImageInput & {
+  kind: 'densepose';
+} & {
+  model?: DensePoseModel;
+  colormap?: DensePoseColormap;
+} & {
+  kind: 'densepose';
+};
+
+export type PreprocessImageDepthAnythingInput = PreprocessImageInput & {
+  kind: 'depth-anything';
+} & {
+  checkpoint?: DepthAnythingCheckpoint;
+} & {
+  kind: 'depth-anything';
+};
+
+export type PreprocessImageDepthAnythingV2Input = PreprocessImageInput & {
+  kind: 'depth-anything-v2';
+} & {
+  checkpoint?: DepthAnythingV2Checkpoint;
+} & {
+  kind: 'depth-anything-v2';
+};
+
+export type PreprocessImageDsineNormalInput = PreprocessImageInput & {
+  kind: 'dsine-normal';
+} & {
+  fov?: number;
+  iterations?: number;
+} & {
+  kind: 'dsine-normal';
+};
+
+export type PreprocessImageDwPoseInput = PreprocessImageInput & {
+  kind: 'dwpose';
+} & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  bboxDetector?: DwPoseBboxDetector;
+  poseEstimator?: DwPoseEstimator;
+} & {
+  kind: 'dwpose';
+};
+
+export type PreprocessImageFakeScribbleInput = PreprocessImageInput & {
+  kind: 'fake-scribble';
+} & {
+  safe?: SafeMode;
+} & {
+  kind: 'fake-scribble';
+};
+
+export type PreprocessImageHedInput = PreprocessImageInput & {
+  kind: 'hed';
+} & {
+  safe?: SafeMode;
+} & {
+  kind: 'hed';
+};
+
+export type PreprocessImageInput = {
+  kind: string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  resolution?: number;
+  /**
+   * Gets the preprocessor type identifier used to map to ComfyUI nodes.
+   * This is derived from the JsonDerivedType discriminator.
+   */
+  preprocessorType?: string;
+};
+
+export type PreprocessImageLeresDepthInput = PreprocessImageInput & {
+  kind: 'leres-depth';
+} & {
+  removeNearest?: number;
+  removeBackground?: number;
+  boost?: LeresBoost;
+} & {
+  kind: 'leres-depth';
+};
+
+export type PreprocessImageMangaLineartInput = PreprocessImageInput & {
+  kind: 'lineart-manga';
+} & {} & {
+  kind: 'lineart-manga';
+};
+
+export type PreprocessImageMediaPipeFaceInput = PreprocessImageInput & {
+  kind: 'mediapipe-face';
+} & {
+  maxFaces?: number;
+  minConfidence?: number;
+} & {
+  kind: 'mediapipe-face';
+};
+
+export type PreprocessImageMetric3dDepthInput = PreprocessImageInput & {
+  kind: 'metric3d-depth';
+} & {
+  backbone?: Metric3dBackbone;
+  fx?: number;
+  fy?: number;
+} & {
+  kind: 'metric3d-depth';
+};
+
+export type PreprocessImageMetric3dNormalInput = PreprocessImageInput & {
+  kind: 'metric3d-normal';
+} & {
+  backbone?: Metric3dBackbone;
+  fx?: number;
+  fy?: number;
+} & {
+  kind: 'metric3d-normal';
+};
+
+export type PreprocessImageMidasDepthInput = PreprocessImageInput & {
+  kind: 'midas-depth';
+} & {
+  a?: number;
+  backgroundThreshold?: number;
+} & {
+  kind: 'midas-depth';
+};
+
+export type PreprocessImageMidasNormalInput = PreprocessImageInput & {
+  kind: 'midas-normal';
+} & {
+  a?: number;
+  backgroundThreshold?: number;
+} & {
+  kind: 'midas-normal';
+};
+
+export type PreprocessImageMlsdInput = PreprocessImageInput & {
+  kind: 'mlsd';
+} & {
+  scoreThreshold?: number;
+  distanceThreshold?: number;
+} & {
+  kind: 'mlsd';
+};
+
+export type PreprocessImageOneFormerAde20kInput = PreprocessImageInput & {
+  kind: 'oneformer-ade20k';
+} & {} & {
+  kind: 'oneformer-ade20k';
+};
+
+export type PreprocessImageOneFormerCocoInput = PreprocessImageInput & {
+  kind: 'oneformer-coco';
+} & {} & {
+  kind: 'oneformer-coco';
+};
+
+export type PreprocessImageOpenPoseInput = PreprocessImageInput & {
+  kind: 'openpose';
+} & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+} & {
+  kind: 'openpose';
+};
+
+export type PreprocessImageOutput = {
+  blob: ImageBlob;
+};
+
+export type PreprocessImagePidinetInput = PreprocessImageInput & {
+  kind: 'pidinet';
+} & {
+  safe?: SafeMode;
+} & {
+  kind: 'pidinet';
+};
+
+export type PreprocessImageRealisticLineartInput = PreprocessImageInput & {
+  kind: 'lineart-realistic';
+} & {
+  coarse?: CoarseMode;
+} & {
+  kind: 'lineart-realistic';
+};
+
+export type PreprocessImageScribbleInput = PreprocessImageInput & {
+  kind: 'scribble';
+} & {} & {
+  kind: 'scribble';
+};
+
+export type PreprocessImageScribblePidinetInput = PreprocessImageInput & {
+  kind: 'scribble-pidinet';
+} & {
+  safe?: SafeMode;
+} & {
+  kind: 'scribble-pidinet';
+};
+
+export type PreprocessImageScribbleXdogInput = PreprocessImageInput & {
+  kind: 'scribble-xdog';
+} & {
+  threshold?: number;
+} & {
+  kind: 'scribble-xdog';
+};
+
+export type PreprocessImageShuffleInput = PreprocessImageInput & {
+  kind: 'shuffle';
+} & {
+  seed?: number;
+} & {
+  kind: 'shuffle';
+};
+
+export type PreprocessImageStandardLineartInput = PreprocessImageInput & {
+  kind: 'lineart-standard';
+} & {
+  gaussianSigma?: number;
+  intensityThreshold?: number;
+} & {
+  kind: 'lineart-standard';
+};
+
+export type PreprocessImageStep = WorkflowStep & {
+  $type: 'preprocessImage';
+} & {
+  input: PreprocessImageInput;
+  output?: PreprocessImageOutput;
+} & {
+  $type: 'preprocessImage';
+};
+
+export type PreprocessImageStepTemplate = WorkflowStepTemplate & {
+  $type: 'preprocessImage';
+} & {
+  input: PreprocessImageInput;
+} & {
+  $type: 'preprocessImage';
+};
+
+export type PreprocessImageTeedInput = PreprocessImageInput & {
+  kind: 'teed';
+} & {
+  safeSteps?: number;
+} & {
+  kind: 'teed';
+};
+
+export type PreprocessImageTileInput = PreprocessImageInput & {
+  kind: 'tile';
+} & {
+  pyrUpIterations?: number;
+} & {
+  kind: 'tile';
+};
+
+export type PreprocessImageUniFormerInput = PreprocessImageInput & {
+  kind: 'uniformer';
+} & {} & {
+  kind: 'uniformer';
+};
+
+export type PreprocessImageZoeDepthAnythingInput = PreprocessImageInput & {
+  kind: 'zoe-depth-anything';
+} & {
+  environment?: ZoeDepthEnvironment;
+} & {
+  kind: 'zoe-depth-anything';
+};
+
+export type PreprocessImageZoeDepthInput = PreprocessImageInput & {
+  kind: 'zoe-depth';
+} & {} & {
+  kind: 'zoe-depth';
+};
 
 /**
  * Available options for priority.
@@ -1692,25 +2131,20 @@ export type Sd1AiToolkitTrainingInput = AiToolkitTrainingInput & {
    * it may deviate greatly from the target, so try to suppress this jump.
    */
   minSnrGamma?: number | null;
+  /**
+   * The primary model to train upon.
+   */
+  model?: string;
 } & {
   ecosystem: 'sd1';
 };
 
-/**
- * AI Toolkit training for Stable Diffusion 3.5 Large models
- */
-export type Sd35LargeAiToolkitTrainingInput = Sd3AiToolkitTrainingInput & {} & {
-  modelVariant: 'large';
-};
+export const SafeMode = {
+  ENABLE: 'enable',
+  DISABLE: 'disable',
+} as const;
 
-/**
- * AI Toolkit training for Stable Diffusion 3 models
- */
-export type Sd3AiToolkitTrainingInput = AiToolkitTrainingInput & {
-  modelVariant: string;
-} & {
-  ecosystem: 'sd3';
-};
+export type SafeMode = (typeof SafeMode)[keyof typeof SafeMode];
 
 /**
  * The available options for schedulers used in image generation.
@@ -1795,6 +2229,10 @@ export type SdxlAiToolkitTrainingInput = AiToolkitTrainingInput & {
    * it may deviate greatly from the target, so try to suppress this jump.
    */
   minSnrGamma?: number | null;
+  /**
+   * The primary model to train upon.
+   */
+  model?: string;
 } & {
   ecosystem: 'sdxl';
 };
@@ -1818,6 +2256,7 @@ export type SeedreamImageGenInput = ImageGenInput & {
 export const SeedreamVersion = {
   V3: 'v3',
   V4: 'v4',
+  V4_5: 'v4.5',
 } as const;
 
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
@@ -1977,10 +2416,6 @@ export type TrainingData = {
  */
 export type TrainingInput = {
   engine: string;
-  /**
-   * The primary model to train upon.
-   */
-  model: string;
   trainingData: TrainingData;
   samples?: TrainingInputSamples;
 };
@@ -2609,13 +3044,6 @@ export type WdTaggingStepTemplate = WorkflowStepTemplate & {
   $type: 'wdTagging';
 };
 
-/**
- * AI Toolkit training for Wan 2.1 models
- */
-export type Wan21AiToolkitTrainingInput = WanAiToolkitTrainingInput & {} & {
-  modelVariant: '2.1';
-};
-
 export type Wan21CivitaiVideoGenInput = Wan21VideoGenInput & {
   width?: number;
   height?: number;
@@ -2679,13 +3107,6 @@ export type Wan225bVideoGenInput = WanVideoGenInput & {
   provider: string | null;
 } & {
   version: 'v2.2-5b';
-};
-
-/**
- * AI Toolkit training for Wan 2.2 models
- */
-export type Wan22AiToolkitTrainingInput = WanAiToolkitTrainingInput & {} & {
-  modelVariant: '2.2';
 };
 
 export type Wan22FalImageGenInput = Wan22ImageGenInput & {
@@ -2777,15 +3198,6 @@ export type Wan25VideoGenInput = WanVideoGenInput & {
   provider: string | null;
 } & {
   version: 'v2.5';
-};
-
-/**
- * AI Toolkit training for Wan (video) models
- */
-export type WanAiToolkitTrainingInput = AiToolkitTrainingInput & {
-  modelVariant: string;
-} & {
-  ecosystem: 'wan';
 };
 
 export type WanImageGenInput = ImageGenInput & {
@@ -3390,6 +3802,13 @@ export type ZipTrainingData = TrainingData & {
   type: 'zip';
 };
 
+export const ZoeDepthEnvironment = {
+  INDOOR: 'indoor',
+  OUTDOOR: 'outdoor',
+} as const;
+
+export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
+
 export type GetBlobData = {
   body?: never;
   path: {
@@ -3807,6 +4226,40 @@ export type InvokeMediaRatingStepTemplateResponses = {
 
 export type InvokeMediaRatingStepTemplateResponse =
   InvokeMediaRatingStepTemplateResponses[keyof InvokeMediaRatingStepTemplateResponses];
+
+export type InvokePreprocessImageStepTemplateData = {
+  body?: PreprocessImageInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
+  url: '/v2/consumer/recipes/preprocessImage';
+};
+
+export type InvokePreprocessImageStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokePreprocessImageStepTemplateError =
+  InvokePreprocessImageStepTemplateErrors[keyof InvokePreprocessImageStepTemplateErrors];
+
+export type InvokePreprocessImageStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: PreprocessImageOutput;
+};
+
+export type InvokePreprocessImageStepTemplateResponse =
+  InvokePreprocessImageStepTemplateResponses[keyof InvokePreprocessImageStepTemplateResponses];
 
 export type InvokeTextToImageStepTemplateData = {
   body?: TextToImageInput;

@@ -873,6 +873,81 @@
         }
       }
     },
+    "/v2/consumer/recipes/preprocessImage": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "operationId": "InvokePreprocessImageStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreprocessImageInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreprocessImageInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreprocessImageInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreprocessImageOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/textToImage": {
       "post": {
         "tags": [
@@ -1576,7 +1651,7 @@
             "description": "A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.",
             "required": true,
             "schema": {
-              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+              "pattern": "^(?!huggingface/).*$",
               "type": "string"
             }
           }
@@ -1627,7 +1702,7 @@
             "description": "A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.",
             "required": true,
             "schema": {
-              "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+              "pattern": "^(?!huggingface/).*$",
               "type": "string"
             }
           },
@@ -3372,10 +3447,8 @@
               "propertyName": "ecosystem",
               "mapping": {
                 "flux1": "#/components/schemas/Flux1AIToolkitTrainingInput",
-                "sd3": "#/components/schemas/SD3AIToolkitTrainingInput",
                 "sdxl": "#/components/schemas/SdxlAIToolkitTrainingInput",
                 "sd1": "#/components/schemas/SD1AIToolkitTrainingInput",
-                "wan": "#/components/schemas/WanAIToolkitTrainingInput",
                 "chroma": "#/components/schemas/ChromaAIToolkitTrainingInput",
                 "qwen": "#/components/schemas/QwenAIToolkitTrainingInput",
                 "zimageturbo": "#/components/schemas/ZImageTurboAIToolkitTrainingInput"
@@ -3524,6 +3597,32 @@
         },
         "additionalProperties": false
       },
+      "AnimalPoseBboxDetector": {
+        "enum": [
+          "yolox_l.torchscript.pt",
+          "yolox_l.onnx",
+          "yolo_nas_l_fp16.onnx",
+          "yolo_nas_m_fp16.onnx",
+          "yolo_nas_s_fp16.onnx"
+        ],
+        "type": "string"
+      },
+      "AnimalPoseEstimator": {
+        "enum": [
+          "rtmpose-m_ap10k_256_bs5.torchscript.pt",
+          "rtmpose-m_ap10k_256.onnx"
+        ],
+        "type": "string"
+      },
+      "AnylineMergeWith": {
+        "enum": [
+          "lineart_standard",
+          "lineart_realistic",
+          "lineart_anime",
+          "manga_line"
+        ],
+        "type": "string"
+      },
       "BatchOCRSafetyClassificationInput": {
         "required": [
           "mediaUrls"
@@ -3662,6 +3761,13 @@
           }
         },
         "description": "AI Toolkit training for Chroma models"
+      },
+      "CoarseMode": {
+        "enum": [
+          "disable",
+          "enable"
+        ],
+        "type": "string"
       },
       "ComfyInput": {
         "required": [
@@ -3849,6 +3955,55 @@
         },
         "additionalProperties": false
       },
+      "DensePoseColormap": {
+        "enum": [
+          "Viridis (MagicAnimate)",
+          "Parula (CivitAI)"
+        ],
+        "type": "string"
+      },
+      "DensePoseModel": {
+        "enum": [
+          "densepose_r50_fpn_dl.torchscript",
+          "densepose_r101_fpn_dl.torchscript"
+        ],
+        "type": "string"
+      },
+      "DepthAnythingCheckpoint": {
+        "enum": [
+          "depth_anything_vitl14.pth",
+          "depth_anything_vitb14.pth",
+          "depth_anything_vits14.pth"
+        ],
+        "type": "string"
+      },
+      "DepthAnythingV2Checkpoint": {
+        "enum": [
+          "depth_anything_v2_vitg.pth",
+          "depth_anything_v2_vitl.pth",
+          "depth_anything_v2_vitb.pth",
+          "depth_anything_v2_vits.pth"
+        ],
+        "type": "string"
+      },
+      "DwPoseBboxDetector": {
+        "enum": [
+          "yolox_l.onnx",
+          "yolox_l.torchscript.pt",
+          "yolo_nas_l_fp16.onnx",
+          "yolo_nas_m_fp16.onnx",
+          "yolo_nas_s_fp16.onnx"
+        ],
+        "type": "string"
+      },
+      "DwPoseEstimator": {
+        "enum": [
+          "dw-ll_ucoco_384_bs5.torchscript.pt",
+          "dw-ll_ucoco_384.onnx",
+          "dw-ll_ucoco.onnx"
+        ],
+        "type": "string"
+      },
       "EchoInput": {
         "required": [
           "message"
@@ -3987,7 +4142,8 @@
           "pickleTensor",
           "diffusers",
           "coreML",
-          "onnx"
+          "onnx",
+          "tar"
         ],
         "type": "string"
       },
@@ -6231,6 +6387,13 @@
           }
         }
       },
+      "LeresBoost": {
+        "enum": [
+          "disable",
+          "enable"
+        ],
+        "type": "string"
+      },
       "LightricksAspectRatio": {
         "enum": [
           "1:1",
@@ -6537,6 +6700,14 @@
           }
         },
         "description": "MediaRating"
+      },
+      "Metric3dBackbone": {
+        "enum": [
+          "vit-small",
+          "vit-large",
+          "vit-giant2"
+        ],
+        "type": "string"
       },
       "MiniMaxVideoGenInput": {
         "required": [
@@ -7213,6 +7384,1302 @@
         ],
         "type": "string"
       },
+      "PreprocessImageAnimalPoseInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "bboxDetector": {
+                "$ref": "#/components/schemas/AnimalPoseBboxDetector"
+              },
+              "poseEstimator": {
+                "$ref": "#/components/schemas/AnimalPoseEstimator"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "animal-pose"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageAnimeLineartInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "lineart-anime"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageAnylineInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mergeWithLineart": {
+                "$ref": "#/components/schemas/AnylineMergeWith"
+              },
+              "lineartLowerBound": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0
+              },
+              "lineartUpperBound": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "objectMinSize": {
+                "maximum": 1000,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 36
+              },
+              "objectConnectivity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "anyline"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageBaeNormalInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "bae-normal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageBinaryInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "binThreshold": {
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 100
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "binary"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageCannyInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "lowThreshold": {
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 100
+              },
+              "highThreshold": {
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 200
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "canny"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageColorInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "color"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageDensePoseInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "model": {
+                "$ref": "#/components/schemas/DensePoseModel"
+              },
+              "colormap": {
+                "$ref": "#/components/schemas/DensePoseColormap"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "densepose"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageDepthAnythingInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "checkpoint": {
+                "$ref": "#/components/schemas/DepthAnythingCheckpoint"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "depth-anything"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageDepthAnythingV2Input": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "checkpoint": {
+                "$ref": "#/components/schemas/DepthAnythingV2Checkpoint"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "depth-anything-v2"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageDsineNormalInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "fov": {
+                "maximum": 365,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 60
+              },
+              "iterations": {
+                "maximum": 20,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "dsine-normal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageDwPoseInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "detectHand": {
+                "type": "boolean",
+                "default": true
+              },
+              "detectBody": {
+                "type": "boolean",
+                "default": true
+              },
+              "detectFace": {
+                "type": "boolean",
+                "default": true
+              },
+              "bboxDetector": {
+                "$ref": "#/components/schemas/DwPoseBboxDetector"
+              },
+              "poseEstimator": {
+                "$ref": "#/components/schemas/DwPoseEstimator"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "dwpose"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageFakeScribbleInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "safe": {
+                "$ref": "#/components/schemas/SafeMode"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "fake-scribble"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageHedInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "safe": {
+                "$ref": "#/components/schemas/SafeMode"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "hed"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageInput": {
+        "required": [
+          "image",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "description": "Either A URL, A DataURL or a Base64 string"
+          },
+          "resolution": {
+            "maximum": 4096,
+            "minimum": 64,
+            "type": "integer",
+            "format": "int32",
+            "default": 512
+          },
+          "preprocessorType": {
+            "type": "string",
+            "description": "Gets the preprocessor type identifier used to map to ComfyUI nodes.\r\nThis is derived from the JsonDerivedType discriminator."
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "canny": "#/components/schemas/PreprocessImageCannyInput",
+            "binary": "#/components/schemas/PreprocessImageBinaryInput",
+            "mlsd": "#/components/schemas/PreprocessImageMlsdInput",
+            "depth-anything": "#/components/schemas/PreprocessImageDepthAnythingInput",
+            "depth-anything-v2": "#/components/schemas/PreprocessImageDepthAnythingV2Input",
+            "zoe-depth-anything": "#/components/schemas/PreprocessImageZoeDepthAnythingInput",
+            "zoe-depth": "#/components/schemas/PreprocessImageZoeDepthInput",
+            "midas-depth": "#/components/schemas/PreprocessImageMidasDepthInput",
+            "leres-depth": "#/components/schemas/PreprocessImageLeresDepthInput",
+            "metric3d-depth": "#/components/schemas/PreprocessImageMetric3dDepthInput",
+            "midas-normal": "#/components/schemas/PreprocessImageMidasNormalInput",
+            "bae-normal": "#/components/schemas/PreprocessImageBaeNormalInput",
+            "dsine-normal": "#/components/schemas/PreprocessImageDsineNormalInput",
+            "metric3d-normal": "#/components/schemas/PreprocessImageMetric3dNormalInput",
+            "hed": "#/components/schemas/PreprocessImageHedInput",
+            "pidinet": "#/components/schemas/PreprocessImagePidinetInput",
+            "teed": "#/components/schemas/PreprocessImageTeedInput",
+            "fake-scribble": "#/components/schemas/PreprocessImageFakeScribbleInput",
+            "lineart-realistic": "#/components/schemas/PreprocessImageRealisticLineartInput",
+            "lineart-standard": "#/components/schemas/PreprocessImageStandardLineartInput",
+            "lineart-anime": "#/components/schemas/PreprocessImageAnimeLineartInput",
+            "lineart-manga": "#/components/schemas/PreprocessImageMangaLineartInput",
+            "anyline": "#/components/schemas/PreprocessImageAnylineInput",
+            "scribble": "#/components/schemas/PreprocessImageScribbleInput",
+            "scribble-xdog": "#/components/schemas/PreprocessImageScribbleXdogInput",
+            "scribble-pidinet": "#/components/schemas/PreprocessImageScribblePidinetInput",
+            "openpose": "#/components/schemas/PreprocessImageOpenPoseInput",
+            "dwpose": "#/components/schemas/PreprocessImageDwPoseInput",
+            "animal-pose": "#/components/schemas/PreprocessImageAnimalPoseInput",
+            "densepose": "#/components/schemas/PreprocessImageDensePoseInput",
+            "mediapipe-face": "#/components/schemas/PreprocessImageMediaPipeFaceInput",
+            "oneformer-coco": "#/components/schemas/PreprocessImageOneFormerCocoInput",
+            "oneformer-ade20k": "#/components/schemas/PreprocessImageOneFormerAde20kInput",
+            "uniformer": "#/components/schemas/PreprocessImageUniFormerInput",
+            "color": "#/components/schemas/PreprocessImageColorInput",
+            "shuffle": "#/components/schemas/PreprocessImageShuffleInput",
+            "tile": "#/components/schemas/PreprocessImageTileInput"
+          }
+        }
+      },
+      "PreprocessImageLeresDepthInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "removeNearest": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0
+              },
+              "removeBackground": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0
+              },
+              "boost": {
+                "$ref": "#/components/schemas/LeresBoost"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "leres-depth"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageMangaLineartInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "lineart-manga"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageMediaPipeFaceInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "maxFaces": {
+                "maximum": 50,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 10
+              },
+              "minConfidence": {
+                "maximum": 1,
+                "minimum": 0.1,
+                "type": "number",
+                "format": "double",
+                "default": 0.5
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "mediapipe-face"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageMetric3dDepthInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "backbone": {
+                "$ref": "#/components/schemas/Metric3dBackbone"
+              },
+              "fx": {
+                "maximum": 4096,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1000
+              },
+              "fy": {
+                "maximum": 4096,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1000
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "metric3d-depth"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageMetric3dNormalInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "backbone": {
+                "$ref": "#/components/schemas/Metric3dBackbone"
+              },
+              "fx": {
+                "maximum": 4096,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1000
+              },
+              "fy": {
+                "maximum": 4096,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1000
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "metric3d-normal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageMidasDepthInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "a": {
+                "maximum": 15.71,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 6.28
+              },
+              "backgroundThreshold": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "midas-depth"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageMidasNormalInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "a": {
+                "maximum": 15.71,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 6.28
+              },
+              "backgroundThreshold": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "midas-normal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageMlsdInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scoreThreshold": {
+                "maximum": 2,
+                "minimum": 0.01,
+                "type": "number",
+                "format": "double",
+                "default": 0.1
+              },
+              "distanceThreshold": {
+                "maximum": 20,
+                "minimum": 0.01,
+                "type": "number",
+                "format": "double",
+                "default": 0.1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "mlsd"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageOneFormerAde20kInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "oneformer-ade20k"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageOneFormerCocoInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "oneformer-coco"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageOpenPoseInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "detectHand": {
+                "type": "boolean",
+                "default": true
+              },
+              "detectBody": {
+                "type": "boolean",
+                "default": true
+              },
+              "detectFace": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "openpose"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageOutput": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/ImageBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PreprocessImagePidinetInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "safe": {
+                "$ref": "#/components/schemas/SafeMode"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "pidinet"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageRealisticLineartInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "coarse": {
+                "$ref": "#/components/schemas/CoarseMode"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "lineart-realistic"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageScribbleInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "scribble"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageScribblePidinetInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "safe": {
+                "$ref": "#/components/schemas/SafeMode"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "scribble-pidinet"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageScribbleXdogInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "threshold": {
+                "maximum": 64,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 32
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "scribble-xdog"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageShuffleInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "seed": {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 0
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "shuffle"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageStandardLineartInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "gaussianSigma": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 6
+              },
+              "intensityThreshold": {
+                "maximum": 16,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 8
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "lineart-standard"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/PreprocessImageInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/PreprocessImageOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "preprocessImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/PreprocessImageInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "preprocessImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageTeedInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "safeSteps": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 2
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "teed"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageTileInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "pyrUpIterations": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 3
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "tile"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageUniFormerInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "uniformer"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageZoeDepthAnythingInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "environment": {
+                "$ref": "#/components/schemas/ZoeDepthEnvironment"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "zoe-depth-anything"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "PreprocessImageZoeDepthInput": {
+        "required": [
+          "kind"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessImageInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "zoe-depth"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "Priority": {
         "enum": [
           "high",
@@ -7710,6 +9177,11 @@
                 "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "description": "The primary model to train upon."
               }
             },
             "additionalProperties": false
@@ -7725,65 +9197,12 @@
         },
         "description": "AI Toolkit training for Stable Diffusion 1.5 models"
       },
-      "SD35LargeAIToolkitTrainingInput": {
-        "required": [
-          "modelVariant"
+      "SafeMode": {
+        "enum": [
+          "enable",
+          "disable"
         ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SD3AIToolkitTrainingInput"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "modelVariant": {
-            "enum": [
-              "large"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "AI Toolkit training for Stable Diffusion 3.5 Large models"
-      },
-      "SD3AIToolkitTrainingInput": {
-        "required": [
-          "ecosystem"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AIToolkitTrainingInput"
-          },
-          {
-            "required": [
-              "modelVariant"
-            ],
-            "type": "object",
-            "properties": {
-              "modelVariant": {
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "modelVariant",
-              "mapping": {
-                "large": "#/components/schemas/SD35LargeAIToolkitTrainingInput"
-              }
-            }
-          }
-        ],
-        "properties": {
-          "ecosystem": {
-            "enum": [
-              "sd3"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "AI Toolkit training for Stable Diffusion 3 models"
+        "type": "string"
       },
       "Scheduler": {
         "enum": [
@@ -7897,6 +9316,11 @@
                 "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "description": "The primary model to train upon."
               }
             },
             "additionalProperties": false
@@ -7994,7 +9418,8 @@
       "SeedreamVersion": {
         "enum": [
           "v3",
-          "v4"
+          "v4",
+          "v4.5"
         ],
         "type": "string"
       },
@@ -8348,18 +9773,12 @@
       "TrainingInput": {
         "required": [
           "engine",
-          "model",
           "trainingData"
         ],
         "type": "object",
         "properties": {
           "engine": {
             "type": "string"
-          },
-          "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string",
-            "description": "The primary model to train upon."
           },
           "trainingData": {
             "$ref": "#/components/schemas/TrainingData"
@@ -9816,29 +11235,6 @@
         },
         "description": "WDTagging"
       },
-      "Wan21AIToolkitTrainingInput": {
-        "required": [
-          "modelVariant"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WanAIToolkitTrainingInput"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "modelVariant": {
-            "enum": [
-              "2.1"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "AI Toolkit training for Wan 2.1 models"
-      },
       "Wan21CivitaiVideoGenInput": {
         "required": [
           "provider"
@@ -10217,29 +11613,6 @@
             "type": "string"
           }
         }
-      },
-      "Wan22AIToolkitTrainingInput": {
-        "required": [
-          "modelVariant"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WanAIToolkitTrainingInput"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ],
-        "properties": {
-          "modelVariant": {
-            "enum": [
-              "2.2"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "AI Toolkit training for Wan 2.2 models"
       },
       "Wan22FalImageGenInput": {
         "required": [
@@ -10786,44 +12159,6 @@
             "type": "string"
           }
         }
-      },
-      "WanAIToolkitTrainingInput": {
-        "required": [
-          "ecosystem"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AIToolkitTrainingInput"
-          },
-          {
-            "required": [
-              "modelVariant"
-            ],
-            "type": "object",
-            "properties": {
-              "modelVariant": {
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "modelVariant",
-              "mapping": {
-                "2.1": "#/components/schemas/Wan21AIToolkitTrainingInput",
-                "2.2": "#/components/schemas/Wan22AIToolkitTrainingInput"
-              }
-            }
-          }
-        ],
-        "properties": {
-          "ecosystem": {
-            "enum": [
-              "wan"
-            ],
-            "type": "string"
-          }
-        },
-        "description": "AI Toolkit training for Wan (video) models"
       },
       "WanImageGenInput": {
         "required": [
@@ -11419,6 +12754,7 @@
             "imageUpscaler": "#/components/schemas/ImageUpscalerStep",
             "mediaHash": "#/components/schemas/MediaHashStep",
             "mediaRating": "#/components/schemas/MediaRatingStep",
+            "preprocessImage": "#/components/schemas/PreprocessImageStep",
             "textToImage": "#/components/schemas/TextToImageStep",
             "training": "#/components/schemas/TrainingStep",
             "transcode": "#/components/schemas/TranscodeStep",
@@ -11679,6 +13015,7 @@
             "imageUpscaler": "#/components/schemas/ImageUpscalerStepTemplate",
             "mediaHash": "#/components/schemas/MediaHashStepTemplate",
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
+            "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
             "training": "#/components/schemas/TrainingStepTemplate",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStepTemplate",
@@ -12003,6 +13340,13 @@
           }
         },
         "description": "Training data packaged as a zip file"
+      },
+      "ZoeDepthEnvironment": {
+        "enum": [
+          "indoor",
+          "outdoor"
+        ],
+        "type": "string"
       }
     },
     "securitySchemes": {

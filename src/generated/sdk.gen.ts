@@ -37,6 +37,9 @@ import type {
   InvokeMediaRatingStepTemplateData,
   InvokeMediaRatingStepTemplateResponses,
   InvokeMediaRatingStepTemplateErrors,
+  InvokePreprocessImageStepTemplateData,
+  InvokePreprocessImageStepTemplateResponses,
+  InvokePreprocessImageStepTemplateErrors,
   InvokeTextToImageStepTemplateData,
   InvokeTextToImageStepTemplateResponses,
   InvokeTextToImageStepTemplateErrors,
@@ -416,6 +419,29 @@ export const invokeMediaRatingStepTemplate = <ThrowOnError extends boolean = fal
       },
     ],
     url: '/v2/consumer/recipes/mediaRating',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+export const invokePreprocessImageStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokePreprocessImageStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokePreprocessImageStepTemplateResponses,
+    InvokePreprocessImageStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/preprocessImage',
     ...options,
     headers: {
       'Content-Type': 'application/json',
