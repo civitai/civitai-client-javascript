@@ -294,6 +294,52 @@ export const ContainerFormat = {
 
 export type ContainerFormat = (typeof ContainerFormat)[keyof typeof ContainerFormat];
 
+/**
+ * Input configuration for the ConvertImage workflow step.
+ */
+export type ConvertImageInput = {
+  /**
+   * The source image to convert.
+   */
+  image: string;
+  /**
+   * Optional list of transforms to apply to the image before conversion.
+   * Transforms are applied in order.
+   */
+  transforms?: Array<ImageTransform>;
+  output: ImageOutputFormat;
+};
+
+/**
+ * Output from the ConvertImage workflow step.
+ */
+export type ConvertImageOutput = {
+  blob: ImageBlob;
+};
+
+/**
+ * A workflow step that converts images to different formats and applies optional transforms.
+ */
+export type ConvertImageStep = WorkflowStep & {
+  $type: 'convertImage';
+} & {
+  input: ConvertImageInput;
+  output?: ConvertImageOutput;
+} & {
+  $type: 'convertImage';
+};
+
+/**
+ * A workflow step that converts images to different formats and applies optional transforms.
+ */
+export type ConvertImageStepTemplate = WorkflowStepTemplate & {
+  $type: 'convertImage';
+} & {
+  input: ConvertImageInput;
+} & {
+  $type: 'convertImage';
+};
+
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
   next: string;
   items: Array<Workflow>;
@@ -838,6 +884,13 @@ export type ImageJobNetworkParams = {
   type?: string | null;
 };
 
+/**
+ * Base class for image output formats. Uses "format" as the type discriminator.
+ */
+export type ImageOutputFormat = {
+  format: string;
+};
+
 export const ImageResouceTrainingModerationStatus = {
   EVALUATING: 'evaluating',
   UNDER_REVIEW: 'underReview',
@@ -925,6 +978,13 @@ export type ImageResourceTrainingStepTemplate = WorkflowStepTemplate & {
   input: ImageResourceTrainingInput;
 } & {
   $type: 'imageResourceTraining';
+};
+
+/**
+ * Base class for image transforms that can be applied during image conversion.
+ */
+export type ImageTransform = {
+  type: string;
 };
 
 /**
@@ -1027,6 +1087,20 @@ export const JobSupport = {
  * Available levels of job support.
  */
 export type JobSupport = (typeof JobSupport)[keyof typeof JobSupport];
+
+/**
+ * JPEG output format configuration.
+ */
+export type JpegOutputFormat = ImageOutputFormat & {
+  format: 'jpeg';
+} & {
+  /**
+   * Quality setting for JPEG compression (1-100). Higher values produce better quality but larger files.
+   */
+  quality?: number;
+} & {
+  format: 'jpeg';
+};
 
 /**
  * Array of operations to perform
@@ -1541,6 +1615,36 @@ export type OpenAiDallE3ImageGenInput = OpenApiImageGenInput & {
   model: 'dall-e-3';
 };
 
+export type OpenAiGpt15CreateImageInput = OpenAiGpt15ImageGenInput & {} & {
+  operation: 'createImage';
+};
+
+export type OpenAiGpt15EditImageInput = OpenAiGpt15ImageGenInput & {
+  images: Array<string>;
+  /**
+   * Input fidelity: low or high
+   */
+  inputFidelity?: 'low' | 'high';
+  /**
+   * Image size for edit mode: auto, 1024x1024, 1536x1024, or 1024x1536
+   */
+  size?: 'auto' | '1024x1024' | '1536x1024' | '1024x1536';
+} & {
+  operation: 'editImage';
+};
+
+export type OpenAiGpt15ImageGenInput = OpenApiImageGenInput & {
+  operation: string;
+  prompt: string;
+  size?: '1024x1024' | '1536x1024' | '1024x1536';
+  quantity?: number;
+  background?: 'auto' | 'transparent' | 'opaque';
+  quality?: 'low' | 'medium' | 'high';
+  outputFormat?: 'jpeg' | 'png' | 'webp';
+} & {
+  model: 'gpt-image-1.5';
+};
+
 export type OpenAiGpt1CreateImageInput = OpenAiGpt1ImageGenInput & {} & {
   operation: 'createImage';
 };
@@ -1582,6 +1686,15 @@ export const OutputFormat = {
 } as const;
 
 export type OutputFormat = (typeof OutputFormat)[keyof typeof OutputFormat];
+
+/**
+ * PNG output format configuration.
+ */
+export type PngOutputFormat = ImageOutputFormat & {
+  format: 'png';
+} & {} & {
+  format: 'png';
+};
 
 export type PreprocessImageAnimalPoseInput = PreprocessImageInput & {
   kind: 'animal-pose';
@@ -2037,6 +2150,20 @@ export type RepeatInput = {
  */
 export type RepeatOutput = {
   steps: Array<WorkflowStep>;
+};
+
+/**
+ * Resizes an image to a target width while maintaining aspect ratio.
+ */
+export type ResizeTransform = ImageTransform & {
+  type: 'resize';
+} & {
+  /**
+   * Target width in pixels. Height is calculated to maintain aspect ratio.
+   */
+  targetWidth?: number | null;
+} & {
+  type: 'resize';
 };
 
 /**
@@ -3236,6 +3363,24 @@ export type WanVideoGenInput = VideoGenInput & {
 };
 
 /**
+ * WebP output format configuration.
+ */
+export type WebpOutputFormat = ImageOutputFormat & {
+  format: 'webp';
+} & {
+  /**
+   * Quality setting for WebP compression (1-100). Only applies when Lossless is false.
+   */
+  quality?: number;
+  /**
+   * When true, uses lossless compression. When false, uses lossy compression with the Quality setting.
+   */
+  lossless?: boolean;
+} & {
+  format: 'webp';
+};
+
+/**
  * Details of a workflow.
  */
 export type Workflow = {
@@ -3921,6 +4066,31 @@ export type GetBlobContentResponses = {
   200: unknown;
 };
 
+export type GetBlockedContentData = {
+  body?: never;
+  path: {
+    /**
+     * The encrypted token containing blocked content parameters
+     */
+    encryptedToken: string;
+  };
+  query?: never;
+  url: '/v2/consumer/blobs/blocked/{encryptedToken}';
+};
+
+export type GetBlockedContentErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type GetBlockedContentError = GetBlockedContentErrors[keyof GetBlockedContentErrors];
+
 export type InvokeAgeClassificationStepTemplateData = {
   body?: AgeClassificationInput;
   path?: never;
@@ -3988,6 +4158,40 @@ export type InvokeComfyStepTemplateResponses = {
 
 export type InvokeComfyStepTemplateResponse =
   InvokeComfyStepTemplateResponses[keyof InvokeComfyStepTemplateResponses];
+
+export type InvokeConvertImageStepTemplateData = {
+  body?: ConvertImageInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
+  url: '/v2/consumer/recipes/convertImage';
+};
+
+export type InvokeConvertImageStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeConvertImageStepTemplateError =
+  InvokeConvertImageStepTemplateErrors[keyof InvokeConvertImageStepTemplateErrors];
+
+export type InvokeConvertImageStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ConvertImageOutput;
+};
+
+export type InvokeConvertImageStepTemplateResponse =
+  InvokeConvertImageStepTemplateResponses[keyof InvokeConvertImageStepTemplateResponses];
 
 export type InvokeEchoStepTemplateData = {
   body?: EchoInput;

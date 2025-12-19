@@ -10,12 +10,17 @@ import type {
   GetBlobContentData,
   GetBlobContentResponses,
   GetBlobContentErrors,
+  GetBlockedContentData,
+  GetBlockedContentErrors,
   InvokeAgeClassificationStepTemplateData,
   InvokeAgeClassificationStepTemplateResponses,
   InvokeAgeClassificationStepTemplateErrors,
   InvokeComfyStepTemplateData,
   InvokeComfyStepTemplateResponses,
   InvokeComfyStepTemplateErrors,
+  InvokeConvertImageStepTemplateData,
+  InvokeConvertImageStepTemplateResponses,
+  InvokeConvertImageStepTemplateErrors,
   InvokeEchoStepTemplateData,
   InvokeEchoStepTemplateResponses,
   InvokeEchoStepTemplateErrors,
@@ -188,6 +193,24 @@ export const getBlobContent = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Serves a blocked placeholder image with the specified dimensions
+ */
+export const getBlockedContent = <ThrowOnError extends boolean = false>(
+  options: Options<GetBlockedContentData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<unknown, GetBlockedContentErrors, ThrowOnError>({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/blobs/blocked/{encryptedToken}',
+    ...options,
+  });
+};
+
+/**
  * Age classification
  * Detects minors in media content. Returns a boolean value indicating whether the content contains minors as well as details on where minors are detected.
  */
@@ -233,6 +256,32 @@ export const invokeComfyStepTemplate = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/v2/consumer/recipes/comfy',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * A workflow step that converts images to different formats and applies optional transforms.
+ */
+export const invokeConvertImageStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeConvertImageStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeConvertImageStepTemplateResponses,
+    InvokeConvertImageStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/convertImage',
     ...options,
     headers: {
       'Content-Type': 'application/json',

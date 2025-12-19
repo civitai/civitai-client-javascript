@@ -182,6 +182,48 @@
         }
       }
     },
+    "/v2/consumer/blobs/blocked/{encryptedToken}": {
+      "get": {
+        "tags": [
+          "Blobs"
+        ],
+        "summary": "Serves a blocked placeholder image with the specified dimensions",
+        "operationId": "GetBlockedContent",
+        "parameters": [
+          {
+            "name": "encryptedToken",
+            "in": "path",
+            "description": "The encrypted token containing blocked content parameters",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/ageClassification": {
       "post": {
         "tags": [
@@ -319,6 +361,82 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ComfyOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/convertImage": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "A workflow step that converts images to different formats and applies optional transforms.",
+        "operationId": "InvokeConvertImageStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertImageInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertImageInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvertImageInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertImageOutput"
                 }
               }
             }
@@ -3936,6 +4054,109 @@
         ],
         "type": "string"
       },
+      "ConvertImageInput": {
+        "required": [
+          "image",
+          "output"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "The source image to convert."
+          },
+          "transforms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageTransform"
+            },
+            "description": "Optional list of transforms to apply to the image before conversion.\r\nTransforms are applied in order."
+          },
+          "output": {
+            "$ref": "#/components/schemas/ImageOutputFormat"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input configuration for the ConvertImage workflow step."
+      },
+      "ConvertImageOutput": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/ImageBlob"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from the ConvertImage workflow step."
+      },
+      "ConvertImageStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ConvertImageInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ConvertImageOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "convertImage"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "A workflow step that converts images to different formats and applies optional transforms."
+      },
+      "ConvertImageStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ConvertImageInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "convertImage"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "A workflow step that converts images to different formats and applies optional transforms."
+      },
       "CursedArrayOfTelemetryCursorAndWorkflow": {
         "required": [
           "items",
@@ -5579,6 +5800,27 @@
         },
         "additionalProperties": false
       },
+      "ImageOutputFormat": {
+        "required": [
+          "format"
+        ],
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Base class for image output formats. Uses \"format\" as the type discriminator.",
+        "discriminator": {
+          "propertyName": "format",
+          "mapping": {
+            "jpeg": "#/components/schemas/JpegOutputFormat",
+            "png": "#/components/schemas/PngOutputFormat",
+            "webp": "#/components/schemas/WebpOutputFormat"
+          }
+        }
+      },
       "ImageResouceTrainingModerationStatus": {
         "enum": [
           "evaluating",
@@ -5758,6 +6000,25 @@
           }
         },
         "description": "LORA Training"
+      },
+      "ImageTransform": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Base class for image transforms that can be applied during image conversion.",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "resize": "#/components/schemas/ResizeTransform"
+          }
+        }
       },
       "ImageTransformer": {
         "enum": [
@@ -6009,6 +6270,38 @@
         ],
         "type": "string",
         "description": "Available levels of job support."
+      },
+      "JpegOutputFormat": {
+        "required": [
+          "format"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageOutputFormat"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "quality": {
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Quality setting for JPEG compression (1-100). Higher values produce better quality but larger files.",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "format": {
+            "enum": [
+              "jpeg"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "JPEG output format configuration."
       },
       "JsonPatchDocument": {
         "type": "array",
@@ -7198,6 +7491,161 @@
           }
         }
       },
+      "OpenAIGpt15CreateImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt15ImageGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIGpt15EditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt15ImageGenInput"
+          },
+          {
+            "required": [
+              "images"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "inputFidelity": {
+                "enum": [
+                  "low",
+                  "high"
+                ],
+                "type": "string",
+                "description": "Input fidelity: low or high"
+              },
+              "size": {
+                "enum": [
+                  "auto",
+                  "1024x1024",
+                  "1536x1024",
+                  "1024x1536"
+                ],
+                "type": "string",
+                "description": "Image size for edit mode: auto, 1024x1024, 1536x1024, or 1024x1536"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "OpenAIGpt15ImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 32000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "size": {
+                "enum": [
+                  "1024x1024",
+                  "1536x1024",
+                  "1024x1536"
+                ],
+                "type": "string"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "background": {
+                "enum": [
+                  "auto",
+                  "transparent",
+                  "opaque"
+                ],
+                "type": "string"
+              },
+              "quality": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              "outputFormat": {
+                "enum": [
+                  "jpeg",
+                  "png",
+                  "webp"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIGpt15CreateImageInput",
+                "editImage": "#/components/schemas/OpenAIGpt15EditImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "gpt-image-1.5"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "OpenAIGpt1CreateImageInput": {
         "required": [
           "operation"
@@ -7361,6 +7809,7 @@
               "propertyName": "model",
               "mapping": {
                 "gpt-image-1": "#/components/schemas/OpenAIGpt1ImageGenInput",
+                "gpt-image-1.5": "#/components/schemas/OpenAIGpt15ImageGenInput",
                 "dall-e-2": "#/components/schemas/OpenAIDallE2ImageGenInput",
                 "dall-e-3": "#/components/schemas/OpenAIDallE3ImageGenInput"
               }
@@ -7383,6 +7832,29 @@
           "webP"
         ],
         "type": "string"
+      },
+      "PngOutputFormat": {
+        "required": [
+          "format"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageOutputFormat"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "format": {
+            "enum": [
+              "png"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "PNG output format configuration."
       },
       "PreprocessImageAnimalPoseInput": {
         "required": [
@@ -9051,6 +9523,39 @@
         },
         "additionalProperties": false,
         "description": "Represents the output information returned from the Repeat workflow step."
+      },
+      "ResizeTransform": {
+        "required": [
+          "type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageTransform"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "targetWidth": {
+                "maximum": 4096,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Target width in pixels. Height is calculated to maintain aspect ratio.",
+                "format": "int32",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "resize"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Resizes an image to a target width while maintaining aspect ratio."
       },
       "ResourceInfo": {
         "required": [
@@ -12329,6 +12834,42 @@
           }
         }
       },
+      "WebpOutputFormat": {
+        "required": [
+          "format"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageOutputFormat"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "quality": {
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Quality setting for WebP compression (1-100). Only applies when Lossless is false.",
+                "format": "int32"
+              },
+              "lossless": {
+                "type": "boolean",
+                "description": "When true, uses lossless compression. When false, uses lossy compression with the Quality setting."
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "format": {
+            "enum": [
+              "webp"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "WebP output format configuration."
+      },
       "Workflow": {
         "type": "object",
         "properties": {
@@ -12747,6 +13288,7 @@
           "mapping": {
             "ageClassification": "#/components/schemas/AgeClassificationStep",
             "comfy": "#/components/schemas/ComfyStep",
+            "convertImage": "#/components/schemas/ConvertImageStep",
             "echo": "#/components/schemas/EchoStep",
             "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
@@ -13008,6 +13550,7 @@
           "mapping": {
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
+            "convertImage": "#/components/schemas/ConvertImageStepTemplate",
             "echo": "#/components/schemas/EchoStepTemplate",
             "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
