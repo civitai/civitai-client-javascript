@@ -26,7 +26,9 @@ export function createCivitaiClient(config: ClientConfig) {
     if (!response.ok) {
       const error = (
         response.status === 400
-          ? await response.json()
+          ? await response
+              .json()
+              .catch(() => ({ status: response.status, detail: response.statusText }))
           : { status: response.status, detail: response.statusText }
       ) as ProblemDetails;
       const newResponse = new Response(JSON.stringify(error), {
