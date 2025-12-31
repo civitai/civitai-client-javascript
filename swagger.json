@@ -460,7 +460,7 @@
           "Recipes"
         ],
         "summary": "Echo",
-        "description": "A workflow step that takes a message string and retuns it.\r\n/// This step is intended for testing purposes.",
+        "description": "A workflow step that takes a message string and retuns it.\n/// This step is intended for testing purposes.",
         "operationId": "InvokeEchoStepTemplate",
         "parameters": [
           {
@@ -1149,7 +1149,7 @@
           "Recipes"
         ],
         "summary": "Training",
-        "description": "A workflow step for training machine learning models (LoRAs, checkpoints, etc.)\r\n/// on various types of data (images, videos, audio). This replaces ImageResourceTraining\r\n/// with a cleaner architecture that creates one job per epoch instead of a single monolithic job.",
+        "description": "A workflow step for training machine learning models (LoRAs, checkpoints, etc.)\n/// on various types of data (images, videos, audio). This replaces ImageResourceTraining\n/// with a cleaner architecture that creates one job per epoch instead of a single monolithic job.",
         "operationId": "InvokeTrainingStepTemplate",
         "parameters": [
           {
@@ -1302,7 +1302,7 @@
           "Recipes"
         ],
         "summary": "Video Frame Extraction",
-        "description": "Extracts unique frames from a video at a specified rate using perceptual hashing to filter out duplicate/similar frames.\r\n/// Useful for generating video previews, storyboards, or analyzing video content.",
+        "description": "Extracts unique frames from a video at a specified rate using perceptual hashing to filter out duplicate/similar frames.\n/// Useful for generating video previews, storyboards, or analyzing video content.",
         "operationId": "InvokeVideoFrameExtractionStepTemplate",
         "parameters": [
           {
@@ -1873,7 +1873,7 @@
           {
             "name": "wait",
             "in": "query",
-            "description": "Whether to wait for the workflow to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
+            "description": "Whether to wait for the workflow to complete before returning or to return immediately\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \nIn which case the client should use the token to query the status of the workflow.",
             "schema": {
               "type": "integer",
               "format": "int32",
@@ -1908,210 +1908,13 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "textToImage",
-                        "input": {
-                          "quantity": 2,
-                          "batchSize": 4,
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "additionalNetworks": {
-                            "urn:air:sd1:embedding:civitai:7808@9208": {
-                              "triggerWord": "easynegative"
-                            }
-                          },
-                          "controlNets": [],
-                          "prompt": "A curious cat",
-                          "negativePrompt": "nsfw",
-                          "scheduler": "eulerA",
-                          "steps": 30,
-                          "cfgScale": 7.5,
-                          "width": 512,
-                          "height": 512,
-                          "seed": 1790693947,
-                          "clipSkip": 2,
-                          "outputFormat": "jpeg"
-                        },
-                        "priority": "high",
-                        "timeout": "00:05:00",
-                        "retries": 5
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "LORA training": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "imageResourceTraining",
-                        "input": {
-                          "maxTrainEpochs": 5,
-                          "numRepeats": 8,
-                          "resolution": 512,
-                          "enableBucket": true,
-                          "shuffleCaption": false,
-                          "keepTokens": 0,
-                          "clipSkip": 1,
-                          "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
-                          "lrSchedulerNumCycles": 3,
-                          "engine": "kohya",
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "trainingData": "https://example.com/training-data",
-                          "trainingDataImagesCount": 10,
-                          "loraName": "mylora",
-                          "samplePrompts": []
-                        },
-                        "priority": "normal",
-                        "retries": 1
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "Comfy job": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "comfy",
-                        "input": {
-                          "comfyWorkflow": {
-                            "3": {
-                              "class_type": "KSampler",
-                              "inputs": {
-                                "sampler_name": "euler",
-                                "scheduler": "normal",
-                                "seed": 740593329207015,
-                                "steps": 20,
-                                "cfg": 8,
-                                "denoise": 1,
-                                "model": [
-                                  "4",
-                                  0
-                                ],
-                                "positive": [
-                                  "6",
-                                  0
-                                ],
-                                "negative": [
-                                  "7",
-                                  0
-                                ],
-                                "latent_image": [
-                                  "5",
-                                  0
-                                ]
-                              }
-                            },
-                            "4": {
-                              "class_type": "CheckpointLoaderSimple",
-                              "inputs": {
-                                "ckpt_name": "@civitai/46846"
-                              }
-                            },
-                            "5": {
-                              "class_type": "EmptyLatentImage",
-                              "inputs": {
-                                "width": 512,
-                                "height": 512,
-                                "batch_size": 1
-                              }
-                            },
-                            "6": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "7": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "text, watermark",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "8": {
-                              "class_type": "VAEDecode",
-                              "inputs": {
-                                "samples": [
-                                  "3",
-                                  0
-                                ],
-                                "vae": [
-                                  "4",
-                                  2
-                                ]
-                              }
-                            },
-                            "9": {
-                              "class_type": "SaveImage",
-                              "inputs": {
-                                "filename_prefix": "ComfyUI",
-                                "images": [
-                                  "8",
-                                  0
-                                ]
-                              }
-                            }
-                          },
-                          "quantity": 1
-                        }
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 }
               }
             },
@@ -2121,210 +1924,13 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "textToImage",
-                        "input": {
-                          "quantity": 2,
-                          "batchSize": 4,
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "additionalNetworks": {
-                            "urn:air:sd1:embedding:civitai:7808@9208": {
-                              "triggerWord": "easynegative"
-                            }
-                          },
-                          "controlNets": [],
-                          "prompt": "A curious cat",
-                          "negativePrompt": "nsfw",
-                          "scheduler": "eulerA",
-                          "steps": 30,
-                          "cfgScale": 7.5,
-                          "width": 512,
-                          "height": 512,
-                          "seed": 1790693947,
-                          "clipSkip": 2,
-                          "outputFormat": "jpeg"
-                        },
-                        "priority": "high",
-                        "timeout": "00:05:00",
-                        "retries": 5
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "LORA training": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "imageResourceTraining",
-                        "input": {
-                          "maxTrainEpochs": 5,
-                          "numRepeats": 8,
-                          "resolution": 512,
-                          "enableBucket": true,
-                          "shuffleCaption": false,
-                          "keepTokens": 0,
-                          "clipSkip": 1,
-                          "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
-                          "lrSchedulerNumCycles": 3,
-                          "engine": "kohya",
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "trainingData": "https://example.com/training-data",
-                          "trainingDataImagesCount": 10,
-                          "loraName": "mylora",
-                          "samplePrompts": []
-                        },
-                        "priority": "normal",
-                        "retries": 1
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "Comfy job": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "comfy",
-                        "input": {
-                          "comfyWorkflow": {
-                            "3": {
-                              "class_type": "KSampler",
-                              "inputs": {
-                                "sampler_name": "euler",
-                                "scheduler": "normal",
-                                "seed": 740593329207015,
-                                "steps": 20,
-                                "cfg": 8,
-                                "denoise": 1,
-                                "model": [
-                                  "4",
-                                  0
-                                ],
-                                "positive": [
-                                  "6",
-                                  0
-                                ],
-                                "negative": [
-                                  "7",
-                                  0
-                                ],
-                                "latent_image": [
-                                  "5",
-                                  0
-                                ]
-                              }
-                            },
-                            "4": {
-                              "class_type": "CheckpointLoaderSimple",
-                              "inputs": {
-                                "ckpt_name": "@civitai/46846"
-                              }
-                            },
-                            "5": {
-                              "class_type": "EmptyLatentImage",
-                              "inputs": {
-                                "width": 512,
-                                "height": 512,
-                                "batch_size": 1
-                              }
-                            },
-                            "6": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "7": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "text, watermark",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "8": {
-                              "class_type": "VAEDecode",
-                              "inputs": {
-                                "samples": [
-                                  "3",
-                                  0
-                                ],
-                                "vae": [
-                                  "4",
-                                  2
-                                ]
-                              }
-                            },
-                            "9": {
-                              "class_type": "SaveImage",
-                              "inputs": {
-                                "filename_prefix": "ComfyUI",
-                                "images": [
-                                  "8",
-                                  0
-                                ]
-                              }
-                            }
-                          },
-                          "quantity": 1
-                        }
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 }
               }
             },
@@ -2334,210 +1940,13 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "textToImage",
-                        "input": {
-                          "quantity": 2,
-                          "batchSize": 4,
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "additionalNetworks": {
-                            "urn:air:sd1:embedding:civitai:7808@9208": {
-                              "triggerWord": "easynegative"
-                            }
-                          },
-                          "controlNets": [],
-                          "prompt": "A curious cat",
-                          "negativePrompt": "nsfw",
-                          "scheduler": "eulerA",
-                          "steps": 30,
-                          "cfgScale": 7.5,
-                          "width": 512,
-                          "height": 512,
-                          "seed": 1790693947,
-                          "clipSkip": 2,
-                          "outputFormat": "jpeg"
-                        },
-                        "priority": "high",
-                        "timeout": "00:05:00",
-                        "retries": 5
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "LORA training": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "imageResourceTraining",
-                        "input": {
-                          "maxTrainEpochs": 5,
-                          "numRepeats": 8,
-                          "resolution": 512,
-                          "enableBucket": true,
-                          "shuffleCaption": false,
-                          "keepTokens": 0,
-                          "clipSkip": 1,
-                          "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
-                          "lrSchedulerNumCycles": 3,
-                          "engine": "kohya",
-                          "model": "urn:air:sdxl:model:civitai:101055@128078",
-                          "trainingData": "https://example.com/training-data",
-                          "trainingDataImagesCount": 10,
-                          "loraName": "mylora",
-                          "samplePrompts": []
-                        },
-                        "priority": "normal",
-                        "retries": 1
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 },
                 "Comfy job": {
-                  "value": {
-                    "metadata": {
-                      "key1": "value1",
-                      "key2": 2
-                    },
-                    "steps": [
-                      {
-                        "$type": "comfy",
-                        "input": {
-                          "comfyWorkflow": {
-                            "3": {
-                              "class_type": "KSampler",
-                              "inputs": {
-                                "sampler_name": "euler",
-                                "scheduler": "normal",
-                                "seed": 740593329207015,
-                                "steps": 20,
-                                "cfg": 8,
-                                "denoise": 1,
-                                "model": [
-                                  "4",
-                                  0
-                                ],
-                                "positive": [
-                                  "6",
-                                  0
-                                ],
-                                "negative": [
-                                  "7",
-                                  0
-                                ],
-                                "latent_image": [
-                                  "5",
-                                  0
-                                ]
-                              }
-                            },
-                            "4": {
-                              "class_type": "CheckpointLoaderSimple",
-                              "inputs": {
-                                "ckpt_name": "@civitai/46846"
-                              }
-                            },
-                            "5": {
-                              "class_type": "EmptyLatentImage",
-                              "inputs": {
-                                "width": 512,
-                                "height": 512,
-                                "batch_size": 1
-                              }
-                            },
-                            "6": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "7": {
-                              "class_type": "CLIPTextEncode",
-                              "inputs": {
-                                "text": "text, watermark",
-                                "clip": [
-                                  "4",
-                                  1
-                                ]
-                              }
-                            },
-                            "8": {
-                              "class_type": "VAEDecode",
-                              "inputs": {
-                                "samples": [
-                                  "3",
-                                  0
-                                ],
-                                "vae": [
-                                  "4",
-                                  2
-                                ]
-                              }
-                            },
-                            "9": {
-                              "class_type": "SaveImage",
-                              "inputs": {
-                                "filename_prefix": "ComfyUI",
-                                "images": [
-                                  "8",
-                                  0
-                                ]
-                              }
-                            }
-                          },
-                          "quantity": 1
-                        }
-                      }
-                    ],
-                    "callbacks": [
-                      {
-                        "url": "https://example.com/callback",
-                        "type": [
-                          "workflow:succeeded",
-                          "workflow:failed"
-                        ]
-                      }
-                    ],
-                    "upgradeMode": "automatic",
-                    "currencies": []
-                  }
+                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
                 }
               }
             }
@@ -2806,7 +2215,7 @@
           {
             "name": "wait",
             "in": "query",
-            "description": "Whether to wait for the workflow to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
+            "description": "Whether to wait for the workflow to complete before returning or to return immediately\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \nIn which case the client should use the token to query the status of the workflow.",
             "schema": {
               "type": "boolean"
             }
@@ -3455,7 +2864,7 @@
                 "maximum": 20,
                 "minimum": 1,
                 "type": "integer",
-                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\r\nMaximum of 20 epochs can be specified.\r\nNote: ai-toolkit uses steps internally, calculated based on epochs, image count, and internal parameters.",
+                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\nMaximum of 20 epochs can be specified.\nNote: ai-toolkit uses steps internally, calculated based on epochs, image count, and internal parameters.",
                 "format": "int32",
                 "default": 5
               },
@@ -3514,7 +2923,7 @@
                   "prodigy8bit"
                 ],
                 "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",
+                "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",
                 "nullable": true
               },
               "networkDim": {
@@ -3529,7 +2938,7 @@
                 "maximum": 256,
                 "minimum": 1,
                 "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\n            \nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
                 "format": "int32",
                 "nullable": true
               },
@@ -3555,7 +2964,7 @@
                 "maximum": 10,
                 "minimum": 0,
                 "type": "integer",
-                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tokens option is off.",
+                "description": "If your training images have tags, you can randomly shuffle them.\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\nThis option does nothing if the Shuffle Tokens option is off.",
                 "format": "int32",
                 "default": 0
               }
@@ -4070,7 +3479,7 @@
             "items": {
               "$ref": "#/components/schemas/ImageTransform"
             },
-            "description": "Optional list of transforms to apply to the image before conversion.\r\nTransforms are applied in order."
+            "description": "Optional list of transforms to apply to the image before conversion.\nTransforms are applied in order."
           },
           "output": {
             "$ref": "#/components/schemas/ImageOutputFormat"
@@ -4721,7 +4130,7 @@
                 "maximum": 4,
                 "minimum": 1,
                 "type": "integer",
-                "description": "Number of reference images per training pair (1-4).\r\nAffects cost calculation via reference multiplier.",
+                "description": "Number of reference images per training pair (1-4).\nAffects cost calculation via reference multiplier.",
                 "format": "int32"
               }
             },
@@ -5028,7 +4437,8 @@
               "mapping": {
                 "dev": "#/components/schemas/Flux2DevImageGenInput",
                 "flex": "#/components/schemas/Flux2FlexImageGenInput",
-                "pro": "#/components/schemas/Flux2ProImageGenInput"
+                "pro": "#/components/schemas/Flux2ProImageGenInput",
+                "max": "#/components/schemas/Flux2MaxImageGenInput"
               }
             }
           }
@@ -5037,6 +4447,110 @@
           "engine": {
             "enum": [
               "flux2"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2MaxCreateImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2MaxImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2MaxEditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2MaxImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2MaxImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2ImageGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "modelVariant": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Flux2MaxCreateImageInput",
+                "editImage": "#/components/schemas/Flux2MaxEditImageInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "max"
             ],
             "type": "string"
           }
@@ -5308,6 +4822,37 @@
             "type": "string"
           }
         }
+      },
+      "GifOutputFormat": {
+        "required": [
+          "format"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageOutputFormat"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "maxFrames": {
+                "type": "integer",
+                "description": "Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.\nWhen null, all frames are preserved.",
+                "format": "int32",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "format": {
+            "enum": [
+              "gif"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "GIF output format configuration."
       },
       "GoogleImageGenInput": {
         "required": [
@@ -5605,6 +5150,18 @@
                 "type": "integer",
                 "format": "int32",
                 "nullable": true
+              },
+              "previewUrl": {
+                "type": "string",
+                "description": "Gets a url that can be used to preview a resized version of the image.",
+                "format": "uri",
+                "nullable": true
+              },
+              "previewUrlExpiresAt": {
+                "type": "string",
+                "description": "Gets when the preview url is set to expire.",
+                "format": "date-time",
+                "nullable": true
               }
             },
             "additionalProperties": false
@@ -5817,7 +5374,8 @@
           "mapping": {
             "jpeg": "#/components/schemas/JpegOutputFormat",
             "png": "#/components/schemas/PngOutputFormat",
-            "webp": "#/components/schemas/WebpOutputFormat"
+            "webp": "#/components/schemas/WebpOutputFormat",
+            "gif": "#/components/schemas/GifOutputFormat"
           }
         }
       },
@@ -5924,7 +5482,7 @@
           },
           "storedAsAssets": {
             "type": "boolean",
-            "description": "Get wether the blobs are actually stored as assets\r\nAssets are deprecated and require a different retrieval mechanism",
+            "description": "Get wether the blobs are actually stored as assets\nAssets are deprecated and require a different retrieval mechanism",
             "nullable": true
           },
           "eta": {
@@ -6573,7 +6131,7 @@
                 "maximum": 3,
                 "minimum": 0,
                 "type": "integer",
-                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tags option is off.",
+                "description": "If your training images have tags, you can randomly shuffle them.\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\nThis option does nothing if the Shuffle Tags option is off.",
                 "format": "int32",
                 "default": 0
               },
@@ -6628,7 +6186,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\nbut depending on the difference in strength of the noise on which it is placed, learning will be\nstable by moving closer to or farther from the learning target.\n            \nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
               },
@@ -6644,7 +6202,7 @@
                 "maximum": 256,
                 "minimum": 1,
                 "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\n            \nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
                 "format": "int32",
                 "nullable": true
               },
@@ -6658,7 +6216,7 @@
               },
               "optimizerType": {
                 "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\r\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
+                "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
                 "nullable": true
               },
               "targetSteps": {
@@ -7091,7 +6649,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\r\nMaximum of 20 epochs can be specified.",
+                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\nMaximum of 20 epochs can be specified.",
                 "format": "int32",
                 "default": 5
               },
@@ -7147,13 +6705,13 @@
                 "maximum": 256,
                 "minimum": 1,
                 "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\n            \nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
                 "format": "int32",
                 "nullable": true
               },
               "optimizerType": {
                 "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\r\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
+                "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
                 "nullable": true
               },
               "targetSteps": {
@@ -7202,7 +6760,7 @@
             "properties": {
               "prompt": {
                 "maxLength": 50000,
-                "minLength": 3,
+                "minLength": 0,
                 "type": "string"
               },
               "aspectRatio": {
@@ -8317,7 +7875,7 @@
           },
           "preprocessorType": {
             "type": "string",
-            "description": "Gets the preprocessor type identifier used to map to ComfyUI nodes.\r\nThis is derived from the JsonDerivedType discriminator."
+            "description": "Gets the preprocessor type identifier used to map to ComfyUI nodes.\nThis is derived from the JsonDerivedType discriminator."
           }
         },
         "additionalProperties": false,
@@ -9186,7 +8744,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "Qwen20bCreateImageGenInput": {
         "required": [
@@ -9637,7 +9195,7 @@
           },
           "hasMatureContentRestriction": {
             "type": "boolean",
-            "description": "A boolean indicating whether this resource restricts mature content generation.\r\nIf resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content"
+            "description": "A boolean indicating whether this resource restricts mature content generation.\nIf resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content"
           },
           "popularityRank": {
             "type": "number",
@@ -9658,7 +9216,7 @@
           },
           "hasNSFWContentRestriction": {
             "type": "boolean",
-            "description": "A boolean indicating whether this resource restricts to SFW content generation.\r\nNSFWContent covers X and AA whereas MatureContent includes R rated content."
+            "description": "A boolean indicating whether this resource restricts to SFW content generation.\nNSFWContent covers X and AA whereas MatureContent includes R rated content."
           }
         },
         "additionalProperties": false,
@@ -9679,7 +9237,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\nbut depending on the difference in strength of the noise on which it is placed, learning will be\nstable by moving closer to or farther from the learning target.\n            \nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
               },
@@ -9818,7 +9376,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\nbut depending on the difference in strength of the noise on which it is placed, learning will be\nstable by moving closer to or farther from the learning target.\n            \nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
               },
@@ -9867,14 +9425,14 @@
                 "default": 1
               },
               "width": {
-                "maximum": 2048,
+                "maximum": 4096,
                 "minimum": 256,
                 "type": "integer",
                 "format": "int32",
                 "default": 1024
               },
               "height": {
-                "maximum": 2048,
+                "maximum": 4096,
                 "minimum": 256,
                 "type": "integer",
                 "format": "int32",
@@ -9958,7 +9516,7 @@
             "type": "string"
           }
         },
-        "description": "Sora 2 Image-to-Video\r\nFAL Endpoints:\r\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video\r\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro"
+        "description": "Sora 2 Image-to-Video\nFAL Endpoints:\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro"
       },
       "Sora2TextToVideoInput": {
         "required": [
@@ -9981,7 +9539,7 @@
             "type": "string"
           }
         },
-        "description": "Sora 2 Text-to-Video\r\nFAL Endpoints:\r\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video\r\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video/pro"
+        "description": "Sora 2 Text-to-Video\nFAL Endpoints:\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video/pro"
       },
       "SoraVideoGenInput": {
         "required": [
@@ -10054,7 +9612,7 @@
             "type": "string"
           }
         },
-        "description": "Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)\r\nSince FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.\r\nDiscriminator: operation (text-to-video or image-to-video)"
+        "description": "Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)\nSince FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.\nDiscriminator: operation (text-to-video or image-to-video)"
       },
       "TextToImageInput": {
         "required": [
@@ -10587,6 +10145,39 @@
         "x-preview": true,
         "x-internal": true
       },
+      "TranscodeStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TranscodeInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "transcode"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Transcoding",
+        "x-preview": true,
+        "x-internal": true
+      },
       "TryOnUInput": {
         "required": [
           "garmentUrl",
@@ -10649,7 +10240,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An optional set of new properties to set on the workflow.",
             "nullable": true
           },
@@ -10685,7 +10276,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -10725,7 +10316,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfStringAndInt32": {
         "type": "object",
@@ -11620,14 +11211,14 @@
       },
       "WDTaggingInput": {
         "required": [
-          "mediaUrl",
-          "model"
+          "mediaUrl"
         ],
         "type": "object",
         "properties": {
           "model": {
             "type": "string",
-            "description": "The model to use for tagging (e.g., \"wd14-vit.v1\")."
+            "description": "The model to use for tagging (e.g., \"wd14-vit.v1\").",
+            "nullable": true
           },
           "mediaUrl": {
             "type": "string",
@@ -12855,6 +12446,12 @@
               "lossless": {
                 "type": "boolean",
                 "description": "When true, uses lossless compression. When false, uses lossy compression with the Quality setting."
+              },
+              "maxFrames": {
+                "type": "integer",
+                "description": "Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.\nWhen null, all frames are preserved.",
+                "format": "int32",
+                "nullable": true
               }
             },
             "additionalProperties": false
@@ -12888,7 +12485,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -12915,7 +12512,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -13271,7 +12868,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -13538,7 +13135,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           }
@@ -13561,6 +13158,7 @@
             "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
             "training": "#/components/schemas/TrainingStepTemplate",
+            "transcode": "#/components/schemas/TranscodeStepTemplate",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStepTemplate",
             "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStepTemplate",
             "videoGen": "#/components/schemas/VideoGenStepTemplate",
@@ -13579,7 +13177,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow.",
             "nullable": true
           },
@@ -13590,7 +13188,7 @@
             "items": {
               "type": "string"
             },
-            "description": "A list of tags associated with this workflow.\r\nTags are indexed and can be used to search for workflows.\r\nAt most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.",
+            "description": "A list of tags associated with this workflow.\nTags are indexed and can be used to search for workflows.\nAt most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.",
             "nullable": true
           },
           "steps": {
@@ -13614,7 +13212,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments",
             "nullable": true
           },
@@ -13628,7 +13226,7 @@
           },
           "allowMatureContent": {
             "type": "boolean",
-            "description": "Get or set whether this workflow should allow mature content.\r\nWhen set to false, the workflow will not return any content that is marked as mature.\r\nAdditional payment options are available for workflows that do not allow mature content.",
+            "description": "Get or set whether this workflow should allow mature content.\nWhen set to false, the workflow will not return any content that is marked as mature.\nAdditional payment options are available for workflows that do not allow mature content.",
             "nullable": true
           },
           "upgradeMode": {
@@ -13903,7 +13501,7 @@
   },
   "security": [
     {
-      "ApiKey": []
+      "ApiKey": [ ]
     }
   ],
   "x-tagGroups": [

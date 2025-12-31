@@ -647,6 +647,26 @@ export type Flux2ImageGenInput = ImageGenInput & {
   engine: 'flux2';
 };
 
+export type Flux2MaxCreateImageInput = Flux2MaxImageGenInput & {
+  readonly operation: string;
+} & {
+  operation: 'createImage';
+};
+
+export type Flux2MaxEditImageInput = Flux2MaxImageGenInput & {
+  images?: Array<string>;
+  readonly operation: string;
+} & {
+  operation: 'editImage';
+};
+
+export type Flux2MaxImageGenInput = Flux2ImageGenInput & {
+  operation: string;
+  readonly modelVariant?: string;
+} & {
+  model: 'max';
+};
+
 export type Flux2ProCreateImageInput = Flux2ProImageGenInput & {
   readonly operation: string;
 } & {
@@ -697,6 +717,21 @@ export type GeminiImageGenInput = ImageGenInput & {
   prompt: string;
 } & {
   engine: 'gemini';
+};
+
+/**
+ * GIF output format configuration.
+ */
+export type GifOutputFormat = ImageOutputFormat & {
+  format: 'gif';
+} & {
+  /**
+   * Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.
+   * When null, all frames are preserved.
+   */
+  maxFrames?: number | null;
+} & {
+  format: 'gif';
 };
 
 export type GoogleImageGenInput = ImageGenInput & {
@@ -803,6 +838,14 @@ export type ImageBlob = Blob & {
 } & {
   width?: number | null;
   height?: number | null;
+  /**
+   * Gets a url that can be used to preview a resized version of the image.
+   */
+  previewUrl?: string | null;
+  /**
+   * Gets when the preview url is set to expire.
+   */
+  previewUrlExpiresAt?: string | null;
 } & {
   type: 'image';
 };
@@ -2702,6 +2745,17 @@ export type TranscodeStep = WorkflowStep & {
   $type: 'transcode';
 };
 
+/**
+ * Transcoding
+ */
+export type TranscodeStepTemplate = WorkflowStepTemplate & {
+  $type: 'transcode';
+} & {
+  input: TranscodeInput;
+} & {
+  $type: 'transcode';
+};
+
 export type TryOnUInput = {
   subjectUrl: string;
   garmentUrl: string;
@@ -3118,7 +3172,7 @@ export type WdTaggingInput = {
   /**
    * The model to use for tagging (e.g., "wd14-vit.v1").
    */
-  model: string;
+  model?: string | null;
   mediaUrl: string;
   /**
    * Optional threshold for tag confidence filtering. Tags below this threshold will be excluded.
@@ -3376,6 +3430,11 @@ export type WebpOutputFormat = ImageOutputFormat & {
    * When true, uses lossless compression. When false, uses lossy compression with the Quality setting.
    */
   lossless?: boolean;
+  /**
+   * Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.
+   * When null, all frames are preserved.
+   */
+  maxFrames?: number | null;
 } & {
   format: 'webp';
 };
