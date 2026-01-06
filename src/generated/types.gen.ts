@@ -4935,6 +4935,18 @@ export type QueryWorkflowsData = {
      * When set to true, any blob that has mature won't be available and won't have a URL
      */
     hideMatureContent?: boolean;
+    /**
+     * An optional start date to filter workflows created on or after this date
+     */
+    fromDate?: string;
+    /**
+     * An optional end date to filter workflows created on or before this date
+     */
+    toDate?: string;
+    /**
+     * When set to true, excludes workflows with Failed, Expired, or Canceled status
+     */
+    excludeFailed?: boolean;
   };
   url: '/v2/consumer/workflows';
 };
