@@ -1908,13 +1908,210 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "textToImage",
+                        "input": {
+                          "quantity": 2,
+                          "batchSize": 4,
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "additionalNetworks": {
+                            "urn:air:sd1:embedding:civitai:7808@9208": {
+                              "triggerWord": "easynegative"
+                            }
+                          },
+                          "controlNets": [],
+                          "prompt": "A curious cat",
+                          "negativePrompt": "nsfw",
+                          "scheduler": "eulerA",
+                          "steps": 30,
+                          "cfgScale": 7.5,
+                          "width": 512,
+                          "height": 512,
+                          "seed": 1790693947,
+                          "clipSkip": 2,
+                          "outputFormat": "jpeg"
+                        },
+                        "priority": "high",
+                        "timeout": "00:05:00",
+                        "retries": 5
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 },
                 "LORA training": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "imageResourceTraining",
+                        "input": {
+                          "maxTrainEpochs": 5,
+                          "numRepeats": 8,
+                          "resolution": 512,
+                          "enableBucket": true,
+                          "shuffleCaption": false,
+                          "keepTokens": 0,
+                          "clipSkip": 1,
+                          "flipAugmentation": false,
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
+                          "lrSchedulerNumCycles": 3,
+                          "engine": "kohya",
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "trainingData": "https://example.com/training-data",
+                          "trainingDataImagesCount": 10,
+                          "loraName": "mylora",
+                          "samplePrompts": []
+                        },
+                        "priority": "normal",
+                        "retries": 1
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 },
                 "Comfy job": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "comfy",
+                        "input": {
+                          "comfyWorkflow": {
+                            "3": {
+                              "class_type": "KSampler",
+                              "inputs": {
+                                "sampler_name": "euler",
+                                "scheduler": "normal",
+                                "seed": 740593329207015,
+                                "steps": 20,
+                                "cfg": 8,
+                                "denoise": 1,
+                                "model": [
+                                  "4",
+                                  0
+                                ],
+                                "positive": [
+                                  "6",
+                                  0
+                                ],
+                                "negative": [
+                                  "7",
+                                  0
+                                ],
+                                "latent_image": [
+                                  "5",
+                                  0
+                                ]
+                              }
+                            },
+                            "4": {
+                              "class_type": "CheckpointLoaderSimple",
+                              "inputs": {
+                                "ckpt_name": "@civitai/46846"
+                              }
+                            },
+                            "5": {
+                              "class_type": "EmptyLatentImage",
+                              "inputs": {
+                                "width": 512,
+                                "height": 512,
+                                "batch_size": 1
+                              }
+                            },
+                            "6": {
+                              "class_type": "CLIPTextEncode",
+                              "inputs": {
+                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              }
+                            },
+                            "7": {
+                              "class_type": "CLIPTextEncode",
+                              "inputs": {
+                                "text": "text, watermark",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              }
+                            },
+                            "8": {
+                              "class_type": "VAEDecode",
+                              "inputs": {
+                                "samples": [
+                                  "3",
+                                  0
+                                ],
+                                "vae": [
+                                  "4",
+                                  2
+                                ]
+                              }
+                            },
+                            "9": {
+                              "class_type": "SaveImage",
+                              "inputs": {
+                                "filename_prefix": "ComfyUI",
+                                "images": [
+                                  "8",
+                                  0
+                                ]
+                              }
+                            }
+                          },
+                          "quantity": 1
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 }
               }
             },
@@ -1924,13 +2121,210 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "textToImage",
+                        "input": {
+                          "quantity": 2,
+                          "batchSize": 4,
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "additionalNetworks": {
+                            "urn:air:sd1:embedding:civitai:7808@9208": {
+                              "triggerWord": "easynegative"
+                            }
+                          },
+                          "controlNets": [],
+                          "prompt": "A curious cat",
+                          "negativePrompt": "nsfw",
+                          "scheduler": "eulerA",
+                          "steps": 30,
+                          "cfgScale": 7.5,
+                          "width": 512,
+                          "height": 512,
+                          "seed": 1790693947,
+                          "clipSkip": 2,
+                          "outputFormat": "jpeg"
+                        },
+                        "priority": "high",
+                        "timeout": "00:05:00",
+                        "retries": 5
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 },
                 "LORA training": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "imageResourceTraining",
+                        "input": {
+                          "maxTrainEpochs": 5,
+                          "numRepeats": 8,
+                          "resolution": 512,
+                          "enableBucket": true,
+                          "shuffleCaption": false,
+                          "keepTokens": 0,
+                          "clipSkip": 1,
+                          "flipAugmentation": false,
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
+                          "lrSchedulerNumCycles": 3,
+                          "engine": "kohya",
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "trainingData": "https://example.com/training-data",
+                          "trainingDataImagesCount": 10,
+                          "loraName": "mylora",
+                          "samplePrompts": []
+                        },
+                        "priority": "normal",
+                        "retries": 1
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 },
                 "Comfy job": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "comfy",
+                        "input": {
+                          "comfyWorkflow": {
+                            "3": {
+                              "class_type": "KSampler",
+                              "inputs": {
+                                "sampler_name": "euler",
+                                "scheduler": "normal",
+                                "seed": 740593329207015,
+                                "steps": 20,
+                                "cfg": 8,
+                                "denoise": 1,
+                                "model": [
+                                  "4",
+                                  0
+                                ],
+                                "positive": [
+                                  "6",
+                                  0
+                                ],
+                                "negative": [
+                                  "7",
+                                  0
+                                ],
+                                "latent_image": [
+                                  "5",
+                                  0
+                                ]
+                              }
+                            },
+                            "4": {
+                              "class_type": "CheckpointLoaderSimple",
+                              "inputs": {
+                                "ckpt_name": "@civitai/46846"
+                              }
+                            },
+                            "5": {
+                              "class_type": "EmptyLatentImage",
+                              "inputs": {
+                                "width": 512,
+                                "height": 512,
+                                "batch_size": 1
+                              }
+                            },
+                            "6": {
+                              "class_type": "CLIPTextEncode",
+                              "inputs": {
+                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              }
+                            },
+                            "7": {
+                              "class_type": "CLIPTextEncode",
+                              "inputs": {
+                                "text": "text, watermark",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              }
+                            },
+                            "8": {
+                              "class_type": "VAEDecode",
+                              "inputs": {
+                                "samples": [
+                                  "3",
+                                  0
+                                ],
+                                "vae": [
+                                  "4",
+                                  2
+                                ]
+                              }
+                            },
+                            "9": {
+                              "class_type": "SaveImage",
+                              "inputs": {
+                                "filename_prefix": "ComfyUI",
+                                "images": [
+                                  "8",
+                                  0
+                                ]
+                              }
+                            }
+                          },
+                          "quantity": 1
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 }
               }
             },
@@ -1940,13 +2334,210 @@
               },
               "examples": {
                 "TextToImage": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"textToImage","input":{"quantity":2,"batchSize":4,"model":"urn:air:sdxl:model:civitai:101055@128078","additionalNetworks":{"urn:air:sd1:embedding:civitai:7808@9208":{"triggerWord":"easynegative"}},"controlNets":[],"prompt":"A curious cat","negativePrompt":"nsfw","scheduler":"eulerA","steps":30,"cfgScale":7.5,"width":512,"height":512,"seed":1790693947,"clipSkip":2,"outputFormat":"jpeg"},"priority":"high","timeout":"00:05:00","retries":5}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "textToImage",
+                        "input": {
+                          "quantity": 2,
+                          "batchSize": 4,
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "additionalNetworks": {
+                            "urn:air:sd1:embedding:civitai:7808@9208": {
+                              "triggerWord": "easynegative"
+                            }
+                          },
+                          "controlNets": [],
+                          "prompt": "A curious cat",
+                          "negativePrompt": "nsfw",
+                          "scheduler": "eulerA",
+                          "steps": 30,
+                          "cfgScale": 7.5,
+                          "width": 512,
+                          "height": 512,
+                          "seed": 1790693947,
+                          "clipSkip": 2,
+                          "outputFormat": "jpeg"
+                        },
+                        "priority": "high",
+                        "timeout": "00:05:00",
+                        "retries": 5
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 },
                 "LORA training": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"imageResourceTraining","input":{"maxTrainEpochs":5,"numRepeats":8,"resolution":512,"enableBucket":true,"shuffleCaption":false,"keepTokens":0,"clipSkip":1,"flipAugmentation":false,"unetLR":5E-05,"textEncoderLR":5E-05,"lrSchedulerNumCycles":3,"engine":"kohya","model":"urn:air:sdxl:model:civitai:101055@128078","trainingData":"https://example.com/training-data","trainingDataImagesCount":10,"loraName":"mylora","samplePrompts":[]},"priority":"normal","retries":1}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "imageResourceTraining",
+                        "input": {
+                          "maxTrainEpochs": 5,
+                          "numRepeats": 8,
+                          "resolution": 512,
+                          "enableBucket": true,
+                          "shuffleCaption": false,
+                          "keepTokens": 0,
+                          "clipSkip": 1,
+                          "flipAugmentation": false,
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
+                          "lrSchedulerNumCycles": 3,
+                          "engine": "kohya",
+                          "model": "urn:air:sdxl:model:civitai:101055@128078",
+                          "trainingData": "https://example.com/training-data",
+                          "trainingDataImagesCount": 10,
+                          "loraName": "mylora",
+                          "samplePrompts": []
+                        },
+                        "priority": "normal",
+                        "retries": 1
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 },
                 "Comfy job": {
-                  "value": {"metadata":{"key1":"value1","key2":2},"steps":[{"$type":"comfy","input":{"comfyWorkflow":{"3":{"class_type":"KSampler","inputs":{"sampler_name":"euler","scheduler":"normal","seed":740593329207015,"steps":20,"cfg":8,"denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]}},"4":{"class_type":"CheckpointLoaderSimple","inputs":{"ckpt_name":"@civitai/46846"}},"5":{"class_type":"EmptyLatentImage","inputs":{"width":512,"height":512,"batch_size":1}},"6":{"class_type":"CLIPTextEncode","inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle","clip":["4",1]}},"7":{"class_type":"CLIPTextEncode","inputs":{"text":"text, watermark","clip":["4",1]}},"8":{"class_type":"VAEDecode","inputs":{"samples":["3",0],"vae":["4",2]}},"9":{"class_type":"SaveImage","inputs":{"filename_prefix":"ComfyUI","images":["8",0]}}},"quantity":1}}],"callbacks":[{"url":"https://example.com/callback","type":["workflow:succeeded","workflow:failed"]}],"upgradeMode":"automatic","currencies":[]}
+                  "value": {
+                    "metadata": {
+                      "key1": "value1",
+                      "key2": 2
+                    },
+                    "steps": [
+                      {
+                        "$type": "comfy",
+                        "input": {
+                          "comfyWorkflow": {
+                            "3": {
+                              "class_type": "KSampler",
+                              "inputs": {
+                                "sampler_name": "euler",
+                                "scheduler": "normal",
+                                "seed": 740593329207015,
+                                "steps": 20,
+                                "cfg": 8,
+                                "denoise": 1,
+                                "model": [
+                                  "4",
+                                  0
+                                ],
+                                "positive": [
+                                  "6",
+                                  0
+                                ],
+                                "negative": [
+                                  "7",
+                                  0
+                                ],
+                                "latent_image": [
+                                  "5",
+                                  0
+                                ]
+                              }
+                            },
+                            "4": {
+                              "class_type": "CheckpointLoaderSimple",
+                              "inputs": {
+                                "ckpt_name": "@civitai/46846"
+                              }
+                            },
+                            "5": {
+                              "class_type": "EmptyLatentImage",
+                              "inputs": {
+                                "width": 512,
+                                "height": 512,
+                                "batch_size": 1
+                              }
+                            },
+                            "6": {
+                              "class_type": "CLIPTextEncode",
+                              "inputs": {
+                                "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              }
+                            },
+                            "7": {
+                              "class_type": "CLIPTextEncode",
+                              "inputs": {
+                                "text": "text, watermark",
+                                "clip": [
+                                  "4",
+                                  1
+                                ]
+                              }
+                            },
+                            "8": {
+                              "class_type": "VAEDecode",
+                              "inputs": {
+                                "samples": [
+                                  "3",
+                                  0
+                                ],
+                                "vae": [
+                                  "4",
+                                  2
+                                ]
+                              }
+                            },
+                            "9": {
+                              "class_type": "SaveImage",
+                              "inputs": {
+                                "filename_prefix": "ComfyUI",
+                                "images": [
+                                  "8",
+                                  0
+                                ]
+                              }
+                            }
+                          },
+                          "quantity": 1
+                        }
+                      }
+                    ],
+                    "callbacks": [
+                      {
+                        "url": "https://example.com/callback",
+                        "type": [
+                          "workflow:succeeded",
+                          "workflow:failed"
+                        ]
+                      }
+                    ],
+                    "upgradeMode": "automatic",
+                    "currencies": []
+                  }
                 }
               }
             }
@@ -2894,14 +3485,6 @@
                 "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\r\nMaximum of 20 epochs can be specified.\r\nNote: ai-toolkit uses steps internally, calculated based on epochs, image count, and internal parameters.",
                 "format": "int32",
                 "default": 5
-              },
-              "resolution": {
-                "maximum": 1024,
-                "minimum": 512,
-                "type": "integer",
-                "description": "Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution",
-                "format": "int32",
-                "nullable": true
               },
               "lr": {
                 "maximum": 1,
@@ -3938,13 +4521,6 @@
                 ],
                 "type": "string"
               },
-              "outputFormat": {
-                "enum": [
-                  "jpeg",
-                  "png"
-                ],
-                "type": "string"
-              },
               "guidanceScale": {
                 "maximum": 20,
                 "minimum": 1,
@@ -4425,13 +5001,6 @@
                 "minimum": 512,
                 "type": "integer",
                 "format": "int32"
-              },
-              "outputFormat": {
-                "enum": [
-                  "jpeg",
-                  "png"
-                ],
-                "type": "string"
               },
               "seed": {
                 "type": "integer",
@@ -5211,6 +5780,9 @@
         "properties": {
           "engine": {
             "type": "string"
+          },
+          "outputFormat": {
+            "$ref": "#/components/schemas/ImageGenOutputFormat"
           }
         },
         "additionalProperties": false,
@@ -5271,6 +5843,14 @@
           }
         },
         "additionalProperties": false
+      },
+      "ImageGenOutputFormat": {
+        "enum": [
+          "jpeg",
+          "png",
+          "webP"
+        ],
+        "type": "string"
       },
       "ImageGenStep": {
         "required": [
@@ -6822,15 +7402,6 @@
                 "type": "string",
                 "default": "1K"
               },
-              "outputFormat": {
-                "enum": [
-                  "jpeg",
-                  "png",
-                  "webp"
-                ],
-                "type": "string",
-                "default": "png"
-              },
               "images": {
                 "maxItems": 10,
                 "type": "array",
@@ -7200,14 +7771,6 @@
                   "low",
                   "medium",
                   "high"
-                ],
-                "type": "string"
-              },
-              "outputFormat": {
-                "enum": [
-                  "jpeg",
-                  "png",
-                  "webp"
                 ],
                 "type": "string"
               }
@@ -8771,7 +9334,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "Qwen20bCreateImageGenInput": {
         "required": [
@@ -8784,6 +9347,14 @@
           {
             "type": "object",
             "properties": {
+              "version": {
+                "enum": [
+                  "latest",
+                  "2509",
+                  "2512"
+                ],
+                "type": "string"
+              },
               "width": {
                 "maximum": 2048,
                 "minimum": 64,
@@ -8823,6 +9394,14 @@
             ],
             "type": "object",
             "properties": {
+              "version": {
+                "enum": [
+                  "latest",
+                  "2509",
+                  "2511"
+                ],
+                "type": "string"
+              },
               "images": {
                 "maxItems": 10,
                 "minItems": 1,
@@ -8877,10 +9456,6 @@
               "operation": {
                 "type": "string"
               },
-              "diffuserModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string"
-              },
               "prompt": {
                 "maxLength": 10000,
                 "minLength": 0,
@@ -8920,6 +9495,13 @@
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
               }
             },
             "additionalProperties": false,
@@ -8956,6 +9538,14 @@
             ],
             "type": "object",
             "properties": {
+              "version": {
+                "enum": [
+                  "latest",
+                  "2509",
+                  "2512"
+                ],
+                "type": "string"
+              },
               "image": {
                 "type": "string",
                 "description": "Either A URL, A DataURL or a Base64 string"
@@ -10267,7 +10857,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An optional set of new properties to set on the workflow.",
             "nullable": true
           },
@@ -10303,7 +10893,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -10343,7 +10933,7 @@
             }
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "ValueTupleOfStringAndInt32": {
         "type": "object",
@@ -12512,7 +13102,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -12539,7 +13129,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -12895,7 +13485,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -13162,7 +13752,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step.",
             "nullable": true
           }
@@ -13204,7 +13794,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow.",
             "nullable": true
           },
@@ -13239,7 +13829,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments",
             "nullable": true
           },
@@ -13528,7 +14118,7 @@
   },
   "security": [
     {
-      "ApiKey": [ ]
+      "ApiKey": []
     }
   ],
   "x-tagGroups": [

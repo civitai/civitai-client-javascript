@@ -14,10 +14,6 @@ export type AiToolkitTrainingInput = TrainingInput & {
    */
   epochs?: number;
   /**
-   * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
-   */
-  resolution?: number | null;
-  /**
    * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
    */
   lr?: number;
@@ -503,7 +499,6 @@ export type Flux1KontextImageGenInput = ImageGenInput & {
   prompt: string;
   images?: Array<string>;
   aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
-  outputFormat?: 'jpeg' | 'png';
   guidanceScale?: number;
   quantity?: number;
   seed?: number | null;
@@ -631,7 +626,6 @@ export type Flux2ImageGenInput = ImageGenInput & {
   prompt: string;
   width?: number;
   height?: number;
-  outputFormat?: 'jpeg' | 'png';
   seed?: number | null;
   quantity?: number;
   enablePromptExpansion?: boolean;
@@ -852,6 +846,7 @@ export type ImageBlob = Blob & {
 
 export type ImageGenInput = {
   engine: string;
+  outputFormat?: ImageGenOutputFormat;
 };
 
 export type ImageGenInputLora = {
@@ -869,6 +864,14 @@ export type ImageGenOutput = {
    */
   errors?: Array<string> | null;
 };
+
+export const ImageGenOutputFormat = {
+  JPEG: 'jpeg',
+  PNG: 'png',
+  WEB_P: 'webP',
+} as const;
+
+export type ImageGenOutputFormat = (typeof ImageGenOutputFormat)[keyof typeof ImageGenOutputFormat];
 
 /**
  * Image Generation
@@ -1608,7 +1611,6 @@ export type NanoBananaProImageGenInput = GoogleImageGenInput & {
   aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
   numImages?: number;
   resolution?: '1K' | '2K' | '4K';
-  outputFormat?: 'jpeg' | 'png' | 'webp';
   images?: Array<string>;
 } & {
   model: 'nano-banana-pro';
@@ -1683,7 +1685,6 @@ export type OpenAiGpt15ImageGenInput = OpenApiImageGenInput & {
   quantity?: number;
   background?: 'auto' | 'transparent' | 'opaque';
   quality?: 'low' | 'medium' | 'high';
-  outputFormat?: 'jpeg' | 'png' | 'webp';
 } & {
   model: 'gpt-image-1.5';
 };
@@ -2108,6 +2109,7 @@ export type ProblemDetails = {
 };
 
 export type Qwen20bCreateImageGenInput = Qwen20bImageGenInput & {
+  version?: 'latest' | '2509' | '2512';
   width?: number;
   height?: number;
 } & {
@@ -2115,6 +2117,7 @@ export type Qwen20bCreateImageGenInput = Qwen20bImageGenInput & {
 };
 
 export type Qwen20bEditImageGenInput = Qwen20bImageGenInput & {
+  version?: 'latest' | '2509' | '2511';
   images: Array<string>;
   readonly width?: number;
   readonly height?: number;
@@ -2124,7 +2127,6 @@ export type Qwen20bEditImageGenInput = Qwen20bImageGenInput & {
 
 export type Qwen20bImageGenInput = QwenImageGenInput & {
   operation: string;
-  diffuserModel?: string;
   prompt: string;
   negativePrompt?: string | null;
   sampleMethod?: SdCppSampleMethod;
@@ -2133,11 +2135,15 @@ export type Qwen20bImageGenInput = QwenImageGenInput & {
   cfgScale?: number;
   seed?: number | null;
   quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
 } & {
   model: '20b';
 };
 
 export type Qwen20bVariantImageGenInput = Qwen20bImageGenInput & {
+  version?: 'latest' | '2509' | '2512';
   /**
    * Either A URL, A DataURL or a Base64 string
    */
