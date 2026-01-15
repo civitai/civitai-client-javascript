@@ -273,7 +273,10 @@ export type ComfyLtx2VideoGenInput = VideoGenInput & {
   generateAudio?: boolean;
   guidanceScale?: number;
   numInferenceSteps?: number;
-  loras?: Array<VideoGenInputLora>;
+  model?: '19b-dev' | '19b-distilled';
+  loras?: {
+    [key: string]: number;
+  };
 } & {
   engine: 'ltx2';
 };

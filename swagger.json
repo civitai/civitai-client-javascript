@@ -4054,6 +4054,7 @@
             "type": "object",
             "properties": {
               "images": {
+                "maxItems": 1,
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -4148,10 +4149,19 @@
                 "format": "int32",
                 "default": 20
               },
+              "model": {
+                "enum": [
+                  "19b-dev",
+                  "19b-distilled"
+                ],
+                "type": "string",
+                "default": "19b-dev"
+              },
               "loras": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/VideoGenInputLora"
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
                 }
               }
             },
