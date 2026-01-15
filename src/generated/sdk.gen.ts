@@ -7,6 +7,12 @@ import type {
   HeadBlobData,
   HeadBlobResponses,
   HeadBlobErrors,
+  GetConsumerBlobUploadUrlData,
+  GetConsumerBlobUploadUrlResponses,
+  GetConsumerBlobUploadUrlErrors,
+  UploadConsumerBlobData,
+  UploadConsumerBlobResponses,
+  UploadConsumerBlobErrors,
   GetBlobContentData,
   GetBlobContentResponses,
   GetBlobContentErrors,
@@ -166,6 +172,52 @@ export const headBlob = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/v2/consumer/blobs/{blobId}',
+    ...options,
+  });
+};
+
+/**
+ * Get a presigned URL for browser uploads.
+ * The returned URL points to POST /v2/consumer/blobs with a signature for authentication.
+ */
+export const getConsumerBlobUploadUrl = <ThrowOnError extends boolean = false>(
+  options?: Options<GetConsumerBlobUploadUrlData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    GetConsumerBlobUploadUrlResponses,
+    GetConsumerBlobUploadUrlErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/blobs/upload',
+    ...options,
+  });
+};
+
+/**
+ * Upload a blob directly with on-the-fly moderation.
+ * Supports both authenticated requests (Bearer token) and presigned URLs (sig query param).
+ */
+export const uploadConsumerBlob = <ThrowOnError extends boolean = false>(
+  options?: Options<UploadConsumerBlobData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    UploadConsumerBlobResponses,
+    UploadConsumerBlobErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/blobs',
     ...options,
   });
 };

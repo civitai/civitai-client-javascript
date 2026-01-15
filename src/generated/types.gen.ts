@@ -242,6 +242,42 @@ export type ComfyInput = {
   useSpineComfy?: boolean | null;
 };
 
+/**
+ * Create video from text prompt, optionally with a source image (ComfyUI backend)
+ */
+export type ComfyLtx2CreateVideoInput = ComfyLtx2VideoGenInput & {
+  /**
+   * Optional source image for image-to-video generation
+   */
+  images?: Array<string>;
+} & {
+  operation: 'createVideo';
+};
+
+/**
+ * LTX Video v2 generation via ComfyUI backend
+ */
+export type ComfyLtx2VideoGenInput = VideoGenInput & {
+  engine: 'ltx2';
+} & {
+  operation: string | null;
+  negativePrompt?: string | null;
+  seed?: number | null;
+  /**
+   * Duration in seconds (3 or 5)
+   */
+  duration?: 3 | 5;
+  width?: number;
+  height?: number;
+  fps?: number;
+  generateAudio?: boolean;
+  guidanceScale?: number;
+  numInferenceSteps?: number;
+  loras?: Array<VideoGenInputLora>;
+} & {
+  engine: 'ltx2';
+};
+
 export type ComfyNode = {
   classType: string;
   meta?: {
@@ -281,6 +317,11 @@ export type ComfyStepTemplate = WorkflowStepTemplate & {
   input: ComfyInput;
 } & {
   $type: 'comfy';
+};
+
+export type ConsumerBlobPresignResponse = {
+  uploadUrl: string;
+  expiresAt: string;
 };
 
 export const ContainerFormat = {
@@ -3387,6 +3428,55 @@ export type Wan25VideoGenInput = WanVideoGenInput & {
   version: 'v2.5';
 };
 
+export type Wan26FalImageToVideoInput = Wan26FalVideoGenInput & {
+  images?: Array<string>;
+} & {
+  operation: 'image-to-video';
+};
+
+export type Wan26FalReferenceToVideoInput = Wan26FalVideoGenInput & {
+  /**
+   * Reference videos for subject consistency (1-3 videos with minimum 16 FPS)
+   * Use @Video1, @Video2, @Video3 in the prompt to reference these subjects
+   */
+  referenceVideoUrls?: Array<string>;
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  /**
+   * Duration for reference-to-video is limited to 5 or 10 seconds
+   */
+  duration?: number;
+} & {
+  operation: 'reference-to-video';
+};
+
+export type Wan26FalTextToVideoInput = Wan26FalVideoGenInput & {
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+} & {
+  operation: 'text-to-video';
+};
+
+export type Wan26FalVideoGenInput = Wan26VideoGenInput & {
+  operation: string | null;
+  resolution?: '720p' | '1080p';
+  negativePrompt?: string | null;
+  enablePromptExpansion?: boolean;
+  multiShots?: boolean;
+  enableSafetyChecker?: boolean;
+  /**
+   * URL of audio file for background music (3-30 seconds, up to 15 MB)
+   * Supported for text-to-video and image-to-video only
+   */
+  audioUrl?: string | null;
+} & {
+  provider: 'fal';
+};
+
+export type Wan26VideoGenInput = WanVideoGenInput & {
+  provider: string | null;
+} & {
+  version: 'v2.6';
+};
+
 export type WanImageGenInput = ImageGenInput & {
   engine: 'wan';
 } & {
@@ -4090,6 +4180,75 @@ export type HeadBlobResponses = {
 };
 
 export type HeadBlobResponse = HeadBlobResponses[keyof HeadBlobResponses];
+
+export type GetConsumerBlobUploadUrlData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/blobs/upload';
+};
+
+export type GetConsumerBlobUploadUrlErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type GetConsumerBlobUploadUrlError =
+  GetConsumerBlobUploadUrlErrors[keyof GetConsumerBlobUploadUrlErrors];
+
+export type GetConsumerBlobUploadUrlResponses = {
+  /**
+   * OK
+   */
+  200: ConsumerBlobPresignResponse;
+};
+
+export type GetConsumerBlobUploadUrlResponse =
+  GetConsumerBlobUploadUrlResponses[keyof GetConsumerBlobUploadUrlResponses];
+
+export type UploadConsumerBlobData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/blobs';
+};
+
+export type UploadConsumerBlobErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Content Too Large
+   */
+  413: ProblemDetails;
+  /**
+   * Unsupported Media Type
+   */
+  415: ProblemDetails;
+  /**
+   * Unprocessable Content
+   */
+  422: ProblemDetails;
+};
+
+export type UploadConsumerBlobError = UploadConsumerBlobErrors[keyof UploadConsumerBlobErrors];
+
+export type UploadConsumerBlobResponses = {
+  /**
+   * Created
+   */
+  201: Blob;
+};
+
+export type UploadConsumerBlobResponse =
+  UploadConsumerBlobResponses[keyof UploadConsumerBlobResponses];
 
 export type GetBlobContentData = {
   body?: never;

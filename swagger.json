@@ -124,6 +124,108 @@
         }
       }
     },
+    "/v2/consumer/blobs/upload": {
+      "get": {
+        "tags": [
+          "Blobs"
+        ],
+        "summary": "Get a presigned URL for browser uploads.\r\nThe returned URL points to POST /v2/consumer/blobs with a signature for authentication.",
+        "operationId": "GetConsumerBlobUploadUrl",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsumerBlobPresignResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/blobs": {
+      "post": {
+        "tags": [
+          "Blobs"
+        ],
+        "summary": "Upload a blob directly with on-the-fly moderation.\r\nSupports both authenticated requests (Bearer token) and presigned URLs (sig query param).",
+        "operationId": "UploadConsumerBlob",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Blob"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/blobs/content/{encryptedToken}": {
       "get": {
         "tags": [
@@ -3610,7 +3712,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "An optional model to use for age classification. If not provided, the default model will determined by the worker",
             "nullable": true
@@ -3940,6 +4042,138 @@
         },
         "additionalProperties": false
       },
+      "ComfyLtx2CreateVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLtx2VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                },
+                "description": "Optional source image for image-to-video generation"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVideo"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Create video from text prompt, optionally with a source image (ComfyUI backend)"
+      },
+      "ComfyLtx2VideoGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "createVideo",
+                "nullable": true
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "duration": {
+                "enum": [
+                  3,
+                  5
+                ],
+                "type": "integer",
+                "description": "Duration in seconds (3 or 5)",
+                "format": "int32",
+                "default": 5
+              },
+              "width": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1280
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32",
+                "default": 720
+              },
+              "fps": {
+                "maximum": 60,
+                "minimum": 1,
+                "type": "number",
+                "format": "float",
+                "default": 24
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "default": true
+              },
+              "guidanceScale": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "number",
+                "format": "float",
+                "default": 4
+              },
+              "numInferenceSteps": {
+                "maximum": 50,
+                "minimum": 8,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "loras": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VideoGenInputLora"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createVideo": "#/components/schemas/ComfyLtx2CreateVideoInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "ltx2"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "LTX Video v2 generation via ComfyUI backend"
+      },
       "ComfyNode": {
         "required": [
           "classType",
@@ -4065,6 +4299,24 @@
           }
         },
         "description": "Comfy workflows"
+      },
+      "ConsumerBlobPresignResponse": {
+        "required": [
+          "expiresAt",
+          "uploadUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "uploadUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
       },
       "ContainerFormat": {
         "enum": [
@@ -5709,7 +5961,7 @@
                 }
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "nullable": true
               }
@@ -5807,7 +6059,7 @@
         "type": "object",
         "properties": {
           "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string"
           },
           "strength": {
@@ -6008,7 +6260,7 @@
             "type": "string"
           },
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The primary model to train upon."
           },
@@ -9742,7 +9994,7 @@
         "type": "object",
         "properties": {
           "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "An AIR ID for the resource."
           },
@@ -9859,7 +10111,7 @@
                 "nullable": true
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "description": "The primary model to train upon."
               }
@@ -9998,7 +10250,7 @@
                 "nullable": true
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "description": "The primary model to train upon."
               }
@@ -10256,7 +10508,7 @@
             "default": 1
           },
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The AIR of the checkpoint model to use for generation.",
             "default": "urn:air:sd1:checkpoint:civitai:4384@128713"
@@ -11088,7 +11340,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "nullable": true
           },
@@ -11316,6 +11568,7 @@
             "kling": "#/components/schemas/KlingVideoGenInput",
             "minimax": "#/components/schemas/MiniMaxVideoGenInput",
             "lightricks": "#/components/schemas/LightricksVideoGenInput",
+            "ltx2": "#/components/schemas/ComfyLtx2VideoGenInput",
             "hunyuan": "#/components/schemas/HunyuanVdeoGenInput",
             "wan": "#/components/schemas/WanVideoGenInput",
             "vidu": "#/components/schemas/ViduVideoGenInput",
@@ -11332,7 +11585,7 @@
         "type": "object",
         "properties": {
           "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string"
           },
           "strength": {
@@ -11968,7 +12221,7 @@
                 "format": "int32"
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "nullable": true
               },
@@ -12873,6 +13126,229 @@
           }
         }
       },
+      "Wan26FalImageToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan26FalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "image-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan26FalReferenceToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan26FalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "referenceVideoUrls": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Reference videos for subject consistency (1-3 videos with minimum 16 FPS)\r\nUse @Video1, @Video2, @Video3 in the prompt to reference these subjects"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "1:1",
+                  "4:3",
+                  "3:4"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "duration": {
+                "maximum": 10,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Duration for reference-to-video is limited to 5 or 10 seconds",
+                "format": "int32",
+                "default": 5
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "reference-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan26FalTextToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan26FalVideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "1:1",
+                  "4:3",
+                  "3:4"
+                ],
+                "type": "string",
+                "default": "16:9"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "text-to-video"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan26FalVideoGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan26VideoGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "text-to-video",
+                "nullable": true
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "1080p"
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": true
+              },
+              "multiShots": {
+                "type": "boolean",
+                "default": false
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": true
+              },
+              "audioUrl": {
+                "type": "string",
+                "description": "URL of audio file for background music (3-30 seconds, up to 15 MB)\r\nSupported for text-to-video and image-to-video only",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "text-to-video": "#/components/schemas/Wan26FalTextToVideoInput",
+                "image-to-video": "#/components/schemas/Wan26FalImageToVideoInput",
+                "reference-to-video": "#/components/schemas/Wan26FalReferenceToVideoInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Wan26VideoGenInput": {
+        "required": [
+          "version"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WanVideoGenInput"
+          },
+          {
+            "required": [
+              "provider"
+            ],
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "default": "fal",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "provider",
+              "mapping": {
+                "fal": "#/components/schemas/Wan26FalVideoGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "version": {
+            "enum": [
+              "v2.6"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "WanImageGenInput": {
         "required": [
           "engine"
@@ -13028,7 +13504,8 @@
                 "v2.1": "#/components/schemas/Wan21VideoGenInput",
                 "v2.2": "#/components/schemas/Wan22VideoGenInput",
                 "v2.2-5b": "#/components/schemas/Wan225bVideoGenInput",
-                "v2.5": "#/components/schemas/Wan25VideoGenInput"
+                "v2.5": "#/components/schemas/Wan25VideoGenInput",
+                "v2.6": "#/components/schemas/Wan26VideoGenInput"
               }
             }
           }
@@ -14076,7 +14553,7 @@
             "type": "object",
             "properties": {
               "sourceUrl": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "description": "AIR pointing to the zip file containing training data"
               },
