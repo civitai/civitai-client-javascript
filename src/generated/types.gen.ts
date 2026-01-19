@@ -685,6 +685,61 @@ export type Flux2ImageGenInput = ImageGenInput & {
   engine: 'flux2';
 };
 
+/**
+ * AI Toolkit training for Flux2 Klein 4b-base models
+ */
+export type Flux2Klein4bAiToolkitTrainingInput = Flux2KleinAiToolkitTrainingInput & {} & {
+  modelVariant: '4b';
+};
+
+/**
+ * AI Toolkit training for Flux2 Klein 9b-base models
+ */
+export type Flux2Klein9bAiToolkitTrainingInput = Flux2KleinAiToolkitTrainingInput & {} & {
+  modelVariant: '9b';
+};
+
+/**
+ * AI Toolkit training for Flux2 Klein models (image training)
+ */
+export type Flux2KleinAiToolkitTrainingInput = AiToolkitTrainingInput & {
+  modelVariant: string;
+} & {
+  ecosystem: 'flux2klein';
+};
+
+export type Flux2KleinCreateImageInput = Flux2KleinImageGenInput & {
+  readonly operation: string;
+} & {
+  operation: 'createImage';
+};
+
+export type Flux2KleinEditImageInput = Flux2KleinImageGenInput & {
+  images?: Array<string>;
+  readonly operation: string;
+} & {
+  operation: 'editImage';
+};
+
+export type Flux2KleinImageGenInput = Flux2ImageGenInput & {
+  operation: string;
+  cfgScale?: number;
+  steps?: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  negativePrompt?: string | null;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * The Klein model variant: 4b, 4b-base, 9b (distilled), or 9b-base
+   */
+  modelVersion?: '4b' | '4b-base' | '9b' | '9b-base';
+  readonly modelVariant?: string;
+} & {
+  model: 'klein';
+};
+
 export type Flux2MaxCreateImageInput = Flux2MaxImageGenInput & {
   readonly operation: string;
 } & {
@@ -1439,6 +1494,13 @@ export type LightricksVideoGenInput = VideoGenInput & {
   expandPrompt?: boolean;
 } & {
   engine: 'lightricks';
+};
+
+/**
+ * AI Toolkit training for LTX2 video models
+ */
+export type Ltx2AiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+  ecosystem: 'ltx2';
 };
 
 /**
