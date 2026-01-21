@@ -255,6 +255,28 @@ export type ComfyLtx2CreateVideoInput = ComfyLtx2VideoGenInput & {
 };
 
 /**
+ * Edit/transform an existing video using Canny edge control (ComfyUI backend)
+ */
+export type ComfyLtx2EditVideoInput = ComfyLtx2VideoGenInput & {
+  sourceVideo: string;
+  cannyLowThreshold?: number;
+  cannyHighThreshold?: number;
+  guideStrength?: number;
+} & {
+  operation: 'editVideo';
+};
+
+/**
+ * Extend an existing video with new content (ComfyUI backend)
+ */
+export type ComfyLtx2ExtendVideoInput = ComfyLtx2VideoGenInput & {
+  sourceVideo: string;
+  numFrames?: number;
+} & {
+  operation: 'extendVideo';
+};
+
+/**
  * LTX Video v2 generation via ComfyUI backend
  */
 export type ComfyLtx2VideoGenInput = VideoGenInput & {
@@ -272,7 +294,7 @@ export type ComfyLtx2VideoGenInput = VideoGenInput & {
   fps?: number;
   generateAudio?: boolean;
   guidanceScale?: number;
-  numInferenceSteps?: number;
+  steps?: number;
   model?: '19b-dev' | '19b-distilled';
   loras?: {
     [key: string]: number;
