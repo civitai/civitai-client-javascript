@@ -403,6 +403,83 @@
         }
       }
     },
+    "/v2/consumer/recipes/chatCompletion": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "ChatCompletion",
+        "description": "Generate chat completions using language models with support for text and image inputs.\r\n/// Compatible with OpenAI Chat Completions API format.",
+        "operationId": "InvokeChatCompletionStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatCompletionOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/comfy": {
       "post": {
         "tags": [
@@ -2037,7 +2114,8 @@
                           "height": 512,
                           "seed": 1790693947,
                           "clipSkip": 2,
-                          "outputFormat": "jpeg"
+                          "outputFormat": "jpeg",
+                          "sourceImageDenoiseStrenght": 0.8
                         },
                         "priority": "high",
                         "timeout": "00:05:00",
@@ -2250,7 +2328,8 @@
                           "height": 512,
                           "seed": 1790693947,
                           "clipSkip": 2,
-                          "outputFormat": "jpeg"
+                          "outputFormat": "jpeg",
+                          "sourceImageDenoiseStrenght": 0.8
                         },
                         "priority": "high",
                         "timeout": "00:05:00",
@@ -2463,7 +2542,8 @@
                           "height": 512,
                           "seed": 1790693947,
                           "clipSkip": 2,
-                          "outputFormat": "jpeg"
+                          "outputFormat": "jpeg",
+                          "sourceImageDenoiseStrenght": 0.8
                         },
                         "priority": "high",
                         "timeout": "00:05:00",
@@ -3864,6 +3944,28 @@
         ],
         "type": "string"
       },
+      "AssistantMessage": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "The assistant message content (text only).",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional name for the participant.",
+            "nullable": true
+          },
+          "refusal": {
+            "type": "string",
+            "description": "Optional refusal message if the model refused to respond.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "An assistant message representing a prior response."
+      },
       "BatchOCRSafetyClassificationInput": {
         "required": [
           "mediaUrls"
@@ -3979,6 +4081,267 @@
           "fakeRed"
         ],
         "type": "string"
+      },
+      "ChatCompletionChoice": {
+        "required": [
+          "finishReason",
+          "index",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "description": "The index of this choice.",
+            "format": "int32"
+          },
+          "message": {
+            "$ref": "#/components/schemas/AssistantMessage"
+          },
+          "finishReason": {
+            "type": "string",
+            "description": "The reason the model stopped generating."
+          },
+          "logprobs": {
+            "description": "Log probability information (if requested).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "A completion choice."
+      },
+      "ChatCompletionInput": {
+        "required": [
+          "messages",
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The model to use for chat completion.\r\nExamples: \"gpt-4o\", \"gpt-4-turbo\", \"gpt-4o-mini\""
+          },
+          "messages": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatCompletionMessage"
+            },
+            "description": "The messages to generate a completion for."
+          },
+          "temperature": {
+            "maximum": 2,
+            "minimum": 0,
+            "type": "number",
+            "description": "Temperature for sampling (0-2). Higher values make output more random.",
+            "format": "double",
+            "default": 1
+          },
+          "topP": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number",
+            "description": "Nucleus sampling parameter. Consider tokens with top_p probability mass.",
+            "format": "double",
+            "default": 1
+          },
+          "maxTokens": {
+            "maximum": 128000,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Maximum number of tokens to generate.",
+            "format": "int32",
+            "nullable": true
+          },
+          "n": {
+            "maximum": 128,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of completions to generate.",
+            "format": "int32",
+            "default": 1
+          },
+          "stop": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Up to 4 sequences where the API will stop generating tokens.",
+            "nullable": true
+          },
+          "presencePenalty": {
+            "maximum": 2,
+            "minimum": -2,
+            "type": "number",
+            "description": "Presence penalty (-2.0 to 2.0). Positive values penalize new tokens based on whether they appear in the text so far.",
+            "format": "double",
+            "default": 0
+          },
+          "frequencyPenalty": {
+            "maximum": 2,
+            "minimum": -2,
+            "type": "number",
+            "description": "Frequency penalty (-2.0 to 2.0). Positive values penalize new tokens based on their existing frequency in the text.",
+            "format": "double",
+            "default": 0
+          },
+          "seed": {
+            "type": "integer",
+            "description": "Seed for deterministic sampling (beta feature).",
+            "format": "int64",
+            "nullable": true
+          },
+          "user": {
+            "type": "string",
+            "description": "A unique identifier for the end-user.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for a chat completion step, compatible with OpenAI Chat Completions API."
+      },
+      "ChatCompletionMessage": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Base type for chat messages, discriminated by the \"role\" property.\r\nUses ChatCompletionMessageJsonConverter to handle polymorphism and user message content flexibility."
+      },
+      "ChatCompletionOutput": {
+        "required": [
+          "choices",
+          "created",
+          "id",
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the completion."
+          },
+          "object": {
+            "type": "string",
+            "description": "The object type, always \"chat.completion\"."
+          },
+          "created": {
+            "type": "integer",
+            "description": "Unix timestamp of when the completion was created.",
+            "format": "int64"
+          },
+          "model": {
+            "type": "string",
+            "description": "The model used for completion."
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatCompletionChoice"
+            },
+            "description": "The generated completion choices."
+          },
+          "usage": {
+            "$ref": "#/components/schemas/ChatCompletionUsage"
+          },
+          "systemFingerprint": {
+            "type": "string",
+            "description": "System fingerprint for the model configuration.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from a chat completion step."
+      },
+      "ChatCompletionStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ChatCompletionInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ChatCompletionOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "chatCompletion"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "ChatCompletion"
+      },
+      "ChatCompletionStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ChatCompletionInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "chatCompletion"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "ChatCompletion"
+      },
+      "ChatCompletionUsage": {
+        "required": [
+          "completionTokens",
+          "promptTokens",
+          "totalTokens"
+        ],
+        "type": "object",
+        "properties": {
+          "promptTokens": {
+            "type": "integer",
+            "description": "Number of tokens in the prompt.",
+            "format": "int32"
+          },
+          "completionTokens": {
+            "type": "integer",
+            "description": "Number of tokens in the generated completion.",
+            "format": "int32"
+          },
+          "totalTokens": {
+            "type": "integer",
+            "description": "Total number of tokens (prompt + completion).",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Token usage statistics for the completion."
       },
       "ChromaAIToolkitTrainingInput": {
         "required": [
@@ -10844,9 +11207,7 @@
       },
       "TextToImageInput": {
         "required": [
-          "height",
-          "prompt",
-          "width"
+          "prompt"
         ],
         "type": "object",
         "properties": {
@@ -10955,6 +11316,16 @@
           },
           "outputFormat": {
             "$ref": "#/components/schemas/OutputFormat"
+          },
+          "sourceImage": {
+            "type": "string",
+            "description": "An optional source image to trigger img-to-img",
+            "nullable": true
+          },
+          "sourceImageDenoiseStrenght": {
+            "type": "number",
+            "description": "The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.",
+            "format": "double"
           }
         },
         "additionalProperties": false,
@@ -13972,8 +14343,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/WorkflowStep"
-            },
-            "description": "The steps for the workflow."
+            }
           },
           "callbacks": {
             "type": "array",
@@ -14337,6 +14707,7 @@
           "propertyName": "$type",
           "mapping": {
             "ageClassification": "#/components/schemas/AgeClassificationStep",
+            "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
             "convertImage": "#/components/schemas/ConvertImageStep",
             "echo": "#/components/schemas/EchoStep",
@@ -14599,6 +14970,7 @@
           "propertyName": "$type",
           "mapping": {
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
+            "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
             "convertImage": "#/components/schemas/ConvertImageStepTemplate",
             "echo": "#/components/schemas/EchoStepTemplate",
@@ -14724,6 +15096,119 @@
         "type": "string",
         "description": "Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment."
       },
+      "ZImageBaseCreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ZImageBaseImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ZImageBaseImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ZImageImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string",
+                "nullable": true
+              },
+              "sampleMethod": {
+                "$ref": "#/components/schemas/SdCppSampleMethod"
+              },
+              "schedule": {
+                "$ref": "#/components/schemas/SdCppSchedule"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ZImageBaseCreateImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "base"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "ZImageImageGenInput": {
         "required": [
           "ecosystem"
@@ -14746,7 +15231,8 @@
             "discriminator": {
               "propertyName": "model",
               "mapping": {
-                "turbo": "#/components/schemas/ZImageTurboImageGenInput"
+                "turbo": "#/components/schemas/ZImageTurboImageGenInput",
+                "base": "#/components/schemas/ZImageBaseImageGenInput"
               }
             }
           }

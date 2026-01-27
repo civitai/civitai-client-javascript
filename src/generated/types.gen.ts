@@ -152,6 +152,24 @@ export const AnylineMergeWith = {
 
 export type AnylineMergeWith = (typeof AnylineMergeWith)[keyof typeof AnylineMergeWith];
 
+/**
+ * An assistant message representing a prior response.
+ */
+export type AssistantMessage = {
+  /**
+   * The assistant message content (text only).
+   */
+  content?: string | null;
+  /**
+   * Optional name for the participant.
+   */
+  name?: string | null;
+  /**
+   * Optional refusal message if the model refused to respond.
+   */
+  refusal?: string | null;
+};
+
 export type BatchOcrSafetyClassificationInput = {
   mediaUrls: Array<string>;
 };
@@ -206,6 +224,156 @@ export const BuzzClientAccount = {
 } as const;
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
+
+/**
+ * A completion choice.
+ */
+export type ChatCompletionChoice = {
+  /**
+   * The index of this choice.
+   */
+  index: number;
+  message: AssistantMessage;
+  /**
+   * The reason the model stopped generating.
+   */
+  finishReason: string;
+  /**
+   * Log probability information (if requested).
+   */
+  logprobs?: unknown;
+};
+
+/**
+ * Input for a chat completion step, compatible with OpenAI Chat Completions API.
+ */
+export type ChatCompletionInput = {
+  /**
+   * The model to use for chat completion.
+   * Examples: "gpt-4o", "gpt-4-turbo", "gpt-4o-mini"
+   */
+  model: string;
+  /**
+   * The messages to generate a completion for.
+   */
+  messages: Array<ChatCompletionMessage>;
+  /**
+   * Temperature for sampling (0-2). Higher values make output more random.
+   */
+  temperature?: number;
+  /**
+   * Nucleus sampling parameter. Consider tokens with top_p probability mass.
+   */
+  topP?: number;
+  /**
+   * Maximum number of tokens to generate.
+   */
+  maxTokens?: number | null;
+  /**
+   * Number of completions to generate.
+   */
+  n?: number;
+  /**
+   * Up to 4 sequences where the API will stop generating tokens.
+   */
+  stop?: Array<string> | null;
+  /**
+   * Presence penalty (-2.0 to 2.0). Positive values penalize new tokens based on whether they appear in the text so far.
+   */
+  presencePenalty?: number;
+  /**
+   * Frequency penalty (-2.0 to 2.0). Positive values penalize new tokens based on their existing frequency in the text.
+   */
+  frequencyPenalty?: number;
+  /**
+   * Seed for deterministic sampling (beta feature).
+   */
+  seed?: number | null;
+  /**
+   * A unique identifier for the end-user.
+   */
+  user?: string | null;
+};
+
+/**
+ * Base type for chat messages, discriminated by the "role" property.
+ * Uses ChatCompletionMessageJsonConverter to handle polymorphism and user message content flexibility.
+ */
+export type ChatCompletionMessage = {
+  [key: string]: never;
+};
+
+/**
+ * Output from a chat completion step.
+ */
+export type ChatCompletionOutput = {
+  /**
+   * Unique identifier for the completion.
+   */
+  id: string;
+  /**
+   * The object type, always "chat.completion".
+   */
+  object?: string;
+  /**
+   * Unix timestamp of when the completion was created.
+   */
+  created: number;
+  /**
+   * The model used for completion.
+   */
+  model: string;
+  /**
+   * The generated completion choices.
+   */
+  choices: Array<ChatCompletionChoice>;
+  usage?: ChatCompletionUsage;
+  /**
+   * System fingerprint for the model configuration.
+   */
+  systemFingerprint?: string | null;
+};
+
+/**
+ * ChatCompletion
+ */
+export type ChatCompletionStep = WorkflowStep & {
+  $type: 'chatCompletion';
+} & {
+  input: ChatCompletionInput;
+  output?: ChatCompletionOutput;
+} & {
+  $type: 'chatCompletion';
+};
+
+/**
+ * ChatCompletion
+ */
+export type ChatCompletionStepTemplate = WorkflowStepTemplate & {
+  $type: 'chatCompletion';
+} & {
+  input: ChatCompletionInput;
+} & {
+  $type: 'chatCompletion';
+};
+
+/**
+ * Token usage statistics for the completion.
+ */
+export type ChatCompletionUsage = {
+  /**
+   * Number of tokens in the prompt.
+   */
+  promptTokens: number;
+  /**
+   * Number of tokens in the generated completion.
+   */
+  completionTokens: number;
+  /**
+   * Total number of tokens (prompt + completion).
+   */
+  totalTokens: number;
+};
 
 /**
  * AI Toolkit training for Chroma models
@@ -2651,11 +2819,11 @@ export type TextToImageInput = {
   /**
    * The desired image width in pixels.
    */
-  width: number;
+  width?: number;
   /**
    * The desired image height in pixels.
    */
-  height: number;
+  height?: number;
   /**
    * The seed to use in image generation. Defaults to a random value if left unpopulated.
    */
@@ -2673,6 +2841,14 @@ export type TextToImageInput = {
    */
   engine?: string | null;
   outputFormat?: OutputFormat;
+  /**
+   * An optional source image to trigger img-to-img
+   */
+  sourceImage?: string | null;
+  /**
+   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
+   */
+  sourceImageDenoiseStrenght?: number;
 };
 
 /**
@@ -3660,9 +3836,6 @@ export type Workflow = {
   arguments?: {
     [key: string]: unknown;
   };
-  /**
-   * The steps for the workflow.
-   */
   steps?: Array<WorkflowStep>;
   /**
    * An array of callback details for the workflow.
@@ -4137,6 +4310,27 @@ export const WorkflowUpgradeMode = {
  */
 export type WorkflowUpgradeMode = (typeof WorkflowUpgradeMode)[keyof typeof WorkflowUpgradeMode];
 
+export type ZImageBaseCreateImageGenInput = ZImageBaseImageGenInput & {
+  width?: number;
+  height?: number;
+} & {
+  operation: 'createImage';
+};
+
+export type ZImageBaseImageGenInput = ZImageImageGenInput & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: string | null;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
+  seed?: number | null;
+  quantity?: number;
+} & {
+  model: 'base';
+};
+
 export type ZImageImageGenInput = SdCppImageGenInput & {
   model: string;
 } & {
@@ -4435,6 +4629,40 @@ export type InvokeAgeClassificationStepTemplateResponses = {
 
 export type InvokeAgeClassificationStepTemplateResponse =
   InvokeAgeClassificationStepTemplateResponses[keyof InvokeAgeClassificationStepTemplateResponses];
+
+export type InvokeChatCompletionStepTemplateData = {
+  body?: ChatCompletionInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
+  url: '/v2/consumer/recipes/chatCompletion';
+};
+
+export type InvokeChatCompletionStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeChatCompletionStepTemplateError =
+  InvokeChatCompletionStepTemplateErrors[keyof InvokeChatCompletionStepTemplateErrors];
+
+export type InvokeChatCompletionStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ChatCompletionOutput;
+};
+
+export type InvokeChatCompletionStepTemplateResponse =
+  InvokeChatCompletionStepTemplateResponses[keyof InvokeChatCompletionStepTemplateResponses];
 
 export type InvokeComfyStepTemplateData = {
   body?: ComfyInput;

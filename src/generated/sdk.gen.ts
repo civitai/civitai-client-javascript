@@ -21,6 +21,9 @@ import type {
   InvokeAgeClassificationStepTemplateData,
   InvokeAgeClassificationStepTemplateResponses,
   InvokeAgeClassificationStepTemplateErrors,
+  InvokeChatCompletionStepTemplateData,
+  InvokeChatCompletionStepTemplateResponses,
+  InvokeChatCompletionStepTemplateErrors,
   InvokeComfyStepTemplateData,
   InvokeComfyStepTemplateResponses,
   InvokeComfyStepTemplateErrors,
@@ -281,6 +284,34 @@ export const invokeAgeClassificationStepTemplate = <ThrowOnError extends boolean
       },
     ],
     url: '/v2/consumer/recipes/ageClassification',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * ChatCompletion
+ * Generate chat completions using language models with support for text and image inputs.
+ * /// Compatible with OpenAI Chat Completions API format.
+ */
+export const invokeChatCompletionStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeChatCompletionStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeChatCompletionStepTemplateResponses,
+    InvokeChatCompletionStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/chatCompletion',
     ...options,
     headers: {
       'Content-Type': 'application/json',
