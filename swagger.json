@@ -2153,8 +2153,8 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
+                          "unetLR": 5e-5,
+                          "textEncoderLR": 5e-5,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
@@ -2367,8 +2367,8 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
+                          "unetLR": 5e-5,
+                          "textEncoderLR": 5e-5,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
@@ -2581,8 +2581,8 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 5E-05,
-                          "textEncoderLR": 5E-05,
+                          "unetLR": 5e-5,
+                          "textEncoderLR": 5e-5,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
@@ -3770,6 +3770,7 @@
                 "sd1": "#/components/schemas/SD1AIToolkitTrainingInput",
                 "chroma": "#/components/schemas/ChromaAIToolkitTrainingInput",
                 "qwen": "#/components/schemas/QwenAIToolkitTrainingInput",
+                "zimagebase": "#/components/schemas/ZImageBaseAIToolkitTrainingInput",
                 "zimageturbo": "#/components/schemas/ZImageTurboAIToolkitTrainingInput",
                 "flux2klein": "#/components/schemas/Flux2KleinAIToolkitTrainingInput",
                 "ltx2": "#/components/schemas/Ltx2AIToolkitTrainingInput"
@@ -7711,7 +7712,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net",
                 "format": "double",
-                "default": 5E-05
+                "default": 5e-5
               },
               "textEncoderLR": {
                 "maximum": 1,
@@ -7719,7 +7720,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for the text encoder. The effect of additional training on text encoders affects the entire U-Net.",
                 "format": "double",
-                "default": 5E-05
+                "default": 5e-5
               },
               "lrScheduler": {
                 "enum": [
@@ -8253,7 +8254,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net",
                 "format": "double",
-                "default": 5E-05
+                "default": 5e-5
               },
               "lrScheduler": {
                 "enum": [
@@ -15095,6 +15096,29 @@
         ],
         "type": "string",
         "description": "Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment."
+      },
+      "ZImageBaseAIToolkitTrainingInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "zimagebase"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "AI Toolkit training for Z Image Turbo models"
       },
       "ZImageBaseCreateImageGenInput": {
         "required": [

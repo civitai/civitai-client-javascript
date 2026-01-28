@@ -4310,6 +4310,13 @@ export const WorkflowUpgradeMode = {
  */
 export type WorkflowUpgradeMode = (typeof WorkflowUpgradeMode)[keyof typeof WorkflowUpgradeMode];
 
+/**
+ * AI Toolkit training for Z Image Turbo models
+ */
+export type ZImageBaseAiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+  ecosystem: 'zimagebase';
+};
+
 export type ZImageBaseCreateImageGenInput = ZImageBaseImageGenInput & {
   width?: number;
   height?: number;
