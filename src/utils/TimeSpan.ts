@@ -107,17 +107,17 @@ export class TimeSpan {
   get totalMilliseconds() {
     return Math.floor(this.#ticks / ticksPerMillisecond);
   }
-  get totalMinutes() {
-    return Math.floor(this.minutes / ticksPerMinute);
-  }
   get totalSeconds() {
-    return Math.floor(this.seconds / ticksPerSecond);
+    return Math.floor(this.#ticks / ticksPerSecond);
+  }
+  get totalMinutes() {
+    return Math.floor(this.#ticks / ticksPerMinute);
   }
   get totalHours() {
-    return Math.floor(this.hours / ticksPerHour);
+    return Math.floor(this.#ticks / ticksPerHour);
   }
   get totalDays() {
-    return Math.floor(this.days / ticksPerDay);
+    return Math.floor(this.#ticks / ticksPerDay);
   }
 
   get totalTicks() {

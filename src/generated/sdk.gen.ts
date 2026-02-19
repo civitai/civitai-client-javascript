@@ -18,6 +18,9 @@ import type {
   GetBlobContentErrors,
   GetBlockedContentData,
   GetBlockedContentErrors,
+  InvokeAceStepAudioStepTemplateData,
+  InvokeAceStepAudioStepTemplateResponses,
+  InvokeAceStepAudioStepTemplateErrors,
   InvokeAgeClassificationStepTemplateData,
   InvokeAgeClassificationStepTemplateResponses,
   InvokeAgeClassificationStepTemplateErrors,
@@ -57,9 +60,15 @@ import type {
   InvokeTextToImageStepTemplateData,
   InvokeTextToImageStepTemplateResponses,
   InvokeTextToImageStepTemplateErrors,
+  InvokeTextToSpeechStepTemplateData,
+  InvokeTextToSpeechStepTemplateResponses,
+  InvokeTextToSpeechStepTemplateErrors,
   InvokeTrainingStepTemplateData,
   InvokeTrainingStepTemplateResponses,
   InvokeTrainingStepTemplateErrors,
+  InvokeTranscriptionStepTemplateData,
+  InvokeTranscriptionStepTemplateResponses,
+  InvokeTranscriptionStepTemplateErrors,
   InvokeVideoEnhancementStepTemplateData,
   InvokeVideoEnhancementStepTemplateResponses,
   InvokeVideoEnhancementStepTemplateErrors,
@@ -262,6 +271,33 @@ export const getBlockedContent = <ThrowOnError extends boolean = false>(
     ],
     url: '/v2/consumer/blobs/blocked/{encryptedToken}',
     ...options,
+  });
+};
+
+/**
+ * Workflow step for generating music using ACE Step 1.5.
+ * /// Produces full songs from text descriptions and structured lyrics.
+ */
+export const invokeAceStepAudioStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeAceStepAudioStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeAceStepAudioStepTemplateResponses,
+    InvokeAceStepAudioStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/aceStepAudio',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
   });
 };
 
@@ -610,6 +646,33 @@ export const invokeTextToImageStepTemplate = <ThrowOnError extends boolean = fal
 };
 
 /**
+ * Text-to-Speech
+ * Synthesizes speech from text, supporting both voice cloning (Base mode with reference audio) and built-in speakers (CustomVoice mode).
+ */
+export const invokeTextToSpeechStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeTextToSpeechStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeTextToSpeechStepTemplateResponses,
+    InvokeTextToSpeechStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/textToSpeech',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
  * Training
  * A workflow step for training machine learning models (LoRAs, checkpoints, etc.)
  * /// on various types of data (images, videos, audio). This replaces ImageResourceTraining
@@ -630,6 +693,33 @@ export const invokeTrainingStepTemplate = <ThrowOnError extends boolean = false>
       },
     ],
     url: '/v2/consumer/recipes/training',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Transcription
+ * Performs automatic speech recognition (ASR) on audio media, returning transcribed text with optional timestamps.
+ */
+export const invokeTranscriptionStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeTranscriptionStepTemplateData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    InvokeTranscriptionStepTemplateResponses,
+    InvokeTranscriptionStepTemplateErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/recipes/transcription',
     ...options,
     headers: {
       'Content-Type': 'application/json',

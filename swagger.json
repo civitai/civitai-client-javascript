@@ -129,7 +129,7 @@
         "tags": [
           "Blobs"
         ],
-        "summary": "Get a presigned URL for browser uploads.\r\nThe returned URL points to POST /v2/consumer/blobs with a signature for authentication.",
+        "summary": "Get a presigned URL for browser uploads.\nThe returned URL points to POST /v2/consumer/blobs with a signature for authentication.",
         "operationId": "GetConsumerBlobUploadUrl",
         "responses": {
           "401": {
@@ -160,7 +160,7 @@
         "tags": [
           "Blobs"
         ],
-        "summary": "Upload a blob directly with on-the-fly moderation.\r\nSupports both authenticated requests (Bearer token) and presigned URLs (sig query param).",
+        "summary": "Upload a blob directly with on-the-fly moderation.\nSupports both authenticated requests (Bearer token) and presigned URLs (sig query param).",
         "operationId": "UploadConsumerBlob",
         "responses": {
           "401": {
@@ -326,6 +326,82 @@
         }
       }
     },
+    "/v2/consumer/recipes/aceStepAudio": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Workflow step for generating music using ACE Step 1.5.\n/// Produces full songs from text descriptions and structured lyrics.",
+        "operationId": "InvokeAceStepAudioStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AceStepAudioInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AceStepAudioInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AceStepAudioInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AceStepAudioOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/ageClassification": {
       "post": {
         "tags": [
@@ -409,7 +485,7 @@
           "Recipes"
         ],
         "summary": "ChatCompletion",
-        "description": "Generate chat completions using language models with support for text and image inputs.\r\n/// Compatible with OpenAI Chat Completions API format.",
+        "description": "Generate chat completions using language models with support for text and image inputs.\n/// Compatible with OpenAI Chat Completions API format.",
         "operationId": "InvokeChatCompletionStepTemplate",
         "parameters": [
           {
@@ -639,7 +715,7 @@
           "Recipes"
         ],
         "summary": "Echo",
-        "description": "A workflow step that takes a message string and retuns it.\r\n/// This step is intended for testing purposes.",
+        "description": "A workflow step that takes a message string and retuns it.\n/// This step is intended for testing purposes.",
         "operationId": "InvokeEchoStepTemplate",
         "parameters": [
           {
@@ -1322,13 +1398,90 @@
         }
       }
     },
+    "/v2/consumer/recipes/textToSpeech": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Text-to-Speech",
+        "description": "Synthesizes speech from text, supporting both voice cloning (Base mode with reference audio) and built-in speakers (CustomVoice mode).",
+        "operationId": "InvokeTextToSpeechStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToSpeechInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToSpeechInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextToSpeechInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextToSpeechOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/training": {
       "post": {
         "tags": [
           "Recipes"
         ],
         "summary": "Training",
-        "description": "A workflow step for training machine learning models (LoRAs, checkpoints, etc.)\r\n/// on various types of data (images, videos, audio). This replaces ImageResourceTraining\r\n/// with a cleaner architecture that creates one job per epoch instead of a single monolithic job.",
+        "description": "A workflow step for training machine learning models (LoRAs, checkpoints, etc.)\n/// on various types of data (images, videos, audio). This replaces ImageResourceTraining\n/// with a cleaner architecture that creates one job per epoch instead of a single monolithic job.",
         "operationId": "InvokeTrainingStepTemplate",
         "parameters": [
           {
@@ -1382,6 +1535,83 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TrainingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/transcription": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Transcription",
+        "description": "Performs automatic speech recognition (ASR) on audio media, returning transcribed text with optional timestamps.",
+        "operationId": "InvokeTranscriptionStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptionOutput"
                 }
               }
             }
@@ -1481,7 +1711,7 @@
           "Recipes"
         ],
         "summary": "Video Frame Extraction",
-        "description": "Extracts unique frames from a video at a specified rate using perceptual hashing to filter out duplicate/similar frames.\r\n/// Useful for generating video previews, storyboards, or analyzing video content.",
+        "description": "Extracts unique frames from a video at a specified rate using perceptual hashing to filter out duplicate/similar frames.\n/// Useful for generating video previews, storyboards, or analyzing video content.",
         "operationId": "InvokeVideoFrameExtractionStepTemplate",
         "parameters": [
           {
@@ -2052,7 +2282,7 @@
           {
             "name": "wait",
             "in": "query",
-            "description": "Whether to wait for the workflow to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
+            "description": "Whether to wait for the workflow to complete before returning or to return immediately\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \nIn which case the client should use the token to query the status of the workflow.",
             "schema": {
               "type": "integer",
               "format": "int32",
@@ -2153,8 +2383,8 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 5e-5,
-                          "textEncoderLR": 5e-5,
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
@@ -2367,8 +2597,8 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 5e-5,
-                          "textEncoderLR": 5e-5,
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
@@ -2581,8 +2811,8 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 5e-5,
-                          "textEncoderLR": 5e-5,
+                          "unetLR": 5E-05,
+                          "textEncoderLR": 5E-05,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
@@ -3015,7 +3245,7 @@
           {
             "name": "wait",
             "in": "query",
-            "description": "Whether to wait for the workflow to complete before returning or to return immediately\r\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \r\nIn which case the client should use the token to query the status of the workflow.",
+            "description": "Whether to wait for the workflow to complete before returning or to return immediately\nThe request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout. \nIn which case the client should use the token to query the status of the workflow.",
             "schema": {
               "type": "boolean"
             }
@@ -3643,6 +3873,26 @@
   },
   "components": {
     "schemas": {
+      "AIRecognitionResult": {
+        "required": [
+          "confidence",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Classification label: \"ai\" or \"real\"."
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score for the classification (0.0 to 1.0).",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents AI vs real image recognition results."
+      },
       "AIToolkitTrainingInput": {
         "required": [
           "engine"
@@ -3664,7 +3914,7 @@
                 "maximum": 20,
                 "minimum": 1,
                 "type": "integer",
-                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\r\nMaximum of 20 epochs can be specified.\r\nNote: ai-toolkit uses steps internally, calculated based on epochs, image count, and internal parameters.",
+                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\nMaximum of 20 epochs can be specified.\nNote: ai-toolkit uses steps internally, calculated based on epochs, image count, and internal parameters.",
                 "format": "int32",
                 "default": 5
               },
@@ -3715,7 +3965,7 @@
                   "prodigy8bit"
                 ],
                 "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",
+                "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",
                 "nullable": true
               },
               "networkDim": {
@@ -3730,7 +3980,7 @@
                 "maximum": 256,
                 "minimum": 1,
                 "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\n            \nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
                 "format": "int32",
                 "nullable": true
               },
@@ -3756,7 +4006,7 @@
                 "maximum": 10,
                 "minimum": 0,
                 "type": "integer",
-                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tokens option is off.",
+                "description": "If your training images have tags, you can randomly shuffle them.\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\nThis option does nothing if the Shuffle Tokens option is off.",
                 "format": "int32",
                 "default": 0
               }
@@ -3770,8 +4020,8 @@
                 "sd1": "#/components/schemas/SD1AIToolkitTrainingInput",
                 "chroma": "#/components/schemas/ChromaAIToolkitTrainingInput",
                 "qwen": "#/components/schemas/QwenAIToolkitTrainingInput",
-                "zimagebase": "#/components/schemas/ZImageBaseAIToolkitTrainingInput",
                 "zimageturbo": "#/components/schemas/ZImageTurboAIToolkitTrainingInput",
+                "zimagebase": "#/components/schemas/ZImageBaseAIToolkitTrainingInput",
                 "flux2klein": "#/components/schemas/Flux2KleinAIToolkitTrainingInput",
                 "ltx2": "#/components/schemas/Ltx2AIToolkitTrainingInput"
               }
@@ -3787,6 +4037,148 @@
           }
         },
         "description": "Base input for AI Toolkit training across all ecosystems"
+      },
+      "AceStepAudioInput": {
+        "required": [
+          "lyrics",
+          "musicDescription"
+        ],
+        "type": "object",
+        "properties": {
+          "musicDescription": {
+            "type": "string"
+          },
+          "lyrics": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "integer",
+            "description": "Random seed for reproducible generation",
+            "format": "int32"
+          },
+          "duration": {
+            "maximum": 190,
+            "minimum": 1,
+            "type": "number",
+            "description": "Duration in seconds (1-190)",
+            "format": "float"
+          },
+          "bpm": {
+            "maximum": 200,
+            "minimum": 40,
+            "type": "integer",
+            "description": "Beats per minute (40-200)",
+            "format": "int32"
+          },
+          "timeSignature": {
+            "type": "string",
+            "description": "Time signature (e.g., \"4\" for 4/4 time)"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code (e.g., \"en\", \"zh\", \"ja\", \"ko\")"
+          },
+          "key": {
+            "type": "string",
+            "description": "Musical key (e.g., \"C major\", \"E minor\")"
+          },
+          "instrumentalWeight": {
+            "type": "number",
+            "description": "Weight for instrumental elements (0.0-1.0)",
+            "format": "float"
+          },
+          "vocalWeight": {
+            "type": "number",
+            "description": "Weight for vocal elements (0.0-1.0)",
+            "format": "float"
+          },
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "Optional model override (uses default ACE Step 1.5 turbo if not specified)",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input parameters for ACE Step 1.5 audio generation workflow step"
+      },
+      "AceStepAudioOutput": {
+        "required": [
+          "audioBlob"
+        ],
+        "type": "object",
+        "properties": {
+          "audioBlob": {
+            "$ref": "#/components/schemas/AudioBlob"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from ACE Step 1.5 audio generation workflow step"
+      },
+      "AceStepAudioStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/AceStepAudioInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/AceStepAudioOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "aceStepAudio"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Workflow step for generating music using ACE Step 1.5.\nProduces full songs from text descriptions and structured lyrics."
+      },
+      "AceStepAudioStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/AceStepAudioInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "aceStepAudio"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Workflow step for generating music using ACE Step 1.5.\nProduces full songs from text descriptions and structured lyrics."
       },
       "AgeClassificationInput": {
         "required": [
@@ -3822,13 +4214,69 @@
               "items": {
                 "$ref": "#/components/schemas/AgeClassifierLabel"
               }
-            }
+            },
+            "description": "Age classification results per image"
           },
           "hasMinor": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether any minor was detected in the dataset"
+          },
+          "numPredictions": {
+            "type": "integer",
+            "description": "Total number of age predictions made",
+            "format": "int32"
+          },
+          "numFlagged": {
+            "type": "integer",
+            "description": "Number of flagged predictions (minors)",
+            "format": "int32"
+          },
+          "faceRecognitionFaces": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/FaceDetectionInfo"
+              }
+            },
+            "description": "Face recognition results per image (if available)",
+            "nullable": true
+          },
+          "faceRecognitionNumFaces": {
+            "type": "integer",
+            "description": "Total number of faces detected across all images",
+            "format": "int32",
+            "nullable": true
+          },
+          "faceRecognitionNumUniquePeople": {
+            "type": "integer",
+            "description": "Estimated number of unique people in the dataset (based on similarity clustering)",
+            "format": "int32",
+            "nullable": true
+          },
+          "faceRecognitionAvailable": {
+            "type": "boolean",
+            "description": "Whether face recognition data is available for this result"
           }
         },
         "additionalProperties": false
+      },
+      "AgeClassificationResult": {
+        "required": [
+          "detections"
+        ],
+        "type": "object",
+        "properties": {
+          "detections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgeDetection"
+            },
+            "description": "Array of detected people with age classifications."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents age classification results for media content."
       },
       "AgeClassificationStep": {
         "required": [
@@ -3919,6 +4367,49 @@
         },
         "additionalProperties": false
       },
+      "AgeDetection": {
+        "required": [
+          "ageLabel",
+          "boundingBox",
+          "confidence",
+          "detectorType",
+          "isMinor"
+        ],
+        "type": "object",
+        "properties": {
+          "detectorType": {
+            "type": "string",
+            "description": "The detector type used (e.g., \"yolo\", \"mediapipe\", \"ensemble\")."
+          },
+          "boundingBox": {
+            "$ref": "#/components/schemas/BoundingBox"
+          },
+          "ageLabel": {
+            "type": "string",
+            "description": "The age label (e.g., \"adult\", \"child\", \"teen\")."
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score for the age classification (0.0 to 1.0).",
+            "format": "double"
+          },
+          "isMinor": {
+            "type": "boolean",
+            "description": "Whether the detected person is classified as a minor."
+          },
+          "topK": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Full probability distribution across all age labels.\nKeys are age labels (e.g., \"Child 0-12\", \"Adult 21-44\"), values are confidence scores (0.0 to 1.0).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a single age detection in an image."
+      },
       "AnimalPoseBboxDetector": {
         "enum": [
           "yolox_l.torchscript.pt",
@@ -3936,6 +4427,26 @@
         ],
         "type": "string"
       },
+      "AnimeRecognitionResult": {
+        "required": [
+          "confidence",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Classification label: \"anime\" or \"real\"."
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score for the classification (0.0 to 1.0).",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents anime vs real image recognition results."
+      },
       "AnylineMergeWith": {
         "enum": [
           "lineart_standard",
@@ -3946,26 +4457,74 @@
         "type": "string"
       },
       "AssistantMessage": {
-        "type": "object",
+        "required": [
+          "role"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ChatCompletionMessage"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "The assistant message content (text only).",
+                "nullable": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Optional name for the participant.",
+                "nullable": true
+              },
+              "refusal": {
+                "type": "string",
+                "description": "Optional refusal message if the model refused to respond.",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
         "properties": {
-          "content": {
-            "type": "string",
-            "description": "The assistant message content (text only).",
-            "nullable": true
-          },
-          "name": {
-            "type": "string",
-            "description": "Optional name for the participant.",
-            "nullable": true
-          },
-          "refusal": {
-            "type": "string",
-            "description": "Optional refusal message if the model refused to respond.",
-            "nullable": true
+          "role": {
+            "enum": [
+              "assistant"
+            ],
+            "type": "string"
           }
         },
-        "additionalProperties": false,
         "description": "An assistant message representing a prior response."
+      },
+      "AudioBlob": {
+        "required": [
+          "type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Blob"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "duration": {
+                "type": "number",
+                "description": "Duration of the audio in seconds",
+                "format": "float",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "audio"
+            ],
+            "type": "string"
+          }
+        }
       },
       "BatchOCRSafetyClassificationInput": {
         "required": [
@@ -4070,9 +4629,126 @@
           "propertyName": "type",
           "mapping": {
             "image": "#/components/schemas/ImageBlob",
-            "video": "#/components/schemas/VideoBlob"
+            "video": "#/components/schemas/VideoBlob",
+            "audio": "#/components/schemas/AudioBlob"
           }
         }
+      },
+      "BlurRegion": {
+        "required": [
+          "x1",
+          "x2",
+          "y1",
+          "y2"
+        ],
+        "type": "object",
+        "properties": {
+          "x1": {
+            "type": "integer",
+            "description": "Left edge X coordinate in pixels.",
+            "format": "int32"
+          },
+          "y1": {
+            "type": "integer",
+            "description": "Top edge Y coordinate in pixels.",
+            "format": "int32"
+          },
+          "x2": {
+            "type": "integer",
+            "description": "Right edge X coordinate in pixels.",
+            "format": "int32"
+          },
+          "y2": {
+            "type": "integer",
+            "description": "Bottom edge Y coordinate in pixels.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A rectangular region defined by pixel coordinates."
+      },
+      "BlurRegionMode": {
+        "enum": [
+          "include",
+          "exclude"
+        ],
+        "type": "string",
+        "description": "Determines how regions are applied to the blur operation."
+      },
+      "BlurTransform": {
+        "required": [
+          "type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageTransform"
+          },
+          {
+            "required": [
+              "blur",
+              "mode"
+            ],
+            "type": "object",
+            "properties": {
+              "blur": {
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
+                "description": "The blur intensity (1-100).",
+                "format": "int32"
+              },
+              "mode": {
+                "$ref": "#/components/schemas/BlurRegionMode"
+              },
+              "regions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BlurRegion"
+                },
+                "description": "Rectangular regions that define the blur mask."
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "blur"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Applies a Gaussian blur with optional region-based masking."
+      },
+      "BoundingBox": {
+        "required": [
+          "x1",
+          "x2",
+          "y1",
+          "y2"
+        ],
+        "type": "object",
+        "properties": {
+          "x1": {
+            "type": "number",
+            "format": "double"
+          },
+          "y1": {
+            "type": "number",
+            "format": "double"
+          },
+          "x2": {
+            "type": "number",
+            "format": "double"
+          },
+          "y2": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a bounding box with coordinates."
       },
       "BuzzClientAccount": {
         "enum": [
@@ -4085,7 +4761,6 @@
       },
       "ChatCompletionChoice": {
         "required": [
-          "finishReason",
           "index",
           "message"
         ],
@@ -4101,7 +4776,8 @@
           },
           "finishReason": {
             "type": "string",
-            "description": "The reason the model stopped generating."
+            "description": "The reason the model stopped generating.",
+            "nullable": true
           },
           "logprobs": {
             "description": "Log probability information (if requested).",
@@ -4110,6 +4786,43 @@
         },
         "additionalProperties": false,
         "description": "A completion choice."
+      },
+      "ChatCompletionContentPart": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string",
+            "description": "The text content.",
+            "nullable": true
+          },
+          "imageUrl": {
+            "$ref": "#/components/schemas/ChatCompletionImageUrl"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Base type for message content parts.\nSupports both camelCase (imageUrl) and snake_case (image_url) type discriminators via ContentPartJsonConverter."
+      },
+      "ChatCompletionImageUrl": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The image source (can be a URL, base64 data URI, or raw base64).\nAfter processing, this will contain the blob URL."
+          },
+          "detail": {
+            "type": "string",
+            "description": "The detail level for processing the image.\n\"low\", \"high\", or \"auto\" (default).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Image URL details matching OpenAI API spec."
       },
       "ChatCompletionInput": {
         "required": [
@@ -4121,7 +4834,7 @@
           "model": {
             "minLength": 1,
             "type": "string",
-            "description": "The model to use for chat completion.\r\nExamples: \"gpt-4o\", \"gpt-4-turbo\", \"gpt-4o-mini\""
+            "description": "The model to use for chat completion.\nExamples: \"gpt-4o\", \"gpt-4-turbo\", \"gpt-4o-mini\""
           },
           "messages": {
             "minItems": 1,
@@ -4203,9 +4916,25 @@
         "description": "Input for a chat completion step, compatible with OpenAI Chat Completions API."
       },
       "ChatCompletionMessage": {
+        "required": [
+          "role"
+        ],
         "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          }
+        },
         "additionalProperties": false,
-        "description": "Base type for chat messages, discriminated by the \"role\" property.\r\nUses ChatCompletionMessageJsonConverter to handle polymorphism and user message content flexibility."
+        "description": "Base type for chat messages, discriminated by the \"role\" property.\nUses ChatCompletionMessageJsonConverter to handle polymorphism and user message content flexibility.",
+        "discriminator": {
+          "propertyName": "role",
+          "mapping": {
+            "user": "#/components/schemas/UserMessage",
+            "system": "#/components/schemas/SystemMessage",
+            "assistant": "#/components/schemas/AssistantMessage"
+          }
+        }
       },
       "ChatCompletionOutput": {
         "required": [
@@ -4811,7 +5540,7 @@
             "items": {
               "$ref": "#/components/schemas/ImageTransform"
             },
-            "description": "Optional list of transforms to apply to the image before conversion.\r\nTransforms are applied in order."
+            "description": "Optional list of transforms to apply to the image before conversion.\nTransforms are applied in order."
           },
           "output": {
             "$ref": "#/components/schemas/ImageOutputFormat"
@@ -4916,6 +5645,72 @@
           }
         },
         "additionalProperties": false
+      },
+      "CustomTextToSpeechInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TextToSpeechInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "refAudioUrl": {
+                "type": "string",
+                "description": "Reference audio URL for Base voice-cloning mode.\nAccepts AIR URNs (existing resources) or HTTP(S) URLs.",
+                "format": "uri",
+                "nullable": true
+              },
+              "refText": {
+                "type": "string",
+                "description": "Transcript of the reference audio.\nRequired for Base mode unless XVectorOnlyMode is true.",
+                "nullable": true
+              },
+              "xVectorOnlyMode": {
+                "type": "boolean",
+                "description": "If true, uses only speaker embedding for Base mode (ref_text not required)."
+              },
+              "speaker": {
+                "enum": [
+                  "aiden",
+                  "dylan",
+                  "eric",
+                  "ono_anna",
+                  "ryan",
+                  "serena",
+                  "sohee",
+                  "uncle_fu",
+                  "vivian"
+                ],
+                "type": "string",
+                "description": "Built-in speaker name for CustomVoice mode.",
+                "nullable": true
+              },
+              "instruct": {
+                "type": "string",
+                "description": "Optional style instruction for CustomVoice mode.",
+                "nullable": true
+              },
+              "maxNewTokens": {
+                "type": "integer",
+                "description": "Optional generation cap for max tokens.",
+                "format": "int32",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "custom"
+            ],
+            "type": "string"
+          }
+        }
       },
       "DensePoseColormap": {
         "enum": [
@@ -5096,6 +5891,99 @@
         },
         "additionalProperties": false,
         "description": "An epock result."
+      },
+      "FaceDetection": {
+        "required": [
+          "boundingBox"
+        ],
+        "type": "object",
+        "properties": {
+          "boundingBox": {
+            "$ref": "#/components/schemas/BoundingBox"
+          },
+          "landmarks": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ValueTupleOfDoubleAndDouble"
+            },
+            "description": "Facial landmarks (e.g., eyes, nose, mouth positions).\nDictionary keys are landmark names, values are (x, y) coordinates.",
+            "nullable": true
+          },
+          "embedding": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Face embedding vector for similarity comparison.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a single face detection with embeddings and landmarks."
+      },
+      "FaceDetectionInfo": {
+        "required": [
+          "boundingBox"
+        ],
+        "type": "object",
+        "properties": {
+          "boundingBox": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Bounding box coordinates [x1, y1, x2, y2]"
+          },
+          "landmarks": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "description": "Facial landmarks (e.g., eyes, nose, mouth positions)",
+            "nullable": true
+          },
+          "hasEmbedding": {
+            "type": "boolean",
+            "description": "Whether this face has an embedding (for similarity comparison)"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Information about a detected face in an image"
+      },
+      "FaceRecognitionResult": {
+        "required": [
+          "faces"
+        ],
+        "type": "object",
+        "properties": {
+          "faces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FaceDetection"
+            },
+            "description": "Array of detected faces with embeddings and landmarks."
+          },
+          "similarityMatrix": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "description": "Pairwise cosine similarity matrix between detected faces.\nMatrix[i][j] represents similarity between face i and face j.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents face recognition results for media content."
       },
       "FileFormat": {
         "enum": [
@@ -5455,7 +6343,7 @@
                 "maximum": 4,
                 "minimum": 1,
                 "type": "integer",
-                "description": "Number of reference images per training pair (1-4).\r\nAffects cost calculation via reference multiplier.",
+                "description": "Number of reference images per training pair (1-4).\nAffects cost calculation via reference multiplier.",
                 "format": "int32"
               }
             },
@@ -6384,7 +7272,7 @@
             "properties": {
               "maxFrames": {
                 "type": "integer",
-                "description": "Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.\r\nWhen null, all frames are preserved.",
+                "description": "Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.\nWhen null, all frames are preserved.",
                 "format": "int32",
                 "nullable": true
               }
@@ -6924,6 +7812,10 @@
         "properties": {
           "format": {
             "type": "string"
+          },
+          "hideMetadata": {
+            "type": "boolean",
+            "description": "When true, metadata such as EXIF data will be stripped from the output image. Defaults to false.\nNote that some formats like JPEG may still include minimal metadata even when this is false, due to encoder behavior.\nSetting this to true will attempt to remove all metadata, but results may vary by format and encoder implementation."
           }
         },
         "additionalProperties": false,
@@ -7041,7 +7933,7 @@
           },
           "storedAsAssets": {
             "type": "boolean",
-            "description": "Get wether the blobs are actually stored as assets\r\nAssets are deprecated and require a different retrieval mechanism",
+            "description": "Get wether the blobs are actually stored as assets\nAssets are deprecated and require a different retrieval mechanism",
             "nullable": true
           },
           "eta": {
@@ -7133,7 +8025,8 @@
         "discriminator": {
           "propertyName": "type",
           "mapping": {
-            "resize": "#/components/schemas/ResizeTransform"
+            "resize": "#/components/schemas/ResizeTransform",
+            "blur": "#/components/schemas/BlurTransform"
           }
         }
       },
@@ -7237,10 +8130,16 @@
             "type": "string",
             "description": "Either A URL, A DataURL or a Base64 string"
           },
-          "scaleFactor": {
-            "maximum": 4,
-            "minimum": 2,
+          "model": {
+            "type": "string",
+            "description": "The upscaler model to use (AIR URN format).",
+            "nullable": true
+          },
+          "numberOfRepeats": {
+            "maximum": 3,
+            "minimum": 1,
             "type": "integer",
+            "description": "Number of times to repeat the upscale operation (1-3). Each repeat doubles the resolution.",
             "format": "int32"
           }
         },
@@ -7558,6 +8457,144 @@
         ],
         "type": "string"
       },
+      "KlingV3ElementInput": {
+        "type": "object",
+        "properties": {
+          "frontalImage": {
+            "type": "string",
+            "description": "Either A URL, A DataURL or a Base64 string",
+            "nullable": true
+          },
+          "referenceImages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Either A URL, A DataURL or a Base64 string"
+            }
+          },
+          "videoUrl": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "KlingV3MultiPrompt": {
+        "required": [
+          "prompt"
+        ],
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "KlingV3Operation": {
+        "enum": [
+          "text-to-video",
+          "image-to-video",
+          "reference-to-video",
+          "video-to-video-edit",
+          "video-to-video-reference"
+        ],
+        "type": "string"
+      },
+      "KlingV3VideoGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "$ref": "#/components/schemas/KlingV3Operation"
+              },
+              "mode": {
+                "$ref": "#/components/schemas/KlingMode"
+              },
+              "duration": {
+                "maximum": 15,
+                "minimum": 3,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              },
+              "aspectRatio": {
+                "$ref": "#/components/schemas/KlingVideoGenAspectRatio"
+              },
+              "sourceImage": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "nullable": true
+              },
+              "endImage": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "nullable": true
+              },
+              "videoUrl": {
+                "type": "string",
+                "format": "uri",
+                "nullable": true
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "elements": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/KlingV3ElementInput"
+                }
+              },
+              "generateAudio": {
+                "type": "boolean"
+              },
+              "voiceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "nullable": true
+              },
+              "keepAudio": {
+                "type": "boolean",
+                "default": true
+              },
+              "multiPrompt": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/KlingV3MultiPrompt"
+                },
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "kling-v3"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "KlingVideoGenAspectRatio": {
         "enum": [
           "16:9",
@@ -7690,7 +8727,7 @@
                 "maximum": 3,
                 "minimum": 0,
                 "type": "integer",
-                "description": "If your training images have tags, you can randomly shuffle them.\r\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\r\nThis option does nothing if the Shuffle Tags option is off.",
+                "description": "If your training images have tags, you can randomly shuffle them.\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\nThis option does nothing if the Shuffle Tags option is off.",
                 "format": "int32",
                 "default": 0
               },
@@ -7712,7 +8749,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net",
                 "format": "double",
-                "default": 5e-5
+                "default": 5E-05
               },
               "textEncoderLR": {
                 "maximum": 1,
@@ -7720,7 +8757,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for the text encoder. The effect of additional training on text encoders affects the entire U-Net.",
                 "format": "double",
-                "default": 5e-5
+                "default": 5E-05
               },
               "lrScheduler": {
                 "enum": [
@@ -7745,7 +8782,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\nbut depending on the difference in strength of the noise on which it is placed, learning will be\nstable by moving closer to or farther from the learning target.\n            \nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
               },
@@ -7761,7 +8798,7 @@
                 "maximum": 256,
                 "minimum": 1,
                 "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\n            \nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
                 "format": "int32",
                 "nullable": true
               },
@@ -7775,7 +8812,7 @@
               },
               "optimizerType": {
                 "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\r\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
+                "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
                 "nullable": true
               },
               "targetSteps": {
@@ -8032,6 +9069,22 @@
           "engine": {
             "type": "string",
             "description": "The engine to use for media rating. Valid values: \"default\" (HiveVLM) or \"civitai\"."
+          },
+          "includeAgeClassification": {
+            "type": "boolean",
+            "description": "Include age classification analysis in the results (civitai engine only)."
+          },
+          "includeFaceRecognition": {
+            "type": "boolean",
+            "description": "Include face recognition and similarity analysis in the results (civitai engine only)."
+          },
+          "includeAIRecognition": {
+            "type": "boolean",
+            "description": "Include AI vs real image detection in the results (civitai engine only, GPU-only)."
+          },
+          "includeAnimeRecognition": {
+            "type": "boolean",
+            "description": "Include anime vs real image detection in the results (civitai engine only, GPU-only)."
           }
         },
         "additionalProperties": false,
@@ -8064,6 +9117,18 @@
             },
             "description": "Detected content labels (e.g., \"Animal\", \"Child\", etc.).",
             "nullable": true
+          },
+          "ageClassification": {
+            "$ref": "#/components/schemas/AgeClassificationResult"
+          },
+          "faceRecognition": {
+            "$ref": "#/components/schemas/FaceRecognitionResult"
+          },
+          "aiRecognition": {
+            "$ref": "#/components/schemas/AIRecognitionResult"
+          },
+          "animeRecognition": {
+            "$ref": "#/components/schemas/AnimeRecognitionResult"
           }
         },
         "additionalProperties": false,
@@ -8231,7 +9296,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\r\nMaximum of 20 epochs can be specified.",
+                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\nMaximum of 20 epochs can be specified.",
                 "format": "int32",
                 "default": 5
               },
@@ -8254,7 +9319,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net",
                 "format": "double",
-                "default": 5e-5
+                "default": 5E-05
               },
               "lrScheduler": {
                 "enum": [
@@ -8287,13 +9352,13 @@
                 "maximum": 256,
                 "minimum": 1,
                 "type": "integer",
-                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\r\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\r\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\r\n            \r\nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\n            \nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
                 "format": "int32",
                 "nullable": true
               },
               "optimizerType": {
                 "type": "string",
-                "description": "The optimizer determines how to update the neural net weights during training.\r\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\r\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
+                "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning\nis \"AdamW8bit\" or \"Adafactor\" for SDXL.",
                 "nullable": true
               },
               "targetSteps": {
@@ -9440,7 +10505,7 @@
           },
           "preprocessorType": {
             "type": "string",
-            "description": "Gets the preprocessor type identifier used to map to ComfyUI nodes.\r\nThis is derived from the JsonDerivedType discriminator."
+            "description": "Gets the preprocessor type identifier used to map to ComfyUI nodes.\nThis is derived from the JsonDerivedType discriminator."
           }
         },
         "additionalProperties": false,
@@ -10787,7 +11852,7 @@
           },
           "hasMatureContentRestriction": {
             "type": "boolean",
-            "description": "A boolean indicating whether this resource restricts mature content generation.\r\nIf resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content"
+            "description": "A boolean indicating whether this resource restricts mature content generation.\nIf resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content"
           },
           "popularityRank": {
             "type": "number",
@@ -10808,7 +11873,7 @@
           },
           "hasNSFWContentRestriction": {
             "type": "boolean",
-            "description": "A boolean indicating whether this resource restricts to SFW content generation.\r\nNSFWContent covers X and AA whereas MatureContent includes R rated content."
+            "description": "A boolean indicating whether this resource restricts to SFW content generation.\nNSFWContent covers X and AA whereas MatureContent includes R rated content."
           }
         },
         "additionalProperties": false,
@@ -10829,7 +11894,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\nbut depending on the difference in strength of the noise on which it is placed, learning will be\nstable by moving closer to or farther from the learning target.\n            \nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
               },
@@ -10939,7 +12004,9 @@
           "ipndm_v",
           "ddim_trailing",
           "euler_a",
-          "lcm"
+          "lcm",
+          "res_multistep",
+          "res_2s"
         ],
         "type": "string"
       },
@@ -10949,7 +12016,8 @@
           "discrete",
           "karras",
           "exponential",
-          "ays"
+          "ays",
+          "bong_tangent"
         ],
         "type": "string"
       },
@@ -10968,7 +12036,7 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "integer",
-                "description": "Learning is performed by putting noise of various strengths on the training image,\r\nbut depending on the difference in strength of the noise on which it is placed, learning will be\r\nstable by moving closer to or farther from the learning target.\r\n            \r\nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\r\nit may deviate greatly from the target, so try to suppress this jump.",
+                "description": "Learning is performed by putting noise of various strengths on the training image,\nbut depending on the difference in strength of the noise on which it is placed, learning will be\nstable by moving closer to or farther from the learning target.\n            \nMin SNR gamma was introduced to compensate for that. When learning images have little noise,\nit may deviate greatly from the target, so try to suppress this jump.",
                 "format": "int32",
                 "nullable": true
               },
@@ -11108,7 +12176,7 @@
             "type": "string"
           }
         },
-        "description": "Sora 2 Image-to-Video\r\nFAL Endpoints:\r\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video\r\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro"
+        "description": "Sora 2 Image-to-Video\nFAL Endpoints:\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro"
       },
       "Sora2TextToVideoInput": {
         "required": [
@@ -11131,7 +12199,7 @@
             "type": "string"
           }
         },
-        "description": "Sora 2 Text-to-Video\r\nFAL Endpoints:\r\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video\r\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video/pro"
+        "description": "Sora 2 Text-to-Video\nFAL Endpoints:\n- Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video\n- Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video/pro"
       },
       "SoraVideoGenInput": {
         "required": [
@@ -11204,7 +12272,44 @@
             "type": "string"
           }
         },
-        "description": "Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)\r\nSince FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.\r\nDiscriminator: operation (text-to-video or image-to-video)"
+        "description": "Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)\nSince FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.\nDiscriminator: operation (text-to-video or image-to-video)"
+      },
+      "SystemMessage": {
+        "required": [
+          "role"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ChatCompletionMessage"
+          },
+          {
+            "required": [
+              "content"
+            ],
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "The system message content (text only)."
+              },
+              "name": {
+                "type": "string",
+                "description": "Optional name for the participant.",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "system"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "A system message that sets the behavior of the assistant."
       },
       "TextToImageInput": {
         "required": [
@@ -11413,6 +12518,124 @@
           }
         },
         "description": "TextToImage"
+      },
+      "TextToSpeechInput": {
+        "required": [
+          "engine",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "engine": {
+            "type": "string",
+            "default": "custom",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "description": "The text to synthesize into speech."
+          },
+          "language": {
+            "type": "string",
+            "description": "Target language (e.g., \"English\", \"Chinese\"). Defaults to \"Auto\".",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "engine",
+          "mapping": {
+            "custom": "#/components/schemas/CustomTextToSpeechInput"
+          }
+        }
+      },
+      "TextToSpeechOutput": {
+        "required": [
+          "audioBlob"
+        ],
+        "type": "object",
+        "properties": {
+          "audioBlob": {
+            "$ref": "#/components/schemas/AudioBlob"
+          },
+          "modelType": {
+            "type": "string",
+            "description": "Whether the TTS used \"base\" (voice cloning) or \"custom_voice\" (built-in speaker) mode.",
+            "nullable": true
+          },
+          "speaker": {
+            "type": "string",
+            "description": "The speaker name used (set for CustomVoice mode, null for Base mode).",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from text-to-speech workflow step."
+      },
+      "TextToSpeechStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TextToSpeechInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/TextToSpeechOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "textToSpeech"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Text-to-Speech"
+      },
+      "TextToSpeechStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TextToSpeechInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "textToSpeech"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Text-to-Speech"
       },
       "TrainingData": {
         "required": [
@@ -11778,6 +13001,150 @@
         "x-preview": true,
         "x-internal": true
       },
+      "TranscriptionInput": {
+        "required": [
+          "mediaUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "language": {
+            "type": "string",
+            "description": "Optional language hint (e.g., \"en\", \"zh\") to guide transcription.",
+            "nullable": true
+          },
+          "context": {
+            "type": "string",
+            "description": "Optional context prompt to improve transcription accuracy.",
+            "nullable": true
+          },
+          "returnTimeStamps": {
+            "type": "boolean",
+            "description": "Whether to return word-level timestamps. Defaults to true."
+          }
+        },
+        "additionalProperties": false
+      },
+      "TranscriptionOutput": {
+        "required": [
+          "language",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The full transcribed text."
+          },
+          "language": {
+            "type": "string",
+            "description": "The detected language of the audio."
+          },
+          "timeStamps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptionTimeStamp"
+            },
+            "description": "Word-level timestamps (if requested)."
+          },
+          "elapsedSeconds": {
+            "type": "number",
+            "description": "Total processing time in seconds.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TranscriptionStep": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TranscriptionInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/TranscriptionOutput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "transcription"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Transcription"
+      },
+      "TranscriptionStepTemplate": {
+        "required": [
+          "$type"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/TranscriptionInput"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "$type": {
+            "enum": [
+              "transcription"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Transcription"
+      },
+      "TranscriptionTimeStamp": {
+        "required": [
+          "endTime",
+          "startTime",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "number",
+            "format": "double"
+          },
+          "endTime": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "TryOnUInput": {
         "required": [
           "garmentUrl",
@@ -11882,6 +13249,46 @@
         },
         "additionalProperties": false
       },
+      "UserMessage": {
+        "required": [
+          "role"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ChatCompletionMessage"
+          },
+          {
+            "required": [
+              "content"
+            ],
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ChatCompletionContentPart"
+                },
+                "description": "The message content - can be a simple string or array of content parts.\nWhen deserialized from a string, it will be converted to a single TextContentPart."
+              },
+              "name": {
+                "type": "string",
+                "description": "Optional name for the participant.",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "user"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "A user message that can contain text and/or images."
+      },
       "ValidationProblemDetails": {
         "type": "object",
         "properties": {
@@ -11917,6 +13324,10 @@
           }
         },
         "additionalProperties": {}
+      },
+      "ValueTupleOfDoubleAndDouble": {
+        "type": "object",
+        "additionalProperties": false
       },
       "ValueTupleOfStringAndInt32": {
         "type": "object",
@@ -11959,6 +13370,11 @@
                 "$ref": "#/components/schemas/Veo3AspectRatio"
               },
               "duration": {
+                "enum": [
+                  4,
+                  6,
+                  8
+                ],
                 "type": "integer",
                 "format": "int32",
                 "default": 8
@@ -12304,7 +13720,8 @@
             "wan": "#/components/schemas/WanVideoGenInput",
             "vidu": "#/components/schemas/ViduVideoGenInput",
             "veo3": "#/components/schemas/Veo3VideoGenInput",
-            "sora": "#/components/schemas/SoraVideoGenInput"
+            "sora": "#/components/schemas/SoraVideoGenInput",
+            "kling-v3": "#/components/schemas/KlingV3VideoGenInput"
           }
         }
       },
@@ -13904,7 +15321,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "Reference videos for subject consistency (1-3 videos with minimum 16 FPS)\r\nUse @Video1, @Video2, @Video3 in the prompt to reference these subjects"
+                "description": "Reference videos for subject consistency (1-3 videos with minimum 16 FPS)\nUse @Video1, @Video2, @Video3 in the prompt to reference these subjects"
               },
               "aspectRatio": {
                 "enum": [
@@ -14018,7 +15435,7 @@
               },
               "audioUrl": {
                 "type": "string",
-                "description": "URL of audio file for background music (3-30 seconds, up to 15 MB)\r\nSupported for text-to-video and image-to-video only",
+                "description": "URL of audio file for background music (3-30 seconds, up to 15 MB)\nSupported for text-to-video and image-to-video only",
                 "nullable": true
               }
             },
@@ -14274,7 +15691,7 @@
               },
               "maxFrames": {
                 "type": "integer",
-                "description": "Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.\r\nWhen null, all frames are preserved.",
+                "description": "Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.\nWhen null, all frames are preserved.",
                 "format": "int32",
                 "nullable": true
               }
@@ -14707,6 +16124,7 @@
         "discriminator": {
           "propertyName": "$type",
           "mapping": {
+            "aceStepAudio": "#/components/schemas/AceStepAudioStep",
             "ageClassification": "#/components/schemas/AgeClassificationStep",
             "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
@@ -14720,8 +16138,10 @@
             "mediaRating": "#/components/schemas/MediaRatingStep",
             "preprocessImage": "#/components/schemas/PreprocessImageStep",
             "textToImage": "#/components/schemas/TextToImageStep",
+            "textToSpeech": "#/components/schemas/TextToSpeechStep",
             "training": "#/components/schemas/TrainingStep",
             "transcode": "#/components/schemas/TranscodeStep",
+            "transcription": "#/components/schemas/TranscriptionStep",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStep",
             "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStep",
             "videoGen": "#/components/schemas/VideoGenStep",
@@ -14970,6 +16390,7 @@
         "discriminator": {
           "propertyName": "$type",
           "mapping": {
+            "aceStepAudio": "#/components/schemas/AceStepAudioStepTemplate",
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
             "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
@@ -14983,8 +16404,10 @@
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
             "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
+            "textToSpeech": "#/components/schemas/TextToSpeechStepTemplate",
             "training": "#/components/schemas/TrainingStepTemplate",
             "transcode": "#/components/schemas/TranscodeStepTemplate",
+            "transcription": "#/components/schemas/TranscriptionStepTemplate",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStepTemplate",
             "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStepTemplate",
             "videoGen": "#/components/schemas/VideoGenStepTemplate",
@@ -15014,7 +16437,7 @@
             "items": {
               "type": "string"
             },
-            "description": "A list of tags associated with this workflow.\r\nTags are indexed and can be used to search for workflows.\r\nAt most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.",
+            "description": "A list of tags associated with this workflow.\nTags are indexed and can be used to search for workflows.\nAt most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.",
             "nullable": true
           },
           "steps": {
@@ -15052,7 +16475,7 @@
           },
           "allowMatureContent": {
             "type": "boolean",
-            "description": "Get or set whether this workflow should allow mature content.\r\nWhen set to false, the workflow will not return any content that is marked as mature.\r\nAdditional payment options are available for workflows that do not allow mature content.",
+            "description": "Get or set whether this workflow should allow mature content.\nWhen set to false, the workflow will not return any content that is marked as mature.\nAdditional payment options are available for workflows that do not allow mature content.",
             "nullable": true
           },
           "upgradeMode": {
@@ -15213,6 +16636,13 @@
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
               }
             },
             "additionalProperties": false,
@@ -15386,6 +16816,13 @@
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
               }
             },
             "additionalProperties": false,
