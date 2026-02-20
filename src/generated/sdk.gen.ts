@@ -96,6 +96,9 @@ import type {
   GetResourceData,
   GetResourceResponses,
   GetResourceErrors,
+  GetStreamingBlobData,
+  GetStreamingBlobResponses,
+  GetStreamingBlobErrors,
   QueryWorkflowsData,
   QueryWorkflowsResponses,
   QueryWorkflowsErrors,
@@ -954,6 +957,25 @@ export const getResource = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/v2/resources/{air}',
+    ...options,
+  });
+};
+
+export const getStreamingBlob = <ThrowOnError extends boolean = false>(
+  options: Options<GetStreamingBlobData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetStreamingBlobResponses,
+    GetStreamingBlobErrors,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v2/consumer/streaming-blobs/{blobKey}',
     ...options,
   });
 };

@@ -28,6 +28,10 @@ export type AiToolkitTrainingInput = TrainingInput & {
    */
   epochs?: number;
   /**
+   * Number of repeats per image. This is used to calculate the total number of steps for training and can affect the training time and cost.
+   */
+  numberOfRepeats?: number | null;
+  /**
    * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
    */
   lr?: number;
@@ -6115,6 +6119,35 @@ export type GetResourceResponses = {
 };
 
 export type GetResourceResponse = GetResourceResponses[keyof GetResourceResponses];
+
+export type GetStreamingBlobData = {
+  body?: never;
+  path: {
+    blobKey: string;
+  };
+  query?: never;
+  url: '/v2/consumer/streaming-blobs/{blobKey}';
+};
+
+export type GetStreamingBlobErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetStreamingBlobError = GetStreamingBlobErrors[keyof GetStreamingBlobErrors];
+
+export type GetStreamingBlobResponses = {
+  /**
+   * OK
+   */
+  200: unknown;
+};
 
 export type QueryWorkflowsData = {
   body?: never;

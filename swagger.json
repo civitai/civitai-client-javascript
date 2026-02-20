@@ -2271,6 +2271,49 @@
         }
       }
     },
+    "/v2/consumer/streaming-blobs/{blobKey}": {
+      "get": {
+        "tags": [
+          "StreamingBlobs"
+        ],
+        "operationId": "GetStreamingBlob",
+        "parameters": [
+          {
+            "name": "blobKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/workflows": {
       "post": {
         "tags": [
@@ -3917,6 +3960,14 @@
                 "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\nMaximum of 20 epochs can be specified.\nNote: ai-toolkit uses steps internally, calculated based on epochs, image count, and internal parameters.",
                 "format": "int32",
                 "default": 5
+              },
+              "numberOfRepeats": {
+                "maximum": 5000,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Number of repeats per image. This is used to calculate the total number of steps for training and can affect the training time and cost.",
+                "format": "int32",
+                "nullable": true
               },
               "lr": {
                 "maximum": 1,
