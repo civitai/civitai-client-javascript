@@ -259,6 +259,9 @@ export type AgeClassifierLabel = {
   age: string;
   isMinor: boolean;
   boundingBox: Array<number>;
+  topK?: {
+    [key: string]: number;
+  } | null;
 };
 
 /**
@@ -2920,7 +2923,9 @@ export type Qwen20bVariantImageGenInput = Qwen20bImageGenInput & {
 /**
  * AI Toolkit training for Qwen Image models
  */
-export type QwenAiToolkitTrainingInput = AiToolkitTrainingInput & {} & {
+export type QwenAiToolkitTrainingInput = AiToolkitTrainingInput & {
+  version?: 'latest' | '2509' | '2512';
+} & {
   ecosystem: 'qwen';
 };
 
@@ -3198,6 +3203,7 @@ export const SeedreamVersion = {
   V3: 'v3',
   V4: 'v4',
   V4_5: 'v4.5',
+  V5_0_LITE: 'v5.0-lite',
 } as const;
 
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];

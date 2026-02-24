@@ -4414,6 +4414,14 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          "topK": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -11684,6 +11692,16 @@
           },
           {
             "type": "object",
+            "properties": {
+              "version": {
+                "enum": [
+                  "latest",
+                  "2509",
+                  "2512"
+                ],
+                "type": "string"
+              }
+            },
             "additionalProperties": false
           }
         ],
@@ -12193,7 +12211,8 @@
         "enum": [
           "v3",
           "v4",
-          "v4.5"
+          "v4.5",
+          "v5.0-lite"
         ],
         "type": "string"
       },
