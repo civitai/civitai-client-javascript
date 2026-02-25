@@ -4013,7 +4013,8 @@
                   "adafactor",
                   "adagrad",
                   "prodigy",
-                  "prodigy8bit"
+                  "prodigy8bit",
+                  "automagic"
                 ],
                 "type": "string",
                 "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\".",

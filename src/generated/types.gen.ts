@@ -61,7 +61,8 @@ export type AiToolkitTrainingInput = TrainingInput & {
     | 'adafactor'
     | 'adagrad'
     | 'prodigy'
-    | 'prodigy8bit';
+    | 'prodigy8bit'
+    | 'automagic';
   /**
    * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
    */
