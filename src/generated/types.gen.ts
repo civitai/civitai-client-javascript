@@ -295,6 +295,27 @@ export type AgeDetection = {
   } | null;
 };
 
+export type AnimaCreateImageGenInput = AnimaImageGenInput & {
+  width?: number;
+  height?: number;
+} & {
+  operation: 'createImage';
+};
+
+export type AnimaImageGenInput = SdCppImageGenInput & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: string | null;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
+  seed?: number | null;
+  quantity?: number;
+} & {
+  ecosystem: 'anima';
+};
+
 export const AnimalPoseBboxDetector = {
   YOLOX_L_TORCHSCRIPT_PT: 'yolox_l.torchscript.pt',
   YOLOX_L_ONNX: 'yolox_l.onnx',
@@ -1281,6 +1302,11 @@ export type Flux2Klein9bAiToolkitTrainingInput = Flux2KleinAiToolkitTrainingInpu
  */
 export type Flux2KleinAiToolkitTrainingInput = AiToolkitTrainingInput & {
   modelVariant: string;
+  /**
+   * Whether this is image-edit training (uses control paths for reference images).
+   * When true, the training data zip should contain subfolders: main/, control_1/, control_2/, control_3/.
+   */
+  isEditTraining?: boolean;
 } & {
   ecosystem: 'flux2klein';
 };
@@ -1523,6 +1549,10 @@ export type ImageBlob = Blob & {
 export type ImageGenInput = {
   engine: string;
   outputFormat?: ImageGenOutputFormat;
+  /**
+   * External metadata that will be stored with the image
+   */
+  imageMetadata?: string | null;
 };
 
 export type ImageGenInputLora = {
@@ -2371,6 +2401,19 @@ export const NsfwLevel = {
 } as const;
 
 export type NsfwLevel = (typeof NsfwLevel)[keyof typeof NsfwLevel];
+
+export type NanoBanana2ImageGenInput = GoogleImageGenInput & {
+  prompt: string;
+  aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
+  numImages?: number;
+  resolution?: '1K' | '2K' | '4K';
+  images?: Array<string>;
+  seed?: number | null;
+  enableWebSearch?: boolean;
+  enableGoogleSearch?: boolean;
+} & {
+  model: 'nano-banana-2';
+};
 
 export type NanoBananaProImageGenInput = GoogleImageGenInput & {
   prompt: string;
@@ -3456,6 +3499,12 @@ export type TrainingInputSamples = {
    * An optional negative prompt that will be applied when generating samples
    */
   negativePrompt?: string | null;
+  /**
+   * Source images for edit training sample generation.
+   * Processed by ISourceImageProcessor during initialization, then TryGetUri() yields URLs
+   * that are passed as ReferenceImageUrls when generating samples with edit LoRAs.
+   */
+  sourceImages?: Array<string>;
 };
 
 /**
@@ -3872,6 +3921,7 @@ export type VideoFrameExtractionInput = {
   frameRate?: number;
   uniqueThreshold?: number;
   maxFrames?: number;
+  startTime?: number;
 };
 
 /**

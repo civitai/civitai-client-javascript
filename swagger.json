@@ -4470,6 +4470,119 @@
         "additionalProperties": false,
         "description": "Represents a single age detection in an image."
       },
+      "AnimaCreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AnimaImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "AnimaImageGenInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdCppImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string",
+                "nullable": true
+              },
+              "sampleMethod": {
+                "$ref": "#/components/schemas/SdCppSampleMethod"
+              },
+              "schedule": {
+                "$ref": "#/components/schemas/SdCppSchedule"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/AnimaCreateImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "anima"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "AnimalPoseBboxDetector": {
         "enum": [
           "yolox_l.torchscript.pt",
@@ -6781,6 +6894,10 @@
             "properties": {
               "modelVariant": {
                 "type": "string"
+              },
+              "isEditTraining": {
+                "type": "boolean",
+                "description": "Whether this is image-edit training (uses control paths for reference images).\nWhen true, the training data zip should contain subfolders: main/, control_1/, control_2/, control_3/."
               }
             },
             "additionalProperties": false,
@@ -7377,7 +7494,8 @@
               "propertyName": "model",
               "mapping": {
                 "imagen4": "#/components/schemas/Imagen4ImageGenInput",
-                "nano-banana-pro": "#/components/schemas/NanoBananaProImageGenInput"
+                "nano-banana-pro": "#/components/schemas/NanoBananaProImageGenInput",
+                "nano-banana-2": "#/components/schemas/NanoBanana2ImageGenInput"
               }
             }
           }
@@ -7683,6 +7801,11 @@
           },
           "outputFormat": {
             "$ref": "#/components/schemas/ImageGenOutputFormat"
+          },
+          "imageMetadata": {
+            "type": "string",
+            "description": "External metadata that will be stored with the image",
+            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -9450,6 +9573,91 @@
           "na"
         ],
         "type": "string"
+      },
+      "NanoBanana2ImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GoogleImageGenInput"
+          },
+          {
+            "required": [
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "maxLength": 50000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "21:9",
+                  "16:9",
+                  "3:2",
+                  "4:3",
+                  "5:4",
+                  "1:1",
+                  "4:5",
+                  "3:4",
+                  "2:3",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "1:1"
+              },
+              "numImages": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "resolution": {
+                "enum": [
+                  "1K",
+                  "2K",
+                  "4K"
+                ],
+                "type": "string",
+                "default": "1K"
+              },
+              "images": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "enableWebSearch": {
+                "type": "boolean",
+                "default": false
+              },
+              "enableGoogleSearch": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "nano-banana-2"
+            ],
+            "type": "string"
+          }
+        }
       },
       "NanoBananaProImageGenInput": {
         "required": [
@@ -12048,7 +12256,8 @@
               "propertyName": "ecosystem",
               "mapping": {
                 "qwen": "#/components/schemas/QwenImageGenInput",
-                "zImage": "#/components/schemas/ZImageImageGenInput"
+                "zImage": "#/components/schemas/ZImageImageGenInput",
+                "anima": "#/components/schemas/AnimaImageGenInput"
               }
             }
           }
@@ -12767,6 +12976,14 @@
             "type": "string",
             "description": "An optional negative prompt that will be applied when generating samples",
             "nullable": true
+          },
+          "sourceImages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Either A URL, A DataURL or a Base64 string"
+            },
+            "description": "Source images for edit training sample generation.\nProcessed by ISourceImageProcessor during initialization, then TryGetUri() yields URLs\nthat are passed as ReferenceImageUrls when generating samples with edit LoRAs."
           }
         },
         "additionalProperties": false,
@@ -13671,6 +13888,10 @@
           "maxFrames": {
             "type": "integer",
             "format": "int32"
+          },
+          "startTime": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false,
