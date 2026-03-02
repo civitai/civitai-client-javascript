@@ -139,13 +139,18 @@ export type AceStepAudioInput = {
    * Optional model override (uses default ACE Step 1.5 turbo if not specified)
    */
   model?: string | null;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  backgroundImageUrl?: string;
 };
 
 /**
- * Output from ACE Step 1.5 audio generation workflow step
+ * Output from ACE Step 1.5 audio generation workflow step.
+ * Returns a video with audio visualization overlaid on a background image.
  */
 export type AceStepAudioOutput = {
-  audioBlob: AudioBlob;
+  videoBlob: VideoBlob;
 };
 
 /**
@@ -1437,6 +1442,79 @@ export type GoogleImageGenInput = ImageGenInput & {
   prompt: string;
 } & {
   engine: 'google';
+};
+
+export type GrokCreateImageGenInput = GrokImageGenInput & {
+  /**
+   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
+   */
+  aspectRatio?: string;
+} & {
+  operation: 'createImage';
+};
+
+export type GrokEditImageGenInput = GrokImageGenInput & {
+  images: Array<string>;
+} & {
+  operation: 'editImage';
+};
+
+/**
+ * Grok Edit-Video
+ * FAL Endpoint: xai/grok-imagine-video/edit-video
+ * Input video is resized to max 854x480 and truncated to 8 seconds.
+ * Uses FFProbe to analyze input video duration for accurate costing.
+ */
+export type GrokEditVideoInput = GrokVideoGenInput & {
+  videoUrl: string;
+  analyzedDuration?: number | null;
+} & {
+  operation: 'edit-video';
+};
+
+export type GrokImageGenInput = ImageGenInput & {
+  engine: 'grok';
+} & {
+  operation: string;
+  prompt: string;
+  quantity?: number;
+} & {
+  engine: 'grok';
+};
+
+/**
+ * Grok Image-to-Video
+ * FAL Endpoint: xai/grok-imagine-video/image-to-video
+ */
+export type GrokImageToVideoInput = GrokVideoGenInput & {
+  aspectRatio?: 'auto' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
+  images?: [string];
+} & {
+  operation: 'image-to-video';
+};
+
+/**
+ * Grok Text-to-Video
+ * FAL Endpoint: xai/grok-imagine-video/text-to-video
+ */
+export type GrokTextToVideoInput = GrokVideoGenInput & {
+  aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
+} & {
+  operation: 'text-to-video';
+};
+
+/**
+ * Base class for Grok video generation (xAI's Grok-Imagine-Video model via FAL).
+ * Discriminator: operation (text-to-video, image-to-video, edit-video)
+ */
+export type GrokVideoGenInput = VideoGenInput & {
+  engine: 'grok';
+} & {
+  operation: string | null;
+  duration?: number;
+  resolution?: '480p' | '720p';
+} & {
+  engine: 'grok';
 };
 
 export const HaiperVideoGenAspectRatio = {
@@ -3169,6 +3247,35 @@ export const Scheduler = {
  */
 export type Scheduler = (typeof Scheduler)[keyof typeof Scheduler];
 
+export type Sd1CreateImageGenInput = Sd1ImageGenInput & {
+  width?: number;
+  height?: number;
+} & {
+  operation: 'createImage';
+};
+
+export type Sd1ImageGenInput = SdCppImageGenInput & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: string | null;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
+  seed?: number | null;
+  quantity?: number;
+  model: string;
+  vaeModel?: string | null;
+  loras?: {
+    [key: string]: number;
+  };
+  embeddings?: Array<string>;
+  clipSkip?: number;
+  uCache?: SdCppUCacheMode;
+} & {
+  ecosystem: 'sd1';
+};
+
 export type SdCppImageGenInput = ImageGenInput & {
   engine: 'sdcpp';
 } & {
@@ -3206,6 +3313,13 @@ export const SdCppSchedule = {
 
 export type SdCppSchedule = (typeof SdCppSchedule)[keyof typeof SdCppSchedule];
 
+export const SdCppUCacheMode = {
+  OFF: 'off',
+  NORMAL: 'normal',
+} as const;
+
+export type SdCppUCacheMode = (typeof SdCppUCacheMode)[keyof typeof SdCppUCacheMode];
+
 /**
  * AI Toolkit training for Stable Diffusion XL models
  */
@@ -3223,6 +3337,34 @@ export type SdxlAiToolkitTrainingInput = AiToolkitTrainingInput & {
    * The primary model to train upon.
    */
   model?: string;
+} & {
+  ecosystem: 'sdxl';
+};
+
+export type SdxlCreateImageGenInput = SdxlImageGenInput & {
+  width?: number;
+  height?: number;
+} & {
+  operation: 'createImage';
+};
+
+export type SdxlImageGenInput = SdCppImageGenInput & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: string | null;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
+  seed?: number | null;
+  quantity?: number;
+  model: string;
+  vaeModel?: string | null;
+  loras?: {
+    [key: string]: number;
+  };
+  embeddings?: Array<string>;
+  uCache?: SdCppUCacheMode;
 } & {
   ecosystem: 'sdxl';
 };
