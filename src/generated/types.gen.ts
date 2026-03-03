@@ -52,13 +52,13 @@ export type AiToolkitTrainingInput = TrainingInput & {
    * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
    */
   optimizerType?:
-    | 'adam'
     | 'adamw'
     | 'adamw8bit'
     | 'adam8bit'
     | 'lion'
     | 'lion8bit'
     | 'adafactor'
+    | 'adafactor '
     | 'adagrad'
     | 'prodigy'
     | 'prodigy8bit'
@@ -95,6 +95,17 @@ export type AiToolkitTrainingInput = TrainingInput & {
   keepTokens?: number;
 } & {
   engine: 'ai-toolkit';
+};
+
+/**
+ * Cover image configuration for ACE Step audio output.
+ * When present, the output is a WebM video with this image as the visual.
+ */
+export type AceStepAudioCover = {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  imageUrl: string;
 };
 
 /**
@@ -139,18 +150,15 @@ export type AceStepAudioInput = {
    * Optional model override (uses default ACE Step 1.5 turbo if not specified)
    */
   model?: string | null;
-  /**
-   * Either A URL, A DataURL or a Base64 string
-   */
-  backgroundImageUrl?: string;
+  cover?: AceStepAudioCover;
 };
 
 /**
  * Output from ACE Step 1.5 audio generation workflow step.
- * Returns a video with audio visualization overlaid on a background image.
+ * Returns a VideoBlob (when a background image is provided) or an AudioBlob (audio only).
  */
 export type AceStepAudioOutput = {
-  videoBlob: VideoBlob;
+  blob: Blob;
 };
 
 /**
@@ -760,6 +768,26 @@ export type ComfyLtx2ExtendVideoInput = ComfyLtx2VideoGenInput & {
   numFrames?: number;
 } & {
   operation: 'extendVideo';
+};
+
+/**
+ * Generate video guided by first and/or last frame images using LTXVAddGuide conditioning (ComfyUI backend)
+ */
+export type ComfyLtx2FirstLastFrameToVideoInput = ComfyLtx2VideoGenInput & {
+  /**
+   * First frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  firstFrame?: string | null;
+  /**
+   * Last frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  lastFrame?: string | null;
+  /**
+   * Strength of the frame guide conditioning (0.0 to 1.0).
+   */
+  frameGuideStrength?: number;
+} & {
+  operation: 'firstLastFrameToVideo';
 };
 
 /**
@@ -1448,7 +1476,20 @@ export type GrokCreateImageGenInput = GrokImageGenInput & {
   /**
    * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
    */
-  aspectRatio?: string;
+  aspectRatio?:
+    | '2:1'
+    | '20:9'
+    | '19.5:9'
+    | '16:9'
+    | '4:3'
+    | '3:2'
+    | '1:1'
+    | '2:3'
+    | '3:4'
+    | '9:16'
+    | '9:19.5'
+    | '9:20'
+    | '1:2';
 } & {
   operation: 'createImage';
 };
@@ -4260,6 +4301,20 @@ export type VideoUpscalerStepTemplate = WorkflowStepTemplate & {
   $type: 'videoUpscaler';
 };
 
+export type ViduQ3VideoGenInput = VideoGenInput & {
+  engine: 'vidu-q3';
+} & {
+  seed?: number | null;
+  duration?: number;
+  resolution?: '360p' | '540p' | '720p' | '1080p';
+  turbo?: boolean;
+  enableAudio?: boolean;
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  images?: Array<string>;
+} & {
+  engine: 'vidu-q3';
+};
+
 export type ViduVideoGenInput = VideoGenInput & {
   engine: 'vidu';
 } & {
@@ -4287,6 +4342,7 @@ export type ViduVideoGenInput = VideoGenInput & {
 export const ViduVideoGenModel = {
   DEFAULT: 'default',
   Q1: 'q1',
+  Q3: 'q3',
 } as const;
 
 export type ViduVideoGenModel = (typeof ViduVideoGenModel)[keyof typeof ViduVideoGenModel];
