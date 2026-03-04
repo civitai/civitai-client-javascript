@@ -5293,6 +5293,218 @@
         ],
         "type": "string"
       },
+      "ComfyFlux1CreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux1ImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfyFlux1ImageGenInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "vaeModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "nullable": true
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyFlux1CreateImageGenInput",
+                "createVariant": "#/components/schemas/ComfyFlux1VariantImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "flux1"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfyFlux1VariantImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux1ImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "denoiseStrength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVariant"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfyImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "ecosystem",
+              "mapping": {
+                "sd1": "#/components/schemas/ComfySd1ImageGenInput",
+                "sdxl": "#/components/schemas/ComfySdxlImageGenInput",
+                "flux1": "#/components/schemas/ComfyFlux1ImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "comfy"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "ComfyInput": {
         "required": [
           "comfyWorkflow"
@@ -5667,6 +5879,416 @@
           }
         },
         "additionalProperties": false
+      },
+      "ComfySampler": {
+        "enum": [
+          "euler",
+          "euler_ancestral",
+          "euler_cfg_pp",
+          "euler_ancestral_cfg_pp",
+          "heun",
+          "heunpp2",
+          "dpm_2",
+          "dpm_2_ancestral",
+          "lms",
+          "dpm_fast",
+          "dpm_adaptive",
+          "dpmpp_2s_ancestral",
+          "dpmpp_2s_ancestral_cfg_pp",
+          "dpmpp_sde",
+          "dpmpp_sde_gpu",
+          "dpmpp_2m",
+          "dpmpp_2m_cfg_pp",
+          "dpmpp_2m_sde",
+          "dpmpp_2m_sde_gpu",
+          "dpmpp_3m_sde",
+          "dpmpp_3m_sde_gpu",
+          "ddpm",
+          "lcm",
+          "ipndm",
+          "ipndm_v",
+          "deis",
+          "ddim",
+          "uni_pc",
+          "uni_pc_bh2"
+        ],
+        "type": "string"
+      },
+      "ComfyScheduler": {
+        "enum": [
+          "normal",
+          "karras",
+          "exponential",
+          "sgm_uniform",
+          "simple",
+          "ddim_uniform",
+          "beta"
+        ],
+        "type": "string"
+      },
+      "ComfySd1CreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfySd1ImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 1024,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 1024,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfySd1ImageGenInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string",
+                "nullable": true
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "vaeModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "nullable": true
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "clipSkip": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfySd1CreateImageGenInput",
+                "createVariant": "#/components/schemas/ComfySd1VariantImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "sd1"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfySd1VariantImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfySd1ImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 1024,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 1024,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "denoiseStrength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVariant"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfySdxlCreateImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfySdxlImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfySdxlImageGenInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string",
+                "nullable": true
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "vaeModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "nullable": true
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfySdxlCreateImageGenInput",
+                "createVariant": "#/components/schemas/ComfySdxlVariantImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "sdxl"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ComfySdxlVariantImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfySdxlImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "denoiseStrength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVariant"
+            ],
+            "type": "string"
+          }
+        }
       },
       "ComfyStep": {
         "required": [
@@ -6218,6 +6840,42 @@
         },
         "additionalProperties": false,
         "description": "Represents face recognition results for media content."
+      },
+      "FalImageGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "qwen2": "#/components/schemas/Qwen2FalImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "fal"
+            ],
+            "type": "string"
+          }
+        }
       },
       "FileFormat": {
         "enum": [
@@ -7121,6 +7779,203 @@
           "model": {
             "enum": [
               "klein"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2KleinSdCppCreateImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2KleinSdCppImageGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2KleinSdCppEditImageInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2KleinSdCppImageGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 2,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2KleinSdCppImageGenInput": {
+        "required": [
+          "ecosystem"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdCppImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 1000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 20,
+                "minimum": 1,
+                "type": "number",
+                "format": "double"
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 4,
+                "type": "integer",
+                "format": "int32"
+              },
+              "sampleMethod": {
+                "$ref": "#/components/schemas/SdCppSampleMethod"
+              },
+              "schedule": {
+                "$ref": "#/components/schemas/SdCppSchedule"
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "modelVersion": {
+                "enum": [
+                  "4b",
+                  "4b-base",
+                  "9b",
+                  "9b-base"
+                ],
+                "type": "string",
+                "default": "4b"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Flux2KleinSdCppCreateImageInput",
+                "editImage": "#/components/schemas/Flux2KleinSdCppEditImageInput",
+                "createVariant": "#/components/schemas/Flux2KleinSdCppVariantImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "ecosystem": {
+            "enum": [
+              "flux2Klein"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Flux2KleinSdCppVariantImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux2KleinSdCppImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "strength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVariant"
             ],
             "type": "string"
           }
@@ -8185,8 +9040,10 @@
             "wan": "#/components/schemas/WanImageGenInput",
             "gemini": "#/components/schemas/GeminiImageGenInput",
             "sdcpp": "#/components/schemas/SdCppImageGenInput",
+            "comfy": "#/components/schemas/ComfyImageGenInput",
             "seedream": "#/components/schemas/SeedreamImageGenInput",
-            "grok": "#/components/schemas/GrokImageGenInput"
+            "grok": "#/components/schemas/GrokImageGenInput",
+            "fal": "#/components/schemas/FalImageGenInput"
           }
         }
       },
@@ -12258,6 +13115,203 @@
           }
         }
       },
+      "Qwen2CreateFalImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Qwen2FalImageGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Qwen2EditFalImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Qwen2FalImageGenInput"
+          },
+          {
+            "required": [
+              "images"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 3,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Qwen2FalImageGenInput": {
+        "required": [
+          "model"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 500,
+                "type": "string",
+                "nullable": true
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "imageSize": {
+                "enum": [
+                  "square_hd",
+                  "square",
+                  "portrait_4_3",
+                  "portrait_16_9",
+                  "landscape_4_3",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "default": "square_hd"
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": true
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Qwen2CreateFalImageGenInput",
+                "proCreateImage": "#/components/schemas/Qwen2ProCreateFalImageGenInput",
+                "editImage": "#/components/schemas/Qwen2EditFalImageGenInput",
+                "proEditImage": "#/components/schemas/Qwen2ProEditFalImageGenInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "model": {
+            "enum": [
+              "qwen2"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Qwen2ProCreateFalImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Qwen2FalImageGenInput"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "proCreateImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Qwen2ProEditFalImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Qwen2FalImageGenInput"
+          },
+          {
+            "required": [
+              "images"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 3,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "proEditImage"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "QwenAIToolkitTrainingInput": {
         "required": [
           "ecosystem"
@@ -12730,7 +13784,8 @@
             "discriminator": {
               "propertyName": "operation",
               "mapping": {
-                "createImage": "#/components/schemas/Sd1CreateImageGenInput"
+                "createImage": "#/components/schemas/Sd1CreateImageGenInput",
+                "createVariant": "#/components/schemas/Sd1VariantImageGenInput"
               }
             }
           }
@@ -12739,6 +13794,55 @@
           "ecosystem": {
             "enum": [
               "sd1"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "Sd1VariantImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Sd1ImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "strength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVariant"
             ],
             "type": "string"
           }
@@ -12770,7 +13874,8 @@
                 "zImage": "#/components/schemas/ZImageImageGenInput",
                 "anima": "#/components/schemas/AnimaImageGenInput",
                 "sd1": "#/components/schemas/Sd1ImageGenInput",
-                "sdxl": "#/components/schemas/SdxlImageGenInput"
+                "sdxl": "#/components/schemas/SdxlImageGenInput",
+                "flux2Klein": "#/components/schemas/Flux2KleinSdCppImageGenInput"
               }
             }
           }
@@ -12798,7 +13903,8 @@
           "euler_a",
           "lcm",
           "res_multistep",
-          "res_2s"
+          "res_2s",
+          "tcd"
         ],
         "type": "string"
       },
@@ -12809,7 +13915,12 @@
           "karras",
           "exponential",
           "ays",
-          "bong_tangent"
+          "bong_tangent",
+          "gits",
+          "sgm_uniform",
+          "smoothstep",
+          "kl_optimal",
+          "lcm"
         ],
         "type": "string"
       },
@@ -12984,7 +14095,8 @@
             "discriminator": {
               "propertyName": "operation",
               "mapping": {
-                "createImage": "#/components/schemas/SdxlCreateImageGenInput"
+                "createImage": "#/components/schemas/SdxlCreateImageGenInput",
+                "createVariant": "#/components/schemas/SdxlVariantImageGenInput"
               }
             }
           }
@@ -12993,6 +14105,55 @@
           "ecosystem": {
             "enum": [
               "sdxl"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "SdxlVariantImageGenInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SdxlImageGenInput"
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32"
+              },
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "strength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVariant"
             ],
             "type": "string"
           }
