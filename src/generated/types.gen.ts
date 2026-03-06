@@ -93,6 +93,11 @@ export type AiToolkitTrainingInput = TrainingInput & {
    * This option does nothing if the Shuffle Tokens option is off.
    */
   keepTokens?: number;
+  /**
+   * A trigger word that activates the trained LoRA when used in prompts.
+   * Only applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein).
+   */
+  triggerWord?: string | null;
 } & {
   engine: 'ai-toolkit';
 };
@@ -779,6 +784,87 @@ export type ComfyInput = {
    * Opt-into using the spine controller exclusively
    */
   useSpineComfy?: boolean | null;
+};
+
+/**
+ * Create video from text prompt, optionally with a source image (ComfyUI backend)
+ */
+export type ComfyLtx23CreateVideoInput = ComfyLtx23VideoGenInput & {
+  /**
+   * Optional source image for image-to-video generation
+   */
+  images?: Array<string>;
+} & {
+  operation: 'createVideo';
+};
+
+/**
+ * Edit/transform an existing video using Canny edge control (ComfyUI backend)
+ */
+export type ComfyLtx23EditVideoInput = ComfyLtx23VideoGenInput & {
+  sourceVideo: string;
+  cannyLowThreshold?: number;
+  cannyHighThreshold?: number;
+  guideStrength?: number;
+} & {
+  operation: 'editVideo';
+};
+
+/**
+ * Extend an existing video with new content (ComfyUI backend)
+ */
+export type ComfyLtx23ExtendVideoInput = ComfyLtx23VideoGenInput & {
+  sourceVideo: string;
+  numFrames?: number;
+} & {
+  operation: 'extendVideo';
+};
+
+/**
+ * Generate video guided by first and/or last frame images using LTXVAddGuide conditioning (ComfyUI backend)
+ */
+export type ComfyLtx23FirstLastFrameToVideoInput = ComfyLtx23VideoGenInput & {
+  /**
+   * First frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  firstFrame?: string | null;
+  /**
+   * Last frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  lastFrame?: string | null;
+  /**
+   * Strength of the frame guide conditioning (0.0 to 1.0).
+   */
+  frameGuideStrength?: number;
+} & {
+  operation: 'firstLastFrameToVideo';
+};
+
+/**
+ * LTX Video v2.3 generation via ComfyUI backend
+ */
+export type ComfyLtx23VideoGenInput = VideoGenInput & {
+  engine: 'ltx2.3';
+} & {
+  operation: string | null;
+  negativePrompt?: string | null;
+  seed?: number | null;
+  /**
+   * Duration in seconds (3 or 5)
+   */
+  duration?: 3 | 5;
+  width?: number;
+  height?: number;
+  fps?: number;
+  generateAudio?: boolean;
+  guidanceScale?: number;
+  steps?: number;
+  model?: '22b-dev' | '22b-distilled';
+  loras?: {
+    [key: string]: number;
+  };
+} & {
+  engine: 'ltx2.3';
 };
 
 /**
@@ -4762,6 +4848,44 @@ export type Wan225bVideoGenInput = WanVideoGenInput & {
   provider: string | null;
 } & {
   version: 'v2.2-5b';
+};
+
+export type Wan22ComfyVideoGenInput = Wan22VideoGenInput & {
+  width?: number;
+  height?: number;
+  model?: string | null;
+  images?: Array<string>;
+  negativePrompt?: string | null;
+  sampler?:
+    | 'euler'
+    | 'euler_ancestral'
+    | 'heun'
+    | 'heunpp2'
+    | 'dpm_2'
+    | 'dpm_2_ancestral'
+    | 'lms'
+    | 'dpm_fast'
+    | 'dpm_adaptive'
+    | 'dpmpp_2s_ancestral'
+    | 'dpmpp_sde'
+    | 'dpmpp_2m'
+    | 'dpmpp_2m_sde'
+    | 'dpmpp_3m_sde'
+    | 'ddpm'
+    | 'lcm'
+    | 'uni_pc'
+    | 'uni_pc_bh2';
+  scheduler?:
+    | 'normal'
+    | 'karras'
+    | 'exponential'
+    | 'sgm_uniform'
+    | 'simple'
+    | 'ddim_uniform'
+    | 'beta';
+  shift?: number;
+} & {
+  provider: 'comfy';
 };
 
 export type Wan22FalImageGenInput = Wan22ImageGenInput & {

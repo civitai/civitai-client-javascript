@@ -4061,6 +4061,11 @@
                 "description": "If your training images have tags, you can randomly shuffle them.\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\nThis option does nothing if the Shuffle Tokens option is off.",
                 "format": "int32",
                 "default": 0
+              },
+              "triggerWord": {
+                "type": "string",
+                "description": "A trigger word that activates the trained LoRA when used in prompts.\nOnly applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein).",
+                "nullable": true
               }
             },
             "additionalProperties": false,
@@ -5538,6 +5543,286 @@
           }
         },
         "additionalProperties": false
+      },
+      "ComfyLtx23CreateVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLtx23VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                },
+                "description": "Optional source image for image-to-video generation"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "createVideo"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Create video from text prompt, optionally with a source image (ComfyUI backend)"
+      },
+      "ComfyLtx23EditVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLtx23VideoGenInput"
+          },
+          {
+            "required": [
+              "sourceVideo"
+            ],
+            "type": "object",
+            "properties": {
+              "sourceVideo": {
+                "type": "string",
+                "format": "uri"
+              },
+              "cannyLowThreshold": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "float",
+                "default": 0.4
+              },
+              "cannyHighThreshold": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "float",
+                "default": 0.8
+              },
+              "guideStrength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "float",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "editVideo"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Edit/transform an existing video using Canny edge control (ComfyUI backend)"
+      },
+      "ComfyLtx23ExtendVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLtx23VideoGenInput"
+          },
+          {
+            "required": [
+              "sourceVideo"
+            ],
+            "type": "object",
+            "properties": {
+              "sourceVideo": {
+                "type": "string",
+                "format": "uri"
+              },
+              "numFrames": {
+                "maximum": 481,
+                "minimum": 9,
+                "type": "integer",
+                "format": "int32",
+                "default": 121
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "extendVideo"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Extend an existing video with new content (ComfyUI backend)"
+      },
+      "ComfyLtx23FirstLastFrameToVideoInput": {
+        "required": [
+          "operation"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLtx23VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "firstFrame": {
+                "type": "string",
+                "description": "First frame guide image. At least one of FirstFrame or LastFrame must be provided.",
+                "nullable": true
+              },
+              "lastFrame": {
+                "type": "string",
+                "description": "Last frame guide image. At least one of FirstFrame or LastFrame must be provided.",
+                "nullable": true
+              },
+              "frameGuideStrength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Strength of the frame guide conditioning (0.0 to 1.0).",
+                "format": "float",
+                "default": 0.7
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "operation": {
+            "enum": [
+              "firstLastFrameToVideo"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "Generate video guided by first and/or last frame images using LTXVAddGuide conditioning (ComfyUI backend)"
+      },
+      "ComfyLtx23VideoGenInput": {
+        "required": [
+          "engine"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "default": "createVideo",
+                "nullable": true
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "seed": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "duration": {
+                "enum": [
+                  3,
+                  5
+                ],
+                "type": "integer",
+                "description": "Duration in seconds (3 or 5)",
+                "format": "int32",
+                "default": 5
+              },
+              "width": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1280
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32",
+                "default": 720
+              },
+              "fps": {
+                "maximum": 60,
+                "minimum": 1,
+                "type": "number",
+                "format": "float",
+                "default": 24
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "default": true
+              },
+              "guidanceScale": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "number",
+                "format": "float",
+                "default": 4
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 8,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "model": {
+                "enum": [
+                  "22b-dev",
+                  "22b-distilled"
+                ],
+                "type": "string",
+                "default": "22b-dev"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createVideo": "#/components/schemas/ComfyLtx23CreateVideoInput",
+                "extendVideo": "#/components/schemas/ComfyLtx23ExtendVideoInput",
+                "editVideo": "#/components/schemas/ComfyLtx23EditVideoInput",
+                "firstLastFrameToVideo": "#/components/schemas/ComfyLtx23FirstLastFrameToVideoInput"
+              }
+            }
+          }
+        ],
+        "properties": {
+          "engine": {
+            "enum": [
+              "ltx2.3"
+            ],
+            "type": "string"
+          }
+        },
+        "description": "LTX Video v2.3 generation via ComfyUI backend"
       },
       "ComfyLtx2CreateVideoInput": {
         "required": [
@@ -15829,6 +16114,7 @@
             "minimax": "#/components/schemas/MiniMaxVideoGenInput",
             "lightricks": "#/components/schemas/LightricksVideoGenInput",
             "ltx2": "#/components/schemas/ComfyLtx2VideoGenInput",
+            "ltx2.3": "#/components/schemas/ComfyLtx23VideoGenInput",
             "hunyuan": "#/components/schemas/HunyuanVdeoGenInput",
             "wan": "#/components/schemas/WanVideoGenInput",
             "vidu": "#/components/schemas/ViduVideoGenInput",
@@ -16916,6 +17202,104 @@
           }
         }
       },
+      "Wan22ComfyVideoGenInput": {
+        "required": [
+          "provider"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan22VideoGenInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1280
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 720
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "nullable": true
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "negativePrompt": {
+                "type": "string",
+                "nullable": true
+              },
+              "sampler": {
+                "enum": [
+                  "euler",
+                  "euler_ancestral",
+                  "heun",
+                  "heunpp2",
+                  "dpm_2",
+                  "dpm_2_ancestral",
+                  "lms",
+                  "dpm_fast",
+                  "dpm_adaptive",
+                  "dpmpp_2s_ancestral",
+                  "dpmpp_sde",
+                  "dpmpp_2m",
+                  "dpmpp_2m_sde",
+                  "dpmpp_3m_sde",
+                  "ddpm",
+                  "lcm",
+                  "uni_pc",
+                  "uni_pc_bh2"
+                ],
+                "type": "string",
+                "default": "dpmpp_2m_sde"
+              },
+              "scheduler": {
+                "enum": [
+                  "normal",
+                  "karras",
+                  "exponential",
+                  "sgm_uniform",
+                  "simple",
+                  "ddim_uniform",
+                  "beta"
+                ],
+                "type": "string",
+                "default": "simple"
+              },
+              "shift": {
+                "maximum": 20,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 8
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "properties": {
+          "provider": {
+            "enum": [
+              "comfy"
+            ],
+            "type": "string"
+          }
+        }
+      },
       "Wan22FalImageGenInput": {
         "required": [
           "provider"
@@ -17162,7 +17546,8 @@
             "discriminator": {
               "propertyName": "provider",
               "mapping": {
-                "fal": "#/components/schemas/Wan22FalVideoGenInput"
+                "fal": "#/components/schemas/Wan22FalVideoGenInput",
+                "comfy": "#/components/schemas/Wan22ComfyVideoGenInput"
               }
             }
           }
