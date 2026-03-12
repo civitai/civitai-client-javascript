@@ -24,7 +24,7 @@
     "yarn": ">=1.7.0"
   },
   "scripts": {
-    "generate": "openapi-ts",
+    "generate": "openapi-ts && node scripts/fix-discriminators.mjs",
     "build": "tsc && eslint --fix dist",
     "test": "jest",
     "prepublishOnly": "npm test && npm run build",
@@ -32,7 +32,7 @@
     "release": "npm run typecheck && npm run build && npm publish --tag beta"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "^0.80.5",
+    "@hey-api/openapi-ts": "^0.94.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.19",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
