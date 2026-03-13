@@ -19,6 +19,100 @@ export type AiRecognitionResult = {
 };
 
 /**
+ * A job that trains a single epoch using AI Toolkit.
+ * Each epoch is a separate job that depends on the previous epoch's output.
+ * This approach provides better fault tolerance and deduplication compared to
+ * monolithic multi-epoch training jobs.
+ */
+export type AiToolkitTrainingEpochJob = Omit<Job, '$type'> & {
+  /**
+   * The base model to train upon
+   */
+  model: string;
+  trainingData: TrainingData;
+  /**
+   * The epoch number (1-based) that this job will train
+   */
+  epochNumber: number;
+  /**
+   * AIR pointing to the previous epoch's output blob (null for epoch 1).
+   * Format: urn:air:{ecosystem}:lora:orchestrator:blob@{blobKey}
+   */
+  previousEpochResource?: null | string;
+  /**
+   * The blob key where this epoch's trained model will be stored.
+   * This is a content-based hash derived from training inputs for deduplication.
+   */
+  destinationBlobKey: string;
+  /**
+   * Presigned URL where the worker should upload the trained epoch
+   */
+  destinationUrl: string;
+  /**
+   * The training engine (should be "ai-toolkit")
+   */
+  engine: string;
+  trainingDataCount: number;
+  /**
+   * Total number of epochs to train (used for calculating step counts)
+   */
+  epochs: number;
+  /**
+   * Number of repeats per image (internal parameter, determined by handler)
+   */
+  numRepeats: number;
+  /**
+   * Batch size for training (internal parameter, determined by handler based on worker capabilities)
+   */
+  trainBatchSize: number;
+  lr: number;
+  textEncoderLr?: null | number;
+  trainTextEncoder?: null | boolean;
+  lrScheduler?: null | string;
+  optimizerType?: null | string;
+  networkDim?: null | number;
+  networkAlpha?: null | number;
+  noiseOffset?: null | number;
+  minSnrGamma?: null | number;
+  flipAugmentation: boolean;
+  shuffleTokens: boolean;
+  keepTokens: number;
+  /**
+   * Session ID shared by all jobs from the same workflow to group related training jobs
+   */
+  sessionId: string;
+  /**
+   * Optional extras model resource (e.g., for Z-Image-De-Turbo which needs the original Z-Image-Turbo model)
+   */
+  extrasModel?: null | string;
+  /**
+   * Optional text encoder model resource (separate from base model).
+   * Used when the text encoder is not bundled with the base model (e.g., Flux2 Klein uses Qwen3).
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Optional VAE model resource (separate from base model).
+   * Used when a custom VAE is required that isn't bundled with the base model.
+   */
+  vaeModel?: null | string;
+  /**
+   * Whether this is image-edit training (uses control_path_1/2/3 in dataset config).
+   * When true, the training data contains subfolders: main/, control_1/, control_2/, control_3/.
+   */
+  isEditTraining: boolean;
+  /**
+   * A trigger word that activates the trained LoRA when used in prompts.
+   */
+  triggerWord?: null | string;
+  readonly type: string;
+  /**
+   * Training can take a while, especially for larger models
+   */
+  readonly claimDuration: string;
+  $type: 'aiToolkitTrainingEpoch';
+};
+
+/**
  * Base input for AI Toolkit training across all ecosystems
  */
 export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
@@ -27,7 +121,7 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    * Number of training epochs. An epoch is one complete pass through the training dataset.
    * Maximum of 100 epochs can be specified.
    */
-  epochs: number;
+  epochs?: number;
   /**
    * Number of repeats per image. This is used to calculate the total number of steps for training and can affect the training time and cost.
    */
@@ -35,7 +129,7 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
   /**
    * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
    */
-  lr: number;
+  lr?: number;
   /**
    * Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.
    */
@@ -82,17 +176,17 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
   /**
    * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
    */
-  flipAugmentation: boolean;
+  flipAugmentation?: boolean;
   /**
    * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
    */
-  shuffleTokens: boolean;
+  shuffleTokens?: boolean;
   /**
    * If your training images have tags, you can randomly shuffle them.
    * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
    * This option does nothing if the Shuffle Tokens option is off.
    */
-  keepTokens: number;
+  keepTokens?: number;
   /**
    * A trigger word that activates the trained LoRA when used in prompts.
    * Only applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein).
@@ -131,9 +225,61 @@ export type AceStepAudioInput = {
   /**
    * Duration in seconds (1-190)
    */
-  duration: number;
+  duration?: number;
   /**
    * Beats per minute (40-200)
+   */
+  bpm?: number;
+  /**
+   * Time signature (e.g., "4" for 4/4 time)
+   */
+  timeSignature?: string;
+  /**
+   * Language code (e.g., "en", "zh", "ja", "ko")
+   */
+  language?: string;
+  /**
+   * Musical key (e.g., "C major", "E minor")
+   */
+  key?: string;
+  /**
+   * Weight for instrumental elements (0.0-1.0)
+   */
+  instrumentalWeight?: number;
+  /**
+   * Weight for vocal elements (0.0-1.0)
+   */
+  vocalWeight?: number;
+  /**
+   * Optional model override (uses default ACE Step 1.5 turbo if not specified)
+   */
+  model?: null | string;
+  cover?: AceStepAudioCover;
+};
+
+/**
+ * Generate music using ACE Step 1.5 audio generation model.
+ * Produces full songs from text descriptions and lyrics.
+ */
+export type AceStepAudioJob = Omit<Job, '$type'> & {
+  /**
+   * Music style/genre description (e.g., "Neo-Soul: A warm, organic neo-soul track...")
+   */
+  musicDescription: string;
+  /**
+   * Structured lyrics with section markers like [Verse], [Chorus], [Bridge], etc.
+   */
+  lyrics: string;
+  /**
+   * Random seed for reproducible generation
+   */
+  seed: number;
+  /**
+   * Duration in seconds (max ~190)
+   */
+  duration: number;
+  /**
+   * Beats per minute
    */
   bpm: number;
   /**
@@ -157,10 +303,33 @@ export type AceStepAudioInput = {
    */
   vocalWeight: number;
   /**
-   * Optional model override (uses default ACE Step 1.5 turbo if not specified)
+   * Vocal prompt length parameter
+   */
+  vocalPromptLength: number;
+  /**
+   * Number of sampling steps (turbo model uses 8)
+   */
+  steps: number;
+  /**
+   * Classifier-free guidance scale
+   */
+  cfg: number;
+  /**
+   * Optional model override (uses DefaultModel if not specified)
    */
   model?: null | string;
-  cover?: AceStepAudioCover;
+  /**
+   * Destination URL for the generated video file
+   */
+  destinationUrl: string;
+  /**
+   * Optional cover image URL. When provided, the output is a WebM video
+   * with this image as the visual; otherwise, output is audio-only (MP3).
+   */
+  coverImageUrl?: null | string;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'aceStepAudio';
 };
 
 /**
@@ -199,6 +368,18 @@ export type AgeClassificationInput = {
    * The URL of the media to classify. This can either be a URL to an image or a video or a ZIP containing multiple images
    */
   mediaUrl: string;
+};
+
+export type AgeClassificationJob = Omit<Job, '$type'> & {
+  model?: null | string;
+  mediaUrl: string;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  failOnMinorDetected: boolean;
+  faceRecognitionModel?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'ageClassification';
 };
 
 export type AgeClassificationOutput = {
@@ -310,8 +491,8 @@ export type AnimaCreateImageGenInput = Omit<
   AnimaImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   ecosystem: 'anima';
   engine: 'sdcpp';
@@ -321,14 +502,75 @@ export type AnimaImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  steps: number;
-  cfgScale: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
+  quantity?: number;
   ecosystem: 'anima';
   engine: 'sdcpp';
+};
+
+export type AnimaStableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The Anima diffusion model.
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Anima.
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen 3 0.6B).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<AnimaStableDiffusionCppJobSlot>;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'animaStableDiffusionCpp';
+};
+
+export type AnimaStableDiffusionCppJobSlot = {
+  imageHash: string;
+  destinationUrl: string;
 };
 
 export const AnimalPoseBboxDetector = {
@@ -489,7 +731,7 @@ export type BlurTransform = Omit<ImageTransform, 'type'> & {
   /**
    * Rectangular regions that define the blur mask.
    */
-  regions: Array<BlurRegion>;
+  regions?: Array<BlurRegion>;
   type: 'blur';
 };
 
@@ -511,6 +753,27 @@ export const BuzzClientAccount = {
 } as const;
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
+
+export type ByteplusSeedreamJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  width: number;
+  height: number;
+  apiVersion: SeedreamVersion;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'byteplusSeedream';
+};
+
+/**
+ * Chat completion capabilities.
+ */
+export type ChatCompletionCapabilities = {
+  additionalConcurrency: number;
+};
 
 /**
  * A completion choice.
@@ -576,9 +839,61 @@ export type ChatCompletionInput = {
   /**
    * Temperature for sampling (0-2). Higher values make output more random.
    */
-  temperature: number;
+  temperature?: number;
   /**
    * Nucleus sampling parameter. Consider tokens with top_p probability mass.
+   */
+  topP?: number;
+  /**
+   * Maximum number of tokens to generate.
+   */
+  maxTokens?: null | number;
+  /**
+   * Number of completions to generate.
+   */
+  n?: number;
+  /**
+   * Up to 4 sequences where the API will stop generating tokens.
+   */
+  stop?: null | Array<string>;
+  /**
+   * Presence penalty (-2.0 to 2.0). Positive values penalize new tokens based on whether they appear in the text so far.
+   */
+  presencePenalty?: number;
+  /**
+   * Frequency penalty (-2.0 to 2.0). Positive values penalize new tokens based on their existing frequency in the text.
+   */
+  frequencyPenalty?: number;
+  /**
+   * Seed for deterministic sampling (beta feature).
+   */
+  seed?: null | number;
+  /**
+   * A unique identifier for the end-user.
+   */
+  user?: null | string;
+};
+
+/**
+ * A job for executing chat completions with support for text and image inputs.
+ * Compatible with OpenAI Chat Completions API format.
+ */
+export type ChatCompletionJob = Omit<Job, '$type'> & {
+  /**
+   * The model to use for chat completion.
+   */
+  model: string;
+  /**
+   * The messages to generate a completion for.
+   * Images URLs have been processed and replaced with blob URLs.
+   */
+  messages: Array<ChatCompletionMessage>;
+  /**
+   * Temperature for sampling (0-2).
+   */
+  temperature: number;
+  /**
+   * Nucleus sampling parameter.
    */
   topP: number;
   /**
@@ -594,21 +909,52 @@ export type ChatCompletionInput = {
    */
   stop?: null | Array<string>;
   /**
-   * Presence penalty (-2.0 to 2.0). Positive values penalize new tokens based on whether they appear in the text so far.
+   * Presence penalty (-2.0 to 2.0).
    */
   presencePenalty: number;
   /**
-   * Frequency penalty (-2.0 to 2.0). Positive values penalize new tokens based on their existing frequency in the text.
+   * Frequency penalty (-2.0 to 2.0).
    */
   frequencyPenalty: number;
   /**
-   * Seed for deterministic sampling (beta feature).
+   * Seed for deterministic sampling.
    */
   seed?: null | number;
   /**
    * A unique identifier for the end-user.
    */
   user?: null | string;
+  /**
+   * The blob key where the worker should upload the OpenAI-compatible completion result.
+   */
+  destinationBlobKey: string;
+  /**
+   * The presigned URL where the worker should upload the completion result JSON.
+   */
+  destinationUrl: string;
+  /**
+   * Whether the consumer requested streaming. When true, the worker should upload
+   * NDJSON (one ChatCompletionChunk per line) instead of a single complete JSON response.
+   * The destination URL will include streaming=true so the BlobController activates
+   * real-time chunk notifications to subscribed observers.
+   */
+  stream: boolean;
+  /**
+   * Extra kwargs passed to the chat template (e.g. { "enable_thinking": false } for Qwen3.5).
+   * Forwarded as chat_template_kwargs in the vLLM request.
+   */
+  chatTemplateKwargs?: null | {
+    [key: string]: unknown;
+  };
+  /**
+   * The type discriminator for this job.
+   */
+  readonly type: string;
+  /**
+   * A reasonable default claim duration for a chat completion job, which should be sufficient for the worker to complete the task while allowing for some retries in case of transient failures. The enhancement service will attempt to short-circuit the job if the destination blob already exists, which can further reduce the actual time needed to complete the job.
+   */
+  readonly claimDuration: string;
+  $type: 'chatCompletion';
 };
 
 /**
@@ -630,7 +976,7 @@ export type ChatCompletionOutput = {
   /**
    * The object type, always "chat.completion".
    */
-  object: string;
+  object?: string;
   /**
    * Unix timestamp of when the completion was created.
    */
@@ -690,9 +1036,81 @@ export type ChatCompletionUsage = {
  */
 export type ChromaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   ecosystem: 'chroma';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
+};
+
+/**
+ * Bulk job for rating multiple media items using Civitai's batched scanning solution.
+ * Maps ambient CivitaiMediaRatingJob IDs to their corresponding media URLs.
+ */
+export type CivitaiBulkMediaRatingJob = Omit<Job, '$type'> & {
+  /**
+   * Dictionary mapping job IDs to media URLs for batch processing.
+   * The job IDs correspond to the original CivitaiMediaRatingJob instances.
+   */
+  mediaUrls: {
+    [key: string]: string;
+  };
+  optionalProfiles: MediaRatingProfile;
+  nsfwModel?: null | string;
+  ageModel?: null | string;
+  faceRecognitionModel?: null | string;
+  aiDetectorModel?: null | string;
+  animeDetectorModel?: null | string;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'civitaiBulkMediaRating';
+};
+
+/**
+ * Ambient job for rating media content using Civitai's batched scanning solution.
+ * These jobs are collected and batched into CivitaiBulkMediaRatingJob instances.
+ */
+export type CivitaiMediaRatingJob = Omit<Job, '$type'> & {
+  /**
+   * The URL of the media to rate.
+   */
+  mediaUrl: string;
+  optionalProfiles: MediaRatingProfile;
+  nsfwModel?: null | string;
+  ageModel?: null | string;
+  faceRecognitionModel?: null | string;
+  aiDetectorModel?: null | string;
+  animeDetectorModel?: null | string;
+  readonly type: string;
+  $type: 'civitaiMediaRating';
+};
+
+export type Claim = {
+  id: string;
+  job: Job;
+  status: ClaimStatus;
+  requestedAt: string;
+  expiresAt: string;
+  retryAttempt: number;
+};
+
+export type ClaimStatus = {
+  status: ClaimStatusType;
+  context?: null | {
+    [key: string]: unknown;
+  };
+  notifyCompletion: boolean;
+};
+
+export const ClaimStatusType = {
+  CLAIMED: 'claimed',
+  REJECTED: 'rejected',
+  SUCCEEDED: 'succeeded',
+} as const;
+
+export type ClaimStatusType = (typeof ClaimStatusType)[keyof typeof ClaimStatusType];
+
+export type ClavataPromptClassificationResult = {
+  scan: boolean;
+  sexual: boolean;
+  cr: boolean;
+  young: boolean;
 };
 
 export const CoarseMode = { DISABLE: 'disable', ENABLE: 'enable' } as const;
@@ -703,8 +1121,8 @@ export type ComfyFlux1CreateImageGenInput = Omit<
   ComfyFlux1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   ecosystem: 'flux1';
   engine: 'comfy';
@@ -713,15 +1131,15 @@ export type ComfyFlux1CreateImageGenInput = Omit<
 export type ComfyFlux1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   operation: string;
   prompt: string;
-  sampler: ComfySampler;
-  scheduler: ComfyScheduler;
-  steps: number;
-  cfgScale: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
+  quantity?: number;
   model: string;
   vaeModel?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
   ecosystem: 'flux1';
@@ -732,13 +1150,13 @@ export type ComfyFlux1VariantImageGenInput = Omit<
   ComfyFlux1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  denoiseStrength: number;
+  denoiseStrength?: number;
   operation: 'createVariant';
   ecosystem: 'flux1';
   engine: 'comfy';
@@ -747,6 +1165,37 @@ export type ComfyFlux1VariantImageGenInput = Omit<
 export type ComfyImageGenInput = Omit<ImageGenInput, 'engine'> & {
   ecosystem: string;
   engine: 'comfy';
+};
+
+export type ComfyImageGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  width: number;
+  height: number;
+  sampler: ComfySampler;
+  scheduler: ComfyScheduler;
+  steps: number;
+  cfgScale: number;
+  seed: number;
+  model: string;
+  vaeModel?: null | string;
+  loras: {
+    [key: string]: number;
+  };
+  clipSkip?: null | number;
+  ecosystem: string;
+  sourceImageUrl?: null | string;
+  denoiseStrength?: null | number;
+  imageMetadata?: null | string;
+  slots: Array<ComfyImageGenJobSlot>;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'comfyImageGen';
+};
+
+export type ComfyImageGenJobSlot = {
+  imageHash: string;
+  destinationUrl: string;
 };
 
 export type ComfyInput = {
@@ -759,7 +1208,7 @@ export type ComfyInput = {
   /**
    * The number of jobs to start with this workflow.
    */
-  quantity: number;
+  quantity?: number;
   /**
    * External metadata that will be stored with the image
    */
@@ -768,6 +1217,45 @@ export type ComfyInput = {
    * Opt-into using the spine controller exclusively
    */
   useSpineComfy?: null | boolean;
+};
+
+export type ComfyJob = Omit<Job, '$type'> & {
+  /**
+   * A untyped set of parameters that are associated with this job
+   */
+  params: {
+    [key: string]: ComfyNode;
+  };
+  resources?: null | Array<string>;
+  /**
+   * Slots for the resulting blob outputs.
+   */
+  slots: Array<ComfyJobSlot>;
+  /**
+   * Get or set additional metadata that will be embedded with generated images
+   */
+  imageMetadata?: null | string;
+  /**
+   * The ability to opt-into spine comfy instances
+   */
+  spineComfy?: null | boolean;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'comfy';
+};
+
+/**
+ * Contains slot information for a blob generated by a ComfyJob.
+ */
+export type ComfyJobSlot = {
+  /**
+   * The hash for the blob output.
+   */
+  blobKey: string;
+  /**
+   * The destination url for blob upload.
+   */
+  destinationUrl: string;
 };
 
 /**
@@ -783,15 +1271,13 @@ export type ComfyLtx23AudioToVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine'
    * Strength of the image guide conditioning (0.0 to 1.0). Only used when ReferenceImage is provided.
    * Stage 1 strength; stage 2 is fixed at 0.5.
    */
-  imageGuideStrength: number;
+  imageGuideStrength?: number;
   /**
    * Audio-to-video cross-attention boost applied via LTX2AttentionTunerPatch.
    * Higher values make audio drive the video more strongly.
    */
-  audioToVideoAttentionScale: number;
+  audioToVideoAttentionScale?: number;
   operation: 'audioToVideo';
-  duration: '3';
-  model: '22b-dev';
   engine: 'ltx2.3';
 };
 
@@ -802,10 +1288,8 @@ export type ComfyLtx23CreateVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' 
   /**
    * Optional source image for image-to-video generation
    */
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'createVideo';
-  duration: '3';
-  model: '22b-dev';
   engine: 'ltx2.3';
 };
 
@@ -814,12 +1298,10 @@ export type ComfyLtx23CreateVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' 
  */
 export type ComfyLtx23EditVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
-  cannyLowThreshold: number;
-  cannyHighThreshold: number;
-  guideStrength: number;
+  cannyLowThreshold?: number;
+  cannyHighThreshold?: number;
+  guideStrength?: number;
   operation: 'editVideo';
-  duration: '3';
-  model: '22b-dev';
   engine: 'ltx2.3';
 };
 
@@ -828,10 +1310,8 @@ export type ComfyLtx23EditVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' | 
  */
 export type ComfyLtx23ExtendVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
-  numFrames: number;
+  numFrames?: number;
   operation: 'extendVideo';
-  duration: '3';
-  model: '22b-dev';
   engine: 'ltx2.3';
 };
 
@@ -853,10 +1333,8 @@ export type ComfyLtx23FirstLastFrameToVideoInput = Omit<
   /**
    * Strength of the frame guide conditioning (0.0 to 1.0).
    */
-  frameGuideStrength: number;
+  frameGuideStrength?: number;
   operation: 'firstLastFrameToVideo';
-  duration: '3';
-  model: '22b-dev';
   engine: 'ltx2.3';
 };
 
@@ -870,18 +1348,63 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   /**
    * Duration in seconds (3 or 5)
    */
-  duration: 3 | 20;
+  duration?: 3 | 20;
+  width?: number;
+  height?: number;
+  fps?: number;
+  generateAudio?: boolean;
+  guidanceScale?: number;
+  steps?: number;
+  model?: '22b-dev' | '22b-distilled';
+  loras?: {
+    [key: string]: number;
+  };
+  engine: 'ltx2.3';
+};
+
+/**
+ * Job for generating videos using LTX Video v2.3 via ComfyUI
+ */
+export type ComfyLtx23VideoGenJob = Omit<Job, '$type'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  duration: number;
   width: number;
   height: number;
   fps: number;
   generateAudio: boolean;
   guidanceScale: number;
-  steps: number;
-  model: '22b-dev' | '22b-distilled';
+  numInferenceSteps: number;
+  sourceImage?: null | string;
   loras: {
     [key: string]: number;
   };
-  engine: 'ltx2.3';
+  diffusionModel: string;
+  clip1Model: string;
+  clip2Model: string;
+  videoVAEModel: string;
+  audioVAEModel: string;
+  upscalerModel: string;
+  upscaleLoras: {
+    [key: string]: number;
+  };
+  sourceVideo?: null | string;
+  numFrames: number;
+  cannyLowThreshold: number;
+  cannyHighThreshold: number;
+  guideStrength: number;
+  controlLora?: null | string;
+  firstFrameImage?: null | string;
+  lastFrameImage?: null | string;
+  sourceAudio?: null | string;
+  audioToVideoAttentionScale?: null | number;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'ComfyLtx23VideoGen';
 };
 
 /**
@@ -889,10 +1412,8 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
  */
 export type ComfyLtx23VideoToVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
-  guideStrength: number;
+  guideStrength?: number;
   operation: 'videoToVideo';
-  duration: '3';
-  model: '22b-dev';
   engine: 'ltx2.3';
 };
 
@@ -903,10 +1424,8 @@ export type ComfyLtx2CreateVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 
   /**
    * Optional source image for image-to-video generation
    */
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'createVideo';
-  duration: '3';
-  model: '19b-dev';
   engine: 'ltx2';
 };
 
@@ -915,12 +1434,10 @@ export type ComfyLtx2CreateVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 
  */
 export type ComfyLtx2EditVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
-  cannyLowThreshold: number;
-  cannyHighThreshold: number;
-  guideStrength: number;
+  cannyLowThreshold?: number;
+  cannyHighThreshold?: number;
+  guideStrength?: number;
   operation: 'editVideo';
-  duration: '3';
-  model: '19b-dev';
   engine: 'ltx2';
 };
 
@@ -929,10 +1446,8 @@ export type ComfyLtx2EditVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 'o
  */
 export type ComfyLtx2ExtendVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
-  numFrames: number;
+  numFrames?: number;
   operation: 'extendVideo';
-  duration: '3';
-  model: '19b-dev';
   engine: 'ltx2';
 };
 
@@ -954,10 +1469,8 @@ export type ComfyLtx2FirstLastFrameToVideoInput = Omit<
   /**
    * Strength of the frame guide conditioning (0.0 to 1.0).
    */
-  frameGuideStrength: number;
+  frameGuideStrength?: number;
   operation: 'firstLastFrameToVideo';
-  duration: '3';
-  model: '19b-dev';
   engine: 'ltx2';
 };
 
@@ -971,18 +1484,61 @@ export type ComfyLtx2VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   /**
    * Duration in seconds (3 or 5)
    */
-  duration: 3 | 5;
+  duration?: 3 | 5;
+  width?: number;
+  height?: number;
+  fps?: number;
+  generateAudio?: boolean;
+  guidanceScale?: number;
+  steps?: number;
+  model?: '19b-dev' | '19b-distilled';
+  loras?: {
+    [key: string]: number;
+  };
+  engine: 'ltx2';
+};
+
+/**
+ * Job for generating videos using LTX Video v2 via ComfyUI
+ */
+export type ComfyLtx2VideoGenJob = Omit<Job, '$type'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  duration: number;
   width: number;
   height: number;
   fps: number;
   generateAudio: boolean;
   guidanceScale: number;
-  steps: number;
-  model: '19b-dev' | '19b-distilled';
+  numInferenceSteps: number;
+  sourceImage?: null | string;
   loras: {
     [key: string]: number;
   };
-  engine: 'ltx2';
+  diffusionModel: string;
+  clip1Model: string;
+  clip2Model: string;
+  videoVAEModel: string;
+  audioVAEModel: string;
+  upscalerModel: string;
+  upscaleLoras: {
+    [key: string]: number;
+  };
+  sourceVideo?: null | string;
+  numFrames: number;
+  cannyLowThreshold: number;
+  cannyHighThreshold: number;
+  guideStrength: number;
+  controlLora?: null | string;
+  firstFrameImage?: null | string;
+  lastFrameImage?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'ComfyLtx2VideoGen';
 };
 
 export type ComfyNode = {
@@ -1053,8 +1609,8 @@ export type ComfySd1CreateImageGenInput = Omit<
   ComfySd1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   ecosystem: 'sd1';
   engine: 'comfy';
@@ -1064,18 +1620,18 @@ export type ComfySd1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosyst
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampler: ComfySampler;
-  scheduler: ComfyScheduler;
-  steps: number;
-  cfgScale: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
+  quantity?: number;
   model: string;
   vaeModel?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
-  clipSkip: number;
+  clipSkip?: number;
   ecosystem: 'sd1';
   engine: 'comfy';
 };
@@ -1084,13 +1640,13 @@ export type ComfySd1VariantImageGenInput = Omit<
   ComfySd1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  denoiseStrength: number;
+  denoiseStrength?: number;
   operation: 'createVariant';
   ecosystem: 'sd1';
   engine: 'comfy';
@@ -1100,8 +1656,8 @@ export type ComfySdxlCreateImageGenInput = Omit<
   ComfySdxlImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   ecosystem: 'sdxl';
   engine: 'comfy';
@@ -1111,15 +1667,15 @@ export type ComfySdxlImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosys
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampler: ComfySampler;
-  scheduler: ComfyScheduler;
-  steps: number;
-  cfgScale: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
+  quantity?: number;
   model: string;
   vaeModel?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
   ecosystem: 'sdxl';
@@ -1130,13 +1686,13 @@ export type ComfySdxlVariantImageGenInput = Omit<
   ComfySdxlImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  denoiseStrength: number;
+  denoiseStrength?: number;
   operation: 'createVariant';
   ecosystem: 'sdxl';
   engine: 'comfy';
@@ -1157,6 +1713,73 @@ export type ComfyStep = Omit<WorkflowStep, '$type'> & {
 export type ComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ComfyInput;
   $type: 'comfy';
+};
+
+export type ComfyVideoGenJob = Omit<Job, '$type'> & {
+  model: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  cfgScale: number;
+  destinationUrl: string;
+  sampler:
+    | 'euler'
+    | 'euler_ancestral'
+    | 'heun'
+    | 'heunpp2'
+    | 'dpm_2'
+    | 'dpm_2_ancestral'
+    | 'lms'
+    | 'dpm_fast'
+    | 'dpm_adaptive'
+    | 'dpmpp_2s_ancestral'
+    | 'dpmpp_sde'
+    | 'dpmpp_2m'
+    | 'dpmpp_2m_sde'
+    | 'dpmpp_3m_sde'
+    | 'ddpm'
+    | 'lcm'
+    | 'uni_pc'
+    | 'uni_pc_bh2';
+  width: number;
+  height: number;
+  frameRate: number;
+  length: number;
+  seed: number;
+  steps: number;
+  sourceImageUrl?: null | string;
+  loras?: null | Array<Lora>;
+  scheduler?:
+    | 'normal'
+    | 'karras'
+    | 'exponential'
+    | 'sgm_uniform'
+    | 'simple'
+    | 'ddim_uniform'
+    | 'beta';
+  shift?: number;
+  skipFrameInterpolation?: boolean;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'comfyVideoGen';
+};
+
+export type ConfigurationOptions = {
+  /**
+   * Get or set the priority of this configuration if multiple configurations apply to the same worker
+   */
+  priority: number;
+  selector: Expression;
+  /**
+   * Get or set the specification associated with this configuration
+   */
+  spec: null;
+};
+
+export type ConfigurationStatus = {
+  configurationId: string;
+  assigned: number;
+  targeted: number;
+  applied: number;
 };
 
 export type ConsumerBlobPresignResponse = {
@@ -1180,8 +1803,62 @@ export type ConvertImageInput = {
    * Optional list of transforms to apply to the image before conversion.
    * Transforms are applied in order.
    */
-  transforms: Array<ImageTransform>;
+  transforms?: Array<ImageTransform>;
   output: ImageOutputFormat;
+};
+
+/**
+ * A job that converts an image to a different format and applies optional transforms.
+ */
+export type ConvertImageJob = Omit<Job, '$type'> & {
+  /**
+   * The URL of the source image to convert.
+   */
+  imageUrl: string;
+  /**
+   * The transforms to apply to the image.
+   */
+  transforms: Array<ImageTransform>;
+  /**
+   * The output format identifier: "jpeg", "png", or "webp".
+   */
+  outputFormat: string;
+  /**
+   * Quality setting for lossy formats (1-100).
+   */
+  quality?: null | number;
+  /**
+   * Whether to use lossless compression (for WebP).
+   */
+  lossless?: null | boolean;
+  /**
+   * The destination blob key where the converted image will be stored.
+   */
+  destinationBlobKey: string;
+  /**
+   * The presigned URL where the converted image will be uploaded.
+   */
+  destinationUrl: string;
+  /**
+   * The target width of the output image after transforms.
+   */
+  targetWidth: number;
+  /**
+   * The target height of the output image after transforms.
+   */
+  targetHeight: number;
+  /**
+   * The MIME content type of the output image (e.g., "image/jpeg", "image/png", "image/webp").
+   */
+  contentType: string;
+  /**
+   * Maximum number of frames to decode from the source image. Set to 1 to extract only the first frame.
+   * When null, all frames are decoded.
+   */
+  maxFrames?: null | number;
+  hideMetadata: boolean;
+  readonly type: string;
+  $type: 'convertImage';
 };
 
 /**
@@ -1206,6 +1883,14 @@ export type ConvertImageStep = Omit<WorkflowStep, '$type'> & {
 export type ConvertImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ConvertImageInput;
   $type: 'convertImage';
+};
+
+export type CreateConfigurationResult = {
+  configurationId: string;
+};
+
+export type CreateWorkerResult = {
+  workerId: string;
 };
 
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
@@ -1285,6 +1970,10 @@ export const DepthAnythingV2Checkpoint = {
 export type DepthAnythingV2Checkpoint =
   (typeof DepthAnythingV2Checkpoint)[keyof typeof DepthAnythingV2Checkpoint];
 
+export const DownloadSource = { DEFAULT: 'default', TIGRIS: 'tigris' } as const;
+
+export type DownloadSource = (typeof DownloadSource)[keyof typeof DownloadSource];
+
 export const DwPoseBboxDetector = {
   YOLOX_L_ONNX: 'yolox_l.onnx',
   YOLOX_L_TORCHSCRIPT_PT: 'yolox_l.torchscript.pt',
@@ -1302,6 +1991,12 @@ export const DwPoseEstimator = {
 } as const;
 
 export type DwPoseEstimator = (typeof DwPoseEstimator)[keyof typeof DwPoseEstimator];
+
+export type DynamicAssignment = {
+  fromPath: string;
+  toPath: string;
+  defaultValue?: null;
+};
 
 /**
  * Represents the input information needed for the Echo workflow step.
@@ -1340,6 +2035,10 @@ export type EchoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'echo';
 };
 
+export type EcosystemElement = {
+  [key: string]: EcosystemElement;
+};
+
 /**
  * An epock result.
  */
@@ -1361,6 +2060,10 @@ export type EpochResult = {
    * A presigned url that points to the epoch file
    */
   blobUrl: string;
+};
+
+export type Expression = {
+  [key: string]: never;
 };
 
 /**
@@ -1416,9 +2119,382 @@ export type FaceRecognitionResult = {
   similarityMatrix?: null | Array<Array<number>>;
 };
 
+export type FalFlux2ImageGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  width: number;
+  height: number;
+  outputFormat: string;
+  seed?: null | number;
+  quantity: number;
+  enablePromptExpansion: boolean;
+  /**
+   * The model variant: "base", "flex", or "pro"
+   */
+  modelVariant: string;
+  /**
+   * The operation type: "createImage" or "editImage"
+   */
+  operation: string;
+  /**
+   * Guidance scale (base model: 0-20, default 2.5; flex model: 1.5-100, default 3.5)
+   */
+  guidanceScale?: null | number;
+  /**
+   * Number of inference steps (base model: 4-50, default 28; flex model: 2-50, default 28)
+   */
+  numInferenceSteps?: null | number;
+  /**
+   * Source image URLs for edit operations (max 3)
+   */
+  imageUrls: Array<string>;
+  /**
+   * LoRA weights (base model only, max 3)
+   */
+  loras: Array<FalLoraWeight>;
+  /**
+   * Destination URLs for output images
+   */
+  destinationUrls: Array<string>;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falFlux2Image';
+};
+
+export type FalGptImage15EditJob = Omit<Job, '$type'> & {
+  prompt: string;
+  imageUrls: Array<string>;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Image size: auto, 1024x1024, 1536x1024, or 1024x1536
+   */
+  size: string;
+  /**
+   * Background treatment: auto, transparent, or opaque
+   */
+  background: string;
+  /**
+   * Output quality: low, medium, or high
+   */
+  quality: string;
+  /**
+   * Input fidelity: low or high
+   */
+  inputFidelity: string;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falGptImage15Edit';
+};
+
+export type FalGptImage15Job = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Image size: 1024x1024, 1536x1024, or 1024x1536
+   */
+  size: string;
+  /**
+   * Background treatment: auto, transparent, or opaque
+   */
+  background: string;
+  /**
+   * Output quality: low, medium, or high
+   */
+  quality: string;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falGptImage15';
+};
+
+export type FalGrokImageEditJob = Omit<Job, '$type'> & {
+  prompt: string;
+  imageUrls: Array<string>;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falGrokImageEdit';
+};
+
+export type FalGrokImageJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
+   */
+  aspectRatio: string;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falGrokImage';
+};
+
+/**
+ * Job for generating videos using xAI's Grok model via FAL.
+ * Supports text-to-video, image-to-video, and edit-video operations.
+ */
+export type FalGrokVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  operation: string;
+  duration: number;
+  aspectRatio: string;
+  resolution: string;
+  sourceImageUrl?: null | string;
+  sourceVideoUrl?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falGrokVideo';
+};
+
 export type FalImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   engine: 'fal';
+};
+
+export type FalLoraWeight = {
+  path: string;
+  scale: number;
+  weightName?: null | string;
+};
+
+/**
+ * Job for generating videos using LTX Video v2 (19B Distilled) via FAL
+ */
+export type FalLtx2VideoGenJob = Omit<Job, '$type'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  numFrames: number;
+  fps: number;
+  aspectRatio: string;
+  generateAudio: boolean;
+  useMultiscale: boolean;
+  acceleration?: null | string;
+  cameraLora?: null | string;
+  cameraLoraScale: number;
+  quality: string;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  sourceImageUrl?: null | string;
+  sourceVideoUrl?: null | string;
+  matchVideoLength: boolean;
+  strength: number;
+  preprocessor?: null | string;
+  icLoraType?: null | string;
+  icLoraScale: number;
+  matchInputFps: boolean;
+  numContextFrames: number;
+  model: string;
+  guidanceScale: number;
+  numInferenceSteps: number;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falLtx2VideoGen';
+};
+
+export type FalNanoBanana2Job = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  seed?: null | number;
+  enableWebSearch: boolean;
+  enableGoogleSearch: boolean;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falNanoBanana2';
+};
+
+export type FalNanoBananaProJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falNanoBananaPro';
+};
+
+export type FalQwen2ImageGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  /**
+   * Whether to use the pro model variant
+   */
+  isPro: boolean;
+  /**
+   * The operation type: "text-to-image" or "edit"
+   */
+  operation: string;
+  imageSize: string;
+  seed: number;
+  quantity: number;
+  enablePromptExpansion: boolean;
+  enableSafetyChecker: boolean;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  /**
+   * Source image URLs for edit operations (max 3)
+   */
+  imageUrls: Array<string>;
+  /**
+   * Destination URLs for output images
+   */
+  destinationUrls: Array<string>;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falQwen2Image';
+};
+
+export type FalSeedreamJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  width: number;
+  height: number;
+  guidanceScale: number;
+  seed: number;
+  enableSafetyChecker: boolean;
+  apiVersion: SeedreamVersion;
+  imageUrls: Array<string>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falSeedream';
+};
+
+/**
+ * Job for generating videos using OpenAI's Sora model via FAL
+ */
+export type FalSoraVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrl: string;
+  sourceImageUrl?: null | string;
+  destinationBlobKey: string;
+  operation: string;
+  resolution: string;
+  aspectRatio: string;
+  duration: number;
+  usePro: boolean;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falSoraVideoGenJob';
+};
+
+export type FalVeoVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  veoVersion: Veo3Version;
+  operation: string;
+  aspectRatio: string;
+  duration: string;
+  resolution: string;
+  generateAudio: boolean;
+  enablePromptEnhancer: boolean;
+  seed: number;
+  fastMode: boolean;
+  imageUrls: Array<string>;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falVeoVideo';
+};
+
+export type FalWanImageGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrls: Array<string>;
+  modelVersion: string;
+  imageSize: string;
+  seed: number;
+  numInferenceSteps: number;
+  guidanceScale: number;
+  acceleration: string;
+  shift: number;
+  enablePromptExpansion: boolean;
+  enableSafetyChecker: boolean;
+  quantity: number;
+  loras: Array<FalLoraWeight>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falWanImage';
+};
+
+export type FalWanVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  sourceImageUrl?: null | string;
+  destinationBlobKey: string;
+  modelVersion: string;
+  operation: string;
+  resolution: string;
+  aspectRatio: string;
+  duration: number;
+  frameRate: number;
+  seed: number;
+  steps: number;
+  cfgScale: number;
+  enablePromptExpansion: boolean;
+  shift: number;
+  interpolatorModel: string;
+  useTurbo: boolean;
+  loras: Array<FalLoraWeight>;
+  useDistill: boolean;
+  numFrames: number;
+  useFastWan: boolean;
+  enableSafetyChecker: boolean;
+  audioUrl?: null | string;
+  referenceVideoUrls: Array<string>;
+  multiShots: boolean;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'falWanVideo';
 };
 
 export const FileFormat = {
@@ -1439,8 +2515,6 @@ export type FileFormat = (typeof FileFormat)[keyof typeof FileFormat];
 export type Flux1AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   modelVariant: string;
   ecosystem: 'flux1';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -1453,37 +2527,48 @@ export type Flux1DevAiToolkitTrainingInput = Omit<
 > & {
   modelVariant: 'dev';
   ecosystem: 'flux1';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
 export type Flux1KontextDevImageGenInput = Omit<Flux1KontextImageGenInput, 'engine' | 'model'> & {
   model: 'dev';
-  aspectRatio: '21:9';
   engine: 'flux1-kontext';
 };
 
 export type Flux1KontextImageGenInput = Omit<ImageGenInput, 'engine'> & {
   readonly model: string;
   prompt: string;
-  images: Array<string>;
-  aspectRatio: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
-  guidanceScale: number;
-  quantity: number;
+  images?: Array<string>;
+  aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+  guidanceScale?: number;
+  quantity?: number;
   seed?: null | number;
   engine: 'flux1-kontext';
 };
 
+export type Flux1KontextJob = Omit<Job, '$type'> & {
+  prompt: string;
+  imageUrl: Array<string>;
+  aspectRatio: string;
+  outputFormat: string;
+  guidanceScale: number;
+  quantity: number;
+  seed?: null | number;
+  destinationUrls: Array<string>;
+  model: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'fluxProKontext';
+};
+
 export type Flux1KontextMaxImageGenInput = Omit<Flux1KontextImageGenInput, 'engine' | 'model'> & {
   model: 'max';
-  aspectRatio: '21:9';
   engine: 'flux1-kontext';
 };
 
 export type Flux1KontextProImageGenInput = Omit<Flux1KontextImageGenInput, 'engine' | 'model'> & {
   model: 'pro';
-  aspectRatio: '21:9';
   engine: 'flux1-kontext';
 };
 
@@ -1496,8 +2581,6 @@ export type Flux1SchnellAiToolkitTrainingInput = Omit<
 > & {
   modelVariant: 'schnell';
   ecosystem: 'flux1';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -1514,7 +2597,7 @@ export type Flux1SdCppEditImageInput = Omit<
   Flux1SdCppImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'editImage';
   ecosystem: 'flux1';
   engine: 'sdcpp';
@@ -1523,16 +2606,16 @@ export type Flux1SdCppEditImageInput = Omit<
 export type Flux1SdCppImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
   operation: string;
   prompt: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   seed?: null | number;
-  quantity: number;
-  cfgScale: number;
-  steps: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
+  quantity?: number;
+  cfgScale?: number;
+  steps?: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
   negativePrompt?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
   diffuserModel: string;
@@ -1551,7 +2634,7 @@ export type Flux1SdCppVariantImageGenInput = Omit<
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  strength: number;
+  strength?: number;
   operation: 'createVariant';
   ecosystem: 'flux1';
   engine: 'sdcpp';
@@ -1570,7 +2653,7 @@ export type Flux2DevEditImageInput = Omit<
   Flux2DevImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'editImage';
   model: 'dev';
   engine: 'flux2';
@@ -1583,11 +2666,11 @@ export type Flux2DevEditImageResourceTrainingInput = Omit<ImageResourceTrainingI
   /**
    * Number of training steps. Must be in increments of 100.
    */
-  steps: number;
+  steps?: number;
   /**
    * Learning rate for training.
    */
-  learningRate: number;
+  learningRate?: number;
   /**
    * Default caption to use if caption files are missing from training data.
    */
@@ -1596,16 +2679,15 @@ export type Flux2DevEditImageResourceTrainingInput = Omit<ImageResourceTrainingI
    * Number of reference images per training pair (1-4).
    * Affects cost calculation via reference multiplier.
    */
-  referenceImageCount: number;
+  referenceImageCount?: number;
   engine: 'flux2-dev-edit';
 };
 
 export type Flux2DevImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'> & {
   operation: string;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  loras: Array<ImageGenInputLora>;
-  readonly modelVariant: string;
+  guidanceScale?: number;
+  numInferenceSteps?: number;
+  loras?: Array<ImageGenInputLora>;
   model: 'dev';
   engine: 'flux2';
 };
@@ -1617,11 +2699,11 @@ export type Flux2DevImageResourceTrainingInput = Omit<ImageResourceTrainingInput
   /**
    * Number of training steps. Must be in increments of 100.
    */
-  steps: number;
+  steps?: number;
   /**
    * Learning rate for training.
    */
-  learningRate: number;
+  learningRate?: number;
   /**
    * Default caption to use if caption files are missing from training data.
    */
@@ -1642,7 +2724,7 @@ export type Flux2FlexEditImageInput = Omit<
   Flux2FlexImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'editImage';
   model: 'flex';
   engine: 'flux2';
@@ -1650,9 +2732,8 @@ export type Flux2FlexEditImageInput = Omit<
 
 export type Flux2FlexImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'> & {
   operation: string;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  readonly modelVariant: string;
+  guidanceScale?: number;
+  numInferenceSteps?: number;
   model: 'flex';
   engine: 'flux2';
 };
@@ -1660,19 +2741,11 @@ export type Flux2FlexImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'
 export type Flux2ImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   prompt: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   seed?: null | number;
-  quantity: number;
-  enablePromptExpansion: boolean;
-  /**
-   * The model variant (dev, flex, pro)
-   */
-  readonly modelVariant: string;
-  /**
-   * The operation type (createImage, editImage)
-   */
-  readonly operation: string;
+  quantity?: number;
+  enablePromptExpansion?: boolean;
   engine: 'flux2';
 };
 
@@ -1685,8 +2758,6 @@ export type Flux2Klein4bAiToolkitTrainingInput = Omit<
 > & {
   modelVariant: '4b';
   ecosystem: 'flux2klein';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -1699,8 +2770,6 @@ export type Flux2Klein9bAiToolkitTrainingInput = Omit<
 > & {
   modelVariant: '9b';
   ecosystem: 'flux2klein';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -1716,10 +2785,8 @@ export type Flux2KleinAiToolkitTrainingInput = Omit<
    * Whether this is image-edit training (uses control paths for reference images).
    * When true, the training data zip should contain subfolders: main/, control_1/, control_2/, control_3/.
    */
-  isEditTraining: boolean;
+  isEditTraining?: boolean;
   ecosystem: 'flux2klein';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -1728,7 +2795,6 @@ export type Flux2KleinCreateImageInput = Omit<
   'engine' | 'model' | 'operation'
 > & {
   operation: 'createImage';
-  modelVersion: '4b';
   model: 'klein';
   engine: 'flux2';
 };
@@ -1737,28 +2803,26 @@ export type Flux2KleinEditImageInput = Omit<
   Flux2KleinImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'editImage';
-  modelVersion: '4b';
   model: 'klein';
   engine: 'flux2';
 };
 
 export type Flux2KleinImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'> & {
   operation: string;
-  cfgScale: number;
-  steps: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
+  cfgScale?: number;
+  steps?: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
   negativePrompt?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
   /**
    * The Klein model variant: 4b, 4b-base, 9b (distilled), or 9b-base
    */
-  modelVersion: '4b' | '4b-base' | '9b' | '9b-base';
-  readonly modelVariant: string;
+  modelVersion?: '4b' | '4b-base' | '9b' | '9b-base';
   model: 'klein';
   engine: 'flux2';
 };
@@ -1768,7 +2832,6 @@ export type Flux2KleinSdCppCreateImageInput = Omit<
   'engine' | 'ecosystem' | 'operation'
 > & {
   operation: 'createImage';
-  modelVersion: '4b';
   ecosystem: 'flux2Klein';
   engine: 'sdcpp';
 };
@@ -1777,9 +2840,8 @@ export type Flux2KleinSdCppEditImageInput = Omit<
   Flux2KleinSdCppImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'editImage';
-  modelVersion: '4b';
   ecosystem: 'flux2Klein';
   engine: 'sdcpp';
 };
@@ -1787,19 +2849,19 @@ export type Flux2KleinSdCppEditImageInput = Omit<
 export type Flux2KleinSdCppImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
   operation: string;
   prompt: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   seed?: null | number;
-  quantity: number;
-  cfgScale: number;
-  steps: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
+  quantity?: number;
+  cfgScale?: number;
+  steps?: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
   negativePrompt?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
-  modelVersion: '4b' | '4b-base' | '9b' | '9b-base';
+  modelVersion?: '4b' | '4b-base' | '9b' | '9b-base';
   ecosystem: 'flux2Klein';
   engine: 'sdcpp';
 };
@@ -1812,11 +2874,108 @@ export type Flux2KleinSdCppVariantImageGenInput = Omit<
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  strength: number;
+  strength?: number;
   operation: 'createVariant';
-  modelVersion: '4b';
   ecosystem: 'flux2Klein';
   engine: 'sdcpp';
+};
+
+export type Flux2KleinStableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The Flux2 Klein diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Flux2.
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen3 GGUF format).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<Flux2KleinStableDiffusionCppJobSlot>;
+  /**
+   * The Klein model variant (4b, 4b-base, 9b, 9b-base).
+   */
+  modelVersion: string;
+  /**
+   * Reference image URLs for edit operations (maps to ref_image_paths in sdcpp).
+   */
+  referenceImageUrls: Array<string>;
+  /**
+   * Source image URL for img2img (createVariant) operations.
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * Denoising strength for img2img (createVariant) operations. 0 = no change, 1 = full denoise.
+   */
+  strength: number;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'Flux2KleinStableDiffusionCpp';
+};
+
+/**
+ * Contains slot information for an image generated by a Flux2KleinStableDiffusionCppJob.
+ */
+export type Flux2KleinStableDiffusionCppJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
 };
 
 export type Flux2MaxCreateImageInput = Omit<
@@ -1832,7 +2991,7 @@ export type Flux2MaxEditImageInput = Omit<
   Flux2MaxImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'editImage';
   model: 'max';
   engine: 'flux2';
@@ -1840,7 +2999,6 @@ export type Flux2MaxEditImageInput = Omit<
 
 export type Flux2MaxImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'> & {
   operation: string;
-  readonly modelVariant: string;
   model: 'max';
   engine: 'flux2';
 };
@@ -1858,7 +3016,7 @@ export type Flux2ProEditImageInput = Omit<
   Flux2ProImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'editImage';
   model: 'pro';
   engine: 'flux2';
@@ -1866,13 +3024,106 @@ export type Flux2ProEditImageInput = Omit<
 
 export type Flux2ProImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'> & {
   operation: string;
-  readonly modelVariant: string;
   model: 'pro';
   engine: 'flux2';
 };
 
 export type FluxDevFastImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
   engine: 'flux-dev-fast';
+};
+
+export type FluxStableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The main Flux diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Flux. Defaults to ae-f16.gguf from Flux Schnell.
+   */
+  vaeModel: string;
+  /**
+   * The CLIP-L model for Flux. Defaults to clip_l-q8_0.gguf from Flux Schnell.
+   */
+  clipLModel: string;
+  /**
+   * The T5-XXL model for Flux. Defaults to t5xxl_q8_0.gguf from Flux Schnell.
+   */
+  t5XXLModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<FluxStableDiffusionCppJobSlot>;
+  /**
+   * The source image URL for img2img generation.
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
+   */
+  strength: number;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'fluxStableDiffusionCpp';
+};
+
+/**
+ * Contains slot information for an image generated by a FluxStableDiffusionCppJob.
+ */
+export type FluxStableDiffusionCppJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
 };
 
 export type Gemini25FlashCreateImageGenInput = Omit<
@@ -1896,15 +3147,39 @@ export type Gemini25FlashEditImageGenInput = Omit<
 
 export type Gemini25FlashImageGenInput = Omit<GeminiImageGenInput, 'engine' | 'model'> & {
   operation: string;
-  quantity: number;
+  quantity?: number;
   model: '2.5-flash';
   engine: 'gemini';
+};
+
+export type GeminiImageEditJob = Omit<Job, '$type'> & {
+  prompt: string;
+  imageUrls: Array<string>;
+  destinationUrls: Array<string>;
+  quantity: number;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'geminiImageEditJob';
 };
 
 export type GeminiImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   prompt: string;
   engine: 'gemini';
+};
+
+export type GeminiImageGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  quantity: number;
+  seed?: null | number;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'geminiImageGenJob';
 };
 
 /**
@@ -1925,11 +3200,54 @@ export type GoogleImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'google';
 };
 
+export type GoogleNanoBanana2Job = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  seed?: null | number;
+  enableWebSearch: boolean;
+  enableGoogleSearch: boolean;
+  negativePrompt?: null | string;
+  enhancePrompt: boolean;
+  language?: null | string;
+  safetySetting?: null | string;
+  personGeneration?: null | string;
+  compressionQuality?: null | number;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'googleNanoBanana2';
+};
+
+export type GoogleNanoBananaProJob = Omit<Job, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  negativePrompt?: null | string;
+  enhancePrompt: boolean;
+  language?: null | string;
+  safetySetting?: null | string;
+  personGeneration?: null | string;
+  compressionQuality?: null | number;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'googleNanoBananaPro';
+};
+
 export type GrokCreateImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operation'> & {
   /**
    * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
    */
-  aspectRatio:
+  aspectRatio?:
     | '2:1'
     | '20:9'
     | '19.5:9'
@@ -1963,14 +3281,13 @@ export type GrokEditVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operation'>
   videoUrl: string;
   analyzedDuration?: null | number;
   operation: 'edit-video';
-  resolution: '480p';
   engine: 'grok';
 };
 
 export type GrokImageGenInput = Omit<ImageGenInput, 'engine'> & {
   operation: string;
   prompt: string;
-  quantity: number;
+  quantity?: number;
   engine: 'grok';
 };
 
@@ -1979,10 +3296,9 @@ export type GrokImageGenInput = Omit<ImageGenInput, 'engine'> & {
  * FAL Endpoint: xai/grok-imagine-video/image-to-video
  */
 export type GrokImageToVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operation'> & {
-  aspectRatio: 'auto' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
-  images: [string];
+  aspectRatio?: 'auto' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
+  images?: [string];
   operation: 'image-to-video';
-  resolution: '480p';
   engine: 'grok';
 };
 
@@ -1991,9 +3307,8 @@ export type GrokImageToVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operatio
  * FAL Endpoint: xai/grok-imagine-video/text-to-video
  */
 export type GrokTextToVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operation'> & {
-  aspectRatio: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
+  aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
   operation: 'text-to-video';
-  resolution: '480p';
   engine: 'grok';
 };
 
@@ -2003,8 +3318,8 @@ export type GrokTextToVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operation
  */
 export type GrokVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: null | string;
-  duration: number;
-  resolution: '480p' | '720p';
+  duration?: number;
+  resolution?: '480p' | '720p';
   engine: 'grok';
 };
 
@@ -2035,12 +3350,12 @@ export type HaiperVideoGenCameraMovement =
 export type HaiperVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
   cameraMovement?: HaiperVideoGenCameraMovement;
-  seed: number;
-  duration: 2 | 4 | 8;
+  seed?: number;
+  duration?: 2 | 4 | 8;
   aspectRatio?: HaiperVideoGenAspectRatio;
-  model: HaiperVideoGenModel;
-  resolution: 720 | 1080 | 2160;
-  enablePromptEnhancer: boolean;
+  model?: HaiperVideoGenModel;
+  resolution?: 720 | 1080 | 2160;
+  enablePromptEnhancer?: boolean;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
@@ -2078,13 +3393,13 @@ export type HumanoidImageMaskOutput = {
 
 export type HunyuanVdeoGenInput = Omit<VideoGenInput, 'engine'> & {
   cfgScale: number;
-  frameRate: number;
-  duration: number;
+  frameRate?: number;
+  duration?: number;
   seed?: null | number;
-  steps: number;
+  steps?: number;
   width: number;
   height: number;
-  loras: Array<VideoGenInputLora>;
+  loras?: Array<VideoGenInputLora>;
   model?: null | string;
   engine: 'hunyuan';
 };
@@ -2105,7 +3420,7 @@ export type ImageBlob = Omit<Blob, 'type'> & {
 
 export type ImageGenInput = {
   engine: string;
-  outputFormat: ImageGenOutputFormat;
+  outputFormat?: ImageGenOutputFormat;
   /**
    * External metadata that will be stored with the image
    */
@@ -2114,7 +3429,7 @@ export type ImageGenInput = {
 
 export type ImageGenInputLora = {
   air: string;
-  strength: number;
+  strength?: number;
 };
 
 export type ImageGenOutput = {
@@ -2188,6 +3503,45 @@ export type ImageJobNetworkParams = {
 };
 
 /**
+ * Parameters for a text to image step.
+ */
+export type ImageJobParams = {
+  /**
+   * The prompt for the text to image generation.
+   */
+  prompt?: null | string;
+  /**
+   * The negative prompt for the text to image generation.
+   */
+  negativePrompt?: null | string;
+  scheduler: Scheduler;
+  /**
+   * The number of steps for the text to image generation.
+   */
+  steps?: number;
+  /**
+   * The CFG scale value for the text to image generation.
+   */
+  cfgScale?: null | number;
+  /**
+   * The width for the image to be generated in pixels.
+   */
+  width: number;
+  /**
+   * The height for the image to be generated in pixels.
+   */
+  height: number;
+  /**
+   * The seed for the text to image generation.
+   */
+  seed?: number;
+  /**
+   * The clip skip value for the text to image generation.
+   */
+  clipSkip?: number;
+};
+
+/**
  * Base class for image output formats. Uses "format" as the type discriminator.
  */
 export type ImageOutputFormat = {
@@ -2230,15 +3584,50 @@ export type ImageResourceTrainingInput = {
   /**
    * The desired lora name.
    */
-  loraName: string;
+  loraName?: string;
   /**
    * A selection of sample prompts.
    */
-  samplePrompts: Array<string>;
+  samplePrompts?: Array<string>;
   /**
    * An optional negative prompt that will get applied when generating samples
    */
   negativePrompt?: null | string;
+};
+
+export type ImageResourceTrainingJob = Omit<Job, '$type'> & {
+  /**
+   * An AIR representing the model to use.
+   */
+  model: string;
+  /**
+   * A url referring data that needs to be trained upon
+   */
+  trainingData: string;
+  /**
+   * A untyped set of parameters that are associated with this job
+   */
+  params: {
+    [key: string]: unknown;
+  };
+  /**
+   * An application provided output of the current status of this job
+   */
+  output?: null | string;
+  /**
+   * The engine that should be used for training
+   */
+  engine?: null | string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  /**
+   * Rick: yeah i think for LoRA we need it to be 5-10 minutes.
+   * lora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer
+   */
+  readonly claimDuration: string;
+  $type: 'imageResourceTraining';
 };
 
 export type ImageResourceTrainingOutput = {
@@ -2344,7 +3733,18 @@ export type ImageUpscalerInput = {
   /**
    * Number of times to repeat the upscale operation (1-3). Each repeat doubles the resolution.
    */
-  numberOfRepeats: number;
+  numberOfRepeats?: number;
+};
+
+export type ImageUpscalerJob = Omit<Job, '$type'> & {
+  image: string;
+  upscaleModel: string;
+  upscaleRepeats: number;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'imageUpscaler';
 };
 
 export type ImageUpscalerOutput = {
@@ -2362,14 +3762,144 @@ export type ImageUpscalerStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'imageUpscaler';
 };
 
-export type Imagen4ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
+export type Imagen4CreateImageJob = Omit<Job, '$type'> & {
   prompt: string;
   negativePrompt: string;
-  aspectRatio: '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
-  numImages: number;
+  aspectRatio: string;
+  quantity: number;
+  seed?: null | number;
+  destinationUrls: Array<string>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'imagen4CreateImage';
+};
+
+export type Imagen4ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
+  prompt: string;
+  negativePrompt?: string;
+  aspectRatio?: '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
+  numImages?: number;
   seed?: null | number;
   model: 'imagen4';
   engine: 'google';
+};
+
+export type Job = {
+  $type: string;
+  /**
+   * A unique id for this job
+   */
+  id: string;
+  /**
+   * The date when this job got created
+   */
+  createdAt: string;
+  /**
+   * The date for when this job was set to expire
+   */
+  expireAt?: null | string;
+  /**
+   * A webhook to be invoked when the job receives a status update
+   */
+  webhook?: null | string;
+  /**
+   * A set of user defined properties that can be used to index and partition this job
+   */
+  properties: {
+    [key: string]: unknown;
+  };
+  /**
+   * The type of this job as a string
+   */
+  readonly type: string;
+  /**
+   * Get a cost for this job
+   */
+  cost: number;
+  /**
+   * The max number of retries before we give up
+   */
+  maxRetryAttempt: number;
+  /**
+   * Get or set the name of the consumer that issued this job
+   */
+  issuedBy?: null | string;
+  /**
+   * Get or set the version of this job, this is used to track changes to the job schema
+   */
+  version?: number;
+  /**
+   * Get or set a list of dependencies that this job has
+   */
+  jobDependencies: Array<JobDependency>;
+  /**
+   * The ID of the next job that should be executed after this one completes.
+   * Used to support ContinueReuseContext - the worker will wait briefly for this job to arrive
+   * before claiming other work, ensuring continuation jobs stay on the same worker.
+   */
+  nextJobId?: null | string;
+  /**
+   * The total duration that the job can be claimed
+   */
+  readonly claimDuration: string;
+  /**
+   * Get a list of resources that this job depends on
+   */
+  readonly resources: Array<string>;
+  /**
+   * Gets the collection of additional resources associated with the current context.
+   */
+  readonly additionalResources: Array<string>;
+  /**
+   * An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters
+   */
+  recovered: boolean;
+  /**
+   * An internal property to mark that job failures should not fail the workflow step.
+   * When set to true, if this job fails/cancels/expires, the workflow step will treat it as succeeded.
+   */
+  ignoreErrors: boolean;
+};
+
+export type JobDependency = {
+  jobId: string;
+  onFailure: JobDependencyContinuation;
+  onSuccess: JobDependencyContinuation;
+  dynamicAssignments: Array<DynamicAssignment>;
+};
+
+export const JobDependencyContinuation = {
+  FAIL: 'fail',
+  SKIP: 'skip',
+  CONTINUE: 'continue',
+  CONTINUE_REUSE_CONTEXT: 'continueReuseContext',
+} as const;
+
+export type JobDependencyContinuation =
+  (typeof JobDependencyContinuation)[keyof typeof JobDependencyContinuation];
+
+/**
+ * Result of diagnosing job resources for a worker
+ */
+export type JobResourceDiagnosticsResult = {
+  /**
+   * The job ID being diagnosed
+   */
+  jobId: string;
+  /**
+   * The worker ID being diagnosed
+   */
+  workerId: string;
+  /**
+   * Diagnostic information for each resource
+   */
+  resources: Array<ResourceDiagnosticInfo>;
+  /**
+   * True if any resources have potential sync issues
+   */
+  hasSyncIssues: boolean;
 };
 
 /**
@@ -2393,7 +3923,7 @@ export type JpegOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   /**
    * Quality setting for JPEG compression (1-100). Higher values produce better quality but larger files.
    */
-  quality: number;
+  quality?: number;
   format: 'jpeg';
 };
 
@@ -2477,18 +4007,24 @@ export const KlingModel = {
 
 export type KlingModel = (typeof KlingModel)[keyof typeof KlingModel];
 
+export type KlingV3Element = {
+  frontalImageUrl?: null | string;
+  referenceImageUrls?: null | Array<string>;
+  videoUrl?: null | string;
+};
+
 export type KlingV3ElementInput = {
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   frontalImage?: null | string;
-  referenceImages: Array<string>;
+  referenceImages?: Array<string>;
   videoUrl?: null | string;
 };
 
 export type KlingV3MultiPrompt = {
   prompt: string;
-  duration: number;
+  duration?: number;
 };
 
 export const KlingV3Operation = {
@@ -2502,10 +4038,10 @@ export const KlingV3Operation = {
 export type KlingV3Operation = (typeof KlingV3Operation)[keyof typeof KlingV3Operation];
 
 export type KlingV3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
-  operation: KlingV3Operation;
-  mode: KlingMode;
-  duration: number;
-  aspectRatio: KlingVideoGenAspectRatio;
+  operation?: KlingV3Operation;
+  mode?: KlingMode;
+  duration?: number;
+  aspectRatio?: KlingVideoGenAspectRatio;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
@@ -2515,13 +4051,35 @@ export type KlingV3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    */
   endImage?: null | string;
   videoUrl?: null | string;
-  images: Array<string>;
-  elements: Array<KlingV3ElementInput>;
+  images?: Array<string>;
+  elements?: Array<KlingV3ElementInput>;
+  generateAudio?: boolean;
+  voiceIds?: null | Array<string>;
+  keepAudio?: boolean;
+  multiPrompt?: null | Array<KlingV3MultiPrompt>;
+  engine: 'kling-v3';
+};
+
+export type KlingV3VideoGenJob = Omit<Job, '$type'> & {
+  prompt?: null | string;
+  multiPrompt?: null | Array<KlingV3MultiPrompt>;
+  operation: KlingV3Operation;
+  mode: KlingMode;
+  duration: number;
+  aspectRatio: KlingVideoGenAspectRatio;
+  sourceImageUrl?: null | string;
+  endImageUrl?: null | string;
+  videoUrl?: null | string;
+  elements?: null | Array<KlingV3Element>;
+  imageUrls?: null | Array<string>;
   generateAudio: boolean;
   voiceIds?: null | Array<string>;
   keepAudio: boolean;
-  multiPrompt?: null | Array<KlingV3MultiPrompt>;
-  engine: 'kling-v3';
+  destinationUrl: string;
+  destinationBlobKey: string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'kling-v3';
 };
 
 export const KlingVideoGenAspectRatio = {
@@ -2539,12 +4097,12 @@ export type KlingVideoGenDuration =
   (typeof KlingVideoGenDuration)[keyof typeof KlingVideoGenDuration];
 
 export type KlingVideoGenInput = Omit<VideoGenInput, 'engine'> & {
-  model: KlingModel;
+  model?: KlingModel;
   negativePrompt?: null | string;
   cfgScale: number;
-  mode: KlingMode;
-  aspectRatio: KlingVideoGenAspectRatio;
-  duration: KlingVideoGenDuration;
+  mode?: KlingMode;
+  aspectRatio?: KlingVideoGenAspectRatio;
+  duration?: KlingVideoGenDuration;
   cameraControl?: KlingCameraControl;
   sourceImageUrl?: null | string;
   /**
@@ -2554,15 +4112,31 @@ export type KlingVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'kling';
 };
 
+export type KlingVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  cfgScale: number;
+  mode: KlingMode;
+  aspectRatio: KlingVideoGenAspectRatio;
+  duration: KlingVideoGenDuration;
+  cameraControl?: KlingCameraControl;
+  sourceImageUrl?: null | string;
+  destinationUrl: string;
+  model: KlingModel;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'kling';
+};
+
 export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
   /**
    * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
    */
-  maxTrainEpochs: number;
+  maxTrainEpochs?: number;
   /**
    * Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.
    */
-  numRepeats: number;
+  numRepeats?: number;
   /**
    * Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.
    */
@@ -2574,33 +4148,33 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
   /**
    * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
    */
-  enableBucket: boolean;
+  enableBucket?: boolean;
   /**
    * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
    */
-  shuffleCaption: boolean;
+  shuffleCaption?: boolean;
   /**
    * If your training images have tags, you can randomly shuffle them.
    * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
    * This option does nothing if the Shuffle Tags option is off.
    */
-  keepTokens: number;
+  keepTokens?: number;
   /**
    * Determines which layer's vector output will be used. There are 12 layers, and setting the skip will select "xth from the end" of the total layers. For anime, we use 2. For everything else, 1.
    */
-  clipSkip: number;
+  clipSkip?: number;
   /**
    * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
    */
-  flipAugmentation: boolean;
+  flipAugmentation?: boolean;
   /**
    * Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net
    */
-  unetLR: number;
+  unetLR?: number;
   /**
    * Sets the learning rate for the text encoder. The effect of additional training on text encoders affects the entire U-Net.
    */
-  textEncoderLR: number;
+  textEncoderLR?: number;
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
@@ -2608,7 +4182,7 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
-  lrSchedulerNumCycles: number;
+  lrSchedulerNumCycles?: number;
   /**
    * Learning is performed by putting noise of various strengths on the training image,
    * but depending on the difference in strength of the noise on which it is placed, learning will be
@@ -2644,6 +4218,37 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
   engine: 'kohya';
 };
 
+/**
+ * LLM prompt augmentaition capabilities.
+ */
+export type LlmPromptAugmentationCapabilities = {
+  [key: string]: never;
+};
+
+export type LlmPromptAugmentationJob = Omit<Job, '$type'> & {
+  /**
+   * The primary model to use.
+   */
+  model: string;
+  /**
+   * The base prompt.
+   */
+  basePrompt?: null | string;
+  /**
+   * A list of prompts.
+   */
+  prompts: Array<string>;
+  /**
+   * The temp.
+   */
+  temp: number;
+  /**
+   * The type.
+   */
+  readonly type: string;
+  $type: 'llmPromptAugmentation';
+};
+
 export const LeresBoost = { DISABLE: 'disable', ENABLE: 'enable' } as const;
 
 export type LeresBoost = (typeof LeresBoost)[keyof typeof LeresBoost];
@@ -2662,17 +4267,22 @@ export type LightricksAspectRatio =
 export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
   cfgScale: number;
-  frameRate: number;
-  duration: number;
+  frameRate?: number;
+  duration?: number;
   seed?: null | number;
-  steps: number;
+  steps?: number;
   aspectRatio?: LightricksAspectRatio;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: null | string;
-  expandPrompt: boolean;
+  expandPrompt?: boolean;
   engine: 'lightricks';
+};
+
+export type Lora = {
+  air: string;
+  strength: number;
 };
 
 /**
@@ -2680,9 +4290,18 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
  */
 export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   ecosystem: 'ltx2';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
+};
+
+export type MediaCaptioningJob = Omit<Job, '$type'> & {
+  model: string;
+  modelId: number;
+  mediaUrl: string;
+  temperature: number;
+  maxNewTokens: number;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'mediaCaptioning';
 };
 
 /**
@@ -2697,6 +4316,20 @@ export type MediaHashInput = {
    * The types of hashes to generate.
    */
   hashTypes: Array<MediaHashType>;
+};
+
+/**
+ * Job for generating perceptual hashes of media content.
+ */
+export type MediaHashJob = Omit<Job, '$type'> & {
+  mediaUrl: string;
+  /**
+   * The types of hashes to generate.
+   */
+  hashTypes: Array<MediaHashType>;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'mediaHash';
 };
 
 /**
@@ -2749,7 +4382,7 @@ export type MediaRatingInput = {
   /**
    * The engine to use for media rating. Valid values: "default" (HiveVLM) or "civitai".
    */
-  engine: string;
+  engine?: string;
   /**
    * Include age classification analysis in the results (civitai engine only).
    */
@@ -2766,6 +4399,25 @@ export type MediaRatingInput = {
    * Include anime vs real image detection in the results (civitai engine only, GPU-only).
    */
   includeAnimeRecognition: boolean;
+};
+
+/**
+ * Job for rating media content (NSFW level detection and content safety classification).
+ */
+export type MediaRatingJob = Omit<Job, '$type'> & {
+  mediaUrl: string;
+  blobKey?: null | string;
+  /**
+   * The prompt to use for content rating analysis
+   */
+  prompt?: null | string;
+  /**
+   * The JSON schema to use for structured output from content rating
+   */
+  schema?: null | string;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'mediaRating';
 };
 
 /**
@@ -2791,6 +4443,16 @@ export type MediaRatingOutput = {
   animeRecognition?: AnimeRecognitionResult;
 };
 
+export const MediaRatingProfile = {
+  NONE: 'none',
+  AGE_CLASSIFICATION: 'ageClassification',
+  FACE_RECOGNITION: 'faceRecognition',
+  AI_RECOGNITION: 'aiRecognition',
+  ANIME_RECOGNITION: 'animeRecognition',
+} as const;
+
+export type MediaRatingProfile = (typeof MediaRatingProfile)[keyof typeof MediaRatingProfile];
+
 /**
  * MediaRating
  */
@@ -2808,6 +4470,14 @@ export type MediaRatingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'mediaRating';
 };
 
+export type MediaTaggingJob = Omit<Job, '$type'> & {
+  modelId: number;
+  mediaUrl: string;
+  readonly type: string;
+  model: string;
+  $type: 'mediaTagging';
+};
+
 export const Metric3dBackbone = {
   VIT_SMALL: 'vit-small',
   VIT_LARGE: 'vit-large',
@@ -2817,13 +4487,24 @@ export const Metric3dBackbone = {
 export type Metric3dBackbone = (typeof Metric3dBackbone)[keyof typeof Metric3dBackbone];
 
 export type MiniMaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
-  model: MiniMaxVideoGenModel;
-  enablePromptEnhancer: boolean;
+  model?: MiniMaxVideoGenModel;
+  enablePromptEnhancer?: boolean;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: null | string;
   engine: 'minimax';
+};
+
+export type MiniMaxVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  enablePromptEnhancer: boolean;
+  destinationUrl: string;
+  sourceImageUrl?: null | string;
+  destinationBlobKey: string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'minimax';
 };
 
 export const MiniMaxVideoGenModel = { HAILOU: 'hailou' } as const;
@@ -2832,8 +4513,19 @@ export type MiniMaxVideoGenModel = (typeof MiniMaxVideoGenModel)[keyof typeof Mi
 
 export type MochiVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed: number;
-  enablePromptEnhancer: boolean;
+  enablePromptEnhancer?: boolean;
   engine: 'mochi';
+};
+
+export type MochiVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  seed: number;
+  mediaHash: string;
+  destinationUrl: string;
+  enablePromptEnhancer: boolean;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'mochi';
 };
 
 export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
@@ -2841,7 +4533,7 @@ export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 
    * Number of training epochs. An epoch is one complete pass through the training dataset.
    * Maximum of 20 epochs can be specified.
    */
-  epochs: number;
+  epochs?: number;
   /**
    * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
    */
@@ -2849,11 +4541,11 @@ export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 
   /**
    * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
    */
-  enableBucket: boolean;
+  enableBucket?: boolean;
   /**
    * Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net
    */
-  unetLR: number;
+  unetLR?: number;
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
@@ -2861,7 +4553,7 @@ export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
-  lrSchedulerNumCycles: number;
+  lrSchedulerNumCycles?: number;
   /**
    * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
    */
@@ -2897,34 +4589,59 @@ export type NsfwLevel = (typeof NsfwLevel)[keyof typeof NsfwLevel];
 
 export type NanoBanana2ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
-  aspectRatio: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
-  numImages: number;
-  resolution: '1K' | '2K' | '4K';
-  images: Array<string>;
+  aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
+  numImages?: number;
+  resolution?: '1K' | '2K' | '4K';
+  images?: Array<string>;
   seed?: null | number;
-  enableWebSearch: boolean;
-  enableGoogleSearch: boolean;
+  enableWebSearch?: boolean;
+  enableGoogleSearch?: boolean;
   model: 'nano-banana-2';
   engine: 'google';
 };
 
 export type NanoBananaProImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
-  aspectRatio: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
-  numImages: number;
-  resolution: '1K' | '2K' | '4K';
-  images: Array<string>;
+  aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
+  numImages?: number;
+  resolution?: '1K' | '2K' | '4K';
+  images?: Array<string>;
   model: 'nano-banana-pro';
   engine: 'google';
+};
+
+export const NanoBananaProResolution = {
+  ONE_K: 'oneK',
+  TWO_K: 'twoK',
+  FOUR_K: 'fourK',
+} as const;
+
+export type NanoBananaProResolution =
+  (typeof NanoBananaProResolution)[keyof typeof NanoBananaProResolution];
+
+export type OpenAiCreateImageJob = Omit<Job, '$type'> & {
+  prompt: string;
+  background?: null | string;
+  model?: null | string;
+  quantity: number;
+  quality?: null | string;
+  size?: null | string;
+  style?: null | string;
+  user?: null | string;
+  destinationUrls: Array<string>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'openAICreateImage';
 };
 
 export type OpenAiDallE2CreateImageGenInput = Omit<
   OpenAiDallE2ImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
-  background: 'auto' | 'transparent' | 'opaque';
+  background?: 'auto' | 'transparent' | 'opaque';
   operation: 'createImage';
-  size: '256x256';
   model: 'dall-e-2';
   engine: 'openai';
 };
@@ -2942,7 +4659,6 @@ export type OpenAiDallE2EditImageInput = Omit<
    */
   mask?: null | string;
   operation: 'editImage';
-  size: '256x256';
   model: 'dall-e-2';
   engine: 'openai';
 };
@@ -2951,7 +4667,7 @@ export type OpenAiDallE2ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'm
   operation: string;
   prompt: string;
   size: '256x256' | '512x512' | '1024x1024';
-  quantity: number;
+  quantity?: number;
   model: 'dall-e-2';
   engine: 'openai';
 };
@@ -2960,11 +4676,8 @@ export type OpenAiDallE3CreateImageGenInput = Omit<
   OpenAiDallE3ImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
-  background: 'auto' | 'transparent' | 'opaque';
+  background?: 'auto' | 'transparent' | 'opaque';
   operation: 'createImage';
-  size: '1024x1024';
-  style: 'natural';
-  quality: 'auto';
   model: 'dall-e-3';
   engine: 'openai';
 };
@@ -2973,10 +4686,29 @@ export type OpenAiDallE3ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'm
   operation: string;
   prompt: string;
   size: '1024x1024' | '1792x1024' | '1024x1792';
-  style: 'natural' | 'vivid';
-  quality: 'auto' | 'hd' | 'standard';
+  style?: 'natural' | 'vivid';
+  quality?: 'auto' | 'hd' | 'standard';
   model: 'dall-e-3';
   engine: 'openai';
+};
+
+export type OpenAiEditImageJob = Omit<Job, '$type'> & {
+  prompt: string;
+  imageUrl: Array<string>;
+  maskUrl?: null | string;
+  model?: null | string;
+  quantity: number;
+  quality?: null | string;
+  size?: null | string;
+  style?: null | string;
+  user?: null | string;
+  destinationUrls: Array<string>;
+  background?: null | string;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'openAIEditImage';
 };
 
 export type OpenAiGpt15CreateImageInput = Omit<
@@ -2984,9 +4716,6 @@ export type OpenAiGpt15CreateImageInput = Omit<
   'engine' | 'model' | 'operation'
 > & {
   operation: 'createImage';
-  size: '1024x1024';
-  background: 'auto';
-  quality: 'low';
   model: 'gpt-image-1.5';
   engine: 'openai';
 };
@@ -2999,14 +4728,12 @@ export type OpenAiGpt15EditImageInput = Omit<
   /**
    * Input fidelity: low or high
    */
-  inputFidelity: 'low' | 'high';
+  inputFidelity?: 'low' | 'high';
   /**
    * Image size for edit mode: auto, 1024x1024, 1536x1024, or 1024x1536
    */
-  size: 'auto' | '1024x1024' | '1536x1024' | '1024x1536';
+  size?: 'auto' | '1024x1024' | '1536x1024' | '1024x1536';
   operation: 'editImage';
-  background: 'auto';
-  quality: 'low';
   model: 'gpt-image-1.5';
   engine: 'openai';
 };
@@ -3014,10 +4741,10 @@ export type OpenAiGpt15EditImageInput = Omit<
 export type OpenAiGpt15ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
   operation: string;
   prompt: string;
-  size: '1024x1024' | '1536x1024' | '1024x1536';
-  quantity: number;
-  background: 'auto' | 'transparent' | 'opaque';
-  quality: 'low' | 'medium' | 'high';
+  size?: '1024x1024' | '1536x1024' | '1024x1536';
+  quantity?: number;
+  background?: 'auto' | 'transparent' | 'opaque';
+  quality?: 'low' | 'medium' | 'high';
   model: 'gpt-image-1.5';
   engine: 'openai';
 };
@@ -3027,9 +4754,6 @@ export type OpenAiGpt1CreateImageInput = Omit<
   'engine' | 'model' | 'operation'
 > & {
   operation: 'createImage';
-  size: '1024x1024';
-  background: 'auto';
-  quality: 'auto';
   model: 'gpt-image-1';
   engine: 'openai';
 };
@@ -3044,9 +4768,6 @@ export type OpenAiGpt1EditImageInput = Omit<
    */
   mask?: null | string;
   operation: 'editImage';
-  size: '1024x1024';
-  background: 'auto';
-  quality: 'auto';
   model: 'gpt-image-1';
   engine: 'openai';
 };
@@ -3054,9 +4775,9 @@ export type OpenAiGpt1EditImageInput = Omit<
 export type OpenAiGpt1ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
   operation: string;
   prompt: string;
-  size: '1024x1024' | '1536x1024' | '1024x1536';
-  quantity: number;
-  background: 'auto' | 'transparent' | 'opaque';
+  size?: '1024x1024' | '1536x1024' | '1024x1536';
+  quantity?: number;
+  background?: 'auto' | 'transparent' | 'opaque';
   quality?: 'auto' | 'high' | 'medium' | 'low';
   model: 'gpt-image-1';
   engine: 'openai';
@@ -3076,6 +4797,10 @@ export const OutputFormat = {
 
 export type OutputFormat = (typeof OutputFormat)[keyof typeof OutputFormat];
 
+export type PatchWorkerRequest = {
+  paused?: null | boolean;
+};
+
 /**
  * PNG output format configuration.
  */
@@ -3084,8 +4809,8 @@ export type PngOutputFormat = Omit<ImageOutputFormat, 'format'> & {
 };
 
 export type PreprocessImageAnimalPoseInput = Omit<PreprocessImageInput, 'kind'> & {
-  bboxDetector: AnimalPoseBboxDetector;
-  poseEstimator: AnimalPoseEstimator;
+  bboxDetector?: AnimalPoseBboxDetector;
+  poseEstimator?: AnimalPoseEstimator;
   kind: 'animal-pose';
 };
 
@@ -3094,11 +4819,11 @@ export type PreprocessImageAnimeLineartInput = Omit<PreprocessImageInput, 'kind'
 };
 
 export type PreprocessImageAnylineInput = Omit<PreprocessImageInput, 'kind'> & {
-  mergeWithLineart: AnylineMergeWith;
-  lineartLowerBound: number;
-  lineartUpperBound: number;
-  objectMinSize: number;
-  objectConnectivity: number;
+  mergeWithLineart?: AnylineMergeWith;
+  lineartLowerBound?: number;
+  lineartUpperBound?: number;
+  objectMinSize?: number;
+  objectConnectivity?: number;
   kind: 'anyline';
 };
 
@@ -3107,13 +4832,13 @@ export type PreprocessImageBaeNormalInput = Omit<PreprocessImageInput, 'kind'> &
 };
 
 export type PreprocessImageBinaryInput = Omit<PreprocessImageInput, 'kind'> & {
-  binThreshold: number;
+  binThreshold?: number;
   kind: 'binary';
 };
 
 export type PreprocessImageCannyInput = Omit<PreprocessImageInput, 'kind'> & {
-  lowThreshold: number;
-  highThreshold: number;
+  lowThreshold?: number;
+  highThreshold?: number;
   kind: 'canny';
 };
 
@@ -3122,43 +4847,43 @@ export type PreprocessImageColorInput = Omit<PreprocessImageInput, 'kind'> & {
 };
 
 export type PreprocessImageDensePoseInput = Omit<PreprocessImageInput, 'kind'> & {
-  model: DensePoseModel;
-  colormap: DensePoseColormap;
+  model?: DensePoseModel;
+  colormap?: DensePoseColormap;
   kind: 'densepose';
 };
 
 export type PreprocessImageDepthAnythingInput = Omit<PreprocessImageInput, 'kind'> & {
-  checkpoint: DepthAnythingCheckpoint;
+  checkpoint?: DepthAnythingCheckpoint;
   kind: 'depth-anything';
 };
 
 export type PreprocessImageDepthAnythingV2Input = Omit<PreprocessImageInput, 'kind'> & {
-  checkpoint: DepthAnythingV2Checkpoint;
+  checkpoint?: DepthAnythingV2Checkpoint;
   kind: 'depth-anything-v2';
 };
 
 export type PreprocessImageDsineNormalInput = Omit<PreprocessImageInput, 'kind'> & {
-  fov: number;
-  iterations: number;
+  fov?: number;
+  iterations?: number;
   kind: 'dsine-normal';
 };
 
 export type PreprocessImageDwPoseInput = Omit<PreprocessImageInput, 'kind'> & {
-  detectHand: boolean;
-  detectBody: boolean;
-  detectFace: boolean;
-  bboxDetector: DwPoseBboxDetector;
-  poseEstimator: DwPoseEstimator;
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  bboxDetector?: DwPoseBboxDetector;
+  poseEstimator?: DwPoseEstimator;
   kind: 'dwpose';
 };
 
 export type PreprocessImageFakeScribbleInput = Omit<PreprocessImageInput, 'kind'> & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'fake-scribble';
 };
 
 export type PreprocessImageHedInput = Omit<PreprocessImageInput, 'kind'> & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'hed';
 };
 
@@ -3168,7 +4893,7 @@ export type PreprocessImageInput = {
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  resolution: number;
+  resolution?: number;
   /**
    * Gets the preprocessor type identifier used to map to ComfyUI nodes.
    * This is derived from the JsonDerivedType discriminator.
@@ -3176,10 +4901,42 @@ export type PreprocessImageInput = {
   readonly preprocessorType: string;
 };
 
+export type PreprocessImageJob = Omit<Job, '$type'> & {
+  /**
+   * The source image AIR to preprocess
+   */
+  image: string;
+  /**
+   * The preprocessor type (e.g., "canny", "depth-anything", "openpose")
+   */
+  preprocessor: string;
+  /**
+   * The resolution for preprocessing (output will be this resolution)
+   */
+  resolution: number;
+  /**
+   * Optional preprocessor-specific parameters as JSON
+   */
+  parameters?: null | {
+    [key: string]: unknown;
+  };
+  /**
+   * The destination blob key for the output
+   */
+  destinationBlobKey: string;
+  /**
+   * The destination URL for uploading the result
+   */
+  destinationUrl: string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'preprocessImage';
+};
+
 export type PreprocessImageLeresDepthInput = Omit<PreprocessImageInput, 'kind'> & {
-  removeNearest: number;
-  removeBackground: number;
-  boost: LeresBoost;
+  removeNearest?: number;
+  removeBackground?: number;
+  boost?: LeresBoost;
   kind: 'leres-depth';
 };
 
@@ -3188,40 +4945,40 @@ export type PreprocessImageMangaLineartInput = Omit<PreprocessImageInput, 'kind'
 };
 
 export type PreprocessImageMediaPipeFaceInput = Omit<PreprocessImageInput, 'kind'> & {
-  maxFaces: number;
-  minConfidence: number;
+  maxFaces?: number;
+  minConfidence?: number;
   kind: 'mediapipe-face';
 };
 
 export type PreprocessImageMetric3dDepthInput = Omit<PreprocessImageInput, 'kind'> & {
-  backbone: Metric3dBackbone;
-  fx: number;
-  fy: number;
+  backbone?: Metric3dBackbone;
+  fx?: number;
+  fy?: number;
   kind: 'metric3d-depth';
 };
 
 export type PreprocessImageMetric3dNormalInput = Omit<PreprocessImageInput, 'kind'> & {
-  backbone: Metric3dBackbone;
-  fx: number;
-  fy: number;
+  backbone?: Metric3dBackbone;
+  fx?: number;
+  fy?: number;
   kind: 'metric3d-normal';
 };
 
 export type PreprocessImageMidasDepthInput = Omit<PreprocessImageInput, 'kind'> & {
-  a: number;
-  backgroundThreshold: number;
+  a?: number;
+  backgroundThreshold?: number;
   kind: 'midas-depth';
 };
 
 export type PreprocessImageMidasNormalInput = Omit<PreprocessImageInput, 'kind'> & {
-  a: number;
-  backgroundThreshold: number;
+  a?: number;
+  backgroundThreshold?: number;
   kind: 'midas-normal';
 };
 
 export type PreprocessImageMlsdInput = Omit<PreprocessImageInput, 'kind'> & {
-  scoreThreshold: number;
-  distanceThreshold: number;
+  scoreThreshold?: number;
+  distanceThreshold?: number;
   kind: 'mlsd';
 };
 
@@ -3234,9 +4991,9 @@ export type PreprocessImageOneFormerCocoInput = Omit<PreprocessImageInput, 'kind
 };
 
 export type PreprocessImageOpenPoseInput = Omit<PreprocessImageInput, 'kind'> & {
-  detectHand: boolean;
-  detectBody: boolean;
-  detectFace: boolean;
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
   kind: 'openpose';
 };
 
@@ -3245,12 +5002,12 @@ export type PreprocessImageOutput = {
 };
 
 export type PreprocessImagePidinetInput = Omit<PreprocessImageInput, 'kind'> & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'pidinet';
 };
 
 export type PreprocessImageRealisticLineartInput = Omit<PreprocessImageInput, 'kind'> & {
-  coarse: CoarseMode;
+  coarse?: CoarseMode;
   kind: 'lineart-realistic';
 };
 
@@ -3259,23 +5016,23 @@ export type PreprocessImageScribbleInput = Omit<PreprocessImageInput, 'kind'> & 
 };
 
 export type PreprocessImageScribblePidinetInput = Omit<PreprocessImageInput, 'kind'> & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'scribble-pidinet';
 };
 
 export type PreprocessImageScribbleXdogInput = Omit<PreprocessImageInput, 'kind'> & {
-  threshold: number;
+  threshold?: number;
   kind: 'scribble-xdog';
 };
 
 export type PreprocessImageShuffleInput = Omit<PreprocessImageInput, 'kind'> & {
-  seed: number;
+  seed?: number;
   kind: 'shuffle';
 };
 
 export type PreprocessImageStandardLineartInput = Omit<PreprocessImageInput, 'kind'> & {
-  gaussianSigma: number;
-  intensityThreshold: number;
+  gaussianSigma?: number;
+  intensityThreshold?: number;
   kind: 'lineart-standard';
 };
 
@@ -3291,12 +5048,12 @@ export type PreprocessImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
 };
 
 export type PreprocessImageTeedInput = Omit<PreprocessImageInput, 'kind'> & {
-  safeSteps: number;
+  safeSteps?: number;
   kind: 'teed';
 };
 
 export type PreprocessImageTileInput = Omit<PreprocessImageInput, 'kind'> & {
-  pyrUpIterations: number;
+  pyrUpIterations?: number;
   kind: 'tile';
 };
 
@@ -3305,7 +5062,7 @@ export type PreprocessImageUniFormerInput = Omit<PreprocessImageInput, 'kind'> &
 };
 
 export type PreprocessImageZoeDepthAnythingInput = Omit<PreprocessImageInput, 'kind'> & {
-  environment: ZoeDepthEnvironment;
+  environment?: ZoeDepthEnvironment;
   kind: 'zoe-depth-anything';
 };
 
@@ -3334,6 +5091,68 @@ export type ProblemDetails = {
   detail?: null | string;
   instance?: null | string;
   [key: string]: unknown;
+};
+
+/**
+ * Details of processing statistics.
+ */
+export type ProcessingStatistics = {
+  /**
+   * The total number of jobs requested.
+   */
+  totalJobsRequested: number;
+  /**
+   * The total cost of jobs requested.
+   */
+  totalCostRequested: number;
+  /**
+   * The total number of successful jobs.
+   */
+  totalJobsSucceeded: number;
+  /**
+   * The total cost of successful jobs.
+   */
+  totalCostSucceeded: number;
+  /**
+   * The total number of rejected jobs.
+   */
+  totalJobsRejected: number;
+  /**
+   * The total cost of rejected jobs.
+   */
+  totalCostRejected: number;
+  /**
+   * The total number of late rejected jobs.
+   */
+  totalJobsLateRejected: number;
+  /**
+   * The total cost of laterejected jobs.
+   */
+  totalCostLateRejected: number;
+  /**
+   * The total number of expired jobs.
+   */
+  totalJobsExpired: number;
+  /**
+   * The total cost of expired jobs.
+   */
+  totalCostExpired: number;
+  /**
+   * The total number of failed jobs.
+   */
+  totalJobsFailed: number;
+  /**
+   * The total cost of failed jobs.
+   */
+  totalCostFailed: number;
+  /**
+   * The total number of completed jobs.
+   */
+  readonly totalJobsCompleted: number;
+  /**
+   * The total cost of completed jobs.
+   */
+  readonly totalCostCompleted: number;
 };
 
 /**
@@ -3419,9 +5238,9 @@ export type Qwen20bCreateImageGenInput = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
-  version: 'latest' | '2509' | '2512';
-  width: number;
-  height: number;
+  version?: 'latest' | '2509' | '2512';
+  width?: number;
+  height?: number;
   operation: 'createImage';
   model: '20b';
   ecosystem: 'qwen';
@@ -3432,7 +5251,7 @@ export type Qwen20bEditImageGenInput = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
-  version: 'latest' | '2509' | '2511';
+  version?: 'latest' | '2509' | '2511';
   images: Array<string>;
   readonly width: number;
   readonly height: number;
@@ -3446,13 +5265,13 @@ export type Qwen20bImageGenInput = Omit<QwenImageGenInput, 'engine' | 'ecosystem
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  steps: number;
-  cfgScale: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
-  loras: {
+  quantity?: number;
+  loras?: {
     [key: string]: number;
   };
   model: '20b';
@@ -3464,12 +5283,12 @@ export type Qwen20bVariantImageGenInput = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
-  version: 'latest' | '2509' | '2512';
+  version?: 'latest' | '2509' | '2512';
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  strength: number;
+  strength?: number;
   readonly width: number;
   readonly height: number;
   operation: 'createVariant';
@@ -3483,7 +5302,6 @@ export type Qwen2CreateFalImageGenInput = Omit<
   'engine' | 'model' | 'operation'
 > & {
   operation: 'createImage';
-  imageSize: 'square_hd';
   model: 'qwen2';
   engine: 'fal';
 };
@@ -3494,7 +5312,6 @@ export type Qwen2EditFalImageGenInput = Omit<
 > & {
   images: Array<string>;
   operation: 'editImage';
-  imageSize: 'square_hd';
   model: 'qwen2';
   engine: 'fal';
 };
@@ -3503,8 +5320,8 @@ export type Qwen2FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> &
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  quantity: number;
-  imageSize:
+  quantity?: number;
+  imageSize?:
     | 'square_hd'
     | 'square'
     | 'portrait_4_3'
@@ -3512,8 +5329,8 @@ export type Qwen2FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> &
     | 'landscape_4_3'
     | 'landscape_16_9';
   seed?: null | number;
-  enablePromptExpansion: boolean;
-  enableSafetyChecker: boolean;
+  enablePromptExpansion?: boolean;
+  enableSafetyChecker?: boolean;
   model: 'qwen2';
   engine: 'fal';
 };
@@ -3523,7 +5340,6 @@ export type Qwen2ProCreateFalImageGenInput = Omit<
   'engine' | 'model' | 'operation'
 > & {
   operation: 'proCreateImage';
-  imageSize: 'square_hd';
   model: 'qwen2';
   engine: 'fal';
 };
@@ -3534,7 +5350,6 @@ export type Qwen2ProEditFalImageGenInput = Omit<
 > & {
   images: Array<string>;
   operation: 'proEditImage';
-  imageSize: 'square_hd';
   model: 'qwen2';
   engine: 'fal';
 };
@@ -3543,17 +5358,211 @@ export type Qwen2ProEditFalImageGenInput = Omit<
  * AI Toolkit training for Qwen Image models
  */
 export type QwenAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
-  version: 'latest' | '2509' | '2512';
+  version?: 'latest' | '2509' | '2512';
   ecosystem: 'qwen';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
+};
+
+export type QwenImageEditStableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image editing.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image editing.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The main Qwen diffusion model for image editing (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Qwen.
+   */
+  vaeModel: string;
+  /**
+   * The Qwen2-VL model for text encoding (GGUF format).
+   */
+  qwen2VLModel: string;
+  /**
+   * The Qwen2-VL vision projection model for image understanding (mmproj format).
+   */
+  qwen2VLVisionModel: string;
+  /**
+   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.95").
+   */
+  easyCache?: null | string;
+  /**
+   * Flow shift parameter for guidance.
+   */
+  flowShift: number;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<QwenImageEditStableDiffusionCppJobSlot>;
+  /**
+   * Reference images for image editing operations (one or more images to apply edits to).
+   */
+  editImages: Array<string>;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'qwenImageEditStableDiffusionCpp';
+};
+
+/**
+ * Contains slot information for an image generated by a QwenImageEditStableDiffusionCppJob.
+ */
+export type QwenImageEditStableDiffusionCppJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
 };
 
 export type QwenImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
   ecosystem: 'qwen';
   engine: 'sdcpp';
+};
+
+export type QwenStableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The main Qwen diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Qwen.
+   */
+  vaeModel: string;
+  /**
+   * The Qwen2-VL model for text encoding (GGUF format).
+   */
+  qwen2VLModel: string;
+  /**
+   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.85").
+   */
+  easyCache?: null | string;
+  /**
+   * Flow shift parameter for guidance.
+   */
+  flowShift: number;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<QwenStableDiffusionCppJobSlot>;
+  /**
+   * The source image AIR for img2img/variant generation (uses image instead of random noise).
+   */
+  sourceImage?: null | string;
+  /**
+   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
+   */
+  strength: number;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'qwenStableDiffusionCpp';
+};
+
+/**
+ * Contains slot information for an image generated by a QwenStableDiffusionCppJob.
+ */
+export type QwenStableDiffusionCppJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
 };
 
 /**
@@ -3598,6 +5607,67 @@ export type ResizeTransform = Omit<ImageTransform, 'type'> & {
    */
   targetWidth?: null | number;
   type: 'resize';
+};
+
+/**
+ * Diagnostic information about a resource's availability from different sources.
+ * Used to diagnose sync issues between WorkerGrain and the queue.
+ */
+export type ResourceDiagnosticInfo = {
+  /**
+   * The resource identifier (from the job)
+   */
+  air: string;
+  workerGrainAvailability: WorkerResourceAvailability;
+  queueAvailability: WorkerResourceAvailability;
+  /**
+   * Hash code of the job's AIR object
+   */
+  jobAirHashCode: number;
+  /**
+   * The job AIR's Version field
+   */
+  jobAirVersion?: null | string;
+  /**
+   * The job AIR's Format field
+   */
+  jobAirFormat?: null | string;
+  /**
+   * The matching AIR key from the WorkerGrain registration (if found)
+   */
+  workerGrainAir?: null | string;
+  /**
+   * Hash code of the WorkerGrain's AIR object (if found)
+   */
+  workerGrainAirHashCode?: null | number;
+  /**
+   * The WorkerGrain AIR's Version field
+   */
+  workerGrainAirVersion?: null | string;
+  /**
+   * The WorkerGrain AIR's Format field
+   */
+  workerGrainAirFormat?: null | string;
+  /**
+   * The matching AIR key from the queue (if found)
+   */
+  queueAir?: null | string;
+  /**
+   * Hash code of the queue's AIR object (if found)
+   */
+  queueAirHashCode?: null | number;
+  /**
+   * The Queue AIR's Version field
+   */
+  queueAirVersion?: null | string;
+  /**
+   * The Queue AIR's Format field
+   */
+  queueAirFormat?: null | string;
+  /**
+   * Whether there is a potential sync issue (WorkerGrain says available but queue doesn't)
+   */
+  readonly hasPotentialSyncIssue: boolean;
 };
 
 /**
@@ -3679,6 +5749,20 @@ export type ResourceInfo = {
   hasNSFWContentRestriction: boolean;
 };
 
+export const RewritePromptGoal = {
+  PREVENT_SEXUAL: 'preventSexual',
+  PREVENT_SEXUAL_MINOR: 'preventSexualMinor',
+} as const;
+
+export type RewritePromptGoal = (typeof RewritePromptGoal)[keyof typeof RewritePromptGoal];
+
+export type RewritePromptJob = Omit<Job, '$type'> & {
+  prompt: string;
+  goal: RewritePromptGoal;
+  readonly type: string;
+  $type: 'rewritePrompt';
+};
+
 /**
  * AI Toolkit training for Stable Diffusion 1.5 models
  */
@@ -3695,10 +5779,8 @@ export type Sd1AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 
   /**
    * The primary model to train upon.
    */
-  model: string;
+  model?: string;
   ecosystem: 'sd1';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -3746,8 +5828,8 @@ export type Sd1CreateImageGenInput = Omit<
   Sd1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   ecosystem: 'sd1';
   engine: 'sdcpp';
@@ -3757,20 +5839,20 @@ export type Sd1ImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> 
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  steps: number;
-  cfgScale: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
+  quantity?: number;
   model: string;
   vaeModel?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
-  embeddings: Array<string>;
-  clipSkip: number;
-  uCache: SdCppUCacheMode;
+  embeddings?: Array<string>;
+  clipSkip?: number;
+  uCache?: SdCppUCacheMode;
   ecosystem: 'sd1';
   engine: 'sdcpp';
 };
@@ -3779,13 +5861,13 @@ export type Sd1VariantImageGenInput = Omit<
   Sd1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  strength: number;
+  strength?: number;
   operation: 'createVariant';
   ecosystem: 'sd1';
   engine: 'sdcpp';
@@ -3851,10 +5933,8 @@ export type SdxlAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   /**
    * The primary model to train upon.
    */
-  model: string;
+  model?: string;
   ecosystem: 'sdxl';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -3862,8 +5942,8 @@ export type SdxlCreateImageGenInput = Omit<
   SdxlImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   ecosystem: 'sdxl';
   engine: 'sdcpp';
@@ -3873,19 +5953,19 @@ export type SdxlImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  steps: number;
-  cfgScale: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
+  quantity?: number;
   model: string;
   vaeModel?: null | string;
-  loras: {
+  loras?: {
     [key: string]: number;
   };
-  embeddings: Array<string>;
-  uCache: SdCppUCacheMode;
+  embeddings?: Array<string>;
+  uCache?: SdCppUCacheMode;
   ecosystem: 'sdxl';
   engine: 'sdcpp';
 };
@@ -3894,13 +5974,13 @@ export type SdxlVariantImageGenInput = Omit<
   SdxlImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  strength: number;
+  strength?: number;
   operation: 'createVariant';
   ecosystem: 'sdxl';
   engine: 'sdcpp';
@@ -3908,14 +5988,14 @@ export type SdxlVariantImageGenInput = Omit<
 
 export type SeedreamImageGenInput = Omit<ImageGenInput, 'engine'> & {
   prompt: string;
-  quantity: number;
-  width: number;
-  height: number;
-  guidanceScale: number;
+  quantity?: number;
+  width?: number;
+  height?: number;
+  guidanceScale?: number;
   seed?: null | number;
-  enableSafetyChecker: boolean;
-  version: SeedreamVersion;
-  images: Array<string>;
+  enableSafetyChecker?: boolean;
+  version?: SeedreamVersion;
+  images?: Array<string>;
   engine: 'seedream';
 };
 
@@ -3929,16 +6009,43 @@ export const SeedreamVersion = {
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
 
 /**
+ * Details for a similarity search job.
+ */
+export type SimilaritySearchJob = Omit<Job, '$type'> & {
+  /**
+   * An AIR ID representing the primary model.
+   */
+  model: string;
+  /**
+   * A value for the NSFW filter.
+   */
+  nsfwFilter: string;
+  /**
+   * The prompt provided.
+   */
+  prompt: string;
+  /**
+   * A collection of parameters.
+   */
+  params: {
+    [key: string]: unknown;
+  };
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'similaritySearch';
+};
+
+/**
  * Sora 2 Image-to-Video
  * FAL Endpoints:
  * - Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video
  * - Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro
  */
 export type Sora2ImageToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operation'> & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'image-to-video';
-  resolution: '720p';
-  aspectRatio: 'auto';
   engine: 'sora';
 };
 
@@ -3950,8 +6057,6 @@ export type Sora2ImageToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operati
  */
 export type Sora2TextToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operation'> & {
   operation: 'text-to-video';
-  resolution: '720p';
-  aspectRatio: 'auto';
   engine: 'sora';
 };
 
@@ -3962,12 +6067,117 @@ export type Sora2TextToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operatio
  */
 export type SoraVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: null | string;
-  duration: number;
+  duration?: number;
   seed?: null | number;
-  resolution: '720p' | '1080p';
-  aspectRatio: 'auto' | '16:9' | '9:16';
-  usePro: boolean;
+  resolution?: '720p' | '1080p';
+  aspectRatio?: 'auto' | '16:9' | '9:16';
+  usePro?: boolean;
   engine: 'sora';
+};
+
+export type StableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * The main diffusion model (checkpoint).
+   */
+  model: string;
+  /**
+   * The VAE model. Optional - will use model's built-in VAE if not specified.
+   */
+  vaeModel?: null | string;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Embedding (textual inversion) models.
+   */
+  embeddings: Array<string>;
+  uCache: SdCppUCacheMode;
+  /**
+   * Clip skip value.
+   */
+  clipSkip: number;
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<StableDiffusionCppJobSlot>;
+  /**
+   * The source image URL for img2img generation.
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
+   */
+  strength: number;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'stableDiffusionCpp';
+};
+
+/**
+ * Contains slot information for an image generated by a StableDiffusionCppJob.
+ */
+export type StableDiffusionCppJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
+};
+
+/**
+ * A subscription for pushed based notifications.
+ */
+export type Subscription = {
+  /**
+   * The webhook url.
+   */
+  webhook: string;
 };
 
 /**
@@ -3992,25 +6202,25 @@ export type TextToImageInput = {
   /**
    * The number of batches to run.
    */
-  quantity: number;
+  quantity?: number;
   /**
    * The size of each batch
    */
-  batchSize: number;
+  batchSize?: number;
   /**
    * The AIR of the checkpoint model to use for generation.
    */
-  model: string;
+  model?: string;
   /**
    * Get or set a associative list of additional networks. Use the AIR of the network as the key.
    */
-  additionalNetworks: {
+  additionalNetworks?: {
     [key: string]: ImageJobNetworkParams;
   };
   /**
    * Get or set a associative list of ControlNets.
    */
-  controlNets: Array<ImageJobControlNet>;
+  controlNets?: Array<ImageJobControlNet>;
   /**
    * The provided text prompt.
    */
@@ -4019,11 +6229,11 @@ export type TextToImageInput = {
    * The provided negative text prompt.
    */
   negativePrompt?: null | string;
-  scheduler: Scheduler;
+  scheduler?: Scheduler;
   /**
    * The number of steps for image generation.
    */
-  steps: number;
+  steps?: number;
   /**
    * The CFG scale value for image generation.
    */
@@ -4031,11 +6241,11 @@ export type TextToImageInput = {
   /**
    * The desired image width in pixels.
    */
-  width: number;
+  width?: number;
   /**
    * The desired image height in pixels.
    */
-  height: number;
+  height?: number;
   /**
    * The seed to use in image generation. Defaults to a random value if left unpopulated.
    */
@@ -4043,7 +6253,7 @@ export type TextToImageInput = {
   /**
    * The clip skip value for image generation.
    */
-  clipSkip: number;
+  clipSkip?: number;
   /**
    * External metadata that will be stored with the image
    */
@@ -4052,7 +6262,7 @@ export type TextToImageInput = {
    * An optional engine to use for generation.
    */
   engine?: null | string;
-  outputFormat: OutputFormat;
+  outputFormat?: OutputFormat;
   /**
    * An optional source image to trigger img-to-img
    */
@@ -4060,7 +6270,63 @@ export type TextToImageInput = {
   /**
    * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
    */
-  sourceImageDenoiseStrenght: number;
+  sourceImageDenoiseStrenght?: number;
+};
+
+/**
+ * A text to image generation job.
+ */
+export type TextToImageJob = Omit<Job, '$type'> & {
+  /**
+   * An AIR representing the model to use.
+   */
+  model: string;
+  params: ImageJobParams;
+  /**
+   * The hash for the output image.
+   */
+  imageHash: string;
+  /**
+   * Get or set a associative list of additional networks. Each network is identified by a hash code.
+   */
+  additionalNetworks: {
+    [key: string]: ImageJobNetworkParams;
+  };
+  /**
+   * Get or set the URL where the image will be uploaded to.
+   */
+  destinationUrl?: null | string;
+  /**
+   * A value indicating whether to store the image as a blob or as a legacy image.
+   */
+  storeAsBlob: boolean;
+  /**
+   * Get or set a list of control nets that should be applied with this textToImage job.
+   */
+  controlNets: Array<ImageJobControlNet>;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'textToImage';
+};
+
+/**
+ * Contains slot information for an image generated by a TextToImageJob.
+ */
+export type TextToImageJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
 };
 
 /**
@@ -4090,6 +6356,58 @@ export type TextToImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'textToImage';
 };
 
+export type TextToImageV2Job = Omit<Job, '$type'> & {
+  /**
+   * The base model / ecosystem for the model.
+   */
+  readonly baseModel?: null | string;
+  /**
+   * An AIR representing the model to use.
+   */
+  model: string;
+  params: ImageJobParams;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<TextToImageJobSlot>;
+  /**
+   * Get or set a associative list of additional networks. Each network is identified by a hash code
+   */
+  additionalNetworks: {
+    [key: string]: ImageJobNetworkParams;
+  };
+  /**
+   * Get or set a list of control nets that should be applied with this textToImage job
+   */
+  controlNets: Array<ImageJobControlNet>;
+  /**
+   * Get or set additional metadata that will be embedded with generated images
+   */
+  imageMetadata?: null | string;
+  /**
+   * The engine to use for generation
+   */
+  engine?: null | string;
+  promptClassificationResult?: ClavataPromptClassificationResult;
+  /**
+   * An image for img2img workflows
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * The strength at which to denoise img2img
+   */
+  sourceImageDenoiseStrength?: null | number;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'textToImageV2';
+};
+
 export type TextToSpeechInput = {
   engine: null | string;
   /**
@@ -4100,6 +6418,56 @@ export type TextToSpeechInput = {
    * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
    */
   language?: null | string;
+};
+
+export type TextToSpeechJob = Omit<Job, '$type'> & {
+  /**
+   * The text to synthesize into speech.
+   */
+  text: string;
+  /**
+   * Reference audio resource for Base voice-cloning mode.
+   */
+  refAudio?: null | string;
+  /**
+   * Transcript of the reference audio (required for Base mode unless XVectorOnlyMode is true).
+   */
+  refText?: null | string;
+  /**
+   * If true, uses only speaker embedding for Base mode (ref_text not required).
+   */
+  xVectorOnlyMode: boolean;
+  /**
+   * Built-in speaker name for CustomVoice mode (e.g., "Ryan", "Vivian").
+   */
+  speaker?: null | string;
+  /**
+   * Optional style instruction for CustomVoice mode.
+   */
+  instruct?: null | string;
+  /**
+   * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
+   */
+  language?: null | string;
+  /**
+   * Optional generation cap for max tokens.
+   */
+  maxNewTokens?: null | number;
+  /**
+   * TTS model to use. Determined by mode: Base for voice cloning, CustomVoice for built-in speakers.
+   */
+  ttsModel: string;
+  /**
+   * Presigned URL to upload the generated audio WAV to.
+   */
+  destinationUrl: string;
+  /**
+   * Blob key for deduplication and retrieval.
+   */
+  destinationBlobKey: string;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'textToSpeech';
 };
 
 /**
@@ -4157,7 +6525,7 @@ export type TrainingInputSamples = {
   /**
    * A selection of sample prompts to generate preview outputs during training.
    */
-  prompts: Array<string>;
+  prompts?: Array<string>;
   /**
    * An optional negative prompt that will be applied when generating samples
    */
@@ -4167,7 +6535,7 @@ export type TrainingInputSamples = {
    * Processed by ISourceImageProcessor during initialization, then TryGetUri() yields URLs
    * that are passed as ReferenceImageUrls when generating samples with edit LoRAs.
    */
-  sourceImages: Array<string>;
+  sourceImages?: Array<string>;
 };
 
 /**
@@ -4262,9 +6630,20 @@ export type TransactionType = (typeof TransactionType)[keyof typeof TransactionT
 
 export type TranscodeInput = {
   sourceUrl: string;
-  containerFormat: ContainerFormat;
+  containerFormat?: ContainerFormat;
   width: number;
   destinationUrl?: null | string;
+};
+
+export type TranscodeJob = Omit<Job, '$type'> & {
+  sourceUrl: string;
+  containerFormat: ContainerFormat;
+  width: number;
+  mediaHash: string;
+  destinationUrl: string;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'transcode';
 };
 
 export type TranscodeOutput = {
@@ -4323,7 +6702,21 @@ export type TranscriptionInput = {
   /**
    * Whether to return word-level timestamps. Defaults to true.
    */
+  returnTimeStamps?: boolean;
+};
+
+export type TranscriptionJob = Omit<Job, '$type'> & {
+  media: string;
+  language?: null | string;
+  context?: null | string;
   returnTimeStamps: boolean;
+  asrModel: string;
+  alignerModel: string;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'transcription';
 };
 
 export type TranscriptionOutput = {
@@ -4376,7 +6769,7 @@ export type TryOnUInput = {
   garmentDescription?: null | string;
   maskSubject: boolean;
   cropSubject: boolean;
-  steps: number;
+  steps?: number;
   seed: number;
 };
 
@@ -4422,6 +6815,10 @@ export type UpdateWorkflowStepRequest = {
   metadata: {
     [key: string]: unknown;
   };
+};
+
+export type UploadBlobResult = {
+  isCancellationRequested: boolean;
 };
 
 /**
@@ -4474,14 +6871,14 @@ export type Veo3Version = (typeof Veo3Version)[keyof typeof Veo3Version];
 
 export type Veo3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
-  enablePromptEnhancer: boolean;
-  aspectRatio: Veo3AspectRatio;
-  duration: 4 | 6 | 8;
+  enablePromptEnhancer?: boolean;
+  aspectRatio?: Veo3AspectRatio;
+  duration?: 4 | 6 | 8;
   generateAudio: boolean;
   seed?: null | number;
-  fastMode: boolean;
-  images: Array<string>;
-  version: Veo3Version;
+  fastMode?: boolean;
+  images?: Array<string>;
+  version?: Veo3Version;
   engine: 'veo3';
 };
 
@@ -4503,6 +6900,31 @@ export type VideoEnhancementInputInterpolationOptions = {
 
 export type VideoEnhancementInputUpscalerOptions = {
   model?: null | string;
+  width: number;
+  height: number;
+};
+
+export type VideoEnhancementJob = Omit<Job, '$type'> & {
+  videoUrl: string;
+  upscaler?: VideoEnhancementJobUpscalerOptions;
+  interpolation?: VideoEnhancementJobInterpolationOptions;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  duration: string;
+  fps: number;
+  width: number;
+  height: number;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'videoEnhancement';
+};
+
+export type VideoEnhancementJobInterpolationOptions = {
+  multiplier: number;
+};
+
+export type VideoEnhancementJobUpscalerOptions = {
+  model: string;
   width: number;
   height: number;
 };
@@ -4540,13 +6962,13 @@ export type VideoFrameExtractionInput = {
    * The rate at which to extract frames (frames per second).
    * Default is 1.0 (one frame per second).
    */
-  frameRate: number;
+  frameRate?: number;
   /**
    * The similarity threshold for determining unique frames (0.0 to 1.0).
    * Frames with similarity above this threshold are considered duplicates and filtered out.
    * Default is 0.9 (90% similarity).
    */
-  uniqueThreshold: number;
+  uniqueThreshold?: number;
   /**
    * Optional maximum number of unique frames to extract.
    * If null, all unique frames will be extracted.
@@ -4556,7 +6978,39 @@ export type VideoFrameExtractionInput = {
    * Time in seconds to seek to before extracting frames.
    * Default is 0 (start of video).
    */
+  startTime?: number;
+};
+
+/**
+ * Job for extracting unique frames from a video using perceptual hashing.
+ */
+export type VideoFrameExtractionJob = Omit<Job, '$type'> & {
+  videoUrl: string;
+  /**
+   * The rate at which to extract frames (frames per second).
+   */
+  frameRate: number;
+  /**
+   * The similarity threshold for determining unique frames (0.0 to 1.0).
+   * Frames with similarity above this threshold are considered duplicates and filtered out.
+   */
+  uniqueThreshold: number;
+  /**
+   * Optional maximum number of unique frames to extract.
+   */
+  maxFrames?: null | number;
+  /**
+   * Blob key prefix for uploading extracted frames. Frames will be uploaded as {prefix}-{index}.jpg
+   */
+  destinationBlobKeyPrefix: string;
+  /**
+   * Time in seconds to seek to before extracting frames.
+   * Default is 0 (start of video).
+   */
   startTime: number;
+  readonly type: string;
+  readonly claimDuration: string;
+  $type: 'videoFrameExtraction';
 };
 
 /**
@@ -4623,8 +7077,23 @@ export type VideoGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 
 export type VideoInterpolationInput = {
   video: string;
-  interpolationFactor: number;
+  interpolationFactor?: number;
+  model?: string;
+};
+
+export type VideoInterpolationJob = Omit<Job, '$type'> & {
+  videoUrl: string;
   model: string;
+  interpolationFactor: number;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  duration: string;
+  fps: number;
+  width: number;
+  height: number;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'videoInterpolation';
 };
 
 export type VideoInterpolationOutput = {
@@ -4699,7 +7168,22 @@ export type VideoMetadataStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 
 export type VideoUpscalerInput = {
   video: string;
+  scaleFactor?: number;
+};
+
+export type VideoUpscalerJob = Omit<Job, '$type'> & {
+  videoUrl: string;
+  mode: string;
   scaleFactor: number;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  duration: string;
+  fps: number;
+  width: number;
+  height: number;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'videoUpscaler';
 };
 
 export type VideoUpscalerOutput = {
@@ -4725,34 +7209,55 @@ export type VideoUpscalerStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 
 export type ViduQ3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed?: null | number;
-  duration: number;
-  resolution: '360p' | '540p' | '720p' | '1080p';
-  turbo: boolean;
-  enableAudio: boolean;
+  duration?: number;
+  resolution?: '360p' | '540p' | '720p' | '1080p';
+  turbo?: boolean;
+  enableAudio?: boolean;
   aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
-  images: Array<string>;
+  images?: Array<string>;
   engine: 'vidu-q3';
 };
 
 export type ViduVideoGenInput = Omit<VideoGenInput, 'engine'> & {
-  enablePromptEnhancer: boolean;
+  enablePromptEnhancer?: boolean;
   seed?: null | number;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: null | string;
-  style: ViduVideoGenStyle;
-  duration: 4 | 8;
+  style?: ViduVideoGenStyle;
+  duration?: 4 | 8;
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   endSourceImage?: null | string;
-  model: ViduVideoGenModel;
+  model?: ViduVideoGenModel;
   aspectRatio?: '16:9' | '9:16' | '1:1';
   movementAmplitude?: 'auto' | 'small' | 'medium' | 'large';
-  images: Array<string>;
-  enableBackgroundMusic: boolean;
+  images?: Array<string>;
+  enableBackgroundMusic?: boolean;
   engine: 'vidu';
+};
+
+export type ViduVideoGenJob = Omit<Job, '$type'> & {
+  prompt: string;
+  enablePromptEnhancer: boolean;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  style: ViduVideoGenStyle;
+  duration: number;
+  model: ViduVideoGenModel;
+  aspectRatio?: null | string;
+  movementAmplitude?: null | string;
+  images: Array<string>;
+  enableBgm: boolean;
+  resolution: string;
+  turbo: boolean;
+  enableAudio: boolean;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'vidu';
 };
 
 export const ViduVideoGenModel = {
@@ -4787,6 +7292,17 @@ export type WdTaggingInput = {
    * Optional prompt to guide the tagging process.
    */
   prompt?: null | string;
+};
+
+export type WdTaggingJob = Omit<Job, '$type'> & {
+  model: string;
+  mediaUrl: string;
+  threshold?: null | number;
+  movieRatingModel?: null | string;
+  prompt?: null | string;
+  readonly claimDuration: string;
+  readonly type: string;
+  $type: 'wdTagging';
 };
 
 /**
@@ -4828,18 +7344,18 @@ export type Wan21CivitaiVideoGenInput = Omit<
   Wan21VideoGenInput,
   'engine' | 'version' | 'provider'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   model?: null | string;
-  images: Array<string>;
+  images?: Array<string>;
   provider: 'civitai';
   version: 'v2.1';
   engine: 'wan';
 };
 
 export type Wan21FalVideoGenInput = Omit<Wan21VideoGenInput, 'engine' | 'version' | 'provider'> & {
-  aspectRatio: '1:1' | '16:9' | '9:16';
-  enablePromptExpansion: boolean;
+  aspectRatio?: '1:1' | '16:9' | '9:16';
+  enablePromptExpansion?: boolean;
   provider: 'fal';
   version: 'v2.1';
   engine: 'wan';
@@ -4864,11 +7380,8 @@ export type Wan225bFalImageToVideoInput = Omit<
   Wan225bFalVideoGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'image-to-video';
-  resolution: '480p';
-  aspectRatio: '1:1';
-  interpolatorModel: 'none';
   provider: 'fal';
   version: 'v2.2-5b';
   engine: 'wan';
@@ -4879,9 +7392,6 @@ export type Wan225bFalTextToVideoInput = Omit<
   'engine' | 'version' | 'provider' | 'operation'
 > & {
   operation: 'text-to-video';
-  resolution: '480p';
-  aspectRatio: '1:1';
-  interpolatorModel: 'none';
   provider: 'fal';
   version: 'v2.2-5b';
   engine: 'wan';
@@ -4892,15 +7402,15 @@ export type Wan225bFalVideoGenInput = Omit<
   'engine' | 'version' | 'provider'
 > & {
   operation: null | string;
-  resolution: '480p' | '580p' | '720p';
-  aspectRatio: '1:1' | '16:9' | '9:16' | 'auto';
-  enablePromptExpansion: boolean;
-  useDistill: boolean;
-  useFastWan: boolean;
-  interpolatorModel: 'none' | 'film' | 'rife';
+  resolution?: '480p' | '580p' | '720p';
+  aspectRatio?: '1:1' | '16:9' | '9:16' | 'auto';
+  enablePromptExpansion?: boolean;
+  useDistill?: boolean;
+  useFastWan?: boolean;
+  interpolatorModel?: 'none' | 'film' | 'rife';
   negativePrompt?: null | string;
-  enableSafetyChecker: boolean;
-  numInferenceSteps: number;
+  enableSafetyChecker?: boolean;
+  numInferenceSteps?: number;
   provider: 'fal';
   version: 'v2.2-5b';
   engine: 'wan';
@@ -4908,8 +7418,8 @@ export type Wan225bFalVideoGenInput = Omit<
 
 export type Wan225bImageGenInput = Omit<WanImageGenInput, 'engine' | 'version'> & {
   provider: null | string;
-  steps: number;
-  shift: number;
+  steps?: number;
+  shift?: number;
   version: 'v2.2-5b';
   engine: 'wan';
 };
@@ -4924,12 +7434,12 @@ export type Wan22ComfyVideoGenInput = Omit<
   Wan22VideoGenInput,
   'engine' | 'version' | 'provider'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   model?: null | string;
-  images: Array<string>;
+  images?: Array<string>;
   negativePrompt?: null | string;
-  sampler:
+  sampler?:
     | 'euler'
     | 'euler_ancestral'
     | 'heun'
@@ -4948,7 +7458,7 @@ export type Wan22ComfyVideoGenInput = Omit<
     | 'lcm'
     | 'uni_pc'
     | 'uni_pc_bh2';
-  scheduler:
+  scheduler?:
     | 'normal'
     | 'karras'
     | 'exponential'
@@ -4956,14 +7466,14 @@ export type Wan22ComfyVideoGenInput = Omit<
     | 'simple'
     | 'ddim_uniform'
     | 'beta';
-  shift: number;
+  shift?: number;
   provider: 'comfy';
   version: 'v2.2';
   engine: 'wan';
 };
 
 export type Wan22FalImageGenInput = Omit<Wan22ImageGenInput, 'engine' | 'version' | 'provider'> & {
-  acceleration: 'none' | 'fast' | 'faster';
+  acceleration?: 'none' | 'fast' | 'faster';
   provider: 'fal';
   version: 'v2.2';
   engine: 'wan';
@@ -4973,11 +7483,8 @@ export type Wan22FalImageToVideoInput = Omit<
   Wan22FalVideoGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'image-to-video';
-  resolution: '480p';
-  aspectRatio: '1:1';
-  interpolatorModel: 'film';
   provider: 'fal';
   version: 'v2.2';
   engine: 'wan';
@@ -4988,9 +7495,6 @@ export type Wan22FalTextToVideoInput = Omit<
   'engine' | 'version' | 'provider' | 'operation'
 > & {
   operation: 'text-to-video';
-  resolution: '480p';
-  aspectRatio: '1:1';
-  interpolatorModel: 'film';
   provider: 'fal';
   version: 'v2.2';
   engine: 'wan';
@@ -4998,14 +7502,14 @@ export type Wan22FalTextToVideoInput = Omit<
 
 export type Wan22FalVideoGenInput = Omit<Wan22VideoGenInput, 'engine' | 'version' | 'provider'> & {
   operation: null | string;
-  resolution: '480p' | '720p';
-  aspectRatio: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '4:5' | '5:4';
-  enablePromptExpansion: boolean;
-  shift: number;
-  interpolatorModel: 'film' | 'rife';
-  useTurbo: boolean;
+  resolution?: '480p' | '720p';
+  aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '4:5' | '5:4';
+  enablePromptExpansion?: boolean;
+  shift?: number;
+  interpolatorModel?: 'film' | 'rife';
+  useTurbo?: boolean;
   negativePrompt?: null | string;
-  enableSafetyChecker: boolean;
+  enableSafetyChecker?: boolean;
   provider: 'fal';
   version: 'v2.2';
   engine: 'wan';
@@ -5013,7 +7517,7 @@ export type Wan22FalVideoGenInput = Omit<Wan22VideoGenInput, 'engine' | 'version
 
 export type Wan22ImageGenInput = Omit<WanImageGenInput, 'engine' | 'version'> & {
   provider: null | string;
-  steps: number;
+  steps?: number;
   version: 'v2.2';
   engine: 'wan';
 };
@@ -5035,7 +7539,7 @@ export type Wan25FalImageToImageInput = Omit<
   Wan25FalImageGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'image-to-image';
   provider: 'fal';
   version: 'v2.5';
@@ -5046,10 +7550,8 @@ export type Wan25FalImageToVideoInput = Omit<
   Wan25FalVideoGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'image-to-video';
-  resolution: '480p';
-  aspectRatio: '16:9';
   provider: 'fal';
   version: 'v2.5';
   engine: 'wan';
@@ -5070,8 +7572,6 @@ export type Wan25FalTextToVideoInput = Omit<
   'engine' | 'version' | 'provider' | 'operation'
 > & {
   operation: 'text-to-video';
-  resolution: '480p';
-  aspectRatio: '16:9';
   provider: 'fal';
   version: 'v2.5';
   engine: 'wan';
@@ -5079,9 +7579,9 @@ export type Wan25FalTextToVideoInput = Omit<
 
 export type Wan25FalVideoGenInput = Omit<Wan25VideoGenInput, 'engine' | 'version' | 'provider'> & {
   operation: null | string;
-  resolution: '480p' | '720p' | '1080p';
-  aspectRatio: '16:9' | '9:16' | '1:1';
-  enablePromptExpansion: boolean;
+  resolution?: '480p' | '720p' | '1080p';
+  aspectRatio?: '16:9' | '9:16' | '1:1';
+  enablePromptExpansion?: boolean;
   negativePrompt?: null | string;
   provider: 'fal';
   version: 'v2.5';
@@ -5104,9 +7604,8 @@ export type Wan26FalImageToVideoInput = Omit<
   Wan26FalVideoGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
   operation: 'image-to-video';
-  resolution: '720p';
   provider: 'fal';
   version: 'v2.6';
   engine: 'wan';
@@ -5120,14 +7619,13 @@ export type Wan26FalReferenceToVideoInput = Omit<
    * Reference videos for subject consistency (1-3 videos with minimum 16 FPS)
    * Use @Video1, @Video2, @Video3 in the prompt to reference these subjects
    */
-  referenceVideoUrls: Array<string>;
-  aspectRatio: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  referenceVideoUrls?: Array<string>;
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
   /**
    * Duration for reference-to-video is limited to 5 or 10 seconds
    */
-  duration: number;
+  duration?: number;
   operation: 'reference-to-video';
-  resolution: '720p';
   provider: 'fal';
   version: 'v2.6';
   engine: 'wan';
@@ -5137,9 +7635,8 @@ export type Wan26FalTextToVideoInput = Omit<
   Wan26FalVideoGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  aspectRatio: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
   operation: 'text-to-video';
-  resolution: '720p';
   provider: 'fal';
   version: 'v2.6';
   engine: 'wan';
@@ -5147,11 +7644,11 @@ export type Wan26FalTextToVideoInput = Omit<
 
 export type Wan26FalVideoGenInput = Omit<Wan26VideoGenInput, 'engine' | 'version' | 'provider'> & {
   operation: null | string;
-  resolution: '720p' | '1080p';
+  resolution?: '720p' | '1080p';
   negativePrompt?: null | string;
-  enablePromptExpansion: boolean;
-  multiShots: boolean;
-  enableSafetyChecker: boolean;
+  enablePromptExpansion?: boolean;
+  multiShots?: boolean;
+  enableSafetyChecker?: boolean;
   /**
    * URL of audio file for background music (3-30 seconds, up to 15 MB)
    * Supported for text-to-video and image-to-video only
@@ -5172,13 +7669,13 @@ export type WanImageGenInput = Omit<ImageGenInput, 'engine'> & {
   version: null | string;
   prompt: string;
   negativePrompt?: null | string;
-  guidanceScale: number;
+  guidanceScale?: number;
   seed?: null | number;
-  quantity: number;
-  imageSize: string;
-  enablePromptExpansion: boolean;
-  enableSafetyChecker: boolean;
-  loras: Array<ImageGenInputLora>;
+  quantity?: number;
+  imageSize?: string;
+  enablePromptExpansion?: boolean;
+  enableSafetyChecker?: boolean;
+  loras?: Array<ImageGenInputLora>;
   engine: 'wan';
 };
 
@@ -5189,11 +7686,11 @@ export type WanVideoGenInput = Omit<VideoGenInput, 'engine'> & {
    */
   sourceImage?: null | string;
   cfgScale: number;
-  frameRate: number;
-  duration: number;
+  frameRate?: number;
+  duration?: number;
   seed?: null | number;
-  steps: number;
-  loras: Array<VideoGenInputLora>;
+  steps?: number;
+  loras?: Array<VideoGenInputLora>;
   engine: 'wan';
 };
 
@@ -5204,17 +7701,537 @@ export type WebpOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   /**
    * Quality setting for WebP compression (1-100). Only applies when Lossless is false.
    */
-  quality: number;
+  quality?: number;
   /**
    * When true, uses lossless compression. When false, uses lossy compression with the Quality setting.
    */
-  lossless: boolean;
+  lossless?: boolean;
   /**
    * Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.
    * When null, all frames are preserved.
    */
   maxFrames?: null | number;
   format: 'webp';
+};
+
+export type WorkerByteplusCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's capabilities.
+ */
+export type WorkerCapabilities = {
+  image: WorkerImageCapabilities;
+  media: WorkerMediaCapabilities;
+  modelManagement?: WorkerModelPreparationCapabilities;
+  configurationManagement?: WorkerConfigurationCapabilities;
+  similaritySearch?: WorkerSimilaritySearchCapabilities;
+  llmPromptAugmentation?: LlmPromptAugmentationCapabilities;
+  byteplus?: WorkerByteplusCapabilities;
+  chatCompletion?: ChatCompletionCapabilities;
+  google?: WorkerGoogleCapabilities;
+};
+
+/**
+ * Details of a worker's configuration capabilities.
+ */
+export type WorkerConfigurationCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details for a particular worker.
+ */
+export type WorkerDetails = {
+  /**
+   * The worker's ID.
+   */
+  id: string;
+  /**
+   * The worker's name.
+   */
+  name: string;
+  /**
+   * The worker's active job count.
+   */
+  activeJobs: number;
+  /**
+   * The number of jobs in the worker's queue.
+   */
+  queueSize: number;
+  /**
+   * The total cost of job's in the worker's queue.
+   */
+  queueDepth: number;
+  /**
+   * The worker's start date / time.
+   */
+  startDate: string;
+  /**
+   * The worker's last request date / time.
+   */
+  lastRequestDate?: null | string;
+  /**
+   * The worker's expiration date / time.
+   */
+  expirationDate?: null | string;
+  statistics?: ProcessingStatistics;
+  /**
+   * The worker's succeeded job throughput rate.
+   */
+  succeededThroughputRate: number;
+  /**
+   * The worker's failed job throughput rate.
+   */
+  failedThroughputRate: number;
+  /**
+   * The worker's idle rate.
+   */
+  idleRate: number;
+  /**
+   * The date / time of the worker's last successfully completed job.
+   */
+  lastSuccesfullyCompletedJobDate?: null | string;
+  /**
+   * The date / time of the worker's last job update.
+   */
+  lastJobUpdateDate?: null | string;
+  /**
+   * The date / time that the worker's subscription was set.
+   */
+  subscriptionSetDate?: null | string;
+  /**
+   * The date / time that the worker was quarantined.
+   */
+  quarantineDate?: null | string;
+  /**
+   * The rate at which this worker has been downloading
+   */
+  resourceDownloadRate: number;
+  /**
+   * The rate at which this worker has been evicting resources
+   */
+  resourceEvictionRate: number;
+  /**
+   * The size in bytes of resources that are queued up for this worker to download
+   */
+  upcomingResourcesSize?: null | number;
+  /**
+   * The remaining capacity  that this worker can claim, or null if remaining capacity can not be computed
+   */
+  availableCapacity?: null | number;
+  nodeIdentifier?: null | string;
+  peerNodeIdentifiers?: null | Array<string>;
+  paused: boolean;
+};
+
+/**
+ * Request body for worker diagnostics actions
+ */
+export type WorkerDiagnosticsRequest = {
+  /**
+   * If true, triggers a full registration resync for the worker
+   */
+  resync: boolean;
+};
+
+export type WorkerFalCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerGoogleCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerHaiperCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerHumanoidImageMaskCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's image capabilities.
+ */
+export type WorkerImageCapabilities = {
+  textToImage?: WorkerImageTextToImageCapabilities;
+  imageToImage?: WorkerImageImageToImageCapabilities;
+  transform?: WorkerImageTransformCapabilities;
+  resourceTraining?: WorkerImageResourceTrainingCapabilities;
+  embedding?: WorkerImageEmbeddingCapabilities;
+  upscaler?: WorkerImageUpscalerCapabilities;
+  convert?: WorkerImageConvertCapabilities;
+};
+
+/**
+ * Capabilities for image conversion operations (resize, format conversion).
+ */
+export type WorkerImageConvertCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's image embedding capabilities.
+ */
+export type WorkerImageEmbeddingCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's image to image capabilities.
+ */
+export type WorkerImageImageToImageCapabilities = {
+  /**
+   * The worker's maximum supported image size for image to image (squared).
+   */
+  size: number;
+  /**
+   * A list of schedulers the worker supports for image to image.
+   */
+  schedulers: Array<Scheduler>;
+  /**
+   * The number of ControlNets the worker supports for image to image (at once).
+   */
+  controlNet: number;
+  /**
+   * Indicates whether the worker supports inpaiting.
+   */
+  inpainting: boolean;
+};
+
+/**
+ * Details of a worker's image resource training capabilities.
+ */
+export type WorkerImageResourceTrainingCapabilities = {
+  aiToolkitVersion?: null | number;
+  engines: Array<string>;
+};
+
+/**
+ * Details of a worker's text to image capabilities.
+ */
+export type WorkerImageTextToImageCapabilities = {
+  /**
+   * The worker's maximum supported image size for text to image (squared).
+   */
+  size: number;
+  /**
+   * A list of schedulers the worker supports for text to image.
+   */
+  schedulers: Array<Scheduler>;
+  /**
+   * The number of ControlNets the worker supports for text to image (at once).
+   */
+  controlNet: number;
+  /**
+   * A list of engines that this worker supports for text to image.
+   */
+  engines?: null | Array<string>;
+  additionalOutputFormats: boolean;
+};
+
+/**
+ * Details of a worker's image transform capabilities.
+ */
+export type WorkerImageTransformCapabilities = {
+  /**
+   * A list of supported image transformers.
+   */
+  transformers: Array<ImageTransformer>;
+};
+
+export type WorkerImageUpscalerCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerKlingCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerMediaAsrCapabilities = {
+  additionalConcurrency: number;
+};
+
+export type WorkerMediaAgeClassificationCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's media capabilities.
+ */
+export type WorkerMediaCapabilities = {
+  wdTagging?: WorkerMediaWdTaggingCapabilities;
+  comfy?: WorkerMediaComfyCapabilities;
+  tagging?: WorkerMediaTaggingCapabilities;
+  movieRating?: WorkerMediaMovieRatingCapabilities;
+  transcode?: WorkerMediaTranscodeCapabilities;
+  captioning?: WorkerMediaCaptioningCapabilities;
+  ageClassification?: WorkerMediaAgeClassificationCapabilities;
+  ocrSafetyClassification?: WorkerMediaOcrSafetyClassificationCapabilities;
+  videoEnhancements?: WorkerVideoEnhancementCapabilities;
+  mediaRating?: WorkerMediaRatingCapabilities;
+  mediaHash?: WorkerMediaHashCapabilities;
+  videoFrameExtraction?: WorkerVideoFrameExtractionCapabilities;
+  videoUpscaler?: WorkerVideoUpscalerCapabilities;
+  asr?: WorkerMediaAsrCapabilities;
+  tts?: WorkerMediaTtsCapabilities;
+};
+
+export type WorkerMediaCaptioningCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's media comfy capabilities.
+ */
+export type WorkerMediaComfyCapabilities = {
+  /**
+   * A preview property to enable spine comfy workflows
+   */
+  spineComfy: boolean;
+  /**
+   * The ability to emulate FAL wan jobs
+   */
+  falWanEmulation: boolean;
+};
+
+/**
+ * Details of a worker's media hash capabilities.
+ */
+export type WorkerMediaHashCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's media movie rating capabilities.
+ */
+export type WorkerMediaMovieRatingCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerMediaOcrSafetyClassificationCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's media rating capabilities.
+ */
+export type WorkerMediaRatingCapabilities = {
+  additionalConcurrency: number;
+  supportsLegacyJobTypes: boolean;
+};
+
+export type WorkerMediaTtsCapabilities = {
+  additionalConcurrency: number;
+};
+
+/**
+ * Details of a worker's media tagging capabilities.
+ */
+export type WorkerMediaTaggingCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerMediaTranscodeCapabilities = {
+  additionalConcurrency: number;
+};
+
+/**
+ * Details of a worker's media WD tagging capabilities.
+ */
+export type WorkerMediaWdTaggingCapabilities = {
+  version?: null | number;
+};
+
+export type WorkerMiniMaxCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's model preparation capabilities.
+ */
+export type WorkerModelPreparationCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerOpenAiCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerPromptRewritingCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's registration.
+ */
+export type WorkerRegistration = {
+  /**
+   * The worker's name.
+   */
+  name: string;
+  /**
+   * A hash set of resource types the worker can retrieve on demand.
+   */
+  onDemandResourceTypes: Array<string>;
+  capabilities: WorkerCapabilities;
+  subscription?: Subscription;
+  type?: WorkerType;
+  /**
+   * The number of requests the worker can handle at once.
+   */
+  concurrentLimit: number;
+  /**
+   * A collection of ecosystems the worker supports.
+   */
+  ecosystems: {
+    [key: string]: EcosystemElement;
+  };
+  /**
+   * A collection of information about the availability of particular resources on this worker.
+   */
+  resources: {
+    [key: string]: WorkerResourceStatus;
+  };
+  /**
+   * The name of the closest cache level that this worker can interact with.
+   */
+  cacheLevel?: null | string;
+  /**
+   * The max queue size before the worker stops accepting requests that require cold swapping.
+   */
+  maxColdSwapQueueSize?: null | number;
+  /**
+   * The max size in Mb of downloads that can be pending.
+   */
+  maxPendingResourceSize?: null | number;
+  /**
+   * A value indicating if worker should consume jobs that are not yet available.
+   */
+  consumeUnavailableJobs: boolean;
+  /**
+   * An optional identifier unique to this worker.
+   */
+  nodeIdentifier?: null | string;
+  /**
+   * An optional boost to the scoring of this worker. This can be used to make a worker more or less likely to be selected for work
+   */
+  scoreBoost?: null | number;
+  /**
+   * A list of file formats that the worker supports. If none are specified then all formats are considered supported
+   */
+  supportedFileFormats?: null | Array<FileFormat>;
+  preferredDownloadSource?: DownloadSource;
+  /**
+   * A collection of labels that will be applied to metrics produced by these workers
+   */
+  labels?: null | {
+    [key: string]: string;
+  };
+  /**
+   * Get additional metadata about this worker. This can be used for debugging purposes as well as to target certain configurations to certain workers.
+   */
+  metadata?: null | {
+    [key: string]: unknown;
+  };
+  /**
+   * The saturation rate of available capacity of this worker of the worker.
+   */
+  capacitySaturationRate?: null | number;
+  /**
+   * An optional set of identifiers for the peer nodes that this worker is connected to.
+   */
+  peerNodeIdentifiers?: null | Array<string>;
+  /**
+   * Wether this worker supports additional resources.
+   */
+  supportsAdditionalResources: boolean;
+  /**
+   * Ability to version clients
+   */
+  version: number;
+};
+
+/**
+ * Options for representing the status for a resource on a worker.
+ */
+export const WorkerResourceAvailability = {
+  UNKNOWN: 'unknown',
+  UNSUPPORTED: 'unsupported',
+  UNAVAILABLE: 'unavailable',
+  AVAILABLE: 'available',
+  PROVIDER_UNSUPPORTED: 'providerUnsupported',
+} as const;
+
+/**
+ * Options for representing the status for a resource on a worker.
+ */
+export type WorkerResourceAvailability =
+  (typeof WorkerResourceAvailability)[keyof typeof WorkerResourceAvailability];
+
+/**
+ * Details for the status of a resource on a particular worker.
+ */
+export type WorkerResourceStatus = {
+  availability: WorkerResourceAvailability;
+  /**
+   * The cost associated with this resource.
+   */
+  cost: number;
+};
+
+/**
+ * Details of a worker's similarity search capabilities.
+ */
+export type WorkerSimilaritySearchCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerTryOnUCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Available values for worker type.
+ */
+export const WorkerType = {
+  NORMAL: 'normal',
+  DEFERRED: 'deferred',
+  TEST: 'test',
+  PAUSED: 'paused',
+} as const;
+
+/**
+ * Available values for worker type.
+ */
+export type WorkerType = (typeof WorkerType)[keyof typeof WorkerType];
+
+/**
+ * Capabilities for Veo3 video generation.
+ */
+export type WorkerVeo3Capabilities = {
+  [key: string]: never;
+};
+
+export type WorkerVideoEnhancementCapabilities = {
+  [key: string]: never;
+};
+
+/**
+ * Details of a worker's video frame extraction capabilities.
+ */
+export type WorkerVideoFrameExtractionCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerVideoUpscalerCapabilities = {
+  [key: string]: never;
+};
+
+export type WorkerViduCapabilities = {
+  [key: string]: never;
 };
 
 /**
@@ -5703,7 +8720,7 @@ export type WorkflowTemplate = {
    * Additional payment options are available for workflows that do not allow mature content.
    */
   allowMatureContent?: null | boolean;
-  upgradeMode: WorkflowUpgradeMode;
+  upgradeMode?: WorkflowUpgradeMode;
   /**
    * Limit the currencies that can be used to pay for this workflow.
    */
@@ -5739,8 +8756,6 @@ export type ZImageBaseAiToolkitTrainingInput = Omit<
   'engine' | 'ecosystem'
 > & {
   ecosystem: 'zimagebase';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -5748,8 +8763,8 @@ export type ZImageBaseCreateImageGenInput = Omit<
   ZImageBaseImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   model: 'base';
   ecosystem: 'zImage';
@@ -5763,13 +8778,13 @@ export type ZImageBaseImageGenInput = Omit<
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  steps: number;
-  cfgScale: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
-  loras: {
+  quantity?: number;
+  loras?: {
     [key: string]: number;
   };
   model: 'base';
@@ -5783,6 +8798,88 @@ export type ZImageImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem
   engine: 'sdcpp';
 };
 
+export type ZImageStableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The Z-Image diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Z-Image (uses Flux VAE).
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen3-4B GGUF format).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<ZImageStableDiffusionCppJobSlot>;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'zImageStableDiffusionCpp';
+};
+
+/**
+ * Contains slot information for an image generated by a ZImageStableDiffusionCppJob.
+ */
+export type ZImageStableDiffusionCppJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
+};
+
 /**
  * AI Toolkit training for Z Image Turbo models
  */
@@ -5791,8 +8888,6 @@ export type ZImageTurboAiToolkitTrainingInput = Omit<
   'engine' | 'ecosystem'
 > & {
   ecosystem: 'zimageturbo';
-  lrScheduler: 'constant';
-  optimizerType: 'adamw';
   engine: 'ai-toolkit';
 };
 
@@ -5800,8 +8895,8 @@ export type ZImageTurboCreateImageGenInput = Omit<
   ZImageTurboImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   operation: 'createImage';
   model: 'turbo';
   ecosystem: 'zImage';
@@ -5815,18 +8910,100 @@ export type ZImageTurboImageGenInput = Omit<
   operation: string;
   prompt: string;
   negativePrompt?: null | string;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  steps: number;
-  cfgScale: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  steps?: number;
+  cfgScale?: number;
   seed?: null | number;
-  quantity: number;
-  loras: {
+  quantity?: number;
+  loras?: {
     [key: string]: number;
   };
   model: 'turbo';
   ecosystem: 'zImage';
   engine: 'sdcpp';
+};
+
+export type ZImageTurboStableDiffusionCppJob = Omit<Job, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The Z-Image Turbo diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Z-Image (uses Flux VAE).
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen3-4B GGUF format).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<ZImageTurboStableDiffusionCppJobSlot>;
+  /**
+   * The duration for which this job can be claimed for.
+   */
+  readonly claimDuration: string;
+  /**
+   * The job type.
+   */
+  readonly type: string;
+  $type: 'zImageTurboStableDiffusionCpp';
+};
+
+/**
+ * Contains slot information for an image generated by a ZImageTurboStableDiffusionCppJob.
+ */
+export type ZImageTurboStableDiffusionCppJobSlot = {
+  /**
+   * The hash for the image output.
+   */
+  imageHash: string;
+  /**
+   * The destination url for image upload.
+   */
+  destinationUrl: string;
 };
 
 /**
@@ -5849,6 +9026,168 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
 /**
+ * A job that trains a single epoch using AI Toolkit.
+ * Each epoch is a separate job that depends on the previous epoch's output.
+ * This approach provides better fault tolerance and deduplication compared to
+ * monolithic multi-epoch training jobs.
+ */
+export type AiToolkitTrainingEpochJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The base model to train upon
+   */
+  model: string;
+  trainingData: TrainingData;
+  /**
+   * The epoch number (1-based) that this job will train
+   */
+  epochNumber: number;
+  /**
+   * AIR pointing to the previous epoch's output blob (null for epoch 1).
+   * Format: urn:air:{ecosystem}:lora:orchestrator:blob@{blobKey}
+   */
+  previousEpochResource?: null | string;
+  /**
+   * The blob key where this epoch's trained model will be stored.
+   * This is a content-based hash derived from training inputs for deduplication.
+   */
+  destinationBlobKey: string;
+  /**
+   * Presigned URL where the worker should upload the trained epoch
+   */
+  destinationUrl: string;
+  /**
+   * The training engine (should be "ai-toolkit")
+   */
+  engine: string;
+  trainingDataCount: number;
+  /**
+   * Total number of epochs to train (used for calculating step counts)
+   */
+  epochs: number;
+  /**
+   * Number of repeats per image (internal parameter, determined by handler)
+   */
+  numRepeats: number;
+  /**
+   * Batch size for training (internal parameter, determined by handler based on worker capabilities)
+   */
+  trainBatchSize: number;
+  lr: number;
+  textEncoderLr?: null | number;
+  trainTextEncoder?: null | boolean;
+  lrScheduler?: null | string;
+  optimizerType?: null | string;
+  networkDim?: null | number;
+  networkAlpha?: null | number;
+  noiseOffset?: null | number;
+  minSnrGamma?: null | number;
+  flipAugmentation: boolean;
+  shuffleTokens: boolean;
+  keepTokens: number;
+  /**
+   * Session ID shared by all jobs from the same workflow to group related training jobs
+   */
+  sessionId: string;
+  /**
+   * Optional extras model resource (e.g., for Z-Image-De-Turbo which needs the original Z-Image-Turbo model)
+   */
+  extrasModel?: null | string;
+  /**
+   * Optional text encoder model resource (separate from base model).
+   * Used when the text encoder is not bundled with the base model (e.g., Flux2 Klein uses Qwen3).
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Optional VAE model resource (separate from base model).
+   * Used when a custom VAE is required that isn't bundled with the base model.
+   */
+  vaeModel?: null | string;
+  /**
+   * Whether this is image-edit training (uses control_path_1/2/3 in dataset config).
+   * When true, the training data contains subfolders: main/, control_1/, control_2/, control_3/.
+   */
+  isEditTraining: boolean;
+  /**
+   * A trigger word that activates the trained LoRA when used in prompts.
+   */
+  triggerWord?: null | string;
+  $type: 'aiToolkitTrainingEpoch';
+};
+
+/**
+ * Generate music using ACE Step 1.5 audio generation model.
+ * Produces full songs from text descriptions and lyrics.
+ */
+export type AceStepAudioJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * Music style/genre description (e.g., "Neo-Soul: A warm, organic neo-soul track...")
+   */
+  musicDescription: string;
+  /**
+   * Structured lyrics with section markers like [Verse], [Chorus], [Bridge], etc.
+   */
+  lyrics: string;
+  /**
+   * Random seed for reproducible generation
+   */
+  seed: number;
+  /**
+   * Duration in seconds (max ~190)
+   */
+  duration: number;
+  /**
+   * Beats per minute
+   */
+  bpm: number;
+  /**
+   * Time signature (e.g., "4" for 4/4 time)
+   */
+  timeSignature: string;
+  /**
+   * Language code (e.g., "en", "zh", "ja", "ko")
+   */
+  language: string;
+  /**
+   * Musical key (e.g., "C major", "E minor")
+   */
+  key: string;
+  /**
+   * Weight for instrumental elements (0.0-1.0)
+   */
+  instrumentalWeight: number;
+  /**
+   * Weight for vocal elements (0.0-1.0)
+   */
+  vocalWeight: number;
+  /**
+   * Vocal prompt length parameter
+   */
+  vocalPromptLength: number;
+  /**
+   * Number of sampling steps (turbo model uses 8)
+   */
+  steps: number;
+  /**
+   * Classifier-free guidance scale
+   */
+  cfg: number;
+  /**
+   * Optional model override (uses DefaultModel if not specified)
+   */
+  model?: null | string;
+  /**
+   * Destination URL for the generated video file
+   */
+  destinationUrl: string;
+  /**
+   * Optional cover image URL. When provided, the output is a WebM video
+   * with this image as the visual; otherwise, output is audio-only (MP3).
+   */
+  coverImageUrl?: null | string;
+  $type: 'aceStepAudio';
+};
+
+/**
  * Workflow step for generating music using ACE Step 1.5.
  * Produces full songs from text descriptions and structured lyrics.
  */
@@ -5858,6 +9197,16 @@ export type AceStepAudioStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'aceStepAudio';
 };
 
+export type AgeClassificationJobWritable = Omit<JobWritable2, '$type'> & {
+  model?: null | string;
+  mediaUrl: string;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  failOnMinorDetected: boolean;
+  faceRecognitionModel?: null | string;
+  $type: 'ageClassification';
+};
+
 /**
  * Age classification
  */
@@ -5865,6 +9214,72 @@ export type AgeClassificationStepWritable = Omit<WorkflowStepWritable2, '$type'>
   input: AgeClassificationInput;
   output?: AgeClassificationOutput;
   $type: 'ageClassification';
+};
+
+export type AnimaStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The Anima diffusion model.
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Anima.
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen 3 0.6B).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<AnimaStableDiffusionCppJobSlot>;
+  $type: 'animaStableDiffusionCpp';
+};
+
+export type ByteplusSeedreamJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  width: number;
+  height: number;
+  apiVersion: SeedreamVersion;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  $type: 'byteplusSeedream';
 };
 
 /**
@@ -5880,6 +9295,81 @@ export type ChatCompletionContentPartWritable = {
 };
 
 /**
+ * A job for executing chat completions with support for text and image inputs.
+ * Compatible with OpenAI Chat Completions API format.
+ */
+export type ChatCompletionJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The model to use for chat completion.
+   */
+  model: string;
+  /**
+   * The messages to generate a completion for.
+   * Images URLs have been processed and replaced with blob URLs.
+   */
+  messages: Array<ChatCompletionMessage>;
+  /**
+   * Temperature for sampling (0-2).
+   */
+  temperature: number;
+  /**
+   * Nucleus sampling parameter.
+   */
+  topP: number;
+  /**
+   * Maximum number of tokens to generate.
+   */
+  maxTokens?: null | number;
+  /**
+   * Number of completions to generate.
+   */
+  n: number;
+  /**
+   * Up to 4 sequences where the API will stop generating tokens.
+   */
+  stop?: null | Array<string>;
+  /**
+   * Presence penalty (-2.0 to 2.0).
+   */
+  presencePenalty: number;
+  /**
+   * Frequency penalty (-2.0 to 2.0).
+   */
+  frequencyPenalty: number;
+  /**
+   * Seed for deterministic sampling.
+   */
+  seed?: null | number;
+  /**
+   * A unique identifier for the end-user.
+   */
+  user?: null | string;
+  /**
+   * The blob key where the worker should upload the OpenAI-compatible completion result.
+   */
+  destinationBlobKey: string;
+  /**
+   * The presigned URL where the worker should upload the completion result JSON.
+   */
+  destinationUrl: string;
+  /**
+   * Whether the consumer requested streaming. When true, the worker should upload
+   * NDJSON (one ChatCompletionChunk per line) instead of a single complete JSON response.
+   * The destination URL will include streaming=true so the BlobController activates
+   * real-time chunk notifications to subscribed observers.
+   */
+  stream: boolean;
+  /**
+   * Extra kwargs passed to the chat template (e.g. { "enable_thinking": false } for Qwen3.5).
+   * Forwarded as chat_template_kwargs in the vLLM request.
+   */
+  chatTemplateKwargs?: null | {
+    [key: string]: unknown;
+  };
+  $type: 'chatCompletion';
+};
+
+/**
  * ChatCompletion
  */
 export type ChatCompletionStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
@@ -5889,12 +9379,290 @@ export type ChatCompletionStepWritable = Omit<WorkflowStepWritable2, '$type'> & 
 };
 
 /**
+ * Bulk job for rating multiple media items using Civitai's batched scanning solution.
+ * Maps ambient CivitaiMediaRatingJob IDs to their corresponding media URLs.
+ */
+export type CivitaiBulkMediaRatingJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * Dictionary mapping job IDs to media URLs for batch processing.
+   * The job IDs correspond to the original CivitaiMediaRatingJob instances.
+   */
+  mediaUrls: {
+    [key: string]: string;
+  };
+  optionalProfiles: MediaRatingProfile;
+  nsfwModel?: null | string;
+  ageModel?: null | string;
+  faceRecognitionModel?: null | string;
+  aiDetectorModel?: null | string;
+  animeDetectorModel?: null | string;
+  $type: 'civitaiBulkMediaRating';
+};
+
+/**
+ * Ambient job for rating media content using Civitai's batched scanning solution.
+ * These jobs are collected and batched into CivitaiBulkMediaRatingJob instances.
+ */
+export type CivitaiMediaRatingJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The URL of the media to rate.
+   */
+  mediaUrl: string;
+  optionalProfiles: MediaRatingProfile;
+  nsfwModel?: null | string;
+  ageModel?: null | string;
+  faceRecognitionModel?: null | string;
+  aiDetectorModel?: null | string;
+  animeDetectorModel?: null | string;
+  $type: 'civitaiMediaRating';
+};
+
+export type ClaimWritable = {
+  id: string;
+  job: JobWritable;
+  status: ClaimStatus;
+  requestedAt: string;
+  expiresAt: string;
+  retryAttempt: number;
+};
+
+export type ComfyImageGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  width: number;
+  height: number;
+  sampler: ComfySampler;
+  scheduler: ComfyScheduler;
+  steps: number;
+  cfgScale: number;
+  seed: number;
+  model: string;
+  vaeModel?: null | string;
+  loras: {
+    [key: string]: number;
+  };
+  clipSkip?: null | number;
+  ecosystem: string;
+  sourceImageUrl?: null | string;
+  denoiseStrength?: null | number;
+  imageMetadata?: null | string;
+  slots: Array<ComfyImageGenJobSlot>;
+  $type: 'comfyImageGen';
+};
+
+export type ComfyJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * A untyped set of parameters that are associated with this job
+   */
+  params: {
+    [key: string]: ComfyNode;
+  };
+  resources?: null | Array<string>;
+  /**
+   * Slots for the resulting blob outputs.
+   */
+  slots: Array<ComfyJobSlot>;
+  /**
+   * Get or set additional metadata that will be embedded with generated images
+   */
+  imageMetadata?: null | string;
+  /**
+   * The ability to opt-into spine comfy instances
+   */
+  spineComfy?: null | boolean;
+  $type: 'comfy';
+};
+
+/**
+ * Job for generating videos using LTX Video v2.3 via ComfyUI
+ */
+export type ComfyLtx23VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  duration: number;
+  width: number;
+  height: number;
+  fps: number;
+  generateAudio: boolean;
+  guidanceScale: number;
+  numInferenceSteps: number;
+  sourceImage?: null | string;
+  loras: {
+    [key: string]: number;
+  };
+  diffusionModel: string;
+  clip1Model: string;
+  clip2Model: string;
+  videoVAEModel: string;
+  audioVAEModel: string;
+  upscalerModel: string;
+  upscaleLoras: {
+    [key: string]: number;
+  };
+  sourceVideo?: null | string;
+  numFrames: number;
+  cannyLowThreshold: number;
+  cannyHighThreshold: number;
+  guideStrength: number;
+  controlLora?: null | string;
+  firstFrameImage?: null | string;
+  lastFrameImage?: null | string;
+  sourceAudio?: null | string;
+  audioToVideoAttentionScale?: null | number;
+  $type: 'ComfyLtx23VideoGen';
+};
+
+/**
+ * Job for generating videos using LTX Video v2 via ComfyUI
+ */
+export type ComfyLtx2VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  duration: number;
+  width: number;
+  height: number;
+  fps: number;
+  generateAudio: boolean;
+  guidanceScale: number;
+  numInferenceSteps: number;
+  sourceImage?: null | string;
+  loras: {
+    [key: string]: number;
+  };
+  diffusionModel: string;
+  clip1Model: string;
+  clip2Model: string;
+  videoVAEModel: string;
+  audioVAEModel: string;
+  upscalerModel: string;
+  upscaleLoras: {
+    [key: string]: number;
+  };
+  sourceVideo?: null | string;
+  numFrames: number;
+  cannyLowThreshold: number;
+  cannyHighThreshold: number;
+  guideStrength: number;
+  controlLora?: null | string;
+  firstFrameImage?: null | string;
+  lastFrameImage?: null | string;
+  $type: 'ComfyLtx2VideoGen';
+};
+
+/**
  * Comfy workflows
  */
 export type ComfyStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: ComfyInput;
   output?: ComfyOutput;
   $type: 'comfy';
+};
+
+export type ComfyVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  model: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  cfgScale: number;
+  destinationUrl: string;
+  sampler:
+    | 'euler'
+    | 'euler_ancestral'
+    | 'heun'
+    | 'heunpp2'
+    | 'dpm_2'
+    | 'dpm_2_ancestral'
+    | 'lms'
+    | 'dpm_fast'
+    | 'dpm_adaptive'
+    | 'dpmpp_2s_ancestral'
+    | 'dpmpp_sde'
+    | 'dpmpp_2m'
+    | 'dpmpp_2m_sde'
+    | 'dpmpp_3m_sde'
+    | 'ddpm'
+    | 'lcm'
+    | 'uni_pc'
+    | 'uni_pc_bh2';
+  width: number;
+  height: number;
+  frameRate: number;
+  length: number;
+  seed: number;
+  steps: number;
+  sourceImageUrl?: null | string;
+  loras?: null | Array<Lora>;
+  scheduler?:
+    | 'normal'
+    | 'karras'
+    | 'exponential'
+    | 'sgm_uniform'
+    | 'simple'
+    | 'ddim_uniform'
+    | 'beta';
+  shift?: number;
+  skipFrameInterpolation?: boolean;
+  $type: 'comfyVideoGen';
+};
+
+/**
+ * A job that converts an image to a different format and applies optional transforms.
+ */
+export type ConvertImageJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The URL of the source image to convert.
+   */
+  imageUrl: string;
+  /**
+   * The transforms to apply to the image.
+   */
+  transforms: Array<ImageTransform>;
+  /**
+   * The output format identifier: "jpeg", "png", or "webp".
+   */
+  outputFormat: string;
+  /**
+   * Quality setting for lossy formats (1-100).
+   */
+  quality?: null | number;
+  /**
+   * Whether to use lossless compression (for WebP).
+   */
+  lossless?: null | boolean;
+  /**
+   * The destination blob key where the converted image will be stored.
+   */
+  destinationBlobKey: string;
+  /**
+   * The presigned URL where the converted image will be uploaded.
+   */
+  destinationUrl: string;
+  /**
+   * The target width of the output image after transforms.
+   */
+  targetWidth: number;
+  /**
+   * The target height of the output image after transforms.
+   */
+  targetHeight: number;
+  /**
+   * The MIME content type of the output image (e.g., "image/jpeg", "image/png", "image/webp").
+   */
+  contentType: string;
+  /**
+   * Maximum number of frames to decode from the source image. Set to 1 to extract only the first frame.
+   * When null, all frames are decoded.
+   */
+  maxFrames?: null | number;
+  hideMetadata: boolean;
+  $type: 'convertImage';
 };
 
 /**
@@ -5920,23 +9688,377 @@ export type EchoStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'echo';
 };
 
+export type EcosystemElementWritable = {
+  [key: string]: EcosystemElementWritable;
+};
+
+export type FalFlux2ImageGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  width: number;
+  height: number;
+  outputFormat: string;
+  seed?: null | number;
+  quantity: number;
+  enablePromptExpansion: boolean;
+  /**
+   * The model variant: "base", "flex", or "pro"
+   */
+  modelVariant: string;
+  /**
+   * The operation type: "createImage" or "editImage"
+   */
+  operation: string;
+  /**
+   * Guidance scale (base model: 0-20, default 2.5; flex model: 1.5-100, default 3.5)
+   */
+  guidanceScale?: null | number;
+  /**
+   * Number of inference steps (base model: 4-50, default 28; flex model: 2-50, default 28)
+   */
+  numInferenceSteps?: null | number;
+  /**
+   * Source image URLs for edit operations (max 3)
+   */
+  imageUrls: Array<string>;
+  /**
+   * LoRA weights (base model only, max 3)
+   */
+  loras: Array<FalLoraWeight>;
+  /**
+   * Destination URLs for output images
+   */
+  destinationUrls: Array<string>;
+  imageMetadata?: null | string;
+  $type: 'falFlux2Image';
+};
+
+export type FalGptImage15EditJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  imageUrls: Array<string>;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Image size: auto, 1024x1024, 1536x1024, or 1024x1536
+   */
+  size: string;
+  /**
+   * Background treatment: auto, transparent, or opaque
+   */
+  background: string;
+  /**
+   * Output quality: low, medium, or high
+   */
+  quality: string;
+  /**
+   * Input fidelity: low or high
+   */
+  inputFidelity: string;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'falGptImage15Edit';
+};
+
+export type FalGptImage15JobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Image size: 1024x1024, 1536x1024, or 1024x1536
+   */
+  size: string;
+  /**
+   * Background treatment: auto, transparent, or opaque
+   */
+  background: string;
+  /**
+   * Output quality: low, medium, or high
+   */
+  quality: string;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'falGptImage15';
+};
+
+export type FalGrokImageEditJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  imageUrls: Array<string>;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'falGrokImageEdit';
+};
+
+export type FalGrokImageJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  quantity: number;
+  /**
+   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
+   */
+  aspectRatio: string;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'falGrokImage';
+};
+
+/**
+ * Job for generating videos using xAI's Grok model via FAL.
+ * Supports text-to-video, image-to-video, and edit-video operations.
+ */
+export type FalGrokVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  operation: string;
+  duration: number;
+  aspectRatio: string;
+  resolution: string;
+  sourceImageUrl?: null | string;
+  sourceVideoUrl?: null | string;
+  $type: 'falGrokVideo';
+};
+
+/**
+ * Job for generating videos using LTX Video v2 (19B Distilled) via FAL
+ */
+export type FalLtx2VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  numFrames: number;
+  fps: number;
+  aspectRatio: string;
+  generateAudio: boolean;
+  useMultiscale: boolean;
+  acceleration?: null | string;
+  cameraLora?: null | string;
+  cameraLoraScale: number;
+  quality: string;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  sourceImageUrl?: null | string;
+  sourceVideoUrl?: null | string;
+  matchVideoLength: boolean;
+  strength: number;
+  preprocessor?: null | string;
+  icLoraType?: null | string;
+  icLoraScale: number;
+  matchInputFps: boolean;
+  numContextFrames: number;
+  model: string;
+  guidanceScale: number;
+  numInferenceSteps: number;
+  $type: 'falLtx2VideoGen';
+};
+
+export type FalNanoBanana2JobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  seed?: null | number;
+  enableWebSearch: boolean;
+  enableGoogleSearch: boolean;
+  $type: 'falNanoBanana2';
+};
+
+export type FalNanoBananaProJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  $type: 'falNanoBananaPro';
+};
+
+export type FalQwen2ImageGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  /**
+   * Whether to use the pro model variant
+   */
+  isPro: boolean;
+  /**
+   * The operation type: "text-to-image" or "edit"
+   */
+  operation: string;
+  imageSize: string;
+  seed: number;
+  quantity: number;
+  enablePromptExpansion: boolean;
+  enableSafetyChecker: boolean;
+  /**
+   * Output format: jpeg, png, or webp
+   */
+  outputFormat: string;
+  /**
+   * Source image URLs for edit operations (max 3)
+   */
+  imageUrls: Array<string>;
+  /**
+   * Destination URLs for output images
+   */
+  destinationUrls: Array<string>;
+  imageMetadata?: null | string;
+  $type: 'falQwen2Image';
+};
+
+export type FalSeedreamJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  width: number;
+  height: number;
+  guidanceScale: number;
+  seed: number;
+  enableSafetyChecker: boolean;
+  apiVersion: SeedreamVersion;
+  imageUrls: Array<string>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'falSeedream';
+};
+
+/**
+ * Job for generating videos using OpenAI's Sora model via FAL
+ */
+export type FalSoraVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrl: string;
+  sourceImageUrl?: null | string;
+  destinationBlobKey: string;
+  operation: string;
+  resolution: string;
+  aspectRatio: string;
+  duration: number;
+  usePro: boolean;
+  $type: 'falSoraVideoGenJob';
+};
+
+export type FalVeoVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  veoVersion: Veo3Version;
+  operation: string;
+  aspectRatio: string;
+  duration: string;
+  resolution: string;
+  generateAudio: boolean;
+  enablePromptEnhancer: boolean;
+  seed: number;
+  fastMode: boolean;
+  imageUrls: Array<string>;
+  $type: 'falVeoVideo';
+};
+
+export type FalWanImageGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrls: Array<string>;
+  modelVersion: string;
+  imageSize: string;
+  seed: number;
+  numInferenceSteps: number;
+  guidanceScale: number;
+  acceleration: string;
+  shift: number;
+  enablePromptExpansion: boolean;
+  enableSafetyChecker: boolean;
+  quantity: number;
+  loras: Array<FalLoraWeight>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'falWanImage';
+};
+
+export type FalWanVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  destinationUrl: string;
+  sourceImageUrl?: null | string;
+  destinationBlobKey: string;
+  modelVersion: string;
+  operation: string;
+  resolution: string;
+  aspectRatio: string;
+  duration: number;
+  frameRate: number;
+  seed: number;
+  steps: number;
+  cfgScale: number;
+  enablePromptExpansion: boolean;
+  shift: number;
+  interpolatorModel: string;
+  useTurbo: boolean;
+  loras: Array<FalLoraWeight>;
+  useDistill: boolean;
+  numFrames: number;
+  useFastWan: boolean;
+  enableSafetyChecker: boolean;
+  audioUrl?: null | string;
+  referenceVideoUrls: Array<string>;
+  multiShots: boolean;
+  $type: 'falWanVideo';
+};
+
 export type Flux1KontextDevImageGenInputWritable = Omit<
   Flux1KontextImageGenInputWritable,
   'engine'
 > & {
   model: 'dev';
-  aspectRatio: '21:9';
   engine: 'flux1-kontext';
 };
 
 export type Flux1KontextImageGenInputWritable = Omit<ImageGenInputWritable, 'engine'> & {
   prompt: string;
-  images: Array<string>;
-  aspectRatio: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+  images?: Array<string>;
+  aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+  guidanceScale?: number;
+  quantity?: number;
+  seed?: null | number;
+  engine: 'flux1-kontext';
+};
+
+export type Flux1KontextJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  imageUrl: Array<string>;
+  aspectRatio: string;
+  outputFormat: string;
   guidanceScale: number;
   quantity: number;
   seed?: null | number;
-  engine: 'flux1-kontext';
+  destinationUrls: Array<string>;
+  model: string;
+  imageMetadata?: null | string;
+  $type: 'fluxProKontext';
 };
 
 export type Flux1KontextMaxImageGenInputWritable = Omit<
@@ -5944,7 +10066,6 @@ export type Flux1KontextMaxImageGenInputWritable = Omit<
   'engine'
 > & {
   model: 'max';
-  aspectRatio: '21:9';
   engine: 'flux1-kontext';
 };
 
@@ -5953,169 +10074,214 @@ export type Flux1KontextProImageGenInputWritable = Omit<
   'engine'
 > & {
   model: 'pro';
-  aspectRatio: '21:9';
   engine: 'flux1-kontext';
 };
 
-export type Flux2DevCreateImageInputWritable = Omit<
-  Flux2DevImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  operation: 'createImage';
-  model: 'dev';
-  engine: 'flux2';
-};
-
-export type Flux2DevEditImageInputWritable = Omit<
-  Flux2DevImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  images: Array<string>;
-  operation: 'editImage';
-  model: 'dev';
-  engine: 'flux2';
-};
-
-export type Flux2DevImageGenInputWritable = Omit<Flux2ImageGenInputWritable, 'engine' | 'model'> & {
-  operation: string;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  loras: Array<ImageGenInputLora>;
-  model: 'dev';
-  engine: 'flux2';
-};
-
-export type Flux2FlexCreateImageInputWritable = Omit<
-  Flux2FlexImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  operation: 'createImage';
-  model: 'flex';
-  engine: 'flux2';
-};
-
-export type Flux2FlexEditImageInputWritable = Omit<
-  Flux2FlexImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  images: Array<string>;
-  operation: 'editImage';
-  model: 'flex';
-  engine: 'flux2';
-};
-
-export type Flux2FlexImageGenInputWritable = Omit<
-  Flux2ImageGenInputWritable,
-  'engine' | 'model'
-> & {
-  operation: string;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  model: 'flex';
-  engine: 'flux2';
-};
-
-export type Flux2ImageGenInputWritable = Omit<ImageGenInputWritable, 'engine'> & {
-  model: string;
+export type Flux2KleinStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
   prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
   width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
   height: number;
-  seed?: null | number;
-  quantity: number;
-  enablePromptExpansion: boolean;
-  engine: 'flux2';
-};
-
-export type Flux2KleinCreateImageInputWritable = Omit<
-  Flux2KleinImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  operation: 'createImage';
-  modelVersion: '4b';
-  model: 'klein';
-  engine: 'flux2';
-};
-
-export type Flux2KleinEditImageInputWritable = Omit<
-  Flux2KleinImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  images: Array<string>;
-  operation: 'editImage';
-  modelVersion: '4b';
-  model: 'klein';
-  engine: 'flux2';
-};
-
-export type Flux2KleinImageGenInputWritable = Omit<
-  Flux2ImageGenInputWritable,
-  'engine' | 'model'
-> & {
-  operation: string;
-  cfgScale: number;
+  /**
+   * The number of sampling steps.
+   */
   steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
   sampleMethod: SdCppSampleMethod;
   schedule: SdCppSchedule;
-  negativePrompt?: null | string;
+  /**
+   * LoRA models with their strengths/weights.
+   */
   loras: {
     [key: string]: number;
   };
   /**
-   * The Klein model variant: 4b, 4b-base, 9b (distilled), or 9b-base
+   * Get or set additional metadata that will be embedded with generated images.
    */
-  modelVersion: '4b' | '4b-base' | '9b' | '9b-base';
-  model: 'klein';
-  engine: 'flux2';
+  imageMetadata?: null | string;
+  /**
+   * The Flux2 Klein diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Flux2.
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen3 GGUF format).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<Flux2KleinStableDiffusionCppJobSlot>;
+  /**
+   * The Klein model variant (4b, 4b-base, 9b, 9b-base).
+   */
+  modelVersion: string;
+  /**
+   * Reference image URLs for edit operations (maps to ref_image_paths in sdcpp).
+   */
+  referenceImageUrls: Array<string>;
+  /**
+   * Source image URL for img2img (createVariant) operations.
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * Denoising strength for img2img (createVariant) operations. 0 = no change, 1 = full denoise.
+   */
+  strength: number;
+  $type: 'Flux2KleinStableDiffusionCpp';
 };
 
-export type Flux2MaxCreateImageInputWritable = Omit<
-  Flux2MaxImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  operation: 'createImage';
-  model: 'max';
-  engine: 'flux2';
+export type FluxStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The main Flux diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Flux. Defaults to ae-f16.gguf from Flux Schnell.
+   */
+  vaeModel: string;
+  /**
+   * The CLIP-L model for Flux. Defaults to clip_l-q8_0.gguf from Flux Schnell.
+   */
+  clipLModel: string;
+  /**
+   * The T5-XXL model for Flux. Defaults to t5xxl_q8_0.gguf from Flux Schnell.
+   */
+  t5XXLModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<FluxStableDiffusionCppJobSlot>;
+  /**
+   * The source image URL for img2img generation.
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
+   */
+  strength: number;
+  $type: 'fluxStableDiffusionCpp';
 };
 
-export type Flux2MaxEditImageInputWritable = Omit<
-  Flux2MaxImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  images: Array<string>;
-  operation: 'editImage';
-  model: 'max';
-  engine: 'flux2';
+export type GeminiImageEditJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  imageUrls: Array<string>;
+  destinationUrls: Array<string>;
+  quantity: number;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'geminiImageEditJob';
 };
 
-export type Flux2MaxImageGenInputWritable = Omit<Flux2ImageGenInputWritable, 'engine' | 'model'> & {
-  operation: string;
-  model: 'max';
-  engine: 'flux2';
+export type GeminiImageGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  quantity: number;
+  seed?: null | number;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'geminiImageGenJob';
 };
 
-export type Flux2ProCreateImageInputWritable = Omit<
-  Flux2ProImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  operation: 'createImage';
-  model: 'pro';
-  engine: 'flux2';
+export type GoogleNanoBanana2JobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  seed?: null | number;
+  enableWebSearch: boolean;
+  enableGoogleSearch: boolean;
+  negativePrompt?: null | string;
+  enhancePrompt: boolean;
+  language?: null | string;
+  safetySetting?: null | string;
+  personGeneration?: null | string;
+  compressionQuality?: null | number;
+  $type: 'googleNanoBanana2';
 };
 
-export type Flux2ProEditImageInputWritable = Omit<
-  Flux2ProImageGenInputWritable,
-  'engine' | 'model' | 'operation'
-> & {
-  images: Array<string>;
-  operation: 'editImage';
-  model: 'pro';
-  engine: 'flux2';
-};
-
-export type Flux2ProImageGenInputWritable = Omit<Flux2ImageGenInputWritable, 'engine' | 'model'> & {
-  operation: string;
-  model: 'pro';
-  engine: 'flux2';
+export type GoogleNanoBananaProJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  destinationUrls: Array<string>;
+  aspectRatio: string;
+  numImages: number;
+  resolution: NanoBananaProResolution;
+  outputFormat: string;
+  imageUrls: Array<string>;
+  imageMetadata?: null | string;
+  negativePrompt?: null | string;
+  enhancePrompt: boolean;
+  language?: null | string;
+  safetySetting?: null | string;
+  personGeneration?: null | string;
+  compressionQuality?: null | number;
+  $type: 'googleNanoBananaPro';
 };
 
 /**
@@ -6125,6 +10291,32 @@ export type ImageGenStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: ImageGenInput;
   output?: ImageGenOutput;
   $type: 'imageGen';
+};
+
+export type ImageResourceTrainingJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * An AIR representing the model to use.
+   */
+  model: string;
+  /**
+   * A url referring data that needs to be trained upon
+   */
+  trainingData: string;
+  /**
+   * A untyped set of parameters that are associated with this job
+   */
+  params: {
+    [key: string]: unknown;
+  };
+  /**
+   * An application provided output of the current status of this job
+   */
+  output?: null | string;
+  /**
+   * The engine that should be used for training
+   */
+  engine?: null | string;
+  $type: 'imageResourceTraining';
 };
 
 /**
@@ -6148,10 +10340,148 @@ export type ImageUploadStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'imageUpload';
 };
 
+export type ImageUpscalerJobWritable = Omit<JobWritable2, '$type'> & {
+  image: string;
+  upscaleModel: string;
+  upscaleRepeats: number;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  $type: 'imageUpscaler';
+};
+
 export type ImageUpscalerStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: ImageUpscalerInput;
   output?: ImageUpscalerOutput;
   $type: 'imageUpscaler';
+};
+
+export type Imagen4CreateImageJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  negativePrompt: string;
+  aspectRatio: string;
+  quantity: number;
+  seed?: null | number;
+  destinationUrls: Array<string>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'imagen4CreateImage';
+};
+
+export type JobWritable = {
+  $type: string;
+  /**
+   * A unique id for this job
+   */
+  id: string;
+  /**
+   * The date when this job got created
+   */
+  createdAt: string;
+  /**
+   * The date for when this job was set to expire
+   */
+  expireAt?: null | string;
+  /**
+   * A webhook to be invoked when the job receives a status update
+   */
+  webhook?: null | string;
+  /**
+   * A set of user defined properties that can be used to index and partition this job
+   */
+  properties: {
+    [key: string]: unknown;
+  };
+  /**
+   * Get a cost for this job
+   */
+  cost: number;
+  /**
+   * The max number of retries before we give up
+   */
+  maxRetryAttempt: number;
+  /**
+   * Get or set the name of the consumer that issued this job
+   */
+  issuedBy?: null | string;
+  /**
+   * Get or set the version of this job, this is used to track changes to the job schema
+   */
+  version?: number;
+  /**
+   * Get or set a list of dependencies that this job has
+   */
+  jobDependencies: Array<JobDependency>;
+  /**
+   * The ID of the next job that should be executed after this one completes.
+   * Used to support ContinueReuseContext - the worker will wait briefly for this job to arrive
+   * before claiming other work, ensuring continuation jobs stay on the same worker.
+   */
+  nextJobId?: null | string;
+  /**
+   * An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters
+   */
+  recovered: boolean;
+  /**
+   * An internal property to mark that job failures should not fail the workflow step.
+   * When set to true, if this job fails/cancels/expires, the workflow step will treat it as succeeded.
+   */
+  ignoreErrors: boolean;
+};
+
+/**
+ * Result of diagnosing job resources for a worker
+ */
+export type JobResourceDiagnosticsResultWritable = {
+  /**
+   * The job ID being diagnosed
+   */
+  jobId: string;
+  /**
+   * The worker ID being diagnosed
+   */
+  workerId: string;
+  /**
+   * Diagnostic information for each resource
+   */
+  resources: Array<ResourceDiagnosticInfoWritable>;
+  /**
+   * True if any resources have potential sync issues
+   */
+  hasSyncIssues: boolean;
+};
+
+export type KlingV3VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt?: null | string;
+  multiPrompt?: null | Array<KlingV3MultiPrompt>;
+  operation: KlingV3Operation;
+  mode: KlingMode;
+  duration: number;
+  aspectRatio: KlingVideoGenAspectRatio;
+  sourceImageUrl?: null | string;
+  endImageUrl?: null | string;
+  videoUrl?: null | string;
+  elements?: null | Array<KlingV3Element>;
+  imageUrls?: null | Array<string>;
+  generateAudio: boolean;
+  voiceIds?: null | Array<string>;
+  keepAudio: boolean;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  $type: 'kling-v3';
+};
+
+export type KlingVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  cfgScale: number;
+  mode: KlingMode;
+  aspectRatio: KlingVideoGenAspectRatio;
+  duration: KlingVideoGenDuration;
+  cameraControl?: KlingCameraControl;
+  sourceImageUrl?: null | string;
+  destinationUrl: string;
+  model: KlingModel;
+  $type: 'kling';
 };
 
 export type KohyaImageResourceTrainingInputWritable = Omit<
@@ -6161,11 +10491,11 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
   /**
    * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
    */
-  maxTrainEpochs: number;
+  maxTrainEpochs?: number;
   /**
    * Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.
    */
-  numRepeats: number;
+  numRepeats?: number;
   /**
    * Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.
    */
@@ -6177,33 +10507,33 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
   /**
    * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
    */
-  enableBucket: boolean;
+  enableBucket?: boolean;
   /**
    * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
    */
-  shuffleCaption: boolean;
+  shuffleCaption?: boolean;
   /**
    * If your training images have tags, you can randomly shuffle them.
    * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
    * This option does nothing if the Shuffle Tags option is off.
    */
-  keepTokens: number;
+  keepTokens?: number;
   /**
    * Determines which layer's vector output will be used. There are 12 layers, and setting the skip will select "xth from the end" of the total layers. For anime, we use 2. For everything else, 1.
    */
-  clipSkip: number;
+  clipSkip?: number;
   /**
    * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
    */
-  flipAugmentation: boolean;
+  flipAugmentation?: boolean;
   /**
    * Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net
    */
-  unetLR: number;
+  unetLR?: number;
   /**
    * Sets the learning rate for the text encoder. The effect of additional training on text encoders affects the entire U-Net.
    */
-  textEncoderLR: number;
+  textEncoderLR?: number;
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
@@ -6211,7 +10541,7 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
-  lrSchedulerNumCycles: number;
+  lrSchedulerNumCycles?: number;
   /**
    * Learning is performed by putting noise of various strengths on the training image,
    * but depending on the difference in strength of the noise on which it is placed, learning will be
@@ -6246,6 +10576,47 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
   engine: 'kohya';
 };
 
+export type LlmPromptAugmentationJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The primary model to use.
+   */
+  model: string;
+  /**
+   * The base prompt.
+   */
+  basePrompt?: null | string;
+  /**
+   * A list of prompts.
+   */
+  prompts: Array<string>;
+  /**
+   * The temp.
+   */
+  temp: number;
+  $type: 'llmPromptAugmentation';
+};
+
+export type MediaCaptioningJobWritable = Omit<JobWritable2, '$type'> & {
+  model: string;
+  modelId: number;
+  mediaUrl: string;
+  temperature: number;
+  maxNewTokens: number;
+  $type: 'mediaCaptioning';
+};
+
+/**
+ * Job for generating perceptual hashes of media content.
+ */
+export type MediaHashJobWritable = Omit<JobWritable2, '$type'> & {
+  mediaUrl: string;
+  /**
+   * The types of hashes to generate.
+   */
+  hashTypes: Array<MediaHashType>;
+  $type: 'mediaHash';
+};
+
 /**
  * MediaHash
  */
@@ -6253,6 +10624,23 @@ export type MediaHashStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: MediaHashInput;
   output?: MediaHashOutput;
   $type: 'mediaHash';
+};
+
+/**
+ * Job for rating media content (NSFW level detection and content safety classification).
+ */
+export type MediaRatingJobWritable = Omit<JobWritable2, '$type'> & {
+  mediaUrl: string;
+  blobKey?: null | string;
+  /**
+   * The prompt to use for content rating analysis
+   */
+  prompt?: null | string;
+  /**
+   * The JSON schema to use for structured output from content rating
+   */
+  schema?: null | string;
+  $type: 'mediaRating';
 };
 
 /**
@@ -6264,6 +10652,31 @@ export type MediaRatingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'mediaRating';
 };
 
+export type MediaTaggingJobWritable = Omit<JobWritable2, '$type'> & {
+  modelId: number;
+  mediaUrl: string;
+  model: string;
+  $type: 'mediaTagging';
+};
+
+export type MiniMaxVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  enablePromptEnhancer: boolean;
+  destinationUrl: string;
+  sourceImageUrl?: null | string;
+  destinationBlobKey: string;
+  $type: 'minimax';
+};
+
+export type MochiVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  seed: number;
+  mediaHash: string;
+  destinationUrl: string;
+  enablePromptEnhancer: boolean;
+  $type: 'mochi';
+};
+
 export type MusubiImageResourceTrainingInputWritable = Omit<
   ImageResourceTrainingInputWritable,
   'engine'
@@ -6272,7 +10685,7 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
    * Number of training epochs. An epoch is one complete pass through the training dataset.
    * Maximum of 20 epochs can be specified.
    */
-  epochs: number;
+  epochs?: number;
   /**
    * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
    */
@@ -6280,11 +10693,11 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
   /**
    * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
    */
-  enableBucket: boolean;
+  enableBucket?: boolean;
   /**
    * Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net
    */
-  unetLR: number;
+  unetLR?: number;
   /**
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
@@ -6292,7 +10705,7 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
   /**
    * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
    */
-  lrSchedulerNumCycles: number;
+  lrSchedulerNumCycles?: number;
   /**
    * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
    */
@@ -6314,9 +10727,41 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
   engine: 'musubi';
 };
 
+export type OpenAiCreateImageJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  background?: null | string;
+  model?: null | string;
+  quantity: number;
+  quality?: null | string;
+  size?: null | string;
+  style?: null | string;
+  user?: null | string;
+  destinationUrls: Array<string>;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'openAICreateImage';
+};
+
+export type OpenAiEditImageJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  imageUrl: Array<string>;
+  maskUrl?: null | string;
+  model?: null | string;
+  quantity: number;
+  quality?: null | string;
+  size?: null | string;
+  style?: null | string;
+  user?: null | string;
+  destinationUrls: Array<string>;
+  background?: null | string;
+  outputFormat: string;
+  imageMetadata?: null | string;
+  $type: 'openAIEditImage';
+};
+
 export type PreprocessImageAnimalPoseInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  bboxDetector: AnimalPoseBboxDetector;
-  poseEstimator: AnimalPoseEstimator;
+  bboxDetector?: AnimalPoseBboxDetector;
+  poseEstimator?: AnimalPoseEstimator;
   kind: 'animal-pose';
 };
 
@@ -6328,11 +10773,11 @@ export type PreprocessImageAnimeLineartInputWritable = Omit<
 };
 
 export type PreprocessImageAnylineInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  mergeWithLineart: AnylineMergeWith;
-  lineartLowerBound: number;
-  lineartUpperBound: number;
-  objectMinSize: number;
-  objectConnectivity: number;
+  mergeWithLineart?: AnylineMergeWith;
+  lineartLowerBound?: number;
+  lineartUpperBound?: number;
+  objectMinSize?: number;
+  objectConnectivity?: number;
   kind: 'anyline';
 };
 
@@ -6341,13 +10786,13 @@ export type PreprocessImageBaeNormalInputWritable = Omit<PreprocessImageInputWri
 };
 
 export type PreprocessImageBinaryInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  binThreshold: number;
+  binThreshold?: number;
   kind: 'binary';
 };
 
 export type PreprocessImageCannyInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  lowThreshold: number;
-  highThreshold: number;
+  lowThreshold?: number;
+  highThreshold?: number;
   kind: 'canny';
 };
 
@@ -6356,8 +10801,8 @@ export type PreprocessImageColorInputWritable = Omit<PreprocessImageInputWritabl
 };
 
 export type PreprocessImageDensePoseInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  model: DensePoseModel;
-  colormap: DensePoseColormap;
+  model?: DensePoseModel;
+  colormap?: DensePoseColormap;
   kind: 'densepose';
 };
 
@@ -6365,7 +10810,7 @@ export type PreprocessImageDepthAnythingInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  checkpoint: DepthAnythingCheckpoint;
+  checkpoint?: DepthAnythingCheckpoint;
   kind: 'depth-anything';
 };
 
@@ -6373,7 +10818,7 @@ export type PreprocessImageDepthAnythingV2InputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  checkpoint: DepthAnythingV2Checkpoint;
+  checkpoint?: DepthAnythingV2Checkpoint;
   kind: 'depth-anything-v2';
 };
 
@@ -6381,17 +10826,17 @@ export type PreprocessImageDsineNormalInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  fov: number;
-  iterations: number;
+  fov?: number;
+  iterations?: number;
   kind: 'dsine-normal';
 };
 
 export type PreprocessImageDwPoseInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  detectHand: boolean;
-  detectBody: boolean;
-  detectFace: boolean;
-  bboxDetector: DwPoseBboxDetector;
-  poseEstimator: DwPoseEstimator;
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  bboxDetector?: DwPoseBboxDetector;
+  poseEstimator?: DwPoseEstimator;
   kind: 'dwpose';
 };
 
@@ -6399,12 +10844,12 @@ export type PreprocessImageFakeScribbleInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'fake-scribble';
 };
 
 export type PreprocessImageHedInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'hed';
 };
 
@@ -6414,13 +10859,43 @@ export type PreprocessImageInputWritable = {
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
+  resolution?: number;
+};
+
+export type PreprocessImageJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The source image AIR to preprocess
+   */
+  image: string;
+  /**
+   * The preprocessor type (e.g., "canny", "depth-anything", "openpose")
+   */
+  preprocessor: string;
+  /**
+   * The resolution for preprocessing (output will be this resolution)
+   */
   resolution: number;
+  /**
+   * Optional preprocessor-specific parameters as JSON
+   */
+  parameters?: null | {
+    [key: string]: unknown;
+  };
+  /**
+   * The destination blob key for the output
+   */
+  destinationBlobKey: string;
+  /**
+   * The destination URL for uploading the result
+   */
+  destinationUrl: string;
+  $type: 'preprocessImage';
 };
 
 export type PreprocessImageLeresDepthInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  removeNearest: number;
-  removeBackground: number;
-  boost: LeresBoost;
+  removeNearest?: number;
+  removeBackground?: number;
+  boost?: LeresBoost;
   kind: 'leres-depth';
 };
 
@@ -6435,8 +10910,8 @@ export type PreprocessImageMediaPipeFaceInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  maxFaces: number;
-  minConfidence: number;
+  maxFaces?: number;
+  minConfidence?: number;
   kind: 'mediapipe-face';
 };
 
@@ -6444,9 +10919,9 @@ export type PreprocessImageMetric3dDepthInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  backbone: Metric3dBackbone;
-  fx: number;
-  fy: number;
+  backbone?: Metric3dBackbone;
+  fx?: number;
+  fy?: number;
   kind: 'metric3d-depth';
 };
 
@@ -6454,15 +10929,15 @@ export type PreprocessImageMetric3dNormalInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  backbone: Metric3dBackbone;
-  fx: number;
-  fy: number;
+  backbone?: Metric3dBackbone;
+  fx?: number;
+  fy?: number;
   kind: 'metric3d-normal';
 };
 
 export type PreprocessImageMidasDepthInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  a: number;
-  backgroundThreshold: number;
+  a?: number;
+  backgroundThreshold?: number;
   kind: 'midas-depth';
 };
 
@@ -6470,14 +10945,14 @@ export type PreprocessImageMidasNormalInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  a: number;
-  backgroundThreshold: number;
+  a?: number;
+  backgroundThreshold?: number;
   kind: 'midas-normal';
 };
 
 export type PreprocessImageMlsdInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  scoreThreshold: number;
-  distanceThreshold: number;
+  scoreThreshold?: number;
+  distanceThreshold?: number;
   kind: 'mlsd';
 };
 
@@ -6496,14 +10971,14 @@ export type PreprocessImageOneFormerCocoInputWritable = Omit<
 };
 
 export type PreprocessImageOpenPoseInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  detectHand: boolean;
-  detectBody: boolean;
-  detectFace: boolean;
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
   kind: 'openpose';
 };
 
 export type PreprocessImagePidinetInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'pidinet';
 };
 
@@ -6511,7 +10986,7 @@ export type PreprocessImageRealisticLineartInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  coarse: CoarseMode;
+  coarse?: CoarseMode;
   kind: 'lineart-realistic';
 };
 
@@ -6523,7 +10998,7 @@ export type PreprocessImageScribblePidinetInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  safe: SafeMode;
+  safe?: SafeMode;
   kind: 'scribble-pidinet';
 };
 
@@ -6531,12 +11006,12 @@ export type PreprocessImageScribbleXdogInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  threshold: number;
+  threshold?: number;
   kind: 'scribble-xdog';
 };
 
 export type PreprocessImageShuffleInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  seed: number;
+  seed?: number;
   kind: 'shuffle';
 };
 
@@ -6544,8 +11019,8 @@ export type PreprocessImageStandardLineartInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  gaussianSigma: number;
-  intensityThreshold: number;
+  gaussianSigma?: number;
+  intensityThreshold?: number;
   kind: 'lineart-standard';
 };
 
@@ -6561,12 +11036,12 @@ export type PreprocessImageStepTemplateWritable = Omit<WorkflowStepTemplateWrita
 };
 
 export type PreprocessImageTeedInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  safeSteps: number;
+  safeSteps?: number;
   kind: 'teed';
 };
 
 export type PreprocessImageTileInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
-  pyrUpIterations: number;
+  pyrUpIterations?: number;
   kind: 'tile';
 };
 
@@ -6578,12 +11053,66 @@ export type PreprocessImageZoeDepthAnythingInputWritable = Omit<
   PreprocessImageInputWritable2,
   'kind'
 > & {
-  environment: ZoeDepthEnvironment;
+  environment?: ZoeDepthEnvironment;
   kind: 'zoe-depth-anything';
 };
 
 export type PreprocessImageZoeDepthInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
   kind: 'zoe-depth';
+};
+
+/**
+ * Details of processing statistics.
+ */
+export type ProcessingStatisticsWritable = {
+  /**
+   * The total number of jobs requested.
+   */
+  totalJobsRequested: number;
+  /**
+   * The total cost of jobs requested.
+   */
+  totalCostRequested: number;
+  /**
+   * The total number of successful jobs.
+   */
+  totalJobsSucceeded: number;
+  /**
+   * The total cost of successful jobs.
+   */
+  totalCostSucceeded: number;
+  /**
+   * The total number of rejected jobs.
+   */
+  totalJobsRejected: number;
+  /**
+   * The total cost of rejected jobs.
+   */
+  totalCostRejected: number;
+  /**
+   * The total number of late rejected jobs.
+   */
+  totalJobsLateRejected: number;
+  /**
+   * The total cost of laterejected jobs.
+   */
+  totalCostLateRejected: number;
+  /**
+   * The total number of expired jobs.
+   */
+  totalJobsExpired: number;
+  /**
+   * The total cost of expired jobs.
+   */
+  totalCostExpired: number;
+  /**
+   * The total number of failed jobs.
+   */
+  totalJobsFailed: number;
+  /**
+   * The total cost of failed jobs.
+   */
+  totalCostFailed: number;
 };
 
 /**
@@ -6599,7 +11128,7 @@ export type Qwen20bEditImageGenInputWritable = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
-  version: 'latest' | '2509' | '2511';
+  version?: 'latest' | '2509' | '2511';
   images: Array<string>;
   operation: 'Qwen20bEditImageGenInputWritable';
   model: '20b';
@@ -6611,16 +11140,168 @@ export type Qwen20bVariantImageGenInputWritable = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
-  version: 'latest' | '2509' | '2512';
+  version?: 'latest' | '2509' | '2512';
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  strength: number;
+  strength?: number;
   operation: 'Qwen20bVariantImageGenInputWritable';
   model: '20b';
   ecosystem: 'qwen';
   engine: 'sdcpp';
+};
+
+export type QwenImageEditStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image editing.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image editing.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The main Qwen diffusion model for image editing (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Qwen.
+   */
+  vaeModel: string;
+  /**
+   * The Qwen2-VL model for text encoding (GGUF format).
+   */
+  qwen2VLModel: string;
+  /**
+   * The Qwen2-VL vision projection model for image understanding (mmproj format).
+   */
+  qwen2VLVisionModel: string;
+  /**
+   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.95").
+   */
+  easyCache?: null | string;
+  /**
+   * Flow shift parameter for guidance.
+   */
+  flowShift: number;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<QwenImageEditStableDiffusionCppJobSlot>;
+  /**
+   * Reference images for image editing operations (one or more images to apply edits to).
+   */
+  editImages: Array<string>;
+  $type: 'qwenImageEditStableDiffusionCpp';
+};
+
+export type QwenStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The main Qwen diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Qwen.
+   */
+  vaeModel: string;
+  /**
+   * The Qwen2-VL model for text encoding (GGUF format).
+   */
+  qwen2VLModel: string;
+  /**
+   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.85").
+   */
+  easyCache?: null | string;
+  /**
+   * Flow shift parameter for guidance.
+   */
+  flowShift: number;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<QwenStableDiffusionCppJobSlot>;
+  /**
+   * The source image AIR for img2img/variant generation (uses image instead of random noise).
+   */
+  sourceImage?: null | string;
+  /**
+   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
+   */
+  strength: number;
+  $type: 'qwenStableDiffusionCpp';
 };
 
 /**
@@ -6631,12 +11312,295 @@ export type RepeatOutputWritable = {
 };
 
 /**
+ * Diagnostic information about a resource's availability from different sources.
+ * Used to diagnose sync issues between WorkerGrain and the queue.
+ */
+export type ResourceDiagnosticInfoWritable = {
+  /**
+   * The resource identifier (from the job)
+   */
+  air: string;
+  workerGrainAvailability: WorkerResourceAvailability;
+  queueAvailability: WorkerResourceAvailability;
+  /**
+   * Hash code of the job's AIR object
+   */
+  jobAirHashCode: number;
+  /**
+   * The job AIR's Version field
+   */
+  jobAirVersion?: null | string;
+  /**
+   * The job AIR's Format field
+   */
+  jobAirFormat?: null | string;
+  /**
+   * The matching AIR key from the WorkerGrain registration (if found)
+   */
+  workerGrainAir?: null | string;
+  /**
+   * Hash code of the WorkerGrain's AIR object (if found)
+   */
+  workerGrainAirHashCode?: null | number;
+  /**
+   * The WorkerGrain AIR's Version field
+   */
+  workerGrainAirVersion?: null | string;
+  /**
+   * The WorkerGrain AIR's Format field
+   */
+  workerGrainAirFormat?: null | string;
+  /**
+   * The matching AIR key from the queue (if found)
+   */
+  queueAir?: null | string;
+  /**
+   * Hash code of the queue's AIR object (if found)
+   */
+  queueAirHashCode?: null | number;
+  /**
+   * The Queue AIR's Version field
+   */
+  queueAirVersion?: null | string;
+  /**
+   * The Queue AIR's Format field
+   */
+  queueAirFormat?: null | string;
+};
+
+export type RewritePromptJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  goal: RewritePromptGoal;
+  $type: 'rewritePrompt';
+};
+
+/**
+ * Details for a similarity search job.
+ */
+export type SimilaritySearchJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * An AIR ID representing the primary model.
+   */
+  model: string;
+  /**
+   * A value for the NSFW filter.
+   */
+  nsfwFilter: string;
+  /**
+   * The prompt provided.
+   */
+  prompt: string;
+  /**
+   * A collection of parameters.
+   */
+  params: {
+    [key: string]: unknown;
+  };
+  $type: 'similaritySearch';
+};
+
+export type StableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * The main diffusion model (checkpoint).
+   */
+  model: string;
+  /**
+   * The VAE model. Optional - will use model's built-in VAE if not specified.
+   */
+  vaeModel?: null | string;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Embedding (textual inversion) models.
+   */
+  embeddings: Array<string>;
+  uCache: SdCppUCacheMode;
+  /**
+   * Clip skip value.
+   */
+  clipSkip: number;
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<StableDiffusionCppJobSlot>;
+  /**
+   * The source image URL for img2img generation.
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
+   */
+  strength: number;
+  $type: 'stableDiffusionCpp';
+};
+
+/**
+ * A text to image generation job.
+ */
+export type TextToImageJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * An AIR representing the model to use.
+   */
+  model: string;
+  params: ImageJobParams;
+  /**
+   * The hash for the output image.
+   */
+  imageHash: string;
+  /**
+   * Get or set a associative list of additional networks. Each network is identified by a hash code.
+   */
+  additionalNetworks: {
+    [key: string]: ImageJobNetworkParams;
+  };
+  /**
+   * Get or set the URL where the image will be uploaded to.
+   */
+  destinationUrl?: null | string;
+  /**
+   * A value indicating whether to store the image as a blob or as a legacy image.
+   */
+  storeAsBlob: boolean;
+  /**
+   * Get or set a list of control nets that should be applied with this textToImage job.
+   */
+  controlNets: Array<ImageJobControlNet>;
+  $type: 'textToImage';
+};
+
+/**
  * TextToImage
  */
 export type TextToImageStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: TextToImageInput;
   output?: TextToImageOutput;
   $type: 'textToImage';
+};
+
+export type TextToImageV2JobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * An AIR representing the model to use.
+   */
+  model: string;
+  params: ImageJobParams;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<TextToImageJobSlot>;
+  /**
+   * Get or set a associative list of additional networks. Each network is identified by a hash code
+   */
+  additionalNetworks: {
+    [key: string]: ImageJobNetworkParams;
+  };
+  /**
+   * Get or set a list of control nets that should be applied with this textToImage job
+   */
+  controlNets: Array<ImageJobControlNet>;
+  /**
+   * Get or set additional metadata that will be embedded with generated images
+   */
+  imageMetadata?: null | string;
+  /**
+   * The engine to use for generation
+   */
+  engine?: null | string;
+  promptClassificationResult?: ClavataPromptClassificationResult;
+  /**
+   * An image for img2img workflows
+   */
+  sourceImageUrl?: null | string;
+  /**
+   * The strength at which to denoise img2img
+   */
+  sourceImageDenoiseStrength?: null | number;
+  $type: 'textToImageV2';
+};
+
+export type TextToSpeechJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The text to synthesize into speech.
+   */
+  text: string;
+  /**
+   * Reference audio resource for Base voice-cloning mode.
+   */
+  refAudio?: null | string;
+  /**
+   * Transcript of the reference audio (required for Base mode unless XVectorOnlyMode is true).
+   */
+  refText?: null | string;
+  /**
+   * If true, uses only speaker embedding for Base mode (ref_text not required).
+   */
+  xVectorOnlyMode: boolean;
+  /**
+   * Built-in speaker name for CustomVoice mode (e.g., "Ryan", "Vivian").
+   */
+  speaker?: null | string;
+  /**
+   * Optional style instruction for CustomVoice mode.
+   */
+  instruct?: null | string;
+  /**
+   * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
+   */
+  language?: null | string;
+  /**
+   * Optional generation cap for max tokens.
+   */
+  maxNewTokens?: null | number;
+  /**
+   * TTS model to use. Determined by mode: Base for voice cloning, CustomVoice for built-in speakers.
+   */
+  ttsModel: string;
+  /**
+   * Presigned URL to upload the generated audio WAV to.
+   */
+  destinationUrl: string;
+  /**
+   * Blob key for deduplication and retrieval.
+   */
+  destinationBlobKey: string;
+  $type: 'textToSpeech';
 };
 
 /**
@@ -6657,6 +11621,15 @@ export type TrainingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'training';
 };
 
+export type TranscodeJobWritable = Omit<JobWritable2, '$type'> & {
+  sourceUrl: string;
+  containerFormat: ContainerFormat;
+  width: number;
+  mediaHash: string;
+  destinationUrl: string;
+  $type: 'transcode';
+};
+
 /**
  * Transcoding
  */
@@ -6664,6 +11637,18 @@ export type TranscodeStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: TranscodeInput;
   output?: TranscodeOutput;
   $type: 'transcode';
+};
+
+export type TranscriptionJobWritable = Omit<JobWritable2, '$type'> & {
+  media: string;
+  language?: null | string;
+  context?: null | string;
+  returnTimeStamps: boolean;
+  asrModel: string;
+  alignerModel: string;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  $type: 'transcription';
 };
 
 /**
@@ -6691,6 +11676,19 @@ export type UserMessageWritable = Omit<ChatCompletionMessageWritable, 'role'> & 
   role: 'user';
 };
 
+export type VideoEnhancementJobWritable = Omit<JobWritable2, '$type'> & {
+  videoUrl: string;
+  upscaler?: VideoEnhancementJobUpscalerOptions;
+  interpolation?: VideoEnhancementJobInterpolationOptions;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  duration: string;
+  fps: number;
+  width: number;
+  height: number;
+  $type: 'videoEnhancement';
+};
+
 /**
  * Upscale videos and/or interpolate frames
  */
@@ -6698,6 +11696,36 @@ export type VideoEnhancementStepWritable = Omit<WorkflowStepWritable2, '$type'> 
   input: VideoEnhancementInput;
   output?: VideoEnhancementOutput;
   $type: 'videoEnhancement';
+};
+
+/**
+ * Job for extracting unique frames from a video using perceptual hashing.
+ */
+export type VideoFrameExtractionJobWritable = Omit<JobWritable2, '$type'> & {
+  videoUrl: string;
+  /**
+   * The rate at which to extract frames (frames per second).
+   */
+  frameRate: number;
+  /**
+   * The similarity threshold for determining unique frames (0.0 to 1.0).
+   * Frames with similarity above this threshold are considered duplicates and filtered out.
+   */
+  uniqueThreshold: number;
+  /**
+   * Optional maximum number of unique frames to extract.
+   */
+  maxFrames?: null | number;
+  /**
+   * Blob key prefix for uploading extracted frames. Frames will be uploaded as {prefix}-{index}.jpg
+   */
+  destinationBlobKeyPrefix: string;
+  /**
+   * Time in seconds to seek to before extracting frames.
+   * Default is 0 (start of video).
+   */
+  startTime: number;
+  $type: 'videoFrameExtraction';
 };
 
 /**
@@ -6718,6 +11746,19 @@ export type VideoGenStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'videoGen';
 };
 
+export type VideoInterpolationJobWritable = Omit<JobWritable2, '$type'> & {
+  videoUrl: string;
+  model: string;
+  interpolationFactor: number;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  duration: string;
+  fps: number;
+  width: number;
+  height: number;
+  $type: 'videoInterpolation';
+};
+
 /**
  * Interpolate videos using VFI Mamba
  */
@@ -6736,6 +11777,19 @@ export type VideoMetadataStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'videoMetadata';
 };
 
+export type VideoUpscalerJobWritable = Omit<JobWritable2, '$type'> & {
+  videoUrl: string;
+  mode: string;
+  scaleFactor: number;
+  destinationBlobKey: string;
+  destinationUrl: string;
+  duration: string;
+  fps: number;
+  width: number;
+  height: number;
+  $type: 'videoUpscaler';
+};
+
 /**
  * Upscale videos using FlashVSR
  */
@@ -6745,6 +11799,34 @@ export type VideoUpscalerStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'videoUpscaler';
 };
 
+export type ViduVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
+  prompt: string;
+  enablePromptEnhancer: boolean;
+  destinationUrl: string;
+  destinationBlobKey: string;
+  seed: number;
+  style: ViduVideoGenStyle;
+  duration: number;
+  model: ViduVideoGenModel;
+  aspectRatio?: null | string;
+  movementAmplitude?: null | string;
+  images: Array<string>;
+  enableBgm: boolean;
+  resolution: string;
+  turbo: boolean;
+  enableAudio: boolean;
+  $type: 'vidu';
+};
+
+export type WdTaggingJobWritable = Omit<JobWritable2, '$type'> & {
+  model: string;
+  mediaUrl: string;
+  threshold?: null | number;
+  movieRatingModel?: null | string;
+  prompt?: null | string;
+  $type: 'wdTagging';
+};
+
 /**
  * WDTagging
  */
@@ -6752,6 +11834,92 @@ export type WdTaggingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: WdTaggingInput;
   output?: WdTaggingOutput;
   $type: 'wdTagging';
+};
+
+/**
+ * Details for a particular worker.
+ */
+export type WorkerDetailsWritable = {
+  /**
+   * The worker's ID.
+   */
+  id: string;
+  /**
+   * The worker's name.
+   */
+  name: string;
+  /**
+   * The worker's active job count.
+   */
+  activeJobs: number;
+  /**
+   * The number of jobs in the worker's queue.
+   */
+  queueSize: number;
+  /**
+   * The total cost of job's in the worker's queue.
+   */
+  queueDepth: number;
+  /**
+   * The worker's start date / time.
+   */
+  startDate: string;
+  /**
+   * The worker's last request date / time.
+   */
+  lastRequestDate?: null | string;
+  /**
+   * The worker's expiration date / time.
+   */
+  expirationDate?: null | string;
+  statistics?: ProcessingStatisticsWritable;
+  /**
+   * The worker's succeeded job throughput rate.
+   */
+  succeededThroughputRate: number;
+  /**
+   * The worker's failed job throughput rate.
+   */
+  failedThroughputRate: number;
+  /**
+   * The worker's idle rate.
+   */
+  idleRate: number;
+  /**
+   * The date / time of the worker's last successfully completed job.
+   */
+  lastSuccesfullyCompletedJobDate?: null | string;
+  /**
+   * The date / time of the worker's last job update.
+   */
+  lastJobUpdateDate?: null | string;
+  /**
+   * The date / time that the worker's subscription was set.
+   */
+  subscriptionSetDate?: null | string;
+  /**
+   * The date / time that the worker was quarantined.
+   */
+  quarantineDate?: null | string;
+  /**
+   * The rate at which this worker has been downloading
+   */
+  resourceDownloadRate: number;
+  /**
+   * The rate at which this worker has been evicting resources
+   */
+  resourceEvictionRate: number;
+  /**
+   * The size in bytes of resources that are queued up for this worker to download
+   */
+  upcomingResourcesSize?: null | number;
+  /**
+   * The remaining capacity  that this worker can claim, or null if remaining capacity can not be computed
+   */
+  availableCapacity?: null | number;
+  nodeIdentifier?: null | string;
+  peerNodeIdentifiers?: null | Array<string>;
+  paused: boolean;
 };
 
 /**
@@ -6933,6 +12101,203 @@ export type WorkflowStepJobEventWritable = {
   matureContent?: null | boolean;
 };
 
+export type ZImageStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The Z-Image diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Z-Image (uses Flux VAE).
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen3-4B GGUF format).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<ZImageStableDiffusionCppJobSlot>;
+  $type: 'zImageStableDiffusionCpp';
+};
+
+export type ZImageTurboStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
+  /**
+   * The prompt for image generation.
+   */
+  prompt: string;
+  /**
+   * The negative prompt for image generation.
+   */
+  negativePrompt?: null | string;
+  /**
+   * The width of the generated image in pixels.
+   */
+  width: number;
+  /**
+   * The height of the generated image in pixels.
+   */
+  height: number;
+  /**
+   * The number of sampling steps.
+   */
+  steps: number;
+  /**
+   * The CFG (Classifier Free Guidance) scale.
+   */
+  cfgScale: number;
+  /**
+   * The seed for random number generation. Use -1 for random seed.
+   */
+  seed: number;
+  sampleMethod: SdCppSampleMethod;
+  schedule: SdCppSchedule;
+  /**
+   * LoRA models with their strengths/weights.
+   */
+  loras: {
+    [key: string]: number;
+  };
+  /**
+   * Get or set additional metadata that will be embedded with generated images.
+   */
+  imageMetadata?: null | string;
+  /**
+   * The Z-Image Turbo diffusion model (GGUF format).
+   */
+  diffuserModel: string;
+  /**
+   * The VAE model for Z-Image (uses Flux VAE).
+   */
+  vaeModel: string;
+  /**
+   * The LLM model for text encoding (Qwen3-4B GGUF format).
+   */
+  llmModel: string;
+  /**
+   * Slots for the resulting image outputs.
+   */
+  slots: Array<ZImageTurboStableDiffusionCppJobSlot>;
+  $type: 'zImageTurboStableDiffusionCpp';
+};
+
+export type JobWritable2 = {
+  $type: string;
+  /**
+   * A unique id for this job
+   */
+  id: string;
+  /**
+   * The date when this job got created
+   */
+  createdAt: string;
+  /**
+   * The date for when this job was set to expire
+   */
+  expireAt?: null | string;
+  /**
+   * A webhook to be invoked when the job receives a status update
+   */
+  webhook?: null | string;
+  /**
+   * A set of user defined properties that can be used to index and partition this job
+   */
+  properties: {
+    [key: string]: unknown;
+  };
+  /**
+   * The type of this job as a string
+   */
+  readonly type: string;
+  /**
+   * Get a cost for this job
+   */
+  cost: number;
+  /**
+   * The max number of retries before we give up
+   */
+  maxRetryAttempt: number;
+  /**
+   * Get or set the name of the consumer that issued this job
+   */
+  issuedBy?: null | string;
+  /**
+   * Get or set the version of this job, this is used to track changes to the job schema
+   */
+  version?: number;
+  /**
+   * Get or set a list of dependencies that this job has
+   */
+  jobDependencies: Array<JobDependency>;
+  /**
+   * The ID of the next job that should be executed after this one completes.
+   * Used to support ContinueReuseContext - the worker will wait briefly for this job to arrive
+   * before claiming other work, ensuring continuation jobs stay on the same worker.
+   */
+  nextJobId?: null | string;
+  /**
+   * The total duration that the job can be claimed
+   */
+  readonly claimDuration: string;
+  /**
+   * Get a list of resources that this job depends on
+   */
+  readonly resources: Array<string>;
+  /**
+   * Gets the collection of additional resources associated with the current context.
+   */
+  readonly additionalResources: Array<string>;
+  /**
+   * An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters
+   */
+  recovered: boolean;
+  /**
+   * An internal property to mark that job failures should not fail the workflow step.
+   * When set to true, if this job fails/cancels/expires, the workflow step will treat it as succeeded.
+   */
+  ignoreErrors: boolean;
+};
+
 /**
  * Details of a workflow step.
  */
@@ -6978,7 +12343,7 @@ export type WorkflowStepWritable2 = {
 
 export type ImageGenInputWritable = {
   engine: string;
-  outputFormat: ImageGenOutputFormat;
+  outputFormat?: ImageGenOutputFormat;
   /**
    * External metadata that will be stored with the image
    */
@@ -7005,11 +12370,11 @@ export type ImageResourceTrainingInputWritable = {
   /**
    * The desired lora name.
    */
-  loraName: string;
+  loraName?: string;
   /**
    * A selection of sample prompts.
    */
-  samplePrompts: Array<string>;
+  samplePrompts?: Array<string>;
   /**
    * An optional negative prompt that will get applied when generating samples
    */
@@ -7022,7 +12387,7 @@ export type PreprocessImageInputWritable2 = {
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  resolution: number;
+  resolution?: number;
   /**
    * Gets the preprocessor type identifier used to map to ComfyUI nodes.
    * This is derived from the JsonDerivedType discriminator.
@@ -7062,6 +12427,82 @@ export type WorkflowStepTemplateWritable = {
  */
 export type ChatCompletionMessageWritable = {
   role: string;
+};
+
+export type UploadBlobData = {
+  body?: never;
+  path: {
+    blobKey: string;
+  };
+  query?: {
+    jobId?: string;
+    nsfwLevel?: NsfwLevel;
+    early?: boolean;
+  };
+  url: '/v2/providers/blobs/{blobKey}';
+};
+
+export type UploadBlobErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type UploadBlobError = UploadBlobErrors[keyof UploadBlobErrors];
+
+export type UploadBlobResponses = {
+  /**
+   * OK
+   */
+  200: UploadBlobResult;
+};
+
+export type UploadBlobResponse = UploadBlobResponses[keyof UploadBlobResponses];
+
+export type UploadMultipleBlobsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    jobId?: string;
+  };
+  url: '/v2/providers/blobs';
+};
+
+export type UploadMultipleBlobsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Unsupported Media Type
+   */
+  415: ProblemDetails;
+};
+
+export type UploadMultipleBlobsError = UploadMultipleBlobsErrors[keyof UploadMultipleBlobsErrors];
+
+export type UploadMultipleBlobsResponses = {
+  /**
+   * Accepted
+   */
+  202: unknown;
 };
 
 export type GetBlobData = {
@@ -7301,6 +12742,243 @@ export type InvalidateUserCacheResponses = {
 
 export type InvalidateUserCacheResponse =
   InvalidateUserCacheResponses[keyof InvalidateUserCacheResponses];
+
+export type ClaimJobsData = {
+  body?: never;
+  path: {
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/claims';
+};
+
+export type ClaimJobsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type ClaimJobsError = ClaimJobsErrors[keyof ClaimJobsErrors];
+
+export type ClaimJobsResponses = {
+  /**
+   * OK
+   */
+  200: Array<Claim>;
+};
+
+export type ClaimJobsResponse = ClaimJobsResponses[keyof ClaimJobsResponses];
+
+export type UpdateClaimStatusData = {
+  body?: ClaimStatus;
+  path: {
+    claimId: string;
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/claims/{claimId}/status';
+};
+
+export type UpdateClaimStatusErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+  /**
+   * Error
+   */
+  default: ProblemDetails;
+};
+
+export type UpdateClaimStatusError = UpdateClaimStatusErrors[keyof UpdateClaimStatusErrors];
+
+export type UpdateClaimStatusResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type UpdateClaimStatusResponse =
+  UpdateClaimStatusResponses[keyof UpdateClaimStatusResponses];
+
+export type QueryConfigurationsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v2/providers/configurations';
+};
+
+export type QueryConfigurationsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type QueryConfigurationsError = QueryConfigurationsErrors[keyof QueryConfigurationsErrors];
+
+export type QueryConfigurationsResponses = {
+  /**
+   * OK
+   */
+  200: ConfigurationStatus;
+};
+
+export type QueryConfigurationsResponse =
+  QueryConfigurationsResponses[keyof QueryConfigurationsResponses];
+
+export type CreateConfigurationData = {
+  /**
+   * The details of the configuration being created.
+   */
+  body?: ConfigurationOptions;
+  path?: never;
+  query?: never;
+  url: '/v2/providers/configurations';
+};
+
+export type CreateConfigurationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type CreateConfigurationError = CreateConfigurationErrors[keyof CreateConfigurationErrors];
+
+export type CreateConfigurationResponses = {
+  /**
+   * OK
+   */
+  200: CreateConfigurationResult;
+};
+
+export type CreateConfigurationResponse =
+  CreateConfigurationResponses[keyof CreateConfigurationResponses];
+
+export type GetConfigurationData = {
+  body?: never;
+  path: {
+    /**
+     * The ID of the configuration whose options are being requested.
+     */
+    configurationId: string;
+  };
+  query?: never;
+  url: '/v2/providers/configurations/{configurationId}/options';
+};
+
+export type GetConfigurationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetConfigurationError = GetConfigurationErrors[keyof GetConfigurationErrors];
+
+export type GetConfigurationResponses = {
+  /**
+   * OK
+   */
+  200: ConfigurationOptions;
+};
+
+export type GetConfigurationResponse = GetConfigurationResponses[keyof GetConfigurationResponses];
+
+export type DeleteConfigurationData = {
+  body?: never;
+  path: {
+    /**
+     * The ID of the configuration to delete.
+     */
+    configurationId: string;
+  };
+  query?: never;
+  url: '/v2/providers/configurations/{configurationId}';
+};
+
+export type DeleteConfigurationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type DeleteConfigurationError = DeleteConfigurationErrors[keyof DeleteConfigurationErrors];
+
+export type DeleteConfigurationResponses = {
+  /**
+   * OK
+   */
+  200: unknown;
+};
 
 export type InvokeAceStepAudioStepTemplateData = {
   body?: AceStepAudioInput;
@@ -8393,6 +14071,83 @@ export type GetResourceResponses = {
 
 export type GetResourceResponse = GetResourceResponses[keyof GetResourceResponses];
 
+export type GetHuggingFaceRepositorySnapshotData = {
+  body?: never;
+  path: {
+    /**
+     * Repository ID (e.g., black-forest-labs/FLUX.1-dev)
+     */
+    repositoryId: string;
+  };
+  query?: {
+    /**
+     * Branch, tag, or commit hash. Default: main
+     */
+    revision?: string;
+  };
+  url: '/v2/resources/huggingface/repositories/snapshot/{repositoryId}';
+};
+
+export type GetHuggingFaceRepositorySnapshotErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetHuggingFaceRepositorySnapshotError =
+  GetHuggingFaceRepositorySnapshotErrors[keyof GetHuggingFaceRepositorySnapshotErrors];
+
+export type GetHuggingFaceRepositorySnapshotResponses = {
+  /**
+   * OK
+   */
+  200: unknown;
+};
+
+export type UploadStreamingBlobData = {
+  body?: never;
+  path: {
+    blobKey: string;
+  };
+  query?: {
+    jobId?: string;
+  };
+  url: '/v2/providers/streaming-blobs/{blobKey}';
+};
+
+export type UploadStreamingBlobErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type UploadStreamingBlobError = UploadStreamingBlobErrors[keyof UploadStreamingBlobErrors];
+
+export type UploadStreamingBlobResponses = {
+  /**
+   * OK
+   */
+  200: unknown;
+};
+
 export type GetStreamingBlobData = {
   body?: never;
   path: {
@@ -8421,6 +14176,641 @@ export type GetStreamingBlobResponses = {
    */
   200: unknown;
 };
+
+export type DiagnoseJobResourcesData = {
+  body?: never;
+  path: {
+    workerId: string;
+    jobId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/diagnostics/jobs/{jobId}/resources';
+};
+
+export type DiagnoseJobResourcesErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+  /**
+   * Error
+   */
+  default: ProblemDetails;
+};
+
+export type DiagnoseJobResourcesError =
+  DiagnoseJobResourcesErrors[keyof DiagnoseJobResourcesErrors];
+
+export type DiagnoseJobResourcesResponses = {
+  /**
+   * OK
+   */
+  200: JobResourceDiagnosticsResult;
+};
+
+export type DiagnoseJobResourcesResponse =
+  DiagnoseJobResourcesResponses[keyof DiagnoseJobResourcesResponses];
+
+export type TriggerWorkerDiagnosticsData = {
+  body?: WorkerDiagnosticsRequest;
+  path: {
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/diagnostics';
+};
+
+export type TriggerWorkerDiagnosticsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Error
+   */
+  default: ProblemDetails;
+};
+
+export type TriggerWorkerDiagnosticsError =
+  TriggerWorkerDiagnosticsErrors[keyof TriggerWorkerDiagnosticsErrors];
+
+export type TriggerWorkerDiagnosticsResponses = {
+  /**
+   * OK
+   */
+  200: unknown;
+};
+
+export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData = {
+  body?: never;
+  path: {
+    workerId: string;
+    peerNodeIdentifier: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/peers/{peerNodeIdentifier}';
+};
+
+export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierError =
+  DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors[keyof DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors];
+
+export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses = {
+  /**
+   * Accepted
+   */
+  202: unknown;
+};
+
+export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData = {
+  body?: never;
+  path: {
+    workerId: string;
+    peerNodeIdentifier: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/peers/{peerNodeIdentifier}';
+};
+
+export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierError =
+  PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors[keyof PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors];
+
+export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses = {
+  /**
+   * Accepted
+   */
+  202: unknown;
+};
+
+export type GetRecommendedResourcesData = {
+  body?: never;
+  path: {
+    workerId: string;
+  };
+  query?: {
+    since_version?: string;
+  };
+  url: '/v2/providers/workers/{workerId}/resources';
+};
+
+export type GetRecommendedResourcesErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+  /**
+   * Error
+   */
+  default: ProblemDetails;
+};
+
+export type GetRecommendedResourcesError =
+  GetRecommendedResourcesErrors[keyof GetRecommendedResourcesErrors];
+
+export type GetRecommendedResourcesResponses = {
+  /**
+   * OK
+   */
+  200: Array<ResourceInfo>;
+};
+
+export type GetRecommendedResourcesResponse =
+  GetRecommendedResourcesResponses[keyof GetRecommendedResourcesResponses];
+
+export type DownloadResourceData = {
+  body?: never;
+  path: {
+    workerId: string;
+    air: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/resources/{air}';
+};
+
+export type DownloadResourceErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+  /**
+   * Error
+   */
+  default: ProblemDetails;
+};
+
+export type DownloadResourceError = DownloadResourceErrors[keyof DownloadResourceErrors];
+
+export type DownloadResourceResponses = {
+  /**
+   * Error
+   */
+  default: ProblemDetails;
+};
+
+export type DownloadResourceResponse = DownloadResourceResponses[keyof DownloadResourceResponses];
+
+export type QueryWorkersData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v2/providers/workers';
+};
+
+export type QueryWorkersErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type QueryWorkersError = QueryWorkersErrors[keyof QueryWorkersErrors];
+
+export type QueryWorkersResponses = {
+  /**
+   * OK
+   */
+  200: Array<WorkerDetails>;
+};
+
+export type QueryWorkersResponse = QueryWorkersResponses[keyof QueryWorkersResponses];
+
+export type CreateWorkerData = {
+  /**
+   * The registration specifying the details of the worker to be created.
+   */
+  body?: WorkerRegistration;
+  path?: never;
+  query?: never;
+  url: '/v2/providers/workers';
+};
+
+export type CreateWorkerErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Acceptable
+   */
+  406: string;
+};
+
+export type CreateWorkerError = CreateWorkerErrors[keyof CreateWorkerErrors];
+
+export type CreateWorkerResponses = {
+  /**
+   * Created
+   */
+  201: CreateWorkerResult;
+};
+
+export type CreateWorkerResponse = CreateWorkerResponses[keyof CreateWorkerResponses];
+
+export type DeleteWorkerData = {
+  body?: never;
+  path: {
+    /**
+     * The ID for the worker to be deleted.
+     */
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}';
+};
+
+export type DeleteWorkerErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type DeleteWorkerError = DeleteWorkerErrors[keyof DeleteWorkerErrors];
+
+export type DeleteWorkerResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type DeleteWorkerResponse = DeleteWorkerResponses[keyof DeleteWorkerResponses];
+
+export type GetWorkerData = {
+  body?: never;
+  path: {
+    /**
+     * The ID for the requested worker.
+     */
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}';
+};
+
+export type GetWorkerErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetWorkerError = GetWorkerErrors[keyof GetWorkerErrors];
+
+export type GetWorkerResponses = {
+  /**
+   * OK
+   */
+  200: WorkerDetails;
+};
+
+export type GetWorkerResponse = GetWorkerResponses[keyof GetWorkerResponses];
+
+export type UpdateWorkerData = {
+  /**
+   * The properties to update.
+   */
+  body?: PatchWorkerRequest;
+  path: {
+    /**
+     * The ID of the worker to update.
+     */
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}';
+};
+
+export type UpdateWorkerErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type UpdateWorkerError = UpdateWorkerErrors[keyof UpdateWorkerErrors];
+
+export type UpdateWorkerResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type UpdateWorkerResponse = UpdateWorkerResponses[keyof UpdateWorkerResponses];
+
+export type GetRegistrationData = {
+  body?: never;
+  path: {
+    /**
+     * The ID of the worker whose registration is being requested.
+     */
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/registration';
+};
+
+export type GetRegistrationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetRegistrationError = GetRegistrationErrors[keyof GetRegistrationErrors];
+
+export type GetRegistrationResponses = {
+  /**
+   * OK
+   */
+  200: WorkerRegistration;
+};
+
+export type GetRegistrationResponse = GetRegistrationResponses[keyof GetRegistrationResponses];
+
+export type UpdateWorkerRegistrationData = {
+  /**
+   * The registration details to update on the worker's registration.
+   */
+  body?: WorkerRegistration;
+  path: {
+    /**
+     * The ID for the worker whose registration is being updated.
+     */
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/registration';
+};
+
+export type UpdateWorkerRegistrationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type UpdateWorkerRegistrationError =
+  UpdateWorkerRegistrationErrors[keyof UpdateWorkerRegistrationErrors];
+
+export type UpdateWorkerRegistrationResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type UpdateWorkerRegistrationResponse =
+  UpdateWorkerRegistrationResponses[keyof UpdateWorkerRegistrationResponses];
+
+export type GetWorkerResourceStatusData = {
+  body?: never;
+  path: {
+    workerId: string;
+    air: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/registration/resources/{air}';
+};
+
+export type GetWorkerResourceStatusErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetWorkerResourceStatusError =
+  GetWorkerResourceStatusErrors[keyof GetWorkerResourceStatusErrors];
+
+export type GetWorkerResourceStatusResponses = {
+  /**
+   * OK
+   */
+  200: WorkerResourceStatus;
+};
+
+export type GetWorkerResourceStatusResponse =
+  GetWorkerResourceStatusResponses[keyof GetWorkerResourceStatusResponses];
+
+export type PatchWorkerResourcesData = {
+  /**
+   * A dictionary of resource AIRs and their corresponding status for on that worker.
+   */
+  body?: {
+    [key: string]: WorkerResourceStatus;
+  };
+  path: {
+    /**
+     * The ID for the worker whose registration resources are being patched.
+     */
+    workerId: string;
+  };
+  query?: never;
+  url: '/v2/providers/workers/{workerId}/registration/resources';
+};
+
+export type PatchWorkerResourcesErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type PatchWorkerResourcesError =
+  PatchWorkerResourcesErrors[keyof PatchWorkerResourcesErrors];
+
+export type PatchWorkerResourcesResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type PatchWorkerResourcesResponse =
+  PatchWorkerResourcesResponses[keyof PatchWorkerResourcesResponses];
 
 export type QueryWorkflowsData = {
   body?: never;

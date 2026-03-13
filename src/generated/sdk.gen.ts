@@ -6,9 +6,33 @@ import type {
   AddWorkflowTagData,
   AddWorkflowTagErrors,
   AddWorkflowTagResponses,
+  ClaimJobsData,
+  ClaimJobsErrors,
+  ClaimJobsResponses,
+  CreateConfigurationData,
+  CreateConfigurationErrors,
+  CreateConfigurationResponses,
+  CreateWorkerData,
+  CreateWorkerErrors,
+  CreateWorkerResponses,
+  DeleteConfigurationData,
+  DeleteConfigurationErrors,
+  DeleteConfigurationResponses,
+  DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData,
+  DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors,
+  DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses,
+  DeleteWorkerData,
+  DeleteWorkerErrors,
+  DeleteWorkerResponses,
   DeleteWorkflowData,
   DeleteWorkflowErrors,
   DeleteWorkflowResponses,
+  DiagnoseJobResourcesData,
+  DiagnoseJobResourcesErrors,
+  DiagnoseJobResourcesResponses,
+  DownloadResourceData,
+  DownloadResourceErrors,
+  DownloadResourceResponses,
   GetBlobContentData,
   GetBlobContentErrors,
   GetBlobContentResponses,
@@ -16,15 +40,33 @@ import type {
   GetBlobErrors,
   GetBlockedContentData,
   GetBlockedContentErrors,
+  GetConfigurationData,
+  GetConfigurationErrors,
+  GetConfigurationResponses,
   GetConsumerBlobUploadUrlData,
   GetConsumerBlobUploadUrlErrors,
   GetConsumerBlobUploadUrlResponses,
+  GetHuggingFaceRepositorySnapshotData,
+  GetHuggingFaceRepositorySnapshotErrors,
+  GetHuggingFaceRepositorySnapshotResponses,
+  GetRecommendedResourcesData,
+  GetRecommendedResourcesErrors,
+  GetRecommendedResourcesResponses,
+  GetRegistrationData,
+  GetRegistrationErrors,
+  GetRegistrationResponses,
   GetResourceData,
   GetResourceErrors,
   GetResourceResponses,
   GetStreamingBlobData,
   GetStreamingBlobErrors,
   GetStreamingBlobResponses,
+  GetWorkerData,
+  GetWorkerErrors,
+  GetWorkerResourceStatusData,
+  GetWorkerResourceStatusErrors,
+  GetWorkerResourceStatusResponses,
+  GetWorkerResponses,
   GetWorkflowData,
   GetWorkflowErrors,
   GetWorkflowResponses,
@@ -130,12 +172,24 @@ import type {
   InvokeWdTaggingStepTemplateData,
   InvokeWdTaggingStepTemplateErrors,
   InvokeWdTaggingStepTemplateResponses,
+  PatchWorkerResourcesData,
+  PatchWorkerResourcesErrors,
+  PatchWorkerResourcesResponses,
   PatchWorkflowData,
   PatchWorkflowErrors,
   PatchWorkflowResponses,
   PatchWorkflowStepData,
   PatchWorkflowStepErrors,
   PatchWorkflowStepResponses,
+  PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData,
+  PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors,
+  PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses,
+  QueryConfigurationsData,
+  QueryConfigurationsErrors,
+  QueryConfigurationsResponses,
+  QueryWorkersData,
+  QueryWorkersErrors,
+  QueryWorkersResponses,
   QueryWorkflowsData,
   QueryWorkflowsErrors,
   QueryWorkflowsResponses,
@@ -148,15 +202,36 @@ import type {
   SubmitWorkflowData,
   SubmitWorkflowErrors,
   SubmitWorkflowResponses,
+  TriggerWorkerDiagnosticsData,
+  TriggerWorkerDiagnosticsErrors,
+  TriggerWorkerDiagnosticsResponses,
+  UpdateClaimStatusData,
+  UpdateClaimStatusErrors,
+  UpdateClaimStatusResponses,
+  UpdateWorkerData,
+  UpdateWorkerErrors,
+  UpdateWorkerRegistrationData,
+  UpdateWorkerRegistrationErrors,
+  UpdateWorkerRegistrationResponses,
+  UpdateWorkerResponses,
   UpdateWorkflowData,
   UpdateWorkflowErrors,
   UpdateWorkflowResponses,
   UpdateWorkflowStepData,
   UpdateWorkflowStepErrors,
   UpdateWorkflowStepResponses,
+  UploadBlobData,
+  UploadBlobErrors,
+  UploadBlobResponses,
   UploadConsumerBlobData,
   UploadConsumerBlobErrors,
   UploadConsumerBlobResponses,
+  UploadMultipleBlobsData,
+  UploadMultipleBlobsErrors,
+  UploadMultipleBlobsResponses,
+  UploadStreamingBlobData,
+  UploadStreamingBlobErrors,
+  UploadStreamingBlobResponses,
 } from './types.gen';
 
 export type Options<
@@ -175,6 +250,23 @@ export type Options<
    */
   meta?: Record<string, unknown>;
 };
+
+export const uploadBlob = <ThrowOnError extends boolean = false>(
+  options: Options<UploadBlobData, ThrowOnError>
+) =>
+  (options.client ?? client).put<UploadBlobResponses, UploadBlobErrors, ThrowOnError>({
+    url: '/v2/providers/blobs/{blobKey}',
+    ...options,
+  });
+
+export const uploadMultipleBlobs = <ThrowOnError extends boolean = false>(
+  options?: Options<UploadMultipleBlobsData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    UploadMultipleBlobsResponses,
+    UploadMultipleBlobsErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/blobs', ...options });
 
 /**
  * Get blob by ID. This will redirect to a cacheable content URL.
@@ -254,6 +346,82 @@ export const invalidateUserCache = <ThrowOnError extends boolean = false>(
     InvalidateUserCacheErrors,
     ThrowOnError
   >({ url: '/v2/consumer/civitai/{userId}', ...options });
+
+export const claimJobs = <ThrowOnError extends boolean = false>(
+  options: Options<ClaimJobsData, ThrowOnError>
+) =>
+  (options.client ?? client).get<ClaimJobsResponses, ClaimJobsErrors, ThrowOnError>({
+    url: '/v2/providers/workers/{workerId}/claims',
+    ...options,
+  });
+
+export const updateClaimStatus = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateClaimStatusData, ThrowOnError>
+) =>
+  (options.client ?? client).put<UpdateClaimStatusResponses, UpdateClaimStatusErrors, ThrowOnError>(
+    {
+      url: '/v2/providers/workers/{workerId}/claims/{claimId}/status',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    }
+  );
+
+/**
+ * Query for existing configurations.
+ */
+export const queryConfigurations = <ThrowOnError extends boolean = false>(
+  options?: Options<QueryConfigurationsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<
+    QueryConfigurationsResponses,
+    QueryConfigurationsErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/configurations', ...options });
+
+/**
+ * Create a new configuration.
+ */
+export const createConfiguration = <ThrowOnError extends boolean = false>(
+  options?: Options<CreateConfigurationData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    CreateConfigurationResponses,
+    CreateConfigurationErrors,
+    ThrowOnError
+  >({
+    url: '/v2/providers/configurations',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Get options for a configuration.
+ */
+export const getConfiguration = <ThrowOnError extends boolean = false>(
+  options: Options<GetConfigurationData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetConfigurationResponses, GetConfigurationErrors, ThrowOnError>({
+    url: '/v2/providers/configurations/{configurationId}/options',
+    ...options,
+  });
+
+/**
+ * Delete a configuration.
+ */
+export const deleteConfiguration = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteConfigurationData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<
+    DeleteConfigurationResponses,
+    DeleteConfigurationErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/configurations/{configurationId}', ...options });
 
 /**
  * Workflow step for generating music using ACE Step 1.5.
@@ -876,12 +1044,229 @@ export const getResource = <ThrowOnError extends boolean = false>(
     ...options,
   });
 
+/**
+ * Download a HuggingFace repository as a TAR archive.
+ */
+export const getHuggingFaceRepositorySnapshot = <ThrowOnError extends boolean = false>(
+  options: Options<GetHuggingFaceRepositorySnapshotData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetHuggingFaceRepositorySnapshotResponses,
+    GetHuggingFaceRepositorySnapshotErrors,
+    ThrowOnError
+  >({ url: '/v2/resources/huggingface/repositories/snapshot/{repositoryId}', ...options });
+
+export const uploadStreamingBlob = <ThrowOnError extends boolean = false>(
+  options: Options<UploadStreamingBlobData, ThrowOnError>
+) =>
+  (options.client ?? client).put<
+    UploadStreamingBlobResponses,
+    UploadStreamingBlobErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/streaming-blobs/{blobKey}', ...options });
+
 export const getStreamingBlob = <ThrowOnError extends boolean = false>(
   options: Options<GetStreamingBlobData, ThrowOnError>
 ) =>
   (options.client ?? client).get<GetStreamingBlobResponses, GetStreamingBlobErrors, ThrowOnError>({
     url: '/v2/consumer/streaming-blobs/{blobKey}',
     ...options,
+  });
+
+/**
+ * Diagnoses resource availability for a specific job on a specific worker.
+ * Compares the WorkerGrain's view (source of truth) with the queue's view to identify sync issues.
+ */
+export const diagnoseJobResources = <ThrowOnError extends boolean = false>(
+  options: Options<DiagnoseJobResourcesData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    DiagnoseJobResourcesResponses,
+    DiagnoseJobResourcesErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/workers/{workerId}/diagnostics/jobs/{jobId}/resources', ...options });
+
+/**
+ * Triggers a full registration resync for a worker.
+ * This will force the queue to fetch the latest worker registration from the WorkerGrain.
+ */
+export const triggerWorkerDiagnostics = <ThrowOnError extends boolean = false>(
+  options: Options<TriggerWorkerDiagnosticsData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    TriggerWorkerDiagnosticsResponses,
+    TriggerWorkerDiagnosticsErrors,
+    ThrowOnError
+  >({
+    url: '/v2/providers/workers/{workerId}/diagnostics',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+export const deleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifier = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<
+    DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses,
+    DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/workers/{workerId}/peers/{peerNodeIdentifier}', ...options });
+
+export const postV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifier = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses,
+    PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/workers/{workerId}/peers/{peerNodeIdentifier}', ...options });
+
+export const getRecommendedResources = <ThrowOnError extends boolean = false>(
+  options: Options<GetRecommendedResourcesData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetRecommendedResourcesResponses,
+    GetRecommendedResourcesErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/workers/{workerId}/resources', ...options });
+
+export const downloadResource = <ThrowOnError extends boolean = false>(
+  options: Options<DownloadResourceData, ThrowOnError>
+) =>
+  (options.client ?? client).get<DownloadResourceResponses, DownloadResourceErrors, ThrowOnError>({
+    url: '/v2/providers/workers/{workerId}/resources/{air}',
+    ...options,
+  });
+
+/**
+ * Query existing workers.
+ */
+export const queryWorkers = <ThrowOnError extends boolean = false>(
+  options?: Options<QueryWorkersData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<QueryWorkersResponses, QueryWorkersErrors, ThrowOnError>({
+    url: '/v2/providers/workers',
+    ...options,
+  });
+
+/**
+ * Create a worker with a given registration.
+ */
+export const createWorker = <ThrowOnError extends boolean = false>(
+  options?: Options<CreateWorkerData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<CreateWorkerResponses, CreateWorkerErrors, ThrowOnError>({
+    url: '/v2/providers/workers',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Delete a worker.
+ */
+export const deleteWorker = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteWorkerData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteWorkerResponses, DeleteWorkerErrors, ThrowOnError>({
+    url: '/v2/providers/workers/{workerId}',
+    ...options,
+  });
+
+/**
+ * Gets the worker for the provided ID.
+ */
+export const getWorker = <ThrowOnError extends boolean = false>(
+  options: Options<GetWorkerData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetWorkerResponses, GetWorkerErrors, ThrowOnError>({
+    url: '/v2/providers/workers/{workerId}',
+    ...options,
+  });
+
+/**
+ * Update mutable worker properties such as paused state.
+ */
+export const updateWorker = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateWorkerData, ThrowOnError>
+) =>
+  (options.client ?? client).put<UpdateWorkerResponses, UpdateWorkerErrors, ThrowOnError>({
+    url: '/v2/providers/workers/{workerId}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Gets the registration details for the specified worker.
+ */
+export const getRegistration = <ThrowOnError extends boolean = false>(
+  options: Options<GetRegistrationData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetRegistrationResponses, GetRegistrationErrors, ThrowOnError>({
+    url: '/v2/providers/workers/{workerId}/registration',
+    ...options,
+  });
+
+/**
+ * Update the registration details of the specified worker.
+ */
+export const updateWorkerRegistration = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateWorkerRegistrationData, ThrowOnError>
+) =>
+  (options.client ?? client).put<
+    UpdateWorkerRegistrationResponses,
+    UpdateWorkerRegistrationErrors,
+    ThrowOnError
+  >({
+    url: '/v2/providers/workers/{workerId}/registration',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get the status of a particular workers resource
+ */
+export const getWorkerResourceStatus = <ThrowOnError extends boolean = false>(
+  options: Options<GetWorkerResourceStatusData, ThrowOnError>
+) =>
+  (options.client ?? client).get<
+    GetWorkerResourceStatusResponses,
+    GetWorkerResourceStatusErrors,
+    ThrowOnError
+  >({ url: '/v2/providers/workers/{workerId}/registration/resources/{air}', ...options });
+
+/**
+ * Patch a worker's registration resources
+ */
+export const patchWorkerResources = <ThrowOnError extends boolean = false>(
+  options: Options<PatchWorkerResourcesData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<
+    PatchWorkerResourcesResponses,
+    PatchWorkerResourcesErrors,
+    ThrowOnError
+  >({
+    url: '/v2/providers/workers/{workerId}/registration/resources',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**
