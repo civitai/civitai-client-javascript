@@ -19,100 +19,6 @@ export type AiRecognitionResult = {
 };
 
 /**
- * A job that trains a single epoch using AI Toolkit.
- * Each epoch is a separate job that depends on the previous epoch's output.
- * This approach provides better fault tolerance and deduplication compared to
- * monolithic multi-epoch training jobs.
- */
-export type AiToolkitTrainingEpochJob = Omit<Job, '$type'> & {
-  /**
-   * The base model to train upon
-   */
-  model: string;
-  trainingData: TrainingData;
-  /**
-   * The epoch number (1-based) that this job will train
-   */
-  epochNumber: number;
-  /**
-   * AIR pointing to the previous epoch's output blob (null for epoch 1).
-   * Format: urn:air:{ecosystem}:lora:orchestrator:blob@{blobKey}
-   */
-  previousEpochResource?: null | string;
-  /**
-   * The blob key where this epoch's trained model will be stored.
-   * This is a content-based hash derived from training inputs for deduplication.
-   */
-  destinationBlobKey: string;
-  /**
-   * Presigned URL where the worker should upload the trained epoch
-   */
-  destinationUrl: string;
-  /**
-   * The training engine (should be "ai-toolkit")
-   */
-  engine: string;
-  trainingDataCount: number;
-  /**
-   * Total number of epochs to train (used for calculating step counts)
-   */
-  epochs: number;
-  /**
-   * Number of repeats per image (internal parameter, determined by handler)
-   */
-  numRepeats: number;
-  /**
-   * Batch size for training (internal parameter, determined by handler based on worker capabilities)
-   */
-  trainBatchSize: number;
-  lr: number;
-  textEncoderLr?: null | number;
-  trainTextEncoder?: null | boolean;
-  lrScheduler?: null | string;
-  optimizerType?: null | string;
-  networkDim?: null | number;
-  networkAlpha?: null | number;
-  noiseOffset?: null | number;
-  minSnrGamma?: null | number;
-  flipAugmentation: boolean;
-  shuffleTokens: boolean;
-  keepTokens: number;
-  /**
-   * Session ID shared by all jobs from the same workflow to group related training jobs
-   */
-  sessionId: string;
-  /**
-   * Optional extras model resource (e.g., for Z-Image-De-Turbo which needs the original Z-Image-Turbo model)
-   */
-  extrasModel?: null | string;
-  /**
-   * Optional text encoder model resource (separate from base model).
-   * Used when the text encoder is not bundled with the base model (e.g., Flux2 Klein uses Qwen3).
-   */
-  textEncoderModel?: null | string;
-  /**
-   * Optional VAE model resource (separate from base model).
-   * Used when a custom VAE is required that isn't bundled with the base model.
-   */
-  vaeModel?: null | string;
-  /**
-   * Whether this is image-edit training (uses control_path_1/2/3 in dataset config).
-   * When true, the training data contains subfolders: main/, control_1/, control_2/, control_3/.
-   */
-  isEditTraining: boolean;
-  /**
-   * A trigger word that activates the trained LoRA when used in prompts.
-   */
-  triggerWord?: null | string;
-  readonly type: string;
-  /**
-   * Training can take a while, especially for larger models
-   */
-  readonly claimDuration: string;
-  $type: 'aiToolkitTrainingEpoch';
-};
-
-/**
  * Base input for AI Toolkit training across all ecosystems
  */
 export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
@@ -258,81 +164,6 @@ export type AceStepAudioInput = {
 };
 
 /**
- * Generate music using ACE Step 1.5 audio generation model.
- * Produces full songs from text descriptions and lyrics.
- */
-export type AceStepAudioJob = Omit<Job, '$type'> & {
-  /**
-   * Music style/genre description (e.g., "Neo-Soul: A warm, organic neo-soul track...")
-   */
-  musicDescription: string;
-  /**
-   * Structured lyrics with section markers like [Verse], [Chorus], [Bridge], etc.
-   */
-  lyrics: string;
-  /**
-   * Random seed for reproducible generation
-   */
-  seed: number;
-  /**
-   * Duration in seconds (max ~190)
-   */
-  duration: number;
-  /**
-   * Beats per minute
-   */
-  bpm: number;
-  /**
-   * Time signature (e.g., "4" for 4/4 time)
-   */
-  timeSignature: string;
-  /**
-   * Language code (e.g., "en", "zh", "ja", "ko")
-   */
-  language: string;
-  /**
-   * Musical key (e.g., "C major", "E minor")
-   */
-  key: string;
-  /**
-   * Weight for instrumental elements (0.0-1.0)
-   */
-  instrumentalWeight: number;
-  /**
-   * Weight for vocal elements (0.0-1.0)
-   */
-  vocalWeight: number;
-  /**
-   * Vocal prompt length parameter
-   */
-  vocalPromptLength: number;
-  /**
-   * Number of sampling steps (turbo model uses 8)
-   */
-  steps: number;
-  /**
-   * Classifier-free guidance scale
-   */
-  cfg: number;
-  /**
-   * Optional model override (uses DefaultModel if not specified)
-   */
-  model?: null | string;
-  /**
-   * Destination URL for the generated video file
-   */
-  destinationUrl: string;
-  /**
-   * Optional cover image URL. When provided, the output is a WebM video
-   * with this image as the visual; otherwise, output is audio-only (MP3).
-   */
-  coverImageUrl?: null | string;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'aceStepAudio';
-};
-
-/**
  * Output from ACE Step 1.5 audio generation workflow step.
  * Returns a VideoBlob (when a background image is provided) or an AudioBlob (audio only).
  */
@@ -368,18 +199,14 @@ export type AgeClassificationInput = {
    * The URL of the media to classify. This can either be a URL to an image or a video or a ZIP containing multiple images
    */
   mediaUrl: string;
-};
-
-export type AgeClassificationJob = Omit<Job, '$type'> & {
-  model?: null | string;
-  mediaUrl: string;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  failOnMinorDetected: boolean;
-  faceRecognitionModel?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'ageClassification';
+  /**
+   * Optional face detection confidence threshold. Defaults to 0.25 if not provided.
+   */
+  faceDetectionThreshold?: null | number;
+  /**
+   * Optional person detection confidence threshold. Defaults to 0.35 if not provided.
+   */
+  personDetectionThreshold?: null | number;
 };
 
 export type AgeClassificationOutput = {
@@ -455,6 +282,8 @@ export type AgeClassifierLabel = {
   topK?: null | {
     [key: string]: number;
   };
+  faceDetectionConfidence?: null | number;
+  personDetectionConfidence?: null | number;
 };
 
 /**
@@ -510,67 +339,6 @@ export type AnimaImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'
   quantity?: number;
   ecosystem: 'anima';
   engine: 'sdcpp';
-};
-
-export type AnimaStableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Anima diffusion model.
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Anima.
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen 3 0.6B).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<AnimaStableDiffusionCppJobSlot>;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'animaStableDiffusionCpp';
-};
-
-export type AnimaStableDiffusionCppJobSlot = {
-  imageHash: string;
-  destinationUrl: string;
 };
 
 export const AnimalPoseBboxDetector = {
@@ -630,6 +398,10 @@ export type AssistantMessage = Omit<ChatCompletionMessage, 'role'> & {
    * Optional refusal message if the model refused to respond.
    */
   refusal?: null | string;
+  /**
+   * Tool calls requested by the model.
+   */
+  tool_calls?: null | Array<ChatCompletionToolCall>;
   role: 'assistant';
 };
 
@@ -754,27 +526,6 @@ export const BuzzClientAccount = {
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
 
-export type ByteplusSeedreamJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  width: number;
-  height: number;
-  apiVersion: SeedreamVersion;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'byteplusSeedream';
-};
-
-/**
- * Chat completion capabilities.
- */
-export type ChatCompletionCapabilities = {
-  additionalConcurrency: number;
-};
-
 /**
  * A completion choice.
  */
@@ -805,6 +556,24 @@ export type ChatCompletionContentPart = {
    */
   text?: null | string;
   imageUrl?: ChatCompletionImageUrl;
+};
+
+/**
+ * A function definition within a tool.
+ */
+export type ChatCompletionFunction = {
+  name: string;
+  description?: null | string;
+  parameters?: null;
+  strict?: null | boolean;
+};
+
+/**
+ * The function call details within a tool call.
+ */
+export type ChatCompletionFunctionCall = {
+  name: string;
+  arguments: string;
 };
 
 /**
@@ -872,89 +641,30 @@ export type ChatCompletionInput = {
    * A unique identifier for the end-user.
    */
   user?: null | string;
-};
-
-/**
- * A job for executing chat completions with support for text and image inputs.
- * Compatible with OpenAI Chat Completions API format.
- */
-export type ChatCompletionJob = Omit<Job, '$type'> & {
   /**
-   * The model to use for chat completion.
+   * Request token log probabilities in the response.
    */
-  model: string;
+  logprobs?: null | boolean;
   /**
-   * The messages to generate a completion for.
-   * Images URLs have been processed and replaced with blob URLs.
+   * Number of top log probability candidates to return per generated token.
+   * Requires Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Logprobs to be enabled.
    */
-  messages: Array<ChatCompletionMessage>;
+  topLogprobs?: null | number;
   /**
-   * Temperature for sampling (0-2).
-   */
-  temperature: number;
-  /**
-   * Nucleus sampling parameter.
-   */
-  topP: number;
-  /**
-   * Maximum number of tokens to generate.
-   */
-  maxTokens?: null | number;
-  /**
-   * Number of completions to generate.
-   */
-  n: number;
-  /**
-   * Up to 4 sequences where the API will stop generating tokens.
-   */
-  stop?: null | Array<string>;
-  /**
-   * Presence penalty (-2.0 to 2.0).
-   */
-  presencePenalty: number;
-  /**
-   * Frequency penalty (-2.0 to 2.0).
-   */
-  frequencyPenalty: number;
-  /**
-   * Seed for deterministic sampling.
-   */
-  seed?: null | number;
-  /**
-   * A unique identifier for the end-user.
-   */
-  user?: null | string;
-  /**
-   * The blob key where the worker should upload the OpenAI-compatible completion result.
-   */
-  destinationBlobKey: string;
-  /**
-   * The presigned URL where the worker should upload the completion result JSON.
-   */
-  destinationUrl: string;
-  /**
-   * Whether the consumer requested streaming. When true, the worker should upload
-   * NDJSON (one ChatCompletionChunk per line) instead of a single complete JSON response.
-   * The destination URL will include streaming=true so the BlobController activates
-   * real-time chunk notifications to subscribed observers.
-   */
-  stream: boolean;
-  /**
-   * Extra kwargs passed to the chat template (e.g. { "enable_thinking": false } for Qwen3.5).
-   * Forwarded as chat_template_kwargs in the vLLM request.
+   * Extra kwargs passed to the chat template (for example custom policy inputs for vLLM chat templates).
    */
   chatTemplateKwargs?: null | {
     [key: string]: unknown;
   };
   /**
-   * The type discriminator for this job.
+   * Tool definitions available for the model to call.
    */
-  readonly type: string;
+  tools?: null | Array<ChatCompletionTool>;
   /**
-   * A reasonable default claim duration for a chat completion job, which should be sufficient for the worker to complete the task while allowing for some retries in case of transient failures. The enhancement service will attempt to short-circuit the job if the destination blob already exists, which can further reduce the actual time needed to complete the job.
+   * Controls which (if any) tool is called by the model.
+   * Can be "auto", "none", "required", or an object specifying a particular function.
    */
-  readonly claimDuration: string;
-  $type: 'chatCompletion';
+  tool_choice?: null;
 };
 
 /**
@@ -1014,6 +724,23 @@ export type ChatCompletionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 };
 
 /**
+ * A tool definition sent in a chat completion request.
+ */
+export type ChatCompletionTool = {
+  type: string;
+  function: ChatCompletionFunction;
+};
+
+/**
+ * A tool call returned in an assistant message response.
+ */
+export type ChatCompletionToolCall = {
+  id: string;
+  type: string;
+  function: ChatCompletionFunctionCall;
+};
+
+/**
  * Token usage statistics for the completion.
  */
 export type ChatCompletionUsage = {
@@ -1037,80 +764,6 @@ export type ChatCompletionUsage = {
 export type ChromaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   ecosystem: 'chroma';
   engine: 'ai-toolkit';
-};
-
-/**
- * Bulk job for rating multiple media items using Civitai's batched scanning solution.
- * Maps ambient CivitaiMediaRatingJob IDs to their corresponding media URLs.
- */
-export type CivitaiBulkMediaRatingJob = Omit<Job, '$type'> & {
-  /**
-   * Dictionary mapping job IDs to media URLs for batch processing.
-   * The job IDs correspond to the original CivitaiMediaRatingJob instances.
-   */
-  mediaUrls: {
-    [key: string]: string;
-  };
-  optionalProfiles: MediaRatingProfile;
-  nsfwModel?: null | string;
-  ageModel?: null | string;
-  faceRecognitionModel?: null | string;
-  aiDetectorModel?: null | string;
-  animeDetectorModel?: null | string;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'civitaiBulkMediaRating';
-};
-
-/**
- * Ambient job for rating media content using Civitai's batched scanning solution.
- * These jobs are collected and batched into CivitaiBulkMediaRatingJob instances.
- */
-export type CivitaiMediaRatingJob = Omit<Job, '$type'> & {
-  /**
-   * The URL of the media to rate.
-   */
-  mediaUrl: string;
-  optionalProfiles: MediaRatingProfile;
-  nsfwModel?: null | string;
-  ageModel?: null | string;
-  faceRecognitionModel?: null | string;
-  aiDetectorModel?: null | string;
-  animeDetectorModel?: null | string;
-  readonly type: string;
-  $type: 'civitaiMediaRating';
-};
-
-export type Claim = {
-  id: string;
-  job: Job;
-  status: ClaimStatus;
-  requestedAt: string;
-  expiresAt: string;
-  retryAttempt: number;
-};
-
-export type ClaimStatus = {
-  status: ClaimStatusType;
-  context?: null | {
-    [key: string]: unknown;
-  };
-  notifyCompletion: boolean;
-};
-
-export const ClaimStatusType = {
-  CLAIMED: 'claimed',
-  REJECTED: 'rejected',
-  SUCCEEDED: 'succeeded',
-} as const;
-
-export type ClaimStatusType = (typeof ClaimStatusType)[keyof typeof ClaimStatusType];
-
-export type ClavataPromptClassificationResult = {
-  scan: boolean;
-  sexual: boolean;
-  cr: boolean;
-  young: boolean;
 };
 
 export const CoarseMode = { DISABLE: 'disable', ENABLE: 'enable' } as const;
@@ -1167,37 +820,6 @@ export type ComfyImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'comfy';
 };
 
-export type ComfyImageGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  width: number;
-  height: number;
-  sampler: ComfySampler;
-  scheduler: ComfyScheduler;
-  steps: number;
-  cfgScale: number;
-  seed: number;
-  model: string;
-  vaeModel?: null | string;
-  loras: {
-    [key: string]: number;
-  };
-  clipSkip?: null | number;
-  ecosystem: string;
-  sourceImageUrl?: null | string;
-  denoiseStrength?: null | number;
-  imageMetadata?: null | string;
-  slots: Array<ComfyImageGenJobSlot>;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'comfyImageGen';
-};
-
-export type ComfyImageGenJobSlot = {
-  imageHash: string;
-  destinationUrl: string;
-};
-
 export type ComfyInput = {
   /**
    * Get the comfy workflow that needs to be executed
@@ -1217,45 +839,6 @@ export type ComfyInput = {
    * Opt-into using the spine controller exclusively
    */
   useSpineComfy?: null | boolean;
-};
-
-export type ComfyJob = Omit<Job, '$type'> & {
-  /**
-   * A untyped set of parameters that are associated with this job
-   */
-  params: {
-    [key: string]: ComfyNode;
-  };
-  resources?: null | Array<string>;
-  /**
-   * Slots for the resulting blob outputs.
-   */
-  slots: Array<ComfyJobSlot>;
-  /**
-   * Get or set additional metadata that will be embedded with generated images
-   */
-  imageMetadata?: null | string;
-  /**
-   * The ability to opt-into spine comfy instances
-   */
-  spineComfy?: null | boolean;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'comfy';
-};
-
-/**
- * Contains slot information for a blob generated by a ComfyJob.
- */
-export type ComfyJobSlot = {
-  /**
-   * The hash for the blob output.
-   */
-  blobKey: string;
-  /**
-   * The destination url for blob upload.
-   */
-  destinationUrl: string;
 };
 
 /**
@@ -1363,51 +946,6 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
 };
 
 /**
- * Job for generating videos using LTX Video v2.3 via ComfyUI
- */
-export type ComfyLtx23VideoGenJob = Omit<Job, '$type'> & {
-  operation: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  duration: number;
-  width: number;
-  height: number;
-  fps: number;
-  generateAudio: boolean;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  sourceImage?: null | string;
-  loras: {
-    [key: string]: number;
-  };
-  diffusionModel: string;
-  clip1Model: string;
-  clip2Model: string;
-  videoVAEModel: string;
-  audioVAEModel: string;
-  upscalerModel: string;
-  upscaleLoras: {
-    [key: string]: number;
-  };
-  sourceVideo?: null | string;
-  numFrames: number;
-  cannyLowThreshold: number;
-  cannyHighThreshold: number;
-  guideStrength: number;
-  controlLora?: null | string;
-  firstFrameImage?: null | string;
-  lastFrameImage?: null | string;
-  sourceAudio?: null | string;
-  audioToVideoAttentionScale?: null | number;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'ComfyLtx23VideoGen';
-};
-
-/**
  * Style-transfer an existing video using prompt guidance (ComfyUI backend)
  */
 export type ComfyLtx23VideoToVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' | 'operation'> & {
@@ -1496,49 +1034,6 @@ export type ComfyLtx2VideoGenInput = Omit<VideoGenInput, 'engine'> & {
     [key: string]: number;
   };
   engine: 'ltx2';
-};
-
-/**
- * Job for generating videos using LTX Video v2 via ComfyUI
- */
-export type ComfyLtx2VideoGenJob = Omit<Job, '$type'> & {
-  operation: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  duration: number;
-  width: number;
-  height: number;
-  fps: number;
-  generateAudio: boolean;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  sourceImage?: null | string;
-  loras: {
-    [key: string]: number;
-  };
-  diffusionModel: string;
-  clip1Model: string;
-  clip2Model: string;
-  videoVAEModel: string;
-  audioVAEModel: string;
-  upscalerModel: string;
-  upscaleLoras: {
-    [key: string]: number;
-  };
-  sourceVideo?: null | string;
-  numFrames: number;
-  cannyLowThreshold: number;
-  cannyHighThreshold: number;
-  guideStrength: number;
-  controlLora?: null | string;
-  firstFrameImage?: null | string;
-  lastFrameImage?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'ComfyLtx2VideoGen';
 };
 
 export type ComfyNode = {
@@ -1715,73 +1210,6 @@ export type ComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'comfy';
 };
 
-export type ComfyVideoGenJob = Omit<Job, '$type'> & {
-  model: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  cfgScale: number;
-  destinationUrl: string;
-  sampler:
-    | 'euler'
-    | 'euler_ancestral'
-    | 'heun'
-    | 'heunpp2'
-    | 'dpm_2'
-    | 'dpm_2_ancestral'
-    | 'lms'
-    | 'dpm_fast'
-    | 'dpm_adaptive'
-    | 'dpmpp_2s_ancestral'
-    | 'dpmpp_sde'
-    | 'dpmpp_2m'
-    | 'dpmpp_2m_sde'
-    | 'dpmpp_3m_sde'
-    | 'ddpm'
-    | 'lcm'
-    | 'uni_pc'
-    | 'uni_pc_bh2';
-  width: number;
-  height: number;
-  frameRate: number;
-  length: number;
-  seed: number;
-  steps: number;
-  sourceImageUrl?: null | string;
-  loras?: null | Array<Lora>;
-  scheduler?:
-    | 'normal'
-    | 'karras'
-    | 'exponential'
-    | 'sgm_uniform'
-    | 'simple'
-    | 'ddim_uniform'
-    | 'beta';
-  shift?: number;
-  skipFrameInterpolation?: boolean;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'comfyVideoGen';
-};
-
-export type ConfigurationOptions = {
-  /**
-   * Get or set the priority of this configuration if multiple configurations apply to the same worker
-   */
-  priority: number;
-  selector: Expression;
-  /**
-   * Get or set the specification associated with this configuration
-   */
-  spec: null;
-};
-
-export type ConfigurationStatus = {
-  configurationId: string;
-  assigned: number;
-  targeted: number;
-  applied: number;
-};
-
 export type ConsumerBlobPresignResponse = {
   uploadUrl: string;
   expiresAt: string;
@@ -1808,60 +1236,6 @@ export type ConvertImageInput = {
 };
 
 /**
- * A job that converts an image to a different format and applies optional transforms.
- */
-export type ConvertImageJob = Omit<Job, '$type'> & {
-  /**
-   * The URL of the source image to convert.
-   */
-  imageUrl: string;
-  /**
-   * The transforms to apply to the image.
-   */
-  transforms: Array<ImageTransform>;
-  /**
-   * The output format identifier: "jpeg", "png", or "webp".
-   */
-  outputFormat: string;
-  /**
-   * Quality setting for lossy formats (1-100).
-   */
-  quality?: null | number;
-  /**
-   * Whether to use lossless compression (for WebP).
-   */
-  lossless?: null | boolean;
-  /**
-   * The destination blob key where the converted image will be stored.
-   */
-  destinationBlobKey: string;
-  /**
-   * The presigned URL where the converted image will be uploaded.
-   */
-  destinationUrl: string;
-  /**
-   * The target width of the output image after transforms.
-   */
-  targetWidth: number;
-  /**
-   * The target height of the output image after transforms.
-   */
-  targetHeight: number;
-  /**
-   * The MIME content type of the output image (e.g., "image/jpeg", "image/png", "image/webp").
-   */
-  contentType: string;
-  /**
-   * Maximum number of frames to decode from the source image. Set to 1 to extract only the first frame.
-   * When null, all frames are decoded.
-   */
-  maxFrames?: null | number;
-  hideMetadata: boolean;
-  readonly type: string;
-  $type: 'convertImage';
-};
-
-/**
  * Output from the ConvertImage workflow step.
  */
 export type ConvertImageOutput = {
@@ -1883,14 +1257,6 @@ export type ConvertImageStep = Omit<WorkflowStep, '$type'> & {
 export type ConvertImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ConvertImageInput;
   $type: 'convertImage';
-};
-
-export type CreateConfigurationResult = {
-  configurationId: string;
-};
-
-export type CreateWorkerResult = {
-  workerId: string;
 };
 
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
@@ -1970,10 +1336,6 @@ export const DepthAnythingV2Checkpoint = {
 export type DepthAnythingV2Checkpoint =
   (typeof DepthAnythingV2Checkpoint)[keyof typeof DepthAnythingV2Checkpoint];
 
-export const DownloadSource = { DEFAULT: 'default', TIGRIS: 'tigris' } as const;
-
-export type DownloadSource = (typeof DownloadSource)[keyof typeof DownloadSource];
-
 export const DwPoseBboxDetector = {
   YOLOX_L_ONNX: 'yolox_l.onnx',
   YOLOX_L_TORCHSCRIPT_PT: 'yolox_l.torchscript.pt',
@@ -1991,12 +1353,6 @@ export const DwPoseEstimator = {
 } as const;
 
 export type DwPoseEstimator = (typeof DwPoseEstimator)[keyof typeof DwPoseEstimator];
-
-export type DynamicAssignment = {
-  fromPath: string;
-  toPath: string;
-  defaultValue?: null;
-};
 
 /**
  * Represents the input information needed for the Echo workflow step.
@@ -2035,10 +1391,6 @@ export type EchoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'echo';
 };
 
-export type EcosystemElement = {
-  [key: string]: EcosystemElement;
-};
-
 /**
  * An epock result.
  */
@@ -2060,10 +1412,6 @@ export type EpochResult = {
    * A presigned url that points to the epoch file
    */
   blobUrl: string;
-};
-
-export type Expression = {
-  [key: string]: never;
 };
 
 /**
@@ -2119,382 +1467,9 @@ export type FaceRecognitionResult = {
   similarityMatrix?: null | Array<Array<number>>;
 };
 
-export type FalFlux2ImageGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  width: number;
-  height: number;
-  outputFormat: string;
-  seed?: null | number;
-  quantity: number;
-  enablePromptExpansion: boolean;
-  /**
-   * The model variant: "base", "flex", or "pro"
-   */
-  modelVariant: string;
-  /**
-   * The operation type: "createImage" or "editImage"
-   */
-  operation: string;
-  /**
-   * Guidance scale (base model: 0-20, default 2.5; flex model: 1.5-100, default 3.5)
-   */
-  guidanceScale?: null | number;
-  /**
-   * Number of inference steps (base model: 4-50, default 28; flex model: 2-50, default 28)
-   */
-  numInferenceSteps?: null | number;
-  /**
-   * Source image URLs for edit operations (max 3)
-   */
-  imageUrls: Array<string>;
-  /**
-   * LoRA weights (base model only, max 3)
-   */
-  loras: Array<FalLoraWeight>;
-  /**
-   * Destination URLs for output images
-   */
-  destinationUrls: Array<string>;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falFlux2Image';
-};
-
-export type FalGptImage15EditJob = Omit<Job, '$type'> & {
-  prompt: string;
-  imageUrls: Array<string>;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Image size: auto, 1024x1024, 1536x1024, or 1024x1536
-   */
-  size: string;
-  /**
-   * Background treatment: auto, transparent, or opaque
-   */
-  background: string;
-  /**
-   * Output quality: low, medium, or high
-   */
-  quality: string;
-  /**
-   * Input fidelity: low or high
-   */
-  inputFidelity: string;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falGptImage15Edit';
-};
-
-export type FalGptImage15Job = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Image size: 1024x1024, 1536x1024, or 1024x1536
-   */
-  size: string;
-  /**
-   * Background treatment: auto, transparent, or opaque
-   */
-  background: string;
-  /**
-   * Output quality: low, medium, or high
-   */
-  quality: string;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falGptImage15';
-};
-
-export type FalGrokImageEditJob = Omit<Job, '$type'> & {
-  prompt: string;
-  imageUrls: Array<string>;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falGrokImageEdit';
-};
-
-export type FalGrokImageJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
-   */
-  aspectRatio: string;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falGrokImage';
-};
-
-/**
- * Job for generating videos using xAI's Grok model via FAL.
- * Supports text-to-video, image-to-video, and edit-video operations.
- */
-export type FalGrokVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  operation: string;
-  duration: number;
-  aspectRatio: string;
-  resolution: string;
-  sourceImageUrl?: null | string;
-  sourceVideoUrl?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falGrokVideo';
-};
-
 export type FalImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   engine: 'fal';
-};
-
-export type FalLoraWeight = {
-  path: string;
-  scale: number;
-  weightName?: null | string;
-};
-
-/**
- * Job for generating videos using LTX Video v2 (19B Distilled) via FAL
- */
-export type FalLtx2VideoGenJob = Omit<Job, '$type'> & {
-  operation: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  numFrames: number;
-  fps: number;
-  aspectRatio: string;
-  generateAudio: boolean;
-  useMultiscale: boolean;
-  acceleration?: null | string;
-  cameraLora?: null | string;
-  cameraLoraScale: number;
-  quality: string;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  sourceImageUrl?: null | string;
-  sourceVideoUrl?: null | string;
-  matchVideoLength: boolean;
-  strength: number;
-  preprocessor?: null | string;
-  icLoraType?: null | string;
-  icLoraScale: number;
-  matchInputFps: boolean;
-  numContextFrames: number;
-  model: string;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falLtx2VideoGen';
-};
-
-export type FalNanoBanana2Job = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  seed?: null | number;
-  enableWebSearch: boolean;
-  enableGoogleSearch: boolean;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falNanoBanana2';
-};
-
-export type FalNanoBananaProJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falNanoBananaPro';
-};
-
-export type FalQwen2ImageGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  /**
-   * Whether to use the pro model variant
-   */
-  isPro: boolean;
-  /**
-   * The operation type: "text-to-image" or "edit"
-   */
-  operation: string;
-  imageSize: string;
-  seed: number;
-  quantity: number;
-  enablePromptExpansion: boolean;
-  enableSafetyChecker: boolean;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  /**
-   * Source image URLs for edit operations (max 3)
-   */
-  imageUrls: Array<string>;
-  /**
-   * Destination URLs for output images
-   */
-  destinationUrls: Array<string>;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falQwen2Image';
-};
-
-export type FalSeedreamJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  width: number;
-  height: number;
-  guidanceScale: number;
-  seed: number;
-  enableSafetyChecker: boolean;
-  apiVersion: SeedreamVersion;
-  imageUrls: Array<string>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falSeedream';
-};
-
-/**
- * Job for generating videos using OpenAI's Sora model via FAL
- */
-export type FalSoraVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrl: string;
-  sourceImageUrl?: null | string;
-  destinationBlobKey: string;
-  operation: string;
-  resolution: string;
-  aspectRatio: string;
-  duration: number;
-  usePro: boolean;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falSoraVideoGenJob';
-};
-
-export type FalVeoVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  veoVersion: Veo3Version;
-  operation: string;
-  aspectRatio: string;
-  duration: string;
-  resolution: string;
-  generateAudio: boolean;
-  enablePromptEnhancer: boolean;
-  seed: number;
-  fastMode: boolean;
-  imageUrls: Array<string>;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falVeoVideo';
-};
-
-export type FalWanImageGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrls: Array<string>;
-  modelVersion: string;
-  imageSize: string;
-  seed: number;
-  numInferenceSteps: number;
-  guidanceScale: number;
-  acceleration: string;
-  shift: number;
-  enablePromptExpansion: boolean;
-  enableSafetyChecker: boolean;
-  quantity: number;
-  loras: Array<FalLoraWeight>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falWanImage';
-};
-
-export type FalWanVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  sourceImageUrl?: null | string;
-  destinationBlobKey: string;
-  modelVersion: string;
-  operation: string;
-  resolution: string;
-  aspectRatio: string;
-  duration: number;
-  frameRate: number;
-  seed: number;
-  steps: number;
-  cfgScale: number;
-  enablePromptExpansion: boolean;
-  shift: number;
-  interpolatorModel: string;
-  useTurbo: boolean;
-  loras: Array<FalLoraWeight>;
-  useDistill: boolean;
-  numFrames: number;
-  useFastWan: boolean;
-  enableSafetyChecker: boolean;
-  audioUrl?: null | string;
-  referenceVideoUrls: Array<string>;
-  multiShots: boolean;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'falWanVideo';
 };
 
 export const FileFormat = {
@@ -2544,22 +1519,6 @@ export type Flux1KontextImageGenInput = Omit<ImageGenInput, 'engine'> & {
   quantity?: number;
   seed?: null | number;
   engine: 'flux1-kontext';
-};
-
-export type Flux1KontextJob = Omit<Job, '$type'> & {
-  prompt: string;
-  imageUrl: Array<string>;
-  aspectRatio: string;
-  outputFormat: string;
-  guidanceScale: number;
-  quantity: number;
-  seed?: null | number;
-  destinationUrls: Array<string>;
-  model: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'fluxProKontext';
 };
 
 export type Flux1KontextMaxImageGenInput = Omit<Flux1KontextImageGenInput, 'engine' | 'model'> & {
@@ -2711,6 +1670,58 @@ export type Flux2DevImageResourceTrainingInput = Omit<ImageResourceTrainingInput
   engine: 'flux2-dev';
 };
 
+export type Flux2DevSdCppCreateImageInput = Omit<
+  Flux2DevSdCppImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  operation: 'createImage';
+  ecosystem: 'flux2Dev';
+  engine: 'sdcpp';
+};
+
+export type Flux2DevSdCppEditImageInput = Omit<
+  Flux2DevSdCppImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  images?: Array<string>;
+  operation: 'editImage';
+  ecosystem: 'flux2Dev';
+  engine: 'sdcpp';
+};
+
+export type Flux2DevSdCppImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  cfgScale?: number;
+  steps?: number;
+  sampleMethod?: SdCppSampleMethod;
+  schedule?: SdCppSchedule;
+  negativePrompt?: null | string;
+  loras?: {
+    [key: string]: number;
+  };
+  ecosystem: 'flux2Dev';
+  engine: 'sdcpp';
+};
+
+export type Flux2DevSdCppVariantImageGenInput = Omit<
+  Flux2DevSdCppImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  strength?: number;
+  operation: 'createVariant';
+  ecosystem: 'flux2Dev';
+  engine: 'sdcpp';
+};
+
 export type Flux2FlexCreateImageInput = Omit<
   Flux2FlexImageGenInput,
   'engine' | 'model' | 'operation'
@@ -2820,9 +1831,9 @@ export type Flux2KleinImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model
     [key: string]: number;
   };
   /**
-   * The Klein model variant: 4b, 4b-base, 9b (distilled), or 9b-base
+   * The Klein model variant: 4b, 4b-base, 9b, 9b-base, or 9b-kv (ComfyUI)
    */
-  modelVersion?: '4b' | '4b-base' | '9b' | '9b-base';
+  modelVersion?: '4b' | '4b-base' | '9b' | '9b-base' | '9b-kv';
   model: 'klein';
   engine: 'flux2';
 };
@@ -2880,104 +1891,6 @@ export type Flux2KleinSdCppVariantImageGenInput = Omit<
   engine: 'sdcpp';
 };
 
-export type Flux2KleinStableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Flux2 Klein diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Flux2.
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen3 GGUF format).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<Flux2KleinStableDiffusionCppJobSlot>;
-  /**
-   * The Klein model variant (4b, 4b-base, 9b, 9b-base).
-   */
-  modelVersion: string;
-  /**
-   * Reference image URLs for edit operations (maps to ref_image_paths in sdcpp).
-   */
-  referenceImageUrls: Array<string>;
-  /**
-   * Source image URL for img2img (createVariant) operations.
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * Denoising strength for img2img (createVariant) operations. 0 = no change, 1 = full denoise.
-   */
-  strength: number;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'Flux2KleinStableDiffusionCpp';
-};
-
-/**
- * Contains slot information for an image generated by a Flux2KleinStableDiffusionCppJob.
- */
-export type Flux2KleinStableDiffusionCppJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
-};
-
 export type Flux2MaxCreateImageInput = Omit<
   Flux2MaxImageGenInput,
   'engine' | 'model' | 'operation'
@@ -3032,100 +1945,6 @@ export type FluxDevFastImageResourceTrainingInput = Omit<ImageResourceTrainingIn
   engine: 'flux-dev-fast';
 };
 
-export type FluxStableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The main Flux diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Flux. Defaults to ae-f16.gguf from Flux Schnell.
-   */
-  vaeModel: string;
-  /**
-   * The CLIP-L model for Flux. Defaults to clip_l-q8_0.gguf from Flux Schnell.
-   */
-  clipLModel: string;
-  /**
-   * The T5-XXL model for Flux. Defaults to t5xxl_q8_0.gguf from Flux Schnell.
-   */
-  t5XXLModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<FluxStableDiffusionCppJobSlot>;
-  /**
-   * The source image URL for img2img generation.
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
-   */
-  strength: number;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'fluxStableDiffusionCpp';
-};
-
-/**
- * Contains slot information for an image generated by a FluxStableDiffusionCppJob.
- */
-export type FluxStableDiffusionCppJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
-};
-
 export type Gemini25FlashCreateImageGenInput = Omit<
   Gemini25FlashImageGenInput,
   'engine' | 'model' | 'operation'
@@ -3152,34 +1971,10 @@ export type Gemini25FlashImageGenInput = Omit<GeminiImageGenInput, 'engine' | 'm
   engine: 'gemini';
 };
 
-export type GeminiImageEditJob = Omit<Job, '$type'> & {
-  prompt: string;
-  imageUrls: Array<string>;
-  destinationUrls: Array<string>;
-  quantity: number;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'geminiImageEditJob';
-};
-
 export type GeminiImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   prompt: string;
   engine: 'gemini';
-};
-
-export type GeminiImageGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  quantity: number;
-  seed?: null | number;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'geminiImageGenJob';
 };
 
 /**
@@ -3198,49 +1993,6 @@ export type GoogleImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   prompt: string;
   engine: 'google';
-};
-
-export type GoogleNanoBanana2Job = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  seed?: null | number;
-  enableWebSearch: boolean;
-  enableGoogleSearch: boolean;
-  negativePrompt?: null | string;
-  enhancePrompt: boolean;
-  language?: null | string;
-  safetySetting?: null | string;
-  personGeneration?: null | string;
-  compressionQuality?: null | number;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'googleNanoBanana2';
-};
-
-export type GoogleNanoBananaProJob = Omit<Job, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  negativePrompt?: null | string;
-  enhancePrompt: boolean;
-  language?: null | string;
-  safetySetting?: null | string;
-  personGeneration?: null | string;
-  compressionQuality?: null | number;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'googleNanoBananaPro';
 };
 
 export type GrokCreateImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operation'> & {
@@ -3503,45 +2255,6 @@ export type ImageJobNetworkParams = {
 };
 
 /**
- * Parameters for a text to image step.
- */
-export type ImageJobParams = {
-  /**
-   * The prompt for the text to image generation.
-   */
-  prompt?: null | string;
-  /**
-   * The negative prompt for the text to image generation.
-   */
-  negativePrompt?: null | string;
-  scheduler: Scheduler;
-  /**
-   * The number of steps for the text to image generation.
-   */
-  steps?: number;
-  /**
-   * The CFG scale value for the text to image generation.
-   */
-  cfgScale?: null | number;
-  /**
-   * The width for the image to be generated in pixels.
-   */
-  width: number;
-  /**
-   * The height for the image to be generated in pixels.
-   */
-  height: number;
-  /**
-   * The seed for the text to image generation.
-   */
-  seed?: number;
-  /**
-   * The clip skip value for the text to image generation.
-   */
-  clipSkip?: number;
-};
-
-/**
  * Base class for image output formats. Uses "format" as the type discriminator.
  */
 export type ImageOutputFormat = {
@@ -3593,41 +2306,6 @@ export type ImageResourceTrainingInput = {
    * An optional negative prompt that will get applied when generating samples
    */
   negativePrompt?: null | string;
-};
-
-export type ImageResourceTrainingJob = Omit<Job, '$type'> & {
-  /**
-   * An AIR representing the model to use.
-   */
-  model: string;
-  /**
-   * A url referring data that needs to be trained upon
-   */
-  trainingData: string;
-  /**
-   * A untyped set of parameters that are associated with this job
-   */
-  params: {
-    [key: string]: unknown;
-  };
-  /**
-   * An application provided output of the current status of this job
-   */
-  output?: null | string;
-  /**
-   * The engine that should be used for training
-   */
-  engine?: null | string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  /**
-   * Rick: yeah i think for LoRA we need it to be 5-10 minutes.
-   * lora training has this lame effect where it can't send updates while it is uploading... so we need to give it extra buffer
-   */
-  readonly claimDuration: string;
-  $type: 'imageResourceTraining';
 };
 
 export type ImageResourceTrainingOutput = {
@@ -3736,17 +2414,6 @@ export type ImageUpscalerInput = {
   numberOfRepeats?: number;
 };
 
-export type ImageUpscalerJob = Omit<Job, '$type'> & {
-  image: string;
-  upscaleModel: string;
-  upscaleRepeats: number;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'imageUpscaler';
-};
-
 export type ImageUpscalerOutput = {
   blob: ImageBlob;
 };
@@ -3762,20 +2429,6 @@ export type ImageUpscalerStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'imageUpscaler';
 };
 
-export type Imagen4CreateImageJob = Omit<Job, '$type'> & {
-  prompt: string;
-  negativePrompt: string;
-  aspectRatio: string;
-  quantity: number;
-  seed?: null | number;
-  destinationUrls: Array<string>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'imagen4CreateImage';
-};
-
 export type Imagen4ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
   negativePrompt?: string;
@@ -3784,122 +2437,6 @@ export type Imagen4ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'>
   seed?: null | number;
   model: 'imagen4';
   engine: 'google';
-};
-
-export type Job = {
-  $type: string;
-  /**
-   * A unique id for this job
-   */
-  id: string;
-  /**
-   * The date when this job got created
-   */
-  createdAt: string;
-  /**
-   * The date for when this job was set to expire
-   */
-  expireAt?: null | string;
-  /**
-   * A webhook to be invoked when the job receives a status update
-   */
-  webhook?: null | string;
-  /**
-   * A set of user defined properties that can be used to index and partition this job
-   */
-  properties: {
-    [key: string]: unknown;
-  };
-  /**
-   * The type of this job as a string
-   */
-  readonly type: string;
-  /**
-   * Get a cost for this job
-   */
-  cost: number;
-  /**
-   * The max number of retries before we give up
-   */
-  maxRetryAttempt: number;
-  /**
-   * Get or set the name of the consumer that issued this job
-   */
-  issuedBy?: null | string;
-  /**
-   * Get or set the version of this job, this is used to track changes to the job schema
-   */
-  version?: number;
-  /**
-   * Get or set a list of dependencies that this job has
-   */
-  jobDependencies: Array<JobDependency>;
-  /**
-   * The ID of the next job that should be executed after this one completes.
-   * Used to support ContinueReuseContext - the worker will wait briefly for this job to arrive
-   * before claiming other work, ensuring continuation jobs stay on the same worker.
-   */
-  nextJobId?: null | string;
-  /**
-   * The total duration that the job can be claimed
-   */
-  readonly claimDuration: string;
-  /**
-   * Get a list of resources that this job depends on
-   */
-  readonly resources: Array<string>;
-  /**
-   * Gets the collection of additional resources associated with the current context.
-   */
-  readonly additionalResources: Array<string>;
-  /**
-   * An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters
-   */
-  recovered: boolean;
-  /**
-   * An internal property to mark that job failures should not fail the workflow step.
-   * When set to true, if this job fails/cancels/expires, the workflow step will treat it as succeeded.
-   */
-  ignoreErrors: boolean;
-};
-
-export type JobDependency = {
-  jobId: string;
-  onFailure: JobDependencyContinuation;
-  onSuccess: JobDependencyContinuation;
-  dynamicAssignments: Array<DynamicAssignment>;
-};
-
-export const JobDependencyContinuation = {
-  FAIL: 'fail',
-  SKIP: 'skip',
-  CONTINUE: 'continue',
-  CONTINUE_REUSE_CONTEXT: 'continueReuseContext',
-} as const;
-
-export type JobDependencyContinuation =
-  (typeof JobDependencyContinuation)[keyof typeof JobDependencyContinuation];
-
-/**
- * Result of diagnosing job resources for a worker
- */
-export type JobResourceDiagnosticsResult = {
-  /**
-   * The job ID being diagnosed
-   */
-  jobId: string;
-  /**
-   * The worker ID being diagnosed
-   */
-  workerId: string;
-  /**
-   * Diagnostic information for each resource
-   */
-  resources: Array<ResourceDiagnosticInfo>;
-  /**
-   * True if any resources have potential sync issues
-   */
-  hasSyncIssues: boolean;
 };
 
 /**
@@ -4007,12 +2544,6 @@ export const KlingModel = {
 
 export type KlingModel = (typeof KlingModel)[keyof typeof KlingModel];
 
-export type KlingV3Element = {
-  frontalImageUrl?: null | string;
-  referenceImageUrls?: null | Array<string>;
-  videoUrl?: null | string;
-};
-
 export type KlingV3ElementInput = {
   /**
    * Either A URL, A DataURL or a Base64 string
@@ -4060,28 +2591,6 @@ export type KlingV3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'kling-v3';
 };
 
-export type KlingV3VideoGenJob = Omit<Job, '$type'> & {
-  prompt?: null | string;
-  multiPrompt?: null | Array<KlingV3MultiPrompt>;
-  operation: KlingV3Operation;
-  mode: KlingMode;
-  duration: number;
-  aspectRatio: KlingVideoGenAspectRatio;
-  sourceImageUrl?: null | string;
-  endImageUrl?: null | string;
-  videoUrl?: null | string;
-  elements?: null | Array<KlingV3Element>;
-  imageUrls?: null | Array<string>;
-  generateAudio: boolean;
-  voiceIds?: null | Array<string>;
-  keepAudio: boolean;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'kling-v3';
-};
-
 export const KlingVideoGenAspectRatio = {
   '16_9': '16:9',
   '9_16': '9:16',
@@ -4110,22 +2619,6 @@ export type KlingVideoGenInput = Omit<VideoGenInput, 'engine'> & {
    */
   sourceImage?: null | string;
   engine: 'kling';
-};
-
-export type KlingVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  cfgScale: number;
-  mode: KlingMode;
-  aspectRatio: KlingVideoGenAspectRatio;
-  duration: KlingVideoGenDuration;
-  cameraControl?: KlingCameraControl;
-  sourceImageUrl?: null | string;
-  destinationUrl: string;
-  model: KlingModel;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'kling';
 };
 
 export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
@@ -4218,37 +2711,6 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
   engine: 'kohya';
 };
 
-/**
- * LLM prompt augmentaition capabilities.
- */
-export type LlmPromptAugmentationCapabilities = {
-  [key: string]: never;
-};
-
-export type LlmPromptAugmentationJob = Omit<Job, '$type'> & {
-  /**
-   * The primary model to use.
-   */
-  model: string;
-  /**
-   * The base prompt.
-   */
-  basePrompt?: null | string;
-  /**
-   * A list of prompts.
-   */
-  prompts: Array<string>;
-  /**
-   * The temp.
-   */
-  temp: number;
-  /**
-   * The type.
-   */
-  readonly type: string;
-  $type: 'llmPromptAugmentation';
-};
-
 export const LeresBoost = { DISABLE: 'disable', ENABLE: 'enable' } as const;
 
 export type LeresBoost = (typeof LeresBoost)[keyof typeof LeresBoost];
@@ -4280,9 +2742,12 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
-export type Lora = {
-  air: string;
-  strength: number;
+/**
+ * AI Toolkit training for LTX 2.3 video models
+ */
+export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  ecosystem: 'ltx23';
+  engine: 'ai-toolkit';
 };
 
 /**
@@ -4293,14 +2758,48 @@ export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   engine: 'ai-toolkit';
 };
 
-export type MediaCaptioningJob = Omit<Job, '$type'> & {
-  model: string;
-  modelId: number;
+/**
+ * Represents the input information needed for the MediaCaptioning workflow step.
+ */
+export type MediaCaptioningInput = {
+  /**
+   * The URL of the media to caption (single image or video).
+   */
   mediaUrl: string;
+  /**
+   * Sampling temperature for caption generation.
+   */
   temperature: number;
+  /**
+   * Maximum number of tokens to generate.
+   */
   maxNewTokens: number;
-  readonly type: string;
-  readonly claimDuration: string;
+};
+
+/**
+ * Represents the output information returned from the MediaCaptioning workflow step.
+ */
+export type MediaCaptioningOutput = {
+  /**
+   * The generated caption text for the media.
+   */
+  caption: string;
+};
+
+/**
+ * Media Captioning
+ */
+export type MediaCaptioningStep = Omit<WorkflowStep, '$type'> & {
+  input: MediaCaptioningInput;
+  output?: MediaCaptioningOutput;
+  $type: 'mediaCaptioning';
+};
+
+/**
+ * Media Captioning
+ */
+export type MediaCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: MediaCaptioningInput;
   $type: 'mediaCaptioning';
 };
 
@@ -4316,20 +2815,6 @@ export type MediaHashInput = {
    * The types of hashes to generate.
    */
   hashTypes: Array<MediaHashType>;
-};
-
-/**
- * Job for generating perceptual hashes of media content.
- */
-export type MediaHashJob = Omit<Job, '$type'> & {
-  mediaUrl: string;
-  /**
-   * The types of hashes to generate.
-   */
-  hashTypes: Array<MediaHashType>;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'mediaHash';
 };
 
 /**
@@ -4402,25 +2887,6 @@ export type MediaRatingInput = {
 };
 
 /**
- * Job for rating media content (NSFW level detection and content safety classification).
- */
-export type MediaRatingJob = Omit<Job, '$type'> & {
-  mediaUrl: string;
-  blobKey?: null | string;
-  /**
-   * The prompt to use for content rating analysis
-   */
-  prompt?: null | string;
-  /**
-   * The JSON schema to use for structured output from content rating
-   */
-  schema?: null | string;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'mediaRating';
-};
-
-/**
  * Represents the output information returned from the MediaRating workflow step.
  */
 export type MediaRatingOutput = {
@@ -4443,16 +2909,6 @@ export type MediaRatingOutput = {
   animeRecognition?: AnimeRecognitionResult;
 };
 
-export const MediaRatingProfile = {
-  NONE: 'none',
-  AGE_CLASSIFICATION: 'ageClassification',
-  FACE_RECOGNITION: 'faceRecognition',
-  AI_RECOGNITION: 'aiRecognition',
-  ANIME_RECOGNITION: 'animeRecognition',
-} as const;
-
-export type MediaRatingProfile = (typeof MediaRatingProfile)[keyof typeof MediaRatingProfile];
-
 /**
  * MediaRating
  */
@@ -4468,14 +2924,6 @@ export type MediaRatingStep = Omit<WorkflowStep, '$type'> & {
 export type MediaRatingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: MediaRatingInput;
   $type: 'mediaRating';
-};
-
-export type MediaTaggingJob = Omit<Job, '$type'> & {
-  modelId: number;
-  mediaUrl: string;
-  readonly type: string;
-  model: string;
-  $type: 'mediaTagging';
 };
 
 export const Metric3dBackbone = {
@@ -4496,17 +2944,6 @@ export type MiniMaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'minimax';
 };
 
-export type MiniMaxVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  enablePromptEnhancer: boolean;
-  destinationUrl: string;
-  sourceImageUrl?: null | string;
-  destinationBlobKey: string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'minimax';
-};
-
 export const MiniMaxVideoGenModel = { HAILOU: 'hailou' } as const;
 
 export type MiniMaxVideoGenModel = (typeof MiniMaxVideoGenModel)[keyof typeof MiniMaxVideoGenModel];
@@ -4515,17 +2952,6 @@ export type MochiVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed: number;
   enablePromptEnhancer?: boolean;
   engine: 'mochi';
-};
-
-export type MochiVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  seed: number;
-  mediaHash: string;
-  destinationUrl: string;
-  enablePromptEnhancer: boolean;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'mochi';
 };
 
 export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
@@ -4610,32 +3036,6 @@ export type NanoBananaProImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'm
   engine: 'google';
 };
 
-export const NanoBananaProResolution = {
-  ONE_K: 'oneK',
-  TWO_K: 'twoK',
-  FOUR_K: 'fourK',
-} as const;
-
-export type NanoBananaProResolution =
-  (typeof NanoBananaProResolution)[keyof typeof NanoBananaProResolution];
-
-export type OpenAiCreateImageJob = Omit<Job, '$type'> & {
-  prompt: string;
-  background?: null | string;
-  model?: null | string;
-  quantity: number;
-  quality?: null | string;
-  size?: null | string;
-  style?: null | string;
-  user?: null | string;
-  destinationUrls: Array<string>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'openAICreateImage';
-};
-
 export type OpenAiDallE2CreateImageGenInput = Omit<
   OpenAiDallE2ImageGenInput,
   'engine' | 'model' | 'operation'
@@ -4690,25 +3090,6 @@ export type OpenAiDallE3ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'm
   quality?: 'auto' | 'hd' | 'standard';
   model: 'dall-e-3';
   engine: 'openai';
-};
-
-export type OpenAiEditImageJob = Omit<Job, '$type'> & {
-  prompt: string;
-  imageUrl: Array<string>;
-  maskUrl?: null | string;
-  model?: null | string;
-  quantity: number;
-  quality?: null | string;
-  size?: null | string;
-  style?: null | string;
-  user?: null | string;
-  destinationUrls: Array<string>;
-  background?: null | string;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'openAIEditImage';
 };
 
 export type OpenAiGpt15CreateImageInput = Omit<
@@ -4796,10 +3177,6 @@ export const OutputFormat = {
 } as const;
 
 export type OutputFormat = (typeof OutputFormat)[keyof typeof OutputFormat];
-
-export type PatchWorkerRequest = {
-  paused?: null | boolean;
-};
 
 /**
  * PNG output format configuration.
@@ -4899,38 +3276,6 @@ export type PreprocessImageInput = {
    * This is derived from the JsonDerivedType discriminator.
    */
   readonly preprocessorType: string;
-};
-
-export type PreprocessImageJob = Omit<Job, '$type'> & {
-  /**
-   * The source image AIR to preprocess
-   */
-  image: string;
-  /**
-   * The preprocessor type (e.g., "canny", "depth-anything", "openpose")
-   */
-  preprocessor: string;
-  /**
-   * The resolution for preprocessing (output will be this resolution)
-   */
-  resolution: number;
-  /**
-   * Optional preprocessor-specific parameters as JSON
-   */
-  parameters?: null | {
-    [key: string]: unknown;
-  };
-  /**
-   * The destination blob key for the output
-   */
-  destinationBlobKey: string;
-  /**
-   * The destination URL for uploading the result
-   */
-  destinationUrl: string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'preprocessImage';
 };
 
 export type PreprocessImageLeresDepthInput = Omit<PreprocessImageInput, 'kind'> & {
@@ -5091,68 +3436,6 @@ export type ProblemDetails = {
   detail?: null | string;
   instance?: null | string;
   [key: string]: unknown;
-};
-
-/**
- * Details of processing statistics.
- */
-export type ProcessingStatistics = {
-  /**
-   * The total number of jobs requested.
-   */
-  totalJobsRequested: number;
-  /**
-   * The total cost of jobs requested.
-   */
-  totalCostRequested: number;
-  /**
-   * The total number of successful jobs.
-   */
-  totalJobsSucceeded: number;
-  /**
-   * The total cost of successful jobs.
-   */
-  totalCostSucceeded: number;
-  /**
-   * The total number of rejected jobs.
-   */
-  totalJobsRejected: number;
-  /**
-   * The total cost of rejected jobs.
-   */
-  totalCostRejected: number;
-  /**
-   * The total number of late rejected jobs.
-   */
-  totalJobsLateRejected: number;
-  /**
-   * The total cost of laterejected jobs.
-   */
-  totalCostLateRejected: number;
-  /**
-   * The total number of expired jobs.
-   */
-  totalJobsExpired: number;
-  /**
-   * The total cost of expired jobs.
-   */
-  totalCostExpired: number;
-  /**
-   * The total number of failed jobs.
-   */
-  totalJobsFailed: number;
-  /**
-   * The total cost of failed jobs.
-   */
-  totalCostFailed: number;
-  /**
-   * The total number of completed jobs.
-   */
-  readonly totalJobsCompleted: number;
-  /**
-   * The total cost of completed jobs.
-   */
-  readonly totalCostCompleted: number;
 };
 
 /**
@@ -5354,6 +3637,65 @@ export type Qwen2ProEditFalImageGenInput = Omit<
   engine: 'fal';
 };
 
+export type Qwen3BaseTtsInput = Omit<
+  Qwen3TextToSpeechInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Reference audio AIR URN or external URL for voice cloning.
+   * Accepts AIR URNs (existing resources) or HTTP(S) URLs.
+   */
+  refAudioUrl?: null | string;
+  /**
+   * Transcript of the reference audio.
+   * Required for Base mode unless XVectorOnlyMode is true.
+   */
+  refText?: null | string;
+  /**
+   * If true, uses only speaker embedding (ref_text not required).
+   */
+  xVectorOnlyMode: boolean;
+  operation: 'base';
+  ecosystem: 'qwen3';
+  engine: 'vllm-omni';
+};
+
+export type Qwen3CustomVoiceTtsInput = Omit<
+  Qwen3TextToSpeechInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Built-in speaker name for CustomVoice mode.
+   */
+  speaker:
+    | 'aiden'
+    | 'dylan'
+    | 'eric'
+    | 'ono_anna'
+    | 'ryan'
+    | 'serena'
+    | 'sohee'
+    | 'uncle_fu'
+    | 'vivian';
+  /**
+   * Optional style instruction (e.g., "speak slowly and clearly").
+   */
+  instruct?: null | string;
+  operation: 'customVoice';
+  ecosystem: 'qwen3';
+  engine: 'vllm-omni';
+};
+
+export type Qwen3TextToSpeechInput = Omit<VllmOmniTextToSpeechInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  /**
+   * Optional generation cap for max tokens.
+   */
+  maxNewTokens?: null | number;
+  ecosystem: 'qwen3';
+  engine: 'vllm-omni';
+};
+
 /**
  * AI Toolkit training for Qwen Image models
  */
@@ -5363,206 +3705,10 @@ export type QwenAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   engine: 'ai-toolkit';
 };
 
-export type QwenImageEditStableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image editing.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image editing.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The main Qwen diffusion model for image editing (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Qwen.
-   */
-  vaeModel: string;
-  /**
-   * The Qwen2-VL model for text encoding (GGUF format).
-   */
-  qwen2VLModel: string;
-  /**
-   * The Qwen2-VL vision projection model for image understanding (mmproj format).
-   */
-  qwen2VLVisionModel: string;
-  /**
-   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.95").
-   */
-  easyCache?: null | string;
-  /**
-   * Flow shift parameter for guidance.
-   */
-  flowShift: number;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<QwenImageEditStableDiffusionCppJobSlot>;
-  /**
-   * Reference images for image editing operations (one or more images to apply edits to).
-   */
-  editImages: Array<string>;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'qwenImageEditStableDiffusionCpp';
-};
-
-/**
- * Contains slot information for an image generated by a QwenImageEditStableDiffusionCppJob.
- */
-export type QwenImageEditStableDiffusionCppJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
-};
-
 export type QwenImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
   ecosystem: 'qwen';
   engine: 'sdcpp';
-};
-
-export type QwenStableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The main Qwen diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Qwen.
-   */
-  vaeModel: string;
-  /**
-   * The Qwen2-VL model for text encoding (GGUF format).
-   */
-  qwen2VLModel: string;
-  /**
-   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.85").
-   */
-  easyCache?: null | string;
-  /**
-   * Flow shift parameter for guidance.
-   */
-  flowShift: number;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<QwenStableDiffusionCppJobSlot>;
-  /**
-   * The source image AIR for img2img/variant generation (uses image instead of random noise).
-   */
-  sourceImage?: null | string;
-  /**
-   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
-   */
-  strength: number;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'qwenStableDiffusionCpp';
-};
-
-/**
- * Contains slot information for an image generated by a QwenStableDiffusionCppJob.
- */
-export type QwenStableDiffusionCppJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
 };
 
 /**
@@ -5607,67 +3753,6 @@ export type ResizeTransform = Omit<ImageTransform, 'type'> & {
    */
   targetWidth?: null | number;
   type: 'resize';
-};
-
-/**
- * Diagnostic information about a resource's availability from different sources.
- * Used to diagnose sync issues between WorkerGrain and the queue.
- */
-export type ResourceDiagnosticInfo = {
-  /**
-   * The resource identifier (from the job)
-   */
-  air: string;
-  workerGrainAvailability: WorkerResourceAvailability;
-  queueAvailability: WorkerResourceAvailability;
-  /**
-   * Hash code of the job's AIR object
-   */
-  jobAirHashCode: number;
-  /**
-   * The job AIR's Version field
-   */
-  jobAirVersion?: null | string;
-  /**
-   * The job AIR's Format field
-   */
-  jobAirFormat?: null | string;
-  /**
-   * The matching AIR key from the WorkerGrain registration (if found)
-   */
-  workerGrainAir?: null | string;
-  /**
-   * Hash code of the WorkerGrain's AIR object (if found)
-   */
-  workerGrainAirHashCode?: null | number;
-  /**
-   * The WorkerGrain AIR's Version field
-   */
-  workerGrainAirVersion?: null | string;
-  /**
-   * The WorkerGrain AIR's Format field
-   */
-  workerGrainAirFormat?: null | string;
-  /**
-   * The matching AIR key from the queue (if found)
-   */
-  queueAir?: null | string;
-  /**
-   * Hash code of the queue's AIR object (if found)
-   */
-  queueAirHashCode?: null | number;
-  /**
-   * The Queue AIR's Version field
-   */
-  queueAirVersion?: null | string;
-  /**
-   * The Queue AIR's Format field
-   */
-  queueAirFormat?: null | string;
-  /**
-   * Whether there is a potential sync issue (WorkerGrain says available but queue doesn't)
-   */
-  readonly hasPotentialSyncIssue: boolean;
 };
 
 /**
@@ -5747,20 +3832,6 @@ export type ResourceInfo = {
    * NSFWContent covers X and AA whereas MatureContent includes R rated content.
    */
   hasNSFWContentRestriction: boolean;
-};
-
-export const RewritePromptGoal = {
-  PREVENT_SEXUAL: 'preventSexual',
-  PREVENT_SEXUAL_MINOR: 'preventSexualMinor',
-} as const;
-
-export type RewritePromptGoal = (typeof RewritePromptGoal)[keyof typeof RewritePromptGoal];
-
-export type RewritePromptJob = Omit<Job, '$type'> & {
-  prompt: string;
-  goal: RewritePromptGoal;
-  readonly type: string;
-  $type: 'rewritePrompt';
 };
 
 /**
@@ -6009,35 +4080,6 @@ export const SeedreamVersion = {
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
 
 /**
- * Details for a similarity search job.
- */
-export type SimilaritySearchJob = Omit<Job, '$type'> & {
-  /**
-   * An AIR ID representing the primary model.
-   */
-  model: string;
-  /**
-   * A value for the NSFW filter.
-   */
-  nsfwFilter: string;
-  /**
-   * The prompt provided.
-   */
-  prompt: string;
-  /**
-   * A collection of parameters.
-   */
-  params: {
-    [key: string]: unknown;
-  };
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'similaritySearch';
-};
-
-/**
  * Sora 2 Image-to-Video
  * FAL Endpoints:
  * - Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video
@@ -6073,111 +4115,6 @@ export type SoraVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   aspectRatio?: 'auto' | '16:9' | '9:16';
   usePro?: boolean;
   engine: 'sora';
-};
-
-export type StableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * The main diffusion model (checkpoint).
-   */
-  model: string;
-  /**
-   * The VAE model. Optional - will use model's built-in VAE if not specified.
-   */
-  vaeModel?: null | string;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Embedding (textual inversion) models.
-   */
-  embeddings: Array<string>;
-  uCache: SdCppUCacheMode;
-  /**
-   * Clip skip value.
-   */
-  clipSkip: number;
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<StableDiffusionCppJobSlot>;
-  /**
-   * The source image URL for img2img generation.
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
-   */
-  strength: number;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'stableDiffusionCpp';
-};
-
-/**
- * Contains slot information for an image generated by a StableDiffusionCppJob.
- */
-export type StableDiffusionCppJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
-};
-
-/**
- * A subscription for pushed based notifications.
- */
-export type Subscription = {
-  /**
-   * The webhook url.
-   */
-  webhook: string;
 };
 
 /**
@@ -6274,62 +4211,6 @@ export type TextToImageInput = {
 };
 
 /**
- * A text to image generation job.
- */
-export type TextToImageJob = Omit<Job, '$type'> & {
-  /**
-   * An AIR representing the model to use.
-   */
-  model: string;
-  params: ImageJobParams;
-  /**
-   * The hash for the output image.
-   */
-  imageHash: string;
-  /**
-   * Get or set a associative list of additional networks. Each network is identified by a hash code.
-   */
-  additionalNetworks: {
-    [key: string]: ImageJobNetworkParams;
-  };
-  /**
-   * Get or set the URL where the image will be uploaded to.
-   */
-  destinationUrl?: null | string;
-  /**
-   * A value indicating whether to store the image as a blob or as a legacy image.
-   */
-  storeAsBlob: boolean;
-  /**
-   * Get or set a list of control nets that should be applied with this textToImage job.
-   */
-  controlNets: Array<ImageJobControlNet>;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'textToImage';
-};
-
-/**
- * Contains slot information for an image generated by a TextToImageJob.
- */
-export type TextToImageJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
-};
-
-/**
  * Represents the output of a TextToImage workflow step.
  */
 export type TextToImageOutput = {
@@ -6356,58 +4237,6 @@ export type TextToImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'textToImage';
 };
 
-export type TextToImageV2Job = Omit<Job, '$type'> & {
-  /**
-   * The base model / ecosystem for the model.
-   */
-  readonly baseModel?: null | string;
-  /**
-   * An AIR representing the model to use.
-   */
-  model: string;
-  params: ImageJobParams;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<TextToImageJobSlot>;
-  /**
-   * Get or set a associative list of additional networks. Each network is identified by a hash code
-   */
-  additionalNetworks: {
-    [key: string]: ImageJobNetworkParams;
-  };
-  /**
-   * Get or set a list of control nets that should be applied with this textToImage job
-   */
-  controlNets: Array<ImageJobControlNet>;
-  /**
-   * Get or set additional metadata that will be embedded with generated images
-   */
-  imageMetadata?: null | string;
-  /**
-   * The engine to use for generation
-   */
-  engine?: null | string;
-  promptClassificationResult?: ClavataPromptClassificationResult;
-  /**
-   * An image for img2img workflows
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * The strength at which to denoise img2img
-   */
-  sourceImageDenoiseStrength?: null | number;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'textToImageV2';
-};
-
 export type TextToSpeechInput = {
   engine: null | string;
   /**
@@ -6418,56 +4247,6 @@ export type TextToSpeechInput = {
    * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
    */
   language?: null | string;
-};
-
-export type TextToSpeechJob = Omit<Job, '$type'> & {
-  /**
-   * The text to synthesize into speech.
-   */
-  text: string;
-  /**
-   * Reference audio resource for Base voice-cloning mode.
-   */
-  refAudio?: null | string;
-  /**
-   * Transcript of the reference audio (required for Base mode unless XVectorOnlyMode is true).
-   */
-  refText?: null | string;
-  /**
-   * If true, uses only speaker embedding for Base mode (ref_text not required).
-   */
-  xVectorOnlyMode: boolean;
-  /**
-   * Built-in speaker name for CustomVoice mode (e.g., "Ryan", "Vivian").
-   */
-  speaker?: null | string;
-  /**
-   * Optional style instruction for CustomVoice mode.
-   */
-  instruct?: null | string;
-  /**
-   * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
-   */
-  language?: null | string;
-  /**
-   * Optional generation cap for max tokens.
-   */
-  maxNewTokens?: null | number;
-  /**
-   * TTS model to use. Determined by mode: Base for voice cloning, CustomVoice for built-in speakers.
-   */
-  ttsModel: string;
-  /**
-   * Presigned URL to upload the generated audio WAV to.
-   */
-  destinationUrl: string;
-  /**
-   * Blob key for deduplication and retrieval.
-   */
-  destinationBlobKey: string;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'textToSpeech';
 };
 
 /**
@@ -6500,6 +4279,21 @@ export type TextToSpeechStep = Omit<WorkflowStep, '$type'> & {
 export type TextToSpeechStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: TextToSpeechInput;
   $type: 'textToSpeech';
+};
+
+/**
+ * A tool result message sent back after executing a tool call.
+ */
+export type ToolMessage = Omit<ChatCompletionMessage, 'role'> & {
+  /**
+   * The tool result content.
+   */
+  content: string;
+  /**
+   * The ID of the tool call this message is responding to.
+   */
+  tool_call_id: string;
+  role: 'tool';
 };
 
 /**
@@ -6635,17 +4429,6 @@ export type TranscodeInput = {
   destinationUrl?: null | string;
 };
 
-export type TranscodeJob = Omit<Job, '$type'> & {
-  sourceUrl: string;
-  containerFormat: ContainerFormat;
-  width: number;
-  mediaHash: string;
-  destinationUrl: string;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'transcode';
-};
-
 export type TranscodeOutput = {
   /**
    * Gets the id of the blob that contains the media.
@@ -6703,20 +4486,6 @@ export type TranscriptionInput = {
    * Whether to return word-level timestamps. Defaults to true.
    */
   returnTimeStamps?: boolean;
-};
-
-export type TranscriptionJob = Omit<Job, '$type'> & {
-  media: string;
-  language?: null | string;
-  context?: null | string;
-  returnTimeStamps: boolean;
-  asrModel: string;
-  alignerModel: string;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'transcription';
 };
 
 export type TranscriptionOutput = {
@@ -6817,10 +4586,6 @@ export type UpdateWorkflowStepRequest = {
   };
 };
 
-export type UploadBlobResult = {
-  isCancellationRequested: boolean;
-};
-
 /**
  * A user message that can contain text and/or images.
  */
@@ -6865,6 +4630,14 @@ export const Veo3AspectRatio = {
 
 export type Veo3AspectRatio = (typeof Veo3AspectRatio)[keyof typeof Veo3AspectRatio];
 
+export const Veo3GenerationMode = {
+  STANDARD: 'standard',
+  FAST: 'fast',
+  LITE: 'lite',
+} as const;
+
+export type Veo3GenerationMode = (typeof Veo3GenerationMode)[keyof typeof Veo3GenerationMode];
+
 export const Veo3Version = { '3_0': '3.0', '3_1': '3.1' } as const;
 
 export type Veo3Version = (typeof Veo3Version)[keyof typeof Veo3Version];
@@ -6879,6 +4652,7 @@ export type Veo3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   fastMode?: boolean;
   images?: Array<string>;
   version?: Veo3Version;
+  mode?: Veo3GenerationMode;
   engine: 'veo3';
 };
 
@@ -6900,31 +4674,6 @@ export type VideoEnhancementInputInterpolationOptions = {
 
 export type VideoEnhancementInputUpscalerOptions = {
   model?: null | string;
-  width: number;
-  height: number;
-};
-
-export type VideoEnhancementJob = Omit<Job, '$type'> & {
-  videoUrl: string;
-  upscaler?: VideoEnhancementJobUpscalerOptions;
-  interpolation?: VideoEnhancementJobInterpolationOptions;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  duration: string;
-  fps: number;
-  width: number;
-  height: number;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'videoEnhancement';
-};
-
-export type VideoEnhancementJobInterpolationOptions = {
-  multiplier: number;
-};
-
-export type VideoEnhancementJobUpscalerOptions = {
-  model: string;
   width: number;
   height: number;
 };
@@ -6979,38 +4728,6 @@ export type VideoFrameExtractionInput = {
    * Default is 0 (start of video).
    */
   startTime?: number;
-};
-
-/**
- * Job for extracting unique frames from a video using perceptual hashing.
- */
-export type VideoFrameExtractionJob = Omit<Job, '$type'> & {
-  videoUrl: string;
-  /**
-   * The rate at which to extract frames (frames per second).
-   */
-  frameRate: number;
-  /**
-   * The similarity threshold for determining unique frames (0.0 to 1.0).
-   * Frames with similarity above this threshold are considered duplicates and filtered out.
-   */
-  uniqueThreshold: number;
-  /**
-   * Optional maximum number of unique frames to extract.
-   */
-  maxFrames?: null | number;
-  /**
-   * Blob key prefix for uploading extracted frames. Frames will be uploaded as {prefix}-{index}.jpg
-   */
-  destinationBlobKeyPrefix: string;
-  /**
-   * Time in seconds to seek to before extracting frames.
-   * Default is 0 (start of video).
-   */
-  startTime: number;
-  readonly type: string;
-  readonly claimDuration: string;
-  $type: 'videoFrameExtraction';
 };
 
 /**
@@ -7079,21 +4796,6 @@ export type VideoInterpolationInput = {
   video: string;
   interpolationFactor?: number;
   model?: string;
-};
-
-export type VideoInterpolationJob = Omit<Job, '$type'> & {
-  videoUrl: string;
-  model: string;
-  interpolationFactor: number;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  duration: string;
-  fps: number;
-  width: number;
-  height: number;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'videoInterpolation';
 };
 
 export type VideoInterpolationOutput = {
@@ -7171,21 +4873,6 @@ export type VideoUpscalerInput = {
   scaleFactor?: number;
 };
 
-export type VideoUpscalerJob = Omit<Job, '$type'> & {
-  videoUrl: string;
-  mode: string;
-  scaleFactor: number;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  duration: string;
-  fps: number;
-  width: number;
-  height: number;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'videoUpscaler';
-};
-
 export type VideoUpscalerOutput = {
   video?: VideoBlob;
 };
@@ -7239,27 +4926,6 @@ export type ViduVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'vidu';
 };
 
-export type ViduVideoGenJob = Omit<Job, '$type'> & {
-  prompt: string;
-  enablePromptEnhancer: boolean;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  style: ViduVideoGenStyle;
-  duration: number;
-  model: ViduVideoGenModel;
-  aspectRatio?: null | string;
-  movementAmplitude?: null | string;
-  images: Array<string>;
-  enableBgm: boolean;
-  resolution: string;
-  turbo: boolean;
-  enableAudio: boolean;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'vidu';
-};
-
 export const ViduVideoGenModel = {
   DEFAULT: 'default',
   Q1: 'q1',
@@ -7271,6 +4937,11 @@ export type ViduVideoGenModel = (typeof ViduVideoGenModel)[keyof typeof ViduVide
 export const ViduVideoGenStyle = { GENERAL: 'general', ANIME: 'anime' } as const;
 
 export type ViduVideoGenStyle = (typeof ViduVideoGenStyle)[keyof typeof ViduVideoGenStyle];
+
+export type VllmOmniTextToSpeechInput = Omit<TextToSpeechInput, 'engine'> & {
+  ecosystem: string;
+  engine: 'vllm-omni';
+};
 
 /**
  * Represents the input information needed for the WDTagging workflow step.
@@ -7292,17 +4963,6 @@ export type WdTaggingInput = {
    * Optional prompt to guide the tagging process.
    */
   prompt?: null | string;
-};
-
-export type WdTaggingJob = Omit<Job, '$type'> & {
-  model: string;
-  mediaUrl: string;
-  threshold?: null | number;
-  movieRatingModel?: null | string;
-  prompt?: null | string;
-  readonly claimDuration: string;
-  readonly type: string;
-  $type: 'wdTagging';
 };
 
 /**
@@ -7665,6 +5325,148 @@ export type Wan26VideoGenInput = Omit<WanVideoGenInput, 'engine' | 'version'> & 
   engine: 'wan';
 };
 
+export type Wan27FalEditInput = Omit<
+  Wan27FalImageGenInput,
+  'engine' | 'version' | 'provider' | 'operation'
+> & {
+  images?: Array<string>;
+  operation: 'edit';
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalEditVideoInput = Omit<
+  Wan27FalVideoGenInput,
+  'engine' | 'version' | 'provider' | 'operation'
+> & {
+  /**
+   * URL of the input video to edit (MP4/MOV, 2-10s, max 100 MB)
+   */
+  videoUrl: string;
+  /**
+   * Reference image for reference-based editing
+   */
+  referenceImage?: null | string;
+  /**
+   * Aspect ratio of the generated video. If not provided, uses the input video's aspect ratio.
+   */
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  /**
+   * Audio handling: "auto" or "origin" (keep original audio)
+   */
+  audioSetting?: 'auto' | 'origin';
+  /**
+   * Duration: 0 = match input video duration, or 2-10 seconds
+   */
+  duration?: number;
+  operation: 'edit-video';
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalImageGenInput = Omit<Wan27ImageGenInput, 'engine' | 'version' | 'provider'> & {
+  operation: null | string;
+  usePro?: boolean;
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalImageToVideoInput = Omit<
+  Wan27FalVideoGenInput,
+  'engine' | 'version' | 'provider' | 'operation'
+> & {
+  images?: Array<string>;
+  /**
+   * Last frame image for first-and-last-frame-to-video
+   */
+  endImage?: null | string;
+  /**
+   * URL of a video clip to continue from (MP4/MOV, 2-10s, max 100 MB)
+   */
+  videoUrl?: null | string;
+  operation: 'image-to-video';
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalReferenceToVideoInput = Omit<
+  Wan27FalVideoGenInput,
+  'engine' | 'version' | 'provider' | 'operation'
+> & {
+  /**
+   * Reference images for character/object appearance (max 20 MB each)
+   */
+  referenceImages?: Array<string>;
+  /**
+   * Reference videos for character/object appearance and motion (max 100 MB each)
+   * Use @Video1, @Video2, @Video3 in the prompt to reference subjects
+   */
+  referenceVideoUrls?: Array<string>;
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  multiShots?: boolean;
+  /**
+   * Duration for reference-to-video is limited to 2-10 seconds
+   */
+  duration?: number;
+  operation: 'reference-to-video';
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalTextToImageInput = Omit<
+  Wan27FalImageGenInput,
+  'engine' | 'version' | 'provider' | 'operation'
+> & {
+  operation: 'text-to-image';
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalTextToVideoInput = Omit<
+  Wan27FalVideoGenInput,
+  'engine' | 'version' | 'provider' | 'operation'
+> & {
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  operation: 'text-to-video';
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalVideoGenInput = Omit<Wan27VideoGenInput, 'engine' | 'version' | 'provider'> & {
+  operation: null | string;
+  resolution?: '720p' | '1080p';
+  negativePrompt?: null | string;
+  enablePromptExpansion?: boolean;
+  enableSafetyChecker?: boolean;
+  /**
+   * URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)
+   * Supported for text-to-video and image-to-video
+   */
+  audioUrl?: null | string;
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27ImageGenInput = Omit<WanImageGenInput, 'engine' | 'version'> & {
+  provider: null | string;
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27VideoGenInput = Omit<WanVideoGenInput, 'engine' | 'version'> & {
+  provider: null | string;
+  version: 'v2.7';
+  engine: 'wan';
+};
+
 export type WanImageGenInput = Omit<ImageGenInput, 'engine'> & {
   version: null | string;
   prompt: string;
@@ -7712,526 +5514,6 @@ export type WebpOutputFormat = Omit<ImageOutputFormat, 'format'> & {
    */
   maxFrames?: null | number;
   format: 'webp';
-};
-
-export type WorkerByteplusCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's capabilities.
- */
-export type WorkerCapabilities = {
-  image: WorkerImageCapabilities;
-  media: WorkerMediaCapabilities;
-  modelManagement?: WorkerModelPreparationCapabilities;
-  configurationManagement?: WorkerConfigurationCapabilities;
-  similaritySearch?: WorkerSimilaritySearchCapabilities;
-  llmPromptAugmentation?: LlmPromptAugmentationCapabilities;
-  byteplus?: WorkerByteplusCapabilities;
-  chatCompletion?: ChatCompletionCapabilities;
-  google?: WorkerGoogleCapabilities;
-};
-
-/**
- * Details of a worker's configuration capabilities.
- */
-export type WorkerConfigurationCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details for a particular worker.
- */
-export type WorkerDetails = {
-  /**
-   * The worker's ID.
-   */
-  id: string;
-  /**
-   * The worker's name.
-   */
-  name: string;
-  /**
-   * The worker's active job count.
-   */
-  activeJobs: number;
-  /**
-   * The number of jobs in the worker's queue.
-   */
-  queueSize: number;
-  /**
-   * The total cost of job's in the worker's queue.
-   */
-  queueDepth: number;
-  /**
-   * The worker's start date / time.
-   */
-  startDate: string;
-  /**
-   * The worker's last request date / time.
-   */
-  lastRequestDate?: null | string;
-  /**
-   * The worker's expiration date / time.
-   */
-  expirationDate?: null | string;
-  statistics?: ProcessingStatistics;
-  /**
-   * The worker's succeeded job throughput rate.
-   */
-  succeededThroughputRate: number;
-  /**
-   * The worker's failed job throughput rate.
-   */
-  failedThroughputRate: number;
-  /**
-   * The worker's idle rate.
-   */
-  idleRate: number;
-  /**
-   * The date / time of the worker's last successfully completed job.
-   */
-  lastSuccesfullyCompletedJobDate?: null | string;
-  /**
-   * The date / time of the worker's last job update.
-   */
-  lastJobUpdateDate?: null | string;
-  /**
-   * The date / time that the worker's subscription was set.
-   */
-  subscriptionSetDate?: null | string;
-  /**
-   * The date / time that the worker was quarantined.
-   */
-  quarantineDate?: null | string;
-  /**
-   * The rate at which this worker has been downloading
-   */
-  resourceDownloadRate: number;
-  /**
-   * The rate at which this worker has been evicting resources
-   */
-  resourceEvictionRate: number;
-  /**
-   * The size in bytes of resources that are queued up for this worker to download
-   */
-  upcomingResourcesSize?: null | number;
-  /**
-   * The remaining capacity  that this worker can claim, or null if remaining capacity can not be computed
-   */
-  availableCapacity?: null | number;
-  nodeIdentifier?: null | string;
-  peerNodeIdentifiers?: null | Array<string>;
-  paused: boolean;
-};
-
-/**
- * Request body for worker diagnostics actions
- */
-export type WorkerDiagnosticsRequest = {
-  /**
-   * If true, triggers a full registration resync for the worker
-   */
-  resync: boolean;
-};
-
-export type WorkerFalCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerGoogleCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerHaiperCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerHumanoidImageMaskCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's image capabilities.
- */
-export type WorkerImageCapabilities = {
-  textToImage?: WorkerImageTextToImageCapabilities;
-  imageToImage?: WorkerImageImageToImageCapabilities;
-  transform?: WorkerImageTransformCapabilities;
-  resourceTraining?: WorkerImageResourceTrainingCapabilities;
-  embedding?: WorkerImageEmbeddingCapabilities;
-  upscaler?: WorkerImageUpscalerCapabilities;
-  convert?: WorkerImageConvertCapabilities;
-};
-
-/**
- * Capabilities for image conversion operations (resize, format conversion).
- */
-export type WorkerImageConvertCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's image embedding capabilities.
- */
-export type WorkerImageEmbeddingCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's image to image capabilities.
- */
-export type WorkerImageImageToImageCapabilities = {
-  /**
-   * The worker's maximum supported image size for image to image (squared).
-   */
-  size: number;
-  /**
-   * A list of schedulers the worker supports for image to image.
-   */
-  schedulers: Array<Scheduler>;
-  /**
-   * The number of ControlNets the worker supports for image to image (at once).
-   */
-  controlNet: number;
-  /**
-   * Indicates whether the worker supports inpaiting.
-   */
-  inpainting: boolean;
-};
-
-/**
- * Details of a worker's image resource training capabilities.
- */
-export type WorkerImageResourceTrainingCapabilities = {
-  aiToolkitVersion?: null | number;
-  engines: Array<string>;
-};
-
-/**
- * Details of a worker's text to image capabilities.
- */
-export type WorkerImageTextToImageCapabilities = {
-  /**
-   * The worker's maximum supported image size for text to image (squared).
-   */
-  size: number;
-  /**
-   * A list of schedulers the worker supports for text to image.
-   */
-  schedulers: Array<Scheduler>;
-  /**
-   * The number of ControlNets the worker supports for text to image (at once).
-   */
-  controlNet: number;
-  /**
-   * A list of engines that this worker supports for text to image.
-   */
-  engines?: null | Array<string>;
-  additionalOutputFormats: boolean;
-};
-
-/**
- * Details of a worker's image transform capabilities.
- */
-export type WorkerImageTransformCapabilities = {
-  /**
-   * A list of supported image transformers.
-   */
-  transformers: Array<ImageTransformer>;
-};
-
-export type WorkerImageUpscalerCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerKlingCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerMediaAsrCapabilities = {
-  additionalConcurrency: number;
-};
-
-export type WorkerMediaAgeClassificationCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's media capabilities.
- */
-export type WorkerMediaCapabilities = {
-  wdTagging?: WorkerMediaWdTaggingCapabilities;
-  comfy?: WorkerMediaComfyCapabilities;
-  tagging?: WorkerMediaTaggingCapabilities;
-  movieRating?: WorkerMediaMovieRatingCapabilities;
-  transcode?: WorkerMediaTranscodeCapabilities;
-  captioning?: WorkerMediaCaptioningCapabilities;
-  ageClassification?: WorkerMediaAgeClassificationCapabilities;
-  ocrSafetyClassification?: WorkerMediaOcrSafetyClassificationCapabilities;
-  videoEnhancements?: WorkerVideoEnhancementCapabilities;
-  mediaRating?: WorkerMediaRatingCapabilities;
-  mediaHash?: WorkerMediaHashCapabilities;
-  videoFrameExtraction?: WorkerVideoFrameExtractionCapabilities;
-  videoUpscaler?: WorkerVideoUpscalerCapabilities;
-  asr?: WorkerMediaAsrCapabilities;
-  tts?: WorkerMediaTtsCapabilities;
-};
-
-export type WorkerMediaCaptioningCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's media comfy capabilities.
- */
-export type WorkerMediaComfyCapabilities = {
-  /**
-   * A preview property to enable spine comfy workflows
-   */
-  spineComfy: boolean;
-  /**
-   * The ability to emulate FAL wan jobs
-   */
-  falWanEmulation: boolean;
-};
-
-/**
- * Details of a worker's media hash capabilities.
- */
-export type WorkerMediaHashCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's media movie rating capabilities.
- */
-export type WorkerMediaMovieRatingCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerMediaOcrSafetyClassificationCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's media rating capabilities.
- */
-export type WorkerMediaRatingCapabilities = {
-  additionalConcurrency: number;
-  supportsLegacyJobTypes: boolean;
-};
-
-export type WorkerMediaTtsCapabilities = {
-  additionalConcurrency: number;
-};
-
-/**
- * Details of a worker's media tagging capabilities.
- */
-export type WorkerMediaTaggingCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerMediaTranscodeCapabilities = {
-  additionalConcurrency: number;
-};
-
-/**
- * Details of a worker's media WD tagging capabilities.
- */
-export type WorkerMediaWdTaggingCapabilities = {
-  version?: null | number;
-};
-
-export type WorkerMiniMaxCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's model preparation capabilities.
- */
-export type WorkerModelPreparationCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerOpenAiCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerPromptRewritingCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's registration.
- */
-export type WorkerRegistration = {
-  /**
-   * The worker's name.
-   */
-  name: string;
-  /**
-   * A hash set of resource types the worker can retrieve on demand.
-   */
-  onDemandResourceTypes: Array<string>;
-  capabilities: WorkerCapabilities;
-  subscription?: Subscription;
-  type?: WorkerType;
-  /**
-   * The number of requests the worker can handle at once.
-   */
-  concurrentLimit: number;
-  /**
-   * A collection of ecosystems the worker supports.
-   */
-  ecosystems: {
-    [key: string]: EcosystemElement;
-  };
-  /**
-   * A collection of information about the availability of particular resources on this worker.
-   */
-  resources: {
-    [key: string]: WorkerResourceStatus;
-  };
-  /**
-   * The name of the closest cache level that this worker can interact with.
-   */
-  cacheLevel?: null | string;
-  /**
-   * The max queue size before the worker stops accepting requests that require cold swapping.
-   */
-  maxColdSwapQueueSize?: null | number;
-  /**
-   * The max size in Mb of downloads that can be pending.
-   */
-  maxPendingResourceSize?: null | number;
-  /**
-   * A value indicating if worker should consume jobs that are not yet available.
-   */
-  consumeUnavailableJobs: boolean;
-  /**
-   * An optional identifier unique to this worker.
-   */
-  nodeIdentifier?: null | string;
-  /**
-   * An optional boost to the scoring of this worker. This can be used to make a worker more or less likely to be selected for work
-   */
-  scoreBoost?: null | number;
-  /**
-   * A list of file formats that the worker supports. If none are specified then all formats are considered supported
-   */
-  supportedFileFormats?: null | Array<FileFormat>;
-  preferredDownloadSource?: DownloadSource;
-  /**
-   * A collection of labels that will be applied to metrics produced by these workers
-   */
-  labels?: null | {
-    [key: string]: string;
-  };
-  /**
-   * Get additional metadata about this worker. This can be used for debugging purposes as well as to target certain configurations to certain workers.
-   */
-  metadata?: null | {
-    [key: string]: unknown;
-  };
-  /**
-   * The saturation rate of available capacity of this worker of the worker.
-   */
-  capacitySaturationRate?: null | number;
-  /**
-   * An optional set of identifiers for the peer nodes that this worker is connected to.
-   */
-  peerNodeIdentifiers?: null | Array<string>;
-  /**
-   * Wether this worker supports additional resources.
-   */
-  supportsAdditionalResources: boolean;
-  /**
-   * Ability to version clients
-   */
-  version: number;
-};
-
-/**
- * Options for representing the status for a resource on a worker.
- */
-export const WorkerResourceAvailability = {
-  UNKNOWN: 'unknown',
-  UNSUPPORTED: 'unsupported',
-  UNAVAILABLE: 'unavailable',
-  AVAILABLE: 'available',
-  PROVIDER_UNSUPPORTED: 'providerUnsupported',
-} as const;
-
-/**
- * Options for representing the status for a resource on a worker.
- */
-export type WorkerResourceAvailability =
-  (typeof WorkerResourceAvailability)[keyof typeof WorkerResourceAvailability];
-
-/**
- * Details for the status of a resource on a particular worker.
- */
-export type WorkerResourceStatus = {
-  availability: WorkerResourceAvailability;
-  /**
-   * The cost associated with this resource.
-   */
-  cost: number;
-};
-
-/**
- * Details of a worker's similarity search capabilities.
- */
-export type WorkerSimilaritySearchCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerTryOnUCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Available values for worker type.
- */
-export const WorkerType = {
-  NORMAL: 'normal',
-  DEFERRED: 'deferred',
-  TEST: 'test',
-  PAUSED: 'paused',
-} as const;
-
-/**
- * Available values for worker type.
- */
-export type WorkerType = (typeof WorkerType)[keyof typeof WorkerType];
-
-/**
- * Capabilities for Veo3 video generation.
- */
-export type WorkerVeo3Capabilities = {
-  [key: string]: never;
-};
-
-export type WorkerVideoEnhancementCapabilities = {
-  [key: string]: never;
-};
-
-/**
- * Details of a worker's video frame extraction capabilities.
- */
-export type WorkerVideoFrameExtractionCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerVideoUpscalerCapabilities = {
-  [key: string]: never;
-};
-
-export type WorkerViduCapabilities = {
-  [key: string]: never;
 };
 
 /**
@@ -8748,6 +6030,128 @@ export const WorkflowUpgradeMode = { MANUAL: 'manual', AUTOMATIC: 'automatic' } 
  */
 export type WorkflowUpgradeMode = (typeof WorkflowUpgradeMode)[keyof typeof WorkflowUpgradeMode];
 
+export type XGuardCustomSignalMetadata = {
+  name: string;
+  positiveSignals: {
+    [key: string]: number;
+  };
+  negativeSignals: {
+    [key: string]: number;
+  };
+  textSignals: {
+    [key: string]: number;
+  };
+  readonly positiveCount: number;
+  readonly negativeCount: number;
+  readonly textCount: number;
+};
+
+export type XGuardLabelConfiguration = {
+  label: string;
+  action: string;
+  threshold: number;
+  policy: string;
+};
+
+export type XGuardLabelResult = {
+  label: string;
+  action: string;
+  threshold: number;
+  score: number;
+  triggered: boolean;
+  topToken: string;
+  field: string;
+  modelReason: string;
+  postprocess?: null | string;
+  finishReason?: null | string;
+  responseId?: null | string;
+  error?: null | string;
+  matchedTerms?: XGuardMatchedTerms;
+};
+
+export type XGuardMatchedTerms = {
+  text: Array<string>;
+  positivePrompt: Array<string>;
+  negativePrompt: Array<string>;
+};
+
+export type XGuardModerationInput = {
+  mode: XGuardModerationMode;
+  /**
+   * The text to evaluate (for Text mode).
+   */
+  text?: null | string;
+  /**
+   * The positive prompt (for Prompt mode).
+   */
+  positivePrompt?: null | string;
+  /**
+   * The negative prompt (for Prompt mode).
+   */
+  negativePrompt?: null | string;
+  /**
+   * Optional label configuration overrides. When provided, these merge with/override the
+   * defaults from the XGuardModerationOptionsGrain for the given mode.
+   */
+  labelOverrides?: null | Array<XGuardLabelConfiguration>;
+};
+
+export const XGuardModerationMode = { PROMPT: 'prompt', TEXT: 'text' } as const;
+
+export type XGuardModerationMode = (typeof XGuardModerationMode)[keyof typeof XGuardModerationMode];
+
+export type XGuardModerationOutput = {
+  results: Array<XGuardLabelResult>;
+  signalMetadata?: XGuardSignalMetadata;
+  blocked: boolean;
+  triggeredLabels: Array<string>;
+};
+
+/**
+ * XGuardModeration
+ */
+export type XGuardModerationStep = Omit<WorkflowStep, '$type'> & {
+  input: XGuardModerationInput;
+  output?: XGuardModerationOutput;
+  $type: 'xGuardModeration';
+};
+
+/**
+ * XGuardModeration
+ */
+export type XGuardModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: XGuardModerationInput;
+  $type: 'xGuardModeration';
+};
+
+export type XGuardSignalMetadata = {
+  positiveAgeDownSignals: {
+    [key: string]: number;
+  };
+  negativeAgeDownSignals: {
+    [key: string]: number;
+  };
+  positiveAdultSignals: {
+    [key: string]: number;
+  };
+  negativeAdultSignals: {
+    [key: string]: number;
+  };
+  positiveSexualSignals: {
+    [key: string]: number;
+  };
+  negativeSexualSignals: {
+    [key: string]: number;
+  };
+  customSignals: Array<XGuardCustomSignalMetadata>;
+  readonly positiveAgeDownCount: number;
+  readonly negativeAgeDownCount: number;
+  readonly positiveAdultCount: number;
+  readonly negativeAdultCount: number;
+  readonly positiveSexualCount: number;
+  readonly negativeSexualCount: number;
+};
+
 /**
  * AI Toolkit training for Z Image Turbo models
  */
@@ -8798,88 +6202,6 @@ export type ZImageImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem
   engine: 'sdcpp';
 };
 
-export type ZImageStableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Z-Image diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Z-Image (uses Flux VAE).
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen3-4B GGUF format).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<ZImageStableDiffusionCppJobSlot>;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'zImageStableDiffusionCpp';
-};
-
-/**
- * Contains slot information for an image generated by a ZImageStableDiffusionCppJob.
- */
-export type ZImageStableDiffusionCppJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
-};
-
 /**
  * AI Toolkit training for Z Image Turbo models
  */
@@ -8924,88 +6246,6 @@ export type ZImageTurboImageGenInput = Omit<
   engine: 'sdcpp';
 };
 
-export type ZImageTurboStableDiffusionCppJob = Omit<Job, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Z-Image Turbo diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Z-Image (uses Flux VAE).
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen3-4B GGUF format).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<ZImageTurboStableDiffusionCppJobSlot>;
-  /**
-   * The duration for which this job can be claimed for.
-   */
-  readonly claimDuration: string;
-  /**
-   * The job type.
-   */
-  readonly type: string;
-  $type: 'zImageTurboStableDiffusionCpp';
-};
-
-/**
- * Contains slot information for an image generated by a ZImageTurboStableDiffusionCppJob.
- */
-export type ZImageTurboStableDiffusionCppJobSlot = {
-  /**
-   * The hash for the image output.
-   */
-  imageHash: string;
-  /**
-   * The destination url for image upload.
-   */
-  destinationUrl: string;
-};
-
 /**
  * Training data packaged as a zip file
  */
@@ -9026,168 +6266,6 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
 /**
- * A job that trains a single epoch using AI Toolkit.
- * Each epoch is a separate job that depends on the previous epoch's output.
- * This approach provides better fault tolerance and deduplication compared to
- * monolithic multi-epoch training jobs.
- */
-export type AiToolkitTrainingEpochJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The base model to train upon
-   */
-  model: string;
-  trainingData: TrainingData;
-  /**
-   * The epoch number (1-based) that this job will train
-   */
-  epochNumber: number;
-  /**
-   * AIR pointing to the previous epoch's output blob (null for epoch 1).
-   * Format: urn:air:{ecosystem}:lora:orchestrator:blob@{blobKey}
-   */
-  previousEpochResource?: null | string;
-  /**
-   * The blob key where this epoch's trained model will be stored.
-   * This is a content-based hash derived from training inputs for deduplication.
-   */
-  destinationBlobKey: string;
-  /**
-   * Presigned URL where the worker should upload the trained epoch
-   */
-  destinationUrl: string;
-  /**
-   * The training engine (should be "ai-toolkit")
-   */
-  engine: string;
-  trainingDataCount: number;
-  /**
-   * Total number of epochs to train (used for calculating step counts)
-   */
-  epochs: number;
-  /**
-   * Number of repeats per image (internal parameter, determined by handler)
-   */
-  numRepeats: number;
-  /**
-   * Batch size for training (internal parameter, determined by handler based on worker capabilities)
-   */
-  trainBatchSize: number;
-  lr: number;
-  textEncoderLr?: null | number;
-  trainTextEncoder?: null | boolean;
-  lrScheduler?: null | string;
-  optimizerType?: null | string;
-  networkDim?: null | number;
-  networkAlpha?: null | number;
-  noiseOffset?: null | number;
-  minSnrGamma?: null | number;
-  flipAugmentation: boolean;
-  shuffleTokens: boolean;
-  keepTokens: number;
-  /**
-   * Session ID shared by all jobs from the same workflow to group related training jobs
-   */
-  sessionId: string;
-  /**
-   * Optional extras model resource (e.g., for Z-Image-De-Turbo which needs the original Z-Image-Turbo model)
-   */
-  extrasModel?: null | string;
-  /**
-   * Optional text encoder model resource (separate from base model).
-   * Used when the text encoder is not bundled with the base model (e.g., Flux2 Klein uses Qwen3).
-   */
-  textEncoderModel?: null | string;
-  /**
-   * Optional VAE model resource (separate from base model).
-   * Used when a custom VAE is required that isn't bundled with the base model.
-   */
-  vaeModel?: null | string;
-  /**
-   * Whether this is image-edit training (uses control_path_1/2/3 in dataset config).
-   * When true, the training data contains subfolders: main/, control_1/, control_2/, control_3/.
-   */
-  isEditTraining: boolean;
-  /**
-   * A trigger word that activates the trained LoRA when used in prompts.
-   */
-  triggerWord?: null | string;
-  $type: 'aiToolkitTrainingEpoch';
-};
-
-/**
- * Generate music using ACE Step 1.5 audio generation model.
- * Produces full songs from text descriptions and lyrics.
- */
-export type AceStepAudioJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * Music style/genre description (e.g., "Neo-Soul: A warm, organic neo-soul track...")
-   */
-  musicDescription: string;
-  /**
-   * Structured lyrics with section markers like [Verse], [Chorus], [Bridge], etc.
-   */
-  lyrics: string;
-  /**
-   * Random seed for reproducible generation
-   */
-  seed: number;
-  /**
-   * Duration in seconds (max ~190)
-   */
-  duration: number;
-  /**
-   * Beats per minute
-   */
-  bpm: number;
-  /**
-   * Time signature (e.g., "4" for 4/4 time)
-   */
-  timeSignature: string;
-  /**
-   * Language code (e.g., "en", "zh", "ja", "ko")
-   */
-  language: string;
-  /**
-   * Musical key (e.g., "C major", "E minor")
-   */
-  key: string;
-  /**
-   * Weight for instrumental elements (0.0-1.0)
-   */
-  instrumentalWeight: number;
-  /**
-   * Weight for vocal elements (0.0-1.0)
-   */
-  vocalWeight: number;
-  /**
-   * Vocal prompt length parameter
-   */
-  vocalPromptLength: number;
-  /**
-   * Number of sampling steps (turbo model uses 8)
-   */
-  steps: number;
-  /**
-   * Classifier-free guidance scale
-   */
-  cfg: number;
-  /**
-   * Optional model override (uses DefaultModel if not specified)
-   */
-  model?: null | string;
-  /**
-   * Destination URL for the generated video file
-   */
-  destinationUrl: string;
-  /**
-   * Optional cover image URL. When provided, the output is a WebM video
-   * with this image as the visual; otherwise, output is audio-only (MP3).
-   */
-  coverImageUrl?: null | string;
-  $type: 'aceStepAudio';
-};
-
-/**
  * Workflow step for generating music using ACE Step 1.5.
  * Produces full songs from text descriptions and structured lyrics.
  */
@@ -9197,16 +6275,6 @@ export type AceStepAudioStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'aceStepAudio';
 };
 
-export type AgeClassificationJobWritable = Omit<JobWritable2, '$type'> & {
-  model?: null | string;
-  mediaUrl: string;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  failOnMinorDetected: boolean;
-  faceRecognitionModel?: null | string;
-  $type: 'ageClassification';
-};
-
 /**
  * Age classification
  */
@@ -9214,72 +6282,6 @@ export type AgeClassificationStepWritable = Omit<WorkflowStepWritable2, '$type'>
   input: AgeClassificationInput;
   output?: AgeClassificationOutput;
   $type: 'ageClassification';
-};
-
-export type AnimaStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Anima diffusion model.
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Anima.
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen 3 0.6B).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<AnimaStableDiffusionCppJobSlot>;
-  $type: 'animaStableDiffusionCpp';
-};
-
-export type ByteplusSeedreamJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  width: number;
-  height: number;
-  apiVersion: SeedreamVersion;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  $type: 'byteplusSeedream';
 };
 
 /**
@@ -9295,81 +6297,6 @@ export type ChatCompletionContentPartWritable = {
 };
 
 /**
- * A job for executing chat completions with support for text and image inputs.
- * Compatible with OpenAI Chat Completions API format.
- */
-export type ChatCompletionJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The model to use for chat completion.
-   */
-  model: string;
-  /**
-   * The messages to generate a completion for.
-   * Images URLs have been processed and replaced with blob URLs.
-   */
-  messages: Array<ChatCompletionMessage>;
-  /**
-   * Temperature for sampling (0-2).
-   */
-  temperature: number;
-  /**
-   * Nucleus sampling parameter.
-   */
-  topP: number;
-  /**
-   * Maximum number of tokens to generate.
-   */
-  maxTokens?: null | number;
-  /**
-   * Number of completions to generate.
-   */
-  n: number;
-  /**
-   * Up to 4 sequences where the API will stop generating tokens.
-   */
-  stop?: null | Array<string>;
-  /**
-   * Presence penalty (-2.0 to 2.0).
-   */
-  presencePenalty: number;
-  /**
-   * Frequency penalty (-2.0 to 2.0).
-   */
-  frequencyPenalty: number;
-  /**
-   * Seed for deterministic sampling.
-   */
-  seed?: null | number;
-  /**
-   * A unique identifier for the end-user.
-   */
-  user?: null | string;
-  /**
-   * The blob key where the worker should upload the OpenAI-compatible completion result.
-   */
-  destinationBlobKey: string;
-  /**
-   * The presigned URL where the worker should upload the completion result JSON.
-   */
-  destinationUrl: string;
-  /**
-   * Whether the consumer requested streaming. When true, the worker should upload
-   * NDJSON (one ChatCompletionChunk per line) instead of a single complete JSON response.
-   * The destination URL will include streaming=true so the BlobController activates
-   * real-time chunk notifications to subscribed observers.
-   */
-  stream: boolean;
-  /**
-   * Extra kwargs passed to the chat template (e.g. { "enable_thinking": false } for Qwen3.5).
-   * Forwarded as chat_template_kwargs in the vLLM request.
-   */
-  chatTemplateKwargs?: null | {
-    [key: string]: unknown;
-  };
-  $type: 'chatCompletion';
-};
-
-/**
  * ChatCompletion
  */
 export type ChatCompletionStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
@@ -9379,290 +6306,12 @@ export type ChatCompletionStepWritable = Omit<WorkflowStepWritable2, '$type'> & 
 };
 
 /**
- * Bulk job for rating multiple media items using Civitai's batched scanning solution.
- * Maps ambient CivitaiMediaRatingJob IDs to their corresponding media URLs.
- */
-export type CivitaiBulkMediaRatingJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * Dictionary mapping job IDs to media URLs for batch processing.
-   * The job IDs correspond to the original CivitaiMediaRatingJob instances.
-   */
-  mediaUrls: {
-    [key: string]: string;
-  };
-  optionalProfiles: MediaRatingProfile;
-  nsfwModel?: null | string;
-  ageModel?: null | string;
-  faceRecognitionModel?: null | string;
-  aiDetectorModel?: null | string;
-  animeDetectorModel?: null | string;
-  $type: 'civitaiBulkMediaRating';
-};
-
-/**
- * Ambient job for rating media content using Civitai's batched scanning solution.
- * These jobs are collected and batched into CivitaiBulkMediaRatingJob instances.
- */
-export type CivitaiMediaRatingJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The URL of the media to rate.
-   */
-  mediaUrl: string;
-  optionalProfiles: MediaRatingProfile;
-  nsfwModel?: null | string;
-  ageModel?: null | string;
-  faceRecognitionModel?: null | string;
-  aiDetectorModel?: null | string;
-  animeDetectorModel?: null | string;
-  $type: 'civitaiMediaRating';
-};
-
-export type ClaimWritable = {
-  id: string;
-  job: JobWritable;
-  status: ClaimStatus;
-  requestedAt: string;
-  expiresAt: string;
-  retryAttempt: number;
-};
-
-export type ComfyImageGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  width: number;
-  height: number;
-  sampler: ComfySampler;
-  scheduler: ComfyScheduler;
-  steps: number;
-  cfgScale: number;
-  seed: number;
-  model: string;
-  vaeModel?: null | string;
-  loras: {
-    [key: string]: number;
-  };
-  clipSkip?: null | number;
-  ecosystem: string;
-  sourceImageUrl?: null | string;
-  denoiseStrength?: null | number;
-  imageMetadata?: null | string;
-  slots: Array<ComfyImageGenJobSlot>;
-  $type: 'comfyImageGen';
-};
-
-export type ComfyJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * A untyped set of parameters that are associated with this job
-   */
-  params: {
-    [key: string]: ComfyNode;
-  };
-  resources?: null | Array<string>;
-  /**
-   * Slots for the resulting blob outputs.
-   */
-  slots: Array<ComfyJobSlot>;
-  /**
-   * Get or set additional metadata that will be embedded with generated images
-   */
-  imageMetadata?: null | string;
-  /**
-   * The ability to opt-into spine comfy instances
-   */
-  spineComfy?: null | boolean;
-  $type: 'comfy';
-};
-
-/**
- * Job for generating videos using LTX Video v2.3 via ComfyUI
- */
-export type ComfyLtx23VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  operation: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  duration: number;
-  width: number;
-  height: number;
-  fps: number;
-  generateAudio: boolean;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  sourceImage?: null | string;
-  loras: {
-    [key: string]: number;
-  };
-  diffusionModel: string;
-  clip1Model: string;
-  clip2Model: string;
-  videoVAEModel: string;
-  audioVAEModel: string;
-  upscalerModel: string;
-  upscaleLoras: {
-    [key: string]: number;
-  };
-  sourceVideo?: null | string;
-  numFrames: number;
-  cannyLowThreshold: number;
-  cannyHighThreshold: number;
-  guideStrength: number;
-  controlLora?: null | string;
-  firstFrameImage?: null | string;
-  lastFrameImage?: null | string;
-  sourceAudio?: null | string;
-  audioToVideoAttentionScale?: null | number;
-  $type: 'ComfyLtx23VideoGen';
-};
-
-/**
- * Job for generating videos using LTX Video v2 via ComfyUI
- */
-export type ComfyLtx2VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  operation: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  duration: number;
-  width: number;
-  height: number;
-  fps: number;
-  generateAudio: boolean;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  sourceImage?: null | string;
-  loras: {
-    [key: string]: number;
-  };
-  diffusionModel: string;
-  clip1Model: string;
-  clip2Model: string;
-  videoVAEModel: string;
-  audioVAEModel: string;
-  upscalerModel: string;
-  upscaleLoras: {
-    [key: string]: number;
-  };
-  sourceVideo?: null | string;
-  numFrames: number;
-  cannyLowThreshold: number;
-  cannyHighThreshold: number;
-  guideStrength: number;
-  controlLora?: null | string;
-  firstFrameImage?: null | string;
-  lastFrameImage?: null | string;
-  $type: 'ComfyLtx2VideoGen';
-};
-
-/**
  * Comfy workflows
  */
 export type ComfyStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: ComfyInput;
   output?: ComfyOutput;
   $type: 'comfy';
-};
-
-export type ComfyVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  model: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  cfgScale: number;
-  destinationUrl: string;
-  sampler:
-    | 'euler'
-    | 'euler_ancestral'
-    | 'heun'
-    | 'heunpp2'
-    | 'dpm_2'
-    | 'dpm_2_ancestral'
-    | 'lms'
-    | 'dpm_fast'
-    | 'dpm_adaptive'
-    | 'dpmpp_2s_ancestral'
-    | 'dpmpp_sde'
-    | 'dpmpp_2m'
-    | 'dpmpp_2m_sde'
-    | 'dpmpp_3m_sde'
-    | 'ddpm'
-    | 'lcm'
-    | 'uni_pc'
-    | 'uni_pc_bh2';
-  width: number;
-  height: number;
-  frameRate: number;
-  length: number;
-  seed: number;
-  steps: number;
-  sourceImageUrl?: null | string;
-  loras?: null | Array<Lora>;
-  scheduler?:
-    | 'normal'
-    | 'karras'
-    | 'exponential'
-    | 'sgm_uniform'
-    | 'simple'
-    | 'ddim_uniform'
-    | 'beta';
-  shift?: number;
-  skipFrameInterpolation?: boolean;
-  $type: 'comfyVideoGen';
-};
-
-/**
- * A job that converts an image to a different format and applies optional transforms.
- */
-export type ConvertImageJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The URL of the source image to convert.
-   */
-  imageUrl: string;
-  /**
-   * The transforms to apply to the image.
-   */
-  transforms: Array<ImageTransform>;
-  /**
-   * The output format identifier: "jpeg", "png", or "webp".
-   */
-  outputFormat: string;
-  /**
-   * Quality setting for lossy formats (1-100).
-   */
-  quality?: null | number;
-  /**
-   * Whether to use lossless compression (for WebP).
-   */
-  lossless?: null | boolean;
-  /**
-   * The destination blob key where the converted image will be stored.
-   */
-  destinationBlobKey: string;
-  /**
-   * The presigned URL where the converted image will be uploaded.
-   */
-  destinationUrl: string;
-  /**
-   * The target width of the output image after transforms.
-   */
-  targetWidth: number;
-  /**
-   * The target height of the output image after transforms.
-   */
-  targetHeight: number;
-  /**
-   * The MIME content type of the output image (e.g., "image/jpeg", "image/png", "image/webp").
-   */
-  contentType: string;
-  /**
-   * Maximum number of frames to decode from the source image. Set to 1 to extract only the first frame.
-   * When null, all frames are decoded.
-   */
-  maxFrames?: null | number;
-  hideMetadata: boolean;
-  $type: 'convertImage';
 };
 
 /**
@@ -9688,347 +6337,6 @@ export type EchoStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'echo';
 };
 
-export type EcosystemElementWritable = {
-  [key: string]: EcosystemElementWritable;
-};
-
-export type FalFlux2ImageGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  width: number;
-  height: number;
-  outputFormat: string;
-  seed?: null | number;
-  quantity: number;
-  enablePromptExpansion: boolean;
-  /**
-   * The model variant: "base", "flex", or "pro"
-   */
-  modelVariant: string;
-  /**
-   * The operation type: "createImage" or "editImage"
-   */
-  operation: string;
-  /**
-   * Guidance scale (base model: 0-20, default 2.5; flex model: 1.5-100, default 3.5)
-   */
-  guidanceScale?: null | number;
-  /**
-   * Number of inference steps (base model: 4-50, default 28; flex model: 2-50, default 28)
-   */
-  numInferenceSteps?: null | number;
-  /**
-   * Source image URLs for edit operations (max 3)
-   */
-  imageUrls: Array<string>;
-  /**
-   * LoRA weights (base model only, max 3)
-   */
-  loras: Array<FalLoraWeight>;
-  /**
-   * Destination URLs for output images
-   */
-  destinationUrls: Array<string>;
-  imageMetadata?: null | string;
-  $type: 'falFlux2Image';
-};
-
-export type FalGptImage15EditJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  imageUrls: Array<string>;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Image size: auto, 1024x1024, 1536x1024, or 1024x1536
-   */
-  size: string;
-  /**
-   * Background treatment: auto, transparent, or opaque
-   */
-  background: string;
-  /**
-   * Output quality: low, medium, or high
-   */
-  quality: string;
-  /**
-   * Input fidelity: low or high
-   */
-  inputFidelity: string;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'falGptImage15Edit';
-};
-
-export type FalGptImage15JobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Image size: 1024x1024, 1536x1024, or 1024x1536
-   */
-  size: string;
-  /**
-   * Background treatment: auto, transparent, or opaque
-   */
-  background: string;
-  /**
-   * Output quality: low, medium, or high
-   */
-  quality: string;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'falGptImage15';
-};
-
-export type FalGrokImageEditJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  imageUrls: Array<string>;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'falGrokImageEdit';
-};
-
-export type FalGrokImageJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  quantity: number;
-  /**
-   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
-   */
-  aspectRatio: string;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'falGrokImage';
-};
-
-/**
- * Job for generating videos using xAI's Grok model via FAL.
- * Supports text-to-video, image-to-video, and edit-video operations.
- */
-export type FalGrokVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  operation: string;
-  duration: number;
-  aspectRatio: string;
-  resolution: string;
-  sourceImageUrl?: null | string;
-  sourceVideoUrl?: null | string;
-  $type: 'falGrokVideo';
-};
-
-/**
- * Job for generating videos using LTX Video v2 (19B Distilled) via FAL
- */
-export type FalLtx2VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  operation: string;
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  numFrames: number;
-  fps: number;
-  aspectRatio: string;
-  generateAudio: boolean;
-  useMultiscale: boolean;
-  acceleration?: null | string;
-  cameraLora?: null | string;
-  cameraLoraScale: number;
-  quality: string;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  sourceImageUrl?: null | string;
-  sourceVideoUrl?: null | string;
-  matchVideoLength: boolean;
-  strength: number;
-  preprocessor?: null | string;
-  icLoraType?: null | string;
-  icLoraScale: number;
-  matchInputFps: boolean;
-  numContextFrames: number;
-  model: string;
-  guidanceScale: number;
-  numInferenceSteps: number;
-  $type: 'falLtx2VideoGen';
-};
-
-export type FalNanoBanana2JobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  seed?: null | number;
-  enableWebSearch: boolean;
-  enableGoogleSearch: boolean;
-  $type: 'falNanoBanana2';
-};
-
-export type FalNanoBananaProJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  $type: 'falNanoBananaPro';
-};
-
-export type FalQwen2ImageGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  /**
-   * Whether to use the pro model variant
-   */
-  isPro: boolean;
-  /**
-   * The operation type: "text-to-image" or "edit"
-   */
-  operation: string;
-  imageSize: string;
-  seed: number;
-  quantity: number;
-  enablePromptExpansion: boolean;
-  enableSafetyChecker: boolean;
-  /**
-   * Output format: jpeg, png, or webp
-   */
-  outputFormat: string;
-  /**
-   * Source image URLs for edit operations (max 3)
-   */
-  imageUrls: Array<string>;
-  /**
-   * Destination URLs for output images
-   */
-  destinationUrls: Array<string>;
-  imageMetadata?: null | string;
-  $type: 'falQwen2Image';
-};
-
-export type FalSeedreamJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  width: number;
-  height: number;
-  guidanceScale: number;
-  seed: number;
-  enableSafetyChecker: boolean;
-  apiVersion: SeedreamVersion;
-  imageUrls: Array<string>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'falSeedream';
-};
-
-/**
- * Job for generating videos using OpenAI's Sora model via FAL
- */
-export type FalSoraVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrl: string;
-  sourceImageUrl?: null | string;
-  destinationBlobKey: string;
-  operation: string;
-  resolution: string;
-  aspectRatio: string;
-  duration: number;
-  usePro: boolean;
-  $type: 'falSoraVideoGenJob';
-};
-
-export type FalVeoVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  veoVersion: Veo3Version;
-  operation: string;
-  aspectRatio: string;
-  duration: string;
-  resolution: string;
-  generateAudio: boolean;
-  enablePromptEnhancer: boolean;
-  seed: number;
-  fastMode: boolean;
-  imageUrls: Array<string>;
-  $type: 'falVeoVideo';
-};
-
-export type FalWanImageGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrls: Array<string>;
-  modelVersion: string;
-  imageSize: string;
-  seed: number;
-  numInferenceSteps: number;
-  guidanceScale: number;
-  acceleration: string;
-  shift: number;
-  enablePromptExpansion: boolean;
-  enableSafetyChecker: boolean;
-  quantity: number;
-  loras: Array<FalLoraWeight>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'falWanImage';
-};
-
-export type FalWanVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  destinationUrl: string;
-  sourceImageUrl?: null | string;
-  destinationBlobKey: string;
-  modelVersion: string;
-  operation: string;
-  resolution: string;
-  aspectRatio: string;
-  duration: number;
-  frameRate: number;
-  seed: number;
-  steps: number;
-  cfgScale: number;
-  enablePromptExpansion: boolean;
-  shift: number;
-  interpolatorModel: string;
-  useTurbo: boolean;
-  loras: Array<FalLoraWeight>;
-  useDistill: boolean;
-  numFrames: number;
-  useFastWan: boolean;
-  enableSafetyChecker: boolean;
-  audioUrl?: null | string;
-  referenceVideoUrls: Array<string>;
-  multiShots: boolean;
-  $type: 'falWanVideo';
-};
-
 export type Flux1KontextDevImageGenInputWritable = Omit<
   Flux1KontextImageGenInputWritable,
   'engine'
@@ -10047,20 +6355,6 @@ export type Flux1KontextImageGenInputWritable = Omit<ImageGenInputWritable, 'eng
   engine: 'flux1-kontext';
 };
 
-export type Flux1KontextJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  imageUrl: Array<string>;
-  aspectRatio: string;
-  outputFormat: string;
-  guidanceScale: number;
-  quantity: number;
-  seed?: null | number;
-  destinationUrls: Array<string>;
-  model: string;
-  imageMetadata?: null | string;
-  $type: 'fluxProKontext';
-};
-
 export type Flux1KontextMaxImageGenInputWritable = Omit<
   Flux1KontextImageGenInputWritable,
   'engine'
@@ -10077,213 +6371,6 @@ export type Flux1KontextProImageGenInputWritable = Omit<
   engine: 'flux1-kontext';
 };
 
-export type Flux2KleinStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Flux2 Klein diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Flux2.
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen3 GGUF format).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<Flux2KleinStableDiffusionCppJobSlot>;
-  /**
-   * The Klein model variant (4b, 4b-base, 9b, 9b-base).
-   */
-  modelVersion: string;
-  /**
-   * Reference image URLs for edit operations (maps to ref_image_paths in sdcpp).
-   */
-  referenceImageUrls: Array<string>;
-  /**
-   * Source image URL for img2img (createVariant) operations.
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * Denoising strength for img2img (createVariant) operations. 0 = no change, 1 = full denoise.
-   */
-  strength: number;
-  $type: 'Flux2KleinStableDiffusionCpp';
-};
-
-export type FluxStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The main Flux diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Flux. Defaults to ae-f16.gguf from Flux Schnell.
-   */
-  vaeModel: string;
-  /**
-   * The CLIP-L model for Flux. Defaults to clip_l-q8_0.gguf from Flux Schnell.
-   */
-  clipLModel: string;
-  /**
-   * The T5-XXL model for Flux. Defaults to t5xxl_q8_0.gguf from Flux Schnell.
-   */
-  t5XXLModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<FluxStableDiffusionCppJobSlot>;
-  /**
-   * The source image URL for img2img generation.
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
-   */
-  strength: number;
-  $type: 'fluxStableDiffusionCpp';
-};
-
-export type GeminiImageEditJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  imageUrls: Array<string>;
-  destinationUrls: Array<string>;
-  quantity: number;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'geminiImageEditJob';
-};
-
-export type GeminiImageGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  quantity: number;
-  seed?: null | number;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'geminiImageGenJob';
-};
-
-export type GoogleNanoBanana2JobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  seed?: null | number;
-  enableWebSearch: boolean;
-  enableGoogleSearch: boolean;
-  negativePrompt?: null | string;
-  enhancePrompt: boolean;
-  language?: null | string;
-  safetySetting?: null | string;
-  personGeneration?: null | string;
-  compressionQuality?: null | number;
-  $type: 'googleNanoBanana2';
-};
-
-export type GoogleNanoBananaProJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  destinationUrls: Array<string>;
-  aspectRatio: string;
-  numImages: number;
-  resolution: NanoBananaProResolution;
-  outputFormat: string;
-  imageUrls: Array<string>;
-  imageMetadata?: null | string;
-  negativePrompt?: null | string;
-  enhancePrompt: boolean;
-  language?: null | string;
-  safetySetting?: null | string;
-  personGeneration?: null | string;
-  compressionQuality?: null | number;
-  $type: 'googleNanoBananaPro';
-};
-
 /**
  * Image Generation
  */
@@ -10291,32 +6378,6 @@ export type ImageGenStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: ImageGenInput;
   output?: ImageGenOutput;
   $type: 'imageGen';
-};
-
-export type ImageResourceTrainingJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * An AIR representing the model to use.
-   */
-  model: string;
-  /**
-   * A url referring data that needs to be trained upon
-   */
-  trainingData: string;
-  /**
-   * A untyped set of parameters that are associated with this job
-   */
-  params: {
-    [key: string]: unknown;
-  };
-  /**
-   * An application provided output of the current status of this job
-   */
-  output?: null | string;
-  /**
-   * The engine that should be used for training
-   */
-  engine?: null | string;
-  $type: 'imageResourceTraining';
 };
 
 /**
@@ -10340,148 +6401,10 @@ export type ImageUploadStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'imageUpload';
 };
 
-export type ImageUpscalerJobWritable = Omit<JobWritable2, '$type'> & {
-  image: string;
-  upscaleModel: string;
-  upscaleRepeats: number;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  $type: 'imageUpscaler';
-};
-
 export type ImageUpscalerStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: ImageUpscalerInput;
   output?: ImageUpscalerOutput;
   $type: 'imageUpscaler';
-};
-
-export type Imagen4CreateImageJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  negativePrompt: string;
-  aspectRatio: string;
-  quantity: number;
-  seed?: null | number;
-  destinationUrls: Array<string>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'imagen4CreateImage';
-};
-
-export type JobWritable = {
-  $type: string;
-  /**
-   * A unique id for this job
-   */
-  id: string;
-  /**
-   * The date when this job got created
-   */
-  createdAt: string;
-  /**
-   * The date for when this job was set to expire
-   */
-  expireAt?: null | string;
-  /**
-   * A webhook to be invoked when the job receives a status update
-   */
-  webhook?: null | string;
-  /**
-   * A set of user defined properties that can be used to index and partition this job
-   */
-  properties: {
-    [key: string]: unknown;
-  };
-  /**
-   * Get a cost for this job
-   */
-  cost: number;
-  /**
-   * The max number of retries before we give up
-   */
-  maxRetryAttempt: number;
-  /**
-   * Get or set the name of the consumer that issued this job
-   */
-  issuedBy?: null | string;
-  /**
-   * Get or set the version of this job, this is used to track changes to the job schema
-   */
-  version?: number;
-  /**
-   * Get or set a list of dependencies that this job has
-   */
-  jobDependencies: Array<JobDependency>;
-  /**
-   * The ID of the next job that should be executed after this one completes.
-   * Used to support ContinueReuseContext - the worker will wait briefly for this job to arrive
-   * before claiming other work, ensuring continuation jobs stay on the same worker.
-   */
-  nextJobId?: null | string;
-  /**
-   * An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters
-   */
-  recovered: boolean;
-  /**
-   * An internal property to mark that job failures should not fail the workflow step.
-   * When set to true, if this job fails/cancels/expires, the workflow step will treat it as succeeded.
-   */
-  ignoreErrors: boolean;
-};
-
-/**
- * Result of diagnosing job resources for a worker
- */
-export type JobResourceDiagnosticsResultWritable = {
-  /**
-   * The job ID being diagnosed
-   */
-  jobId: string;
-  /**
-   * The worker ID being diagnosed
-   */
-  workerId: string;
-  /**
-   * Diagnostic information for each resource
-   */
-  resources: Array<ResourceDiagnosticInfoWritable>;
-  /**
-   * True if any resources have potential sync issues
-   */
-  hasSyncIssues: boolean;
-};
-
-export type KlingV3VideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt?: null | string;
-  multiPrompt?: null | Array<KlingV3MultiPrompt>;
-  operation: KlingV3Operation;
-  mode: KlingMode;
-  duration: number;
-  aspectRatio: KlingVideoGenAspectRatio;
-  sourceImageUrl?: null | string;
-  endImageUrl?: null | string;
-  videoUrl?: null | string;
-  elements?: null | Array<KlingV3Element>;
-  imageUrls?: null | Array<string>;
-  generateAudio: boolean;
-  voiceIds?: null | Array<string>;
-  keepAudio: boolean;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  $type: 'kling-v3';
-};
-
-export type KlingVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  negativePrompt?: null | string;
-  cfgScale: number;
-  mode: KlingMode;
-  aspectRatio: KlingVideoGenAspectRatio;
-  duration: KlingVideoGenDuration;
-  cameraControl?: KlingCameraControl;
-  sourceImageUrl?: null | string;
-  destinationUrl: string;
-  model: KlingModel;
-  $type: 'kling';
 };
 
 export type KohyaImageResourceTrainingInputWritable = Omit<
@@ -10576,45 +6499,13 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
   engine: 'kohya';
 };
 
-export type LlmPromptAugmentationJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The primary model to use.
-   */
-  model: string;
-  /**
-   * The base prompt.
-   */
-  basePrompt?: null | string;
-  /**
-   * A list of prompts.
-   */
-  prompts: Array<string>;
-  /**
-   * The temp.
-   */
-  temp: number;
-  $type: 'llmPromptAugmentation';
-};
-
-export type MediaCaptioningJobWritable = Omit<JobWritable2, '$type'> & {
-  model: string;
-  modelId: number;
-  mediaUrl: string;
-  temperature: number;
-  maxNewTokens: number;
-  $type: 'mediaCaptioning';
-};
-
 /**
- * Job for generating perceptual hashes of media content.
+ * Media Captioning
  */
-export type MediaHashJobWritable = Omit<JobWritable2, '$type'> & {
-  mediaUrl: string;
-  /**
-   * The types of hashes to generate.
-   */
-  hashTypes: Array<MediaHashType>;
-  $type: 'mediaHash';
+export type MediaCaptioningStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
+  input: MediaCaptioningInput;
+  output?: MediaCaptioningOutput;
+  $type: 'mediaCaptioning';
 };
 
 /**
@@ -10627,54 +6518,12 @@ export type MediaHashStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
 };
 
 /**
- * Job for rating media content (NSFW level detection and content safety classification).
- */
-export type MediaRatingJobWritable = Omit<JobWritable2, '$type'> & {
-  mediaUrl: string;
-  blobKey?: null | string;
-  /**
-   * The prompt to use for content rating analysis
-   */
-  prompt?: null | string;
-  /**
-   * The JSON schema to use for structured output from content rating
-   */
-  schema?: null | string;
-  $type: 'mediaRating';
-};
-
-/**
  * MediaRating
  */
 export type MediaRatingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: MediaRatingInput;
   output?: MediaRatingOutput;
   $type: 'mediaRating';
-};
-
-export type MediaTaggingJobWritable = Omit<JobWritable2, '$type'> & {
-  modelId: number;
-  mediaUrl: string;
-  model: string;
-  $type: 'mediaTagging';
-};
-
-export type MiniMaxVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  enablePromptEnhancer: boolean;
-  destinationUrl: string;
-  sourceImageUrl?: null | string;
-  destinationBlobKey: string;
-  $type: 'minimax';
-};
-
-export type MochiVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  seed: number;
-  mediaHash: string;
-  destinationUrl: string;
-  enablePromptEnhancer: boolean;
-  $type: 'mochi';
 };
 
 export type MusubiImageResourceTrainingInputWritable = Omit<
@@ -10725,38 +6574,6 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
    */
   optimizerType?: null | string;
   engine: 'musubi';
-};
-
-export type OpenAiCreateImageJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  background?: null | string;
-  model?: null | string;
-  quantity: number;
-  quality?: null | string;
-  size?: null | string;
-  style?: null | string;
-  user?: null | string;
-  destinationUrls: Array<string>;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'openAICreateImage';
-};
-
-export type OpenAiEditImageJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  imageUrl: Array<string>;
-  maskUrl?: null | string;
-  model?: null | string;
-  quantity: number;
-  quality?: null | string;
-  size?: null | string;
-  style?: null | string;
-  user?: null | string;
-  destinationUrls: Array<string>;
-  background?: null | string;
-  outputFormat: string;
-  imageMetadata?: null | string;
-  $type: 'openAIEditImage';
 };
 
 export type PreprocessImageAnimalPoseInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
@@ -10860,36 +6677,6 @@ export type PreprocessImageInputWritable = {
    */
   image: string;
   resolution?: number;
-};
-
-export type PreprocessImageJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The source image AIR to preprocess
-   */
-  image: string;
-  /**
-   * The preprocessor type (e.g., "canny", "depth-anything", "openpose")
-   */
-  preprocessor: string;
-  /**
-   * The resolution for preprocessing (output will be this resolution)
-   */
-  resolution: number;
-  /**
-   * Optional preprocessor-specific parameters as JSON
-   */
-  parameters?: null | {
-    [key: string]: unknown;
-  };
-  /**
-   * The destination blob key for the output
-   */
-  destinationBlobKey: string;
-  /**
-   * The destination URL for uploading the result
-   */
-  destinationUrl: string;
-  $type: 'preprocessImage';
 };
 
 export type PreprocessImageLeresDepthInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
@@ -11062,60 +6849,6 @@ export type PreprocessImageZoeDepthInputWritable = Omit<PreprocessImageInputWrit
 };
 
 /**
- * Details of processing statistics.
- */
-export type ProcessingStatisticsWritable = {
-  /**
-   * The total number of jobs requested.
-   */
-  totalJobsRequested: number;
-  /**
-   * The total cost of jobs requested.
-   */
-  totalCostRequested: number;
-  /**
-   * The total number of successful jobs.
-   */
-  totalJobsSucceeded: number;
-  /**
-   * The total cost of successful jobs.
-   */
-  totalCostSucceeded: number;
-  /**
-   * The total number of rejected jobs.
-   */
-  totalJobsRejected: number;
-  /**
-   * The total cost of rejected jobs.
-   */
-  totalCostRejected: number;
-  /**
-   * The total number of late rejected jobs.
-   */
-  totalJobsLateRejected: number;
-  /**
-   * The total cost of laterejected jobs.
-   */
-  totalCostLateRejected: number;
-  /**
-   * The total number of expired jobs.
-   */
-  totalJobsExpired: number;
-  /**
-   * The total cost of expired jobs.
-   */
-  totalCostExpired: number;
-  /**
-   * The total number of failed jobs.
-   */
-  totalJobsFailed: number;
-  /**
-   * The total cost of failed jobs.
-   */
-  totalCostFailed: number;
-};
-
-/**
  * PromptEnhancement
  */
 export type PromptEnhancementStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
@@ -11152,358 +6885,11 @@ export type Qwen20bVariantImageGenInputWritable = Omit<
   engine: 'sdcpp';
 };
 
-export type QwenImageEditStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image editing.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image editing.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The main Qwen diffusion model for image editing (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Qwen.
-   */
-  vaeModel: string;
-  /**
-   * The Qwen2-VL model for text encoding (GGUF format).
-   */
-  qwen2VLModel: string;
-  /**
-   * The Qwen2-VL vision projection model for image understanding (mmproj format).
-   */
-  qwen2VLVisionModel: string;
-  /**
-   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.95").
-   */
-  easyCache?: null | string;
-  /**
-   * Flow shift parameter for guidance.
-   */
-  flowShift: number;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<QwenImageEditStableDiffusionCppJobSlot>;
-  /**
-   * Reference images for image editing operations (one or more images to apply edits to).
-   */
-  editImages: Array<string>;
-  $type: 'qwenImageEditStableDiffusionCpp';
-};
-
-export type QwenStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The main Qwen diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Qwen.
-   */
-  vaeModel: string;
-  /**
-   * The Qwen2-VL model for text encoding (GGUF format).
-   */
-  qwen2VLModel: string;
-  /**
-   * EasyCache configuration (format: "alpha,beta,gamma" e.g., "0.2,0.15,0.85").
-   */
-  easyCache?: null | string;
-  /**
-   * Flow shift parameter for guidance.
-   */
-  flowShift: number;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<QwenStableDiffusionCppJobSlot>;
-  /**
-   * The source image AIR for img2img/variant generation (uses image instead of random noise).
-   */
-  sourceImage?: null | string;
-  /**
-   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
-   */
-  strength: number;
-  $type: 'qwenStableDiffusionCpp';
-};
-
 /**
  * Represents the output information returned from the Repeat workflow step.
  */
 export type RepeatOutputWritable = {
   steps: Array<WorkflowStepWritable>;
-};
-
-/**
- * Diagnostic information about a resource's availability from different sources.
- * Used to diagnose sync issues between WorkerGrain and the queue.
- */
-export type ResourceDiagnosticInfoWritable = {
-  /**
-   * The resource identifier (from the job)
-   */
-  air: string;
-  workerGrainAvailability: WorkerResourceAvailability;
-  queueAvailability: WorkerResourceAvailability;
-  /**
-   * Hash code of the job's AIR object
-   */
-  jobAirHashCode: number;
-  /**
-   * The job AIR's Version field
-   */
-  jobAirVersion?: null | string;
-  /**
-   * The job AIR's Format field
-   */
-  jobAirFormat?: null | string;
-  /**
-   * The matching AIR key from the WorkerGrain registration (if found)
-   */
-  workerGrainAir?: null | string;
-  /**
-   * Hash code of the WorkerGrain's AIR object (if found)
-   */
-  workerGrainAirHashCode?: null | number;
-  /**
-   * The WorkerGrain AIR's Version field
-   */
-  workerGrainAirVersion?: null | string;
-  /**
-   * The WorkerGrain AIR's Format field
-   */
-  workerGrainAirFormat?: null | string;
-  /**
-   * The matching AIR key from the queue (if found)
-   */
-  queueAir?: null | string;
-  /**
-   * Hash code of the queue's AIR object (if found)
-   */
-  queueAirHashCode?: null | number;
-  /**
-   * The Queue AIR's Version field
-   */
-  queueAirVersion?: null | string;
-  /**
-   * The Queue AIR's Format field
-   */
-  queueAirFormat?: null | string;
-};
-
-export type RewritePromptJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  goal: RewritePromptGoal;
-  $type: 'rewritePrompt';
-};
-
-/**
- * Details for a similarity search job.
- */
-export type SimilaritySearchJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * An AIR ID representing the primary model.
-   */
-  model: string;
-  /**
-   * A value for the NSFW filter.
-   */
-  nsfwFilter: string;
-  /**
-   * The prompt provided.
-   */
-  prompt: string;
-  /**
-   * A collection of parameters.
-   */
-  params: {
-    [key: string]: unknown;
-  };
-  $type: 'similaritySearch';
-};
-
-export type StableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * The main diffusion model (checkpoint).
-   */
-  model: string;
-  /**
-   * The VAE model. Optional - will use model's built-in VAE if not specified.
-   */
-  vaeModel?: null | string;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
-    [key: string]: number;
-  };
-  /**
-   * Embedding (textual inversion) models.
-   */
-  embeddings: Array<string>;
-  uCache: SdCppUCacheMode;
-  /**
-   * Clip skip value.
-   */
-  clipSkip: number;
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<StableDiffusionCppJobSlot>;
-  /**
-   * The source image URL for img2img generation.
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * The strength/denoise factor for img2img (0.0-1.0). Lower values preserve more of the source image.
-   */
-  strength: number;
-  $type: 'stableDiffusionCpp';
-};
-
-/**
- * A text to image generation job.
- */
-export type TextToImageJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * An AIR representing the model to use.
-   */
-  model: string;
-  params: ImageJobParams;
-  /**
-   * The hash for the output image.
-   */
-  imageHash: string;
-  /**
-   * Get or set a associative list of additional networks. Each network is identified by a hash code.
-   */
-  additionalNetworks: {
-    [key: string]: ImageJobNetworkParams;
-  };
-  /**
-   * Get or set the URL where the image will be uploaded to.
-   */
-  destinationUrl?: null | string;
-  /**
-   * A value indicating whether to store the image as a blob or as a legacy image.
-   */
-  storeAsBlob: boolean;
-  /**
-   * Get or set a list of control nets that should be applied with this textToImage job.
-   */
-  controlNets: Array<ImageJobControlNet>;
-  $type: 'textToImage';
 };
 
 /**
@@ -11513,94 +6899,6 @@ export type TextToImageStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: TextToImageInput;
   output?: TextToImageOutput;
   $type: 'textToImage';
-};
-
-export type TextToImageV2JobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * An AIR representing the model to use.
-   */
-  model: string;
-  params: ImageJobParams;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<TextToImageJobSlot>;
-  /**
-   * Get or set a associative list of additional networks. Each network is identified by a hash code
-   */
-  additionalNetworks: {
-    [key: string]: ImageJobNetworkParams;
-  };
-  /**
-   * Get or set a list of control nets that should be applied with this textToImage job
-   */
-  controlNets: Array<ImageJobControlNet>;
-  /**
-   * Get or set additional metadata that will be embedded with generated images
-   */
-  imageMetadata?: null | string;
-  /**
-   * The engine to use for generation
-   */
-  engine?: null | string;
-  promptClassificationResult?: ClavataPromptClassificationResult;
-  /**
-   * An image for img2img workflows
-   */
-  sourceImageUrl?: null | string;
-  /**
-   * The strength at which to denoise img2img
-   */
-  sourceImageDenoiseStrength?: null | number;
-  $type: 'textToImageV2';
-};
-
-export type TextToSpeechJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The text to synthesize into speech.
-   */
-  text: string;
-  /**
-   * Reference audio resource for Base voice-cloning mode.
-   */
-  refAudio?: null | string;
-  /**
-   * Transcript of the reference audio (required for Base mode unless XVectorOnlyMode is true).
-   */
-  refText?: null | string;
-  /**
-   * If true, uses only speaker embedding for Base mode (ref_text not required).
-   */
-  xVectorOnlyMode: boolean;
-  /**
-   * Built-in speaker name for CustomVoice mode (e.g., "Ryan", "Vivian").
-   */
-  speaker?: null | string;
-  /**
-   * Optional style instruction for CustomVoice mode.
-   */
-  instruct?: null | string;
-  /**
-   * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
-   */
-  language?: null | string;
-  /**
-   * Optional generation cap for max tokens.
-   */
-  maxNewTokens?: null | number;
-  /**
-   * TTS model to use. Determined by mode: Base for voice cloning, CustomVoice for built-in speakers.
-   */
-  ttsModel: string;
-  /**
-   * Presigned URL to upload the generated audio WAV to.
-   */
-  destinationUrl: string;
-  /**
-   * Blob key for deduplication and retrieval.
-   */
-  destinationBlobKey: string;
-  $type: 'textToSpeech';
 };
 
 /**
@@ -11621,15 +6919,6 @@ export type TrainingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'training';
 };
 
-export type TranscodeJobWritable = Omit<JobWritable2, '$type'> & {
-  sourceUrl: string;
-  containerFormat: ContainerFormat;
-  width: number;
-  mediaHash: string;
-  destinationUrl: string;
-  $type: 'transcode';
-};
-
 /**
  * Transcoding
  */
@@ -11637,18 +6926,6 @@ export type TranscodeStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: TranscodeInput;
   output?: TranscodeOutput;
   $type: 'transcode';
-};
-
-export type TranscriptionJobWritable = Omit<JobWritable2, '$type'> & {
-  media: string;
-  language?: null | string;
-  context?: null | string;
-  returnTimeStamps: boolean;
-  asrModel: string;
-  alignerModel: string;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  $type: 'transcription';
 };
 
 /**
@@ -11676,19 +6953,6 @@ export type UserMessageWritable = Omit<ChatCompletionMessageWritable, 'role'> & 
   role: 'user';
 };
 
-export type VideoEnhancementJobWritable = Omit<JobWritable2, '$type'> & {
-  videoUrl: string;
-  upscaler?: VideoEnhancementJobUpscalerOptions;
-  interpolation?: VideoEnhancementJobInterpolationOptions;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  duration: string;
-  fps: number;
-  width: number;
-  height: number;
-  $type: 'videoEnhancement';
-};
-
 /**
  * Upscale videos and/or interpolate frames
  */
@@ -11696,36 +6960,6 @@ export type VideoEnhancementStepWritable = Omit<WorkflowStepWritable2, '$type'> 
   input: VideoEnhancementInput;
   output?: VideoEnhancementOutput;
   $type: 'videoEnhancement';
-};
-
-/**
- * Job for extracting unique frames from a video using perceptual hashing.
- */
-export type VideoFrameExtractionJobWritable = Omit<JobWritable2, '$type'> & {
-  videoUrl: string;
-  /**
-   * The rate at which to extract frames (frames per second).
-   */
-  frameRate: number;
-  /**
-   * The similarity threshold for determining unique frames (0.0 to 1.0).
-   * Frames with similarity above this threshold are considered duplicates and filtered out.
-   */
-  uniqueThreshold: number;
-  /**
-   * Optional maximum number of unique frames to extract.
-   */
-  maxFrames?: null | number;
-  /**
-   * Blob key prefix for uploading extracted frames. Frames will be uploaded as {prefix}-{index}.jpg
-   */
-  destinationBlobKeyPrefix: string;
-  /**
-   * Time in seconds to seek to before extracting frames.
-   * Default is 0 (start of video).
-   */
-  startTime: number;
-  $type: 'videoFrameExtraction';
 };
 
 /**
@@ -11746,19 +6980,6 @@ export type VideoGenStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'videoGen';
 };
 
-export type VideoInterpolationJobWritable = Omit<JobWritable2, '$type'> & {
-  videoUrl: string;
-  model: string;
-  interpolationFactor: number;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  duration: string;
-  fps: number;
-  width: number;
-  height: number;
-  $type: 'videoInterpolation';
-};
-
 /**
  * Interpolate videos using VFI Mamba
  */
@@ -11777,19 +6998,6 @@ export type VideoMetadataStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'videoMetadata';
 };
 
-export type VideoUpscalerJobWritable = Omit<JobWritable2, '$type'> & {
-  videoUrl: string;
-  mode: string;
-  scaleFactor: number;
-  destinationBlobKey: string;
-  destinationUrl: string;
-  duration: string;
-  fps: number;
-  width: number;
-  height: number;
-  $type: 'videoUpscaler';
-};
-
 /**
  * Upscale videos using FlashVSR
  */
@@ -11799,34 +7007,6 @@ export type VideoUpscalerStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   $type: 'videoUpscaler';
 };
 
-export type ViduVideoGenJobWritable = Omit<JobWritable2, '$type'> & {
-  prompt: string;
-  enablePromptEnhancer: boolean;
-  destinationUrl: string;
-  destinationBlobKey: string;
-  seed: number;
-  style: ViduVideoGenStyle;
-  duration: number;
-  model: ViduVideoGenModel;
-  aspectRatio?: null | string;
-  movementAmplitude?: null | string;
-  images: Array<string>;
-  enableBgm: boolean;
-  resolution: string;
-  turbo: boolean;
-  enableAudio: boolean;
-  $type: 'vidu';
-};
-
-export type WdTaggingJobWritable = Omit<JobWritable2, '$type'> & {
-  model: string;
-  mediaUrl: string;
-  threshold?: null | number;
-  movieRatingModel?: null | string;
-  prompt?: null | string;
-  $type: 'wdTagging';
-};
-
 /**
  * WDTagging
  */
@@ -11834,92 +7014,6 @@ export type WdTaggingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: WdTaggingInput;
   output?: WdTaggingOutput;
   $type: 'wdTagging';
-};
-
-/**
- * Details for a particular worker.
- */
-export type WorkerDetailsWritable = {
-  /**
-   * The worker's ID.
-   */
-  id: string;
-  /**
-   * The worker's name.
-   */
-  name: string;
-  /**
-   * The worker's active job count.
-   */
-  activeJobs: number;
-  /**
-   * The number of jobs in the worker's queue.
-   */
-  queueSize: number;
-  /**
-   * The total cost of job's in the worker's queue.
-   */
-  queueDepth: number;
-  /**
-   * The worker's start date / time.
-   */
-  startDate: string;
-  /**
-   * The worker's last request date / time.
-   */
-  lastRequestDate?: null | string;
-  /**
-   * The worker's expiration date / time.
-   */
-  expirationDate?: null | string;
-  statistics?: ProcessingStatisticsWritable;
-  /**
-   * The worker's succeeded job throughput rate.
-   */
-  succeededThroughputRate: number;
-  /**
-   * The worker's failed job throughput rate.
-   */
-  failedThroughputRate: number;
-  /**
-   * The worker's idle rate.
-   */
-  idleRate: number;
-  /**
-   * The date / time of the worker's last successfully completed job.
-   */
-  lastSuccesfullyCompletedJobDate?: null | string;
-  /**
-   * The date / time of the worker's last job update.
-   */
-  lastJobUpdateDate?: null | string;
-  /**
-   * The date / time that the worker's subscription was set.
-   */
-  subscriptionSetDate?: null | string;
-  /**
-   * The date / time that the worker was quarantined.
-   */
-  quarantineDate?: null | string;
-  /**
-   * The rate at which this worker has been downloading
-   */
-  resourceDownloadRate: number;
-  /**
-   * The rate at which this worker has been evicting resources
-   */
-  resourceEvictionRate: number;
-  /**
-   * The size in bytes of resources that are queued up for this worker to download
-   */
-  upcomingResourcesSize?: null | number;
-  /**
-   * The remaining capacity  that this worker can claim, or null if remaining capacity can not be computed
-   */
-  availableCapacity?: null | number;
-  nodeIdentifier?: null | string;
-  peerNodeIdentifiers?: null | Array<string>;
-  paused: boolean;
 };
 
 /**
@@ -12101,201 +7195,55 @@ export type WorkflowStepJobEventWritable = {
   matureContent?: null | boolean;
 };
 
-export type ZImageStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
+export type XGuardCustomSignalMetadataWritable = {
+  name: string;
+  positiveSignals: {
     [key: string]: number;
   };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Z-Image diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Z-Image (uses Flux VAE).
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen3-4B GGUF format).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<ZImageStableDiffusionCppJobSlot>;
-  $type: 'zImageStableDiffusionCpp';
-};
-
-export type ZImageTurboStableDiffusionCppJobWritable = Omit<JobWritable2, '$type'> & {
-  /**
-   * The prompt for image generation.
-   */
-  prompt: string;
-  /**
-   * The negative prompt for image generation.
-   */
-  negativePrompt?: null | string;
-  /**
-   * The width of the generated image in pixels.
-   */
-  width: number;
-  /**
-   * The height of the generated image in pixels.
-   */
-  height: number;
-  /**
-   * The number of sampling steps.
-   */
-  steps: number;
-  /**
-   * The CFG (Classifier Free Guidance) scale.
-   */
-  cfgScale: number;
-  /**
-   * The seed for random number generation. Use -1 for random seed.
-   */
-  seed: number;
-  sampleMethod: SdCppSampleMethod;
-  schedule: SdCppSchedule;
-  /**
-   * LoRA models with their strengths/weights.
-   */
-  loras: {
+  negativeSignals: {
     [key: string]: number;
   };
-  /**
-   * Get or set additional metadata that will be embedded with generated images.
-   */
-  imageMetadata?: null | string;
-  /**
-   * The Z-Image Turbo diffusion model (GGUF format).
-   */
-  diffuserModel: string;
-  /**
-   * The VAE model for Z-Image (uses Flux VAE).
-   */
-  vaeModel: string;
-  /**
-   * The LLM model for text encoding (Qwen3-4B GGUF format).
-   */
-  llmModel: string;
-  /**
-   * Slots for the resulting image outputs.
-   */
-  slots: Array<ZImageTurboStableDiffusionCppJobSlot>;
-  $type: 'zImageTurboStableDiffusionCpp';
+  textSignals: {
+    [key: string]: number;
+  };
 };
 
-export type JobWritable2 = {
-  $type: string;
-  /**
-   * A unique id for this job
-   */
-  id: string;
-  /**
-   * The date when this job got created
-   */
-  createdAt: string;
-  /**
-   * The date for when this job was set to expire
-   */
-  expireAt?: null | string;
-  /**
-   * A webhook to be invoked when the job receives a status update
-   */
-  webhook?: null | string;
-  /**
-   * A set of user defined properties that can be used to index and partition this job
-   */
-  properties: {
-    [key: string]: unknown;
+export type XGuardModerationOutputWritable = {
+  results: Array<XGuardLabelResult>;
+  signalMetadata?: XGuardSignalMetadataWritable;
+  blocked: boolean;
+  triggeredLabels: Array<string>;
+};
+
+/**
+ * XGuardModeration
+ */
+export type XGuardModerationStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
+  input: XGuardModerationInput;
+  output?: XGuardModerationOutputWritable;
+  $type: 'xGuardModeration';
+};
+
+export type XGuardSignalMetadataWritable = {
+  positiveAgeDownSignals: {
+    [key: string]: number;
   };
-  /**
-   * The type of this job as a string
-   */
-  readonly type: string;
-  /**
-   * Get a cost for this job
-   */
-  cost: number;
-  /**
-   * The max number of retries before we give up
-   */
-  maxRetryAttempt: number;
-  /**
-   * Get or set the name of the consumer that issued this job
-   */
-  issuedBy?: null | string;
-  /**
-   * Get or set the version of this job, this is used to track changes to the job schema
-   */
-  version?: number;
-  /**
-   * Get or set a list of dependencies that this job has
-   */
-  jobDependencies: Array<JobDependency>;
-  /**
-   * The ID of the next job that should be executed after this one completes.
-   * Used to support ContinueReuseContext - the worker will wait briefly for this job to arrive
-   * before claiming other work, ensuring continuation jobs stay on the same worker.
-   */
-  nextJobId?: null | string;
-  /**
-   * The total duration that the job can be claimed
-   */
-  readonly claimDuration: string;
-  /**
-   * Get a list of resources that this job depends on
-   */
-  readonly resources: Array<string>;
-  /**
-   * Gets the collection of additional resources associated with the current context.
-   */
-  readonly additionalResources: Array<string>;
-  /**
-   * An internal property to mark that the job has been recovered. We use this to not fiddle with up/down counters as we may have missed other counters
-   */
-  recovered: boolean;
-  /**
-   * An internal property to mark that job failures should not fail the workflow step.
-   * When set to true, if this job fails/cancels/expires, the workflow step will treat it as succeeded.
-   */
-  ignoreErrors: boolean;
+  negativeAgeDownSignals: {
+    [key: string]: number;
+  };
+  positiveAdultSignals: {
+    [key: string]: number;
+  };
+  negativeAdultSignals: {
+    [key: string]: number;
+  };
+  positiveSexualSignals: {
+    [key: string]: number;
+  };
+  negativeSexualSignals: {
+    [key: string]: number;
+  };
+  customSignals: Array<XGuardCustomSignalMetadataWritable>;
 };
 
 /**
@@ -12427,82 +7375,6 @@ export type WorkflowStepTemplateWritable = {
  */
 export type ChatCompletionMessageWritable = {
   role: string;
-};
-
-export type UploadBlobData = {
-  body?: never;
-  path: {
-    blobKey: string;
-  };
-  query?: {
-    jobId?: string;
-    nsfwLevel?: NsfwLevel;
-    early?: boolean;
-  };
-  url: '/v2/providers/blobs/{blobKey}';
-};
-
-export type UploadBlobErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-};
-
-export type UploadBlobError = UploadBlobErrors[keyof UploadBlobErrors];
-
-export type UploadBlobResponses = {
-  /**
-   * OK
-   */
-  200: UploadBlobResult;
-};
-
-export type UploadBlobResponse = UploadBlobResponses[keyof UploadBlobResponses];
-
-export type UploadMultipleBlobsData = {
-  body?: never;
-  path?: never;
-  query?: {
-    jobId?: string;
-  };
-  url: '/v2/providers/blobs';
-};
-
-export type UploadMultipleBlobsErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Unsupported Media Type
-   */
-  415: ProblemDetails;
-};
-
-export type UploadMultipleBlobsError = UploadMultipleBlobsErrors[keyof UploadMultipleBlobsErrors];
-
-export type UploadMultipleBlobsResponses = {
-  /**
-   * Accepted
-   */
-  202: unknown;
 };
 
 export type GetBlobData = {
@@ -12711,6 +7583,40 @@ export type GetBlockedContentErrors = {
 
 export type GetBlockedContentError = GetBlockedContentErrors[keyof GetBlockedContentErrors];
 
+export type RefreshBlobData = {
+  body?: never;
+  path: {
+    /**
+     * The blob ID to refresh.
+     */
+    blobId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/blobs/{blobId}/refresh';
+};
+
+export type RefreshBlobErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type RefreshBlobError = RefreshBlobErrors[keyof RefreshBlobErrors];
+
+export type RefreshBlobResponses = {
+  /**
+   * OK
+   */
+  200: Blob;
+};
+
+export type RefreshBlobResponse = RefreshBlobResponses[keyof RefreshBlobResponses];
+
 export type InvalidateUserCacheData = {
   body?: never;
   path: {
@@ -12742,243 +7648,6 @@ export type InvalidateUserCacheResponses = {
 
 export type InvalidateUserCacheResponse =
   InvalidateUserCacheResponses[keyof InvalidateUserCacheResponses];
-
-export type ClaimJobsData = {
-  body?: never;
-  path: {
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/claims';
-};
-
-export type ClaimJobsErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type ClaimJobsError = ClaimJobsErrors[keyof ClaimJobsErrors];
-
-export type ClaimJobsResponses = {
-  /**
-   * OK
-   */
-  200: Array<Claim>;
-};
-
-export type ClaimJobsResponse = ClaimJobsResponses[keyof ClaimJobsResponses];
-
-export type UpdateClaimStatusData = {
-  body?: ClaimStatus;
-  path: {
-    claimId: string;
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/claims/{claimId}/status';
-};
-
-export type UpdateClaimStatusErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-  /**
-   * Error
-   */
-  default: ProblemDetails;
-};
-
-export type UpdateClaimStatusError = UpdateClaimStatusErrors[keyof UpdateClaimStatusErrors];
-
-export type UpdateClaimStatusResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type UpdateClaimStatusResponse =
-  UpdateClaimStatusResponses[keyof UpdateClaimStatusResponses];
-
-export type QueryConfigurationsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: '/v2/providers/configurations';
-};
-
-export type QueryConfigurationsErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-};
-
-export type QueryConfigurationsError = QueryConfigurationsErrors[keyof QueryConfigurationsErrors];
-
-export type QueryConfigurationsResponses = {
-  /**
-   * OK
-   */
-  200: ConfigurationStatus;
-};
-
-export type QueryConfigurationsResponse =
-  QueryConfigurationsResponses[keyof QueryConfigurationsResponses];
-
-export type CreateConfigurationData = {
-  /**
-   * The details of the configuration being created.
-   */
-  body?: ConfigurationOptions;
-  path?: never;
-  query?: never;
-  url: '/v2/providers/configurations';
-};
-
-export type CreateConfigurationErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-};
-
-export type CreateConfigurationError = CreateConfigurationErrors[keyof CreateConfigurationErrors];
-
-export type CreateConfigurationResponses = {
-  /**
-   * OK
-   */
-  200: CreateConfigurationResult;
-};
-
-export type CreateConfigurationResponse =
-  CreateConfigurationResponses[keyof CreateConfigurationResponses];
-
-export type GetConfigurationData = {
-  body?: never;
-  path: {
-    /**
-     * The ID of the configuration whose options are being requested.
-     */
-    configurationId: string;
-  };
-  query?: never;
-  url: '/v2/providers/configurations/{configurationId}/options';
-};
-
-export type GetConfigurationErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type GetConfigurationError = GetConfigurationErrors[keyof GetConfigurationErrors];
-
-export type GetConfigurationResponses = {
-  /**
-   * OK
-   */
-  200: ConfigurationOptions;
-};
-
-export type GetConfigurationResponse = GetConfigurationResponses[keyof GetConfigurationResponses];
-
-export type DeleteConfigurationData = {
-  body?: never;
-  path: {
-    /**
-     * The ID of the configuration to delete.
-     */
-    configurationId: string;
-  };
-  query?: never;
-  url: '/v2/providers/configurations/{configurationId}';
-};
-
-export type DeleteConfigurationErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type DeleteConfigurationError = DeleteConfigurationErrors[keyof DeleteConfigurationErrors];
-
-export type DeleteConfigurationResponses = {
-  /**
-   * OK
-   */
-  200: unknown;
-};
 
 export type InvokeAceStepAudioStepTemplateData = {
   body?: AceStepAudioInput;
@@ -13387,6 +8056,40 @@ export type InvokeImageUpscalerStepTemplateResponses = {
 
 export type InvokeImageUpscalerStepTemplateResponse =
   InvokeImageUpscalerStepTemplateResponses[keyof InvokeImageUpscalerStepTemplateResponses];
+
+export type InvokeMediaCaptioningStepTemplateData = {
+  body?: MediaCaptioningInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
+  url: '/v2/consumer/recipes/mediaCaptioning';
+};
+
+export type InvokeMediaCaptioningStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeMediaCaptioningStepTemplateError =
+  InvokeMediaCaptioningStepTemplateErrors[keyof InvokeMediaCaptioningStepTemplateErrors];
+
+export type InvokeMediaCaptioningStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: MediaCaptioningOutput;
+};
+
+export type InvokeMediaCaptioningStepTemplateResponse =
+  InvokeMediaCaptioningStepTemplateResponses[keyof InvokeMediaCaptioningStepTemplateResponses];
 
 export type InvokeMediaHashStepTemplateData = {
   body?: MediaHashInput;
@@ -14000,6 +8703,40 @@ export type InvokeWdTaggingStepTemplateResponses = {
 export type InvokeWdTaggingStepTemplateResponse =
   InvokeWdTaggingStepTemplateResponses[keyof InvokeWdTaggingStepTemplateResponses];
 
+export type InvokeXGuardModerationStepTemplateData = {
+  body?: XGuardModerationInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+  };
+  url: '/v2/consumer/recipes/xGuardModeration';
+};
+
+export type InvokeXGuardModerationStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeXGuardModerationStepTemplateError =
+  InvokeXGuardModerationStepTemplateErrors[keyof InvokeXGuardModerationStepTemplateErrors];
+
+export type InvokeXGuardModerationStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: XGuardModerationOutput;
+};
+
+export type InvokeXGuardModerationStepTemplateResponse =
+  InvokeXGuardModerationStepTemplateResponses[keyof InvokeXGuardModerationStepTemplateResponses];
+
 export type InvalidateResourceData = {
   body?: never;
   path: {
@@ -14071,83 +8808,6 @@ export type GetResourceResponses = {
 
 export type GetResourceResponse = GetResourceResponses[keyof GetResourceResponses];
 
-export type GetHuggingFaceRepositorySnapshotData = {
-  body?: never;
-  path: {
-    /**
-     * Repository ID (e.g., black-forest-labs/FLUX.1-dev)
-     */
-    repositoryId: string;
-  };
-  query?: {
-    /**
-     * Branch, tag, or commit hash. Default: main
-     */
-    revision?: string;
-  };
-  url: '/v2/resources/huggingface/repositories/snapshot/{repositoryId}';
-};
-
-export type GetHuggingFaceRepositorySnapshotErrors = {
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type GetHuggingFaceRepositorySnapshotError =
-  GetHuggingFaceRepositorySnapshotErrors[keyof GetHuggingFaceRepositorySnapshotErrors];
-
-export type GetHuggingFaceRepositorySnapshotResponses = {
-  /**
-   * OK
-   */
-  200: unknown;
-};
-
-export type UploadStreamingBlobData = {
-  body?: never;
-  path: {
-    blobKey: string;
-  };
-  query?: {
-    jobId?: string;
-  };
-  url: '/v2/providers/streaming-blobs/{blobKey}';
-};
-
-export type UploadStreamingBlobErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-};
-
-export type UploadStreamingBlobError = UploadStreamingBlobErrors[keyof UploadStreamingBlobErrors];
-
-export type UploadStreamingBlobResponses = {
-  /**
-   * OK
-   */
-  200: unknown;
-};
-
 export type GetStreamingBlobData = {
   body?: never;
   path: {
@@ -14176,641 +8836,6 @@ export type GetStreamingBlobResponses = {
    */
   200: unknown;
 };
-
-export type DiagnoseJobResourcesData = {
-  body?: never;
-  path: {
-    workerId: string;
-    jobId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/diagnostics/jobs/{jobId}/resources';
-};
-
-export type DiagnoseJobResourcesErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-  /**
-   * Error
-   */
-  default: ProblemDetails;
-};
-
-export type DiagnoseJobResourcesError =
-  DiagnoseJobResourcesErrors[keyof DiagnoseJobResourcesErrors];
-
-export type DiagnoseJobResourcesResponses = {
-  /**
-   * OK
-   */
-  200: JobResourceDiagnosticsResult;
-};
-
-export type DiagnoseJobResourcesResponse =
-  DiagnoseJobResourcesResponses[keyof DiagnoseJobResourcesResponses];
-
-export type TriggerWorkerDiagnosticsData = {
-  body?: WorkerDiagnosticsRequest;
-  path: {
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/diagnostics';
-};
-
-export type TriggerWorkerDiagnosticsErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Error
-   */
-  default: ProblemDetails;
-};
-
-export type TriggerWorkerDiagnosticsError =
-  TriggerWorkerDiagnosticsErrors[keyof TriggerWorkerDiagnosticsErrors];
-
-export type TriggerWorkerDiagnosticsResponses = {
-  /**
-   * OK
-   */
-  200: unknown;
-};
-
-export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData = {
-  body?: never;
-  path: {
-    workerId: string;
-    peerNodeIdentifier: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/peers/{peerNodeIdentifier}';
-};
-
-export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierError =
-  DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors[keyof DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors];
-
-export type DeleteV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses = {
-  /**
-   * Accepted
-   */
-  202: unknown;
-};
-
-export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierData = {
-  body?: never;
-  path: {
-    workerId: string;
-    peerNodeIdentifier: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/peers/{peerNodeIdentifier}';
-};
-
-export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierError =
-  PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors[keyof PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierErrors];
-
-export type PostV2ProvidersWorkersByWorkerIdPeersByPeerNodeIdentifierResponses = {
-  /**
-   * Accepted
-   */
-  202: unknown;
-};
-
-export type GetRecommendedResourcesData = {
-  body?: never;
-  path: {
-    workerId: string;
-  };
-  query?: {
-    since_version?: string;
-  };
-  url: '/v2/providers/workers/{workerId}/resources';
-};
-
-export type GetRecommendedResourcesErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-  /**
-   * Error
-   */
-  default: ProblemDetails;
-};
-
-export type GetRecommendedResourcesError =
-  GetRecommendedResourcesErrors[keyof GetRecommendedResourcesErrors];
-
-export type GetRecommendedResourcesResponses = {
-  /**
-   * OK
-   */
-  200: Array<ResourceInfo>;
-};
-
-export type GetRecommendedResourcesResponse =
-  GetRecommendedResourcesResponses[keyof GetRecommendedResourcesResponses];
-
-export type DownloadResourceData = {
-  body?: never;
-  path: {
-    workerId: string;
-    air: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/resources/{air}';
-};
-
-export type DownloadResourceErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-  /**
-   * Error
-   */
-  default: ProblemDetails;
-};
-
-export type DownloadResourceError = DownloadResourceErrors[keyof DownloadResourceErrors];
-
-export type DownloadResourceResponses = {
-  /**
-   * Error
-   */
-  default: ProblemDetails;
-};
-
-export type DownloadResourceResponse = DownloadResourceResponses[keyof DownloadResourceResponses];
-
-export type QueryWorkersData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: '/v2/providers/workers';
-};
-
-export type QueryWorkersErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-};
-
-export type QueryWorkersError = QueryWorkersErrors[keyof QueryWorkersErrors];
-
-export type QueryWorkersResponses = {
-  /**
-   * OK
-   */
-  200: Array<WorkerDetails>;
-};
-
-export type QueryWorkersResponse = QueryWorkersResponses[keyof QueryWorkersResponses];
-
-export type CreateWorkerData = {
-  /**
-   * The registration specifying the details of the worker to be created.
-   */
-  body?: WorkerRegistration;
-  path?: never;
-  query?: never;
-  url: '/v2/providers/workers';
-};
-
-export type CreateWorkerErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Acceptable
-   */
-  406: string;
-};
-
-export type CreateWorkerError = CreateWorkerErrors[keyof CreateWorkerErrors];
-
-export type CreateWorkerResponses = {
-  /**
-   * Created
-   */
-  201: CreateWorkerResult;
-};
-
-export type CreateWorkerResponse = CreateWorkerResponses[keyof CreateWorkerResponses];
-
-export type DeleteWorkerData = {
-  body?: never;
-  path: {
-    /**
-     * The ID for the worker to be deleted.
-     */
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}';
-};
-
-export type DeleteWorkerErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type DeleteWorkerError = DeleteWorkerErrors[keyof DeleteWorkerErrors];
-
-export type DeleteWorkerResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type DeleteWorkerResponse = DeleteWorkerResponses[keyof DeleteWorkerResponses];
-
-export type GetWorkerData = {
-  body?: never;
-  path: {
-    /**
-     * The ID for the requested worker.
-     */
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}';
-};
-
-export type GetWorkerErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type GetWorkerError = GetWorkerErrors[keyof GetWorkerErrors];
-
-export type GetWorkerResponses = {
-  /**
-   * OK
-   */
-  200: WorkerDetails;
-};
-
-export type GetWorkerResponse = GetWorkerResponses[keyof GetWorkerResponses];
-
-export type UpdateWorkerData = {
-  /**
-   * The properties to update.
-   */
-  body?: PatchWorkerRequest;
-  path: {
-    /**
-     * The ID of the worker to update.
-     */
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}';
-};
-
-export type UpdateWorkerErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type UpdateWorkerError = UpdateWorkerErrors[keyof UpdateWorkerErrors];
-
-export type UpdateWorkerResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type UpdateWorkerResponse = UpdateWorkerResponses[keyof UpdateWorkerResponses];
-
-export type GetRegistrationData = {
-  body?: never;
-  path: {
-    /**
-     * The ID of the worker whose registration is being requested.
-     */
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/registration';
-};
-
-export type GetRegistrationErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type GetRegistrationError = GetRegistrationErrors[keyof GetRegistrationErrors];
-
-export type GetRegistrationResponses = {
-  /**
-   * OK
-   */
-  200: WorkerRegistration;
-};
-
-export type GetRegistrationResponse = GetRegistrationResponses[keyof GetRegistrationResponses];
-
-export type UpdateWorkerRegistrationData = {
-  /**
-   * The registration details to update on the worker's registration.
-   */
-  body?: WorkerRegistration;
-  path: {
-    /**
-     * The ID for the worker whose registration is being updated.
-     */
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/registration';
-};
-
-export type UpdateWorkerRegistrationErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type UpdateWorkerRegistrationError =
-  UpdateWorkerRegistrationErrors[keyof UpdateWorkerRegistrationErrors];
-
-export type UpdateWorkerRegistrationResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type UpdateWorkerRegistrationResponse =
-  UpdateWorkerRegistrationResponses[keyof UpdateWorkerRegistrationResponses];
-
-export type GetWorkerResourceStatusData = {
-  body?: never;
-  path: {
-    workerId: string;
-    air: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/registration/resources/{air}';
-};
-
-export type GetWorkerResourceStatusErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type GetWorkerResourceStatusError =
-  GetWorkerResourceStatusErrors[keyof GetWorkerResourceStatusErrors];
-
-export type GetWorkerResourceStatusResponses = {
-  /**
-   * OK
-   */
-  200: WorkerResourceStatus;
-};
-
-export type GetWorkerResourceStatusResponse =
-  GetWorkerResourceStatusResponses[keyof GetWorkerResourceStatusResponses];
-
-export type PatchWorkerResourcesData = {
-  /**
-   * A dictionary of resource AIRs and their corresponding status for on that worker.
-   */
-  body?: {
-    [key: string]: WorkerResourceStatus;
-  };
-  path: {
-    /**
-     * The ID for the worker whose registration resources are being patched.
-     */
-    workerId: string;
-  };
-  query?: never;
-  url: '/v2/providers/workers/{workerId}/registration/resources';
-};
-
-export type PatchWorkerResourcesErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type PatchWorkerResourcesError =
-  PatchWorkerResourcesErrors[keyof PatchWorkerResourcesErrors];
-
-export type PatchWorkerResourcesResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type PatchWorkerResourcesResponse =
-  PatchWorkerResourcesResponses[keyof PatchWorkerResourcesResponses];
 
 export type QueryWorkflowsData = {
   body?: never;
