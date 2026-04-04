@@ -5325,17 +5325,6 @@ export type Wan26VideoGenInput = Omit<WanVideoGenInput, 'engine' | 'version'> & 
   engine: 'wan';
 };
 
-export type Wan27FalEditInput = Omit<
-  Wan27FalImageGenInput,
-  'engine' | 'version' | 'provider' | 'operation'
-> & {
-  images?: Array<string>;
-  operation: 'edit';
-  provider: 'fal';
-  version: 'v2.7';
-  engine: 'wan';
-};
-
 export type Wan27FalEditVideoInput = Omit<
   Wan27FalVideoGenInput,
   'engine' | 'version' | 'provider' | 'operation'
@@ -5356,11 +5345,21 @@ export type Wan27FalEditVideoInput = Omit<
    * Audio handling: "auto" or "origin" (keep original audio)
    */
   audioSetting?: 'auto' | 'origin';
-  /**
-   * Duration: 0 = match input video duration, or 2-10 seconds
-   */
-  duration?: number;
   operation: 'edit-video';
+  provider: 'fal';
+  version: 'v2.7';
+  engine: 'wan';
+};
+
+export type Wan27FalImageEditInput = Omit<
+  Wan27FalImageGenInput,
+  'engine' | 'version' | 'provider' | 'operation'
+> & {
+  /**
+   * Reference images for editing (1-4 images required)
+   */
+  images: Array<string>;
+  operation: 'editImage';
   provider: 'fal';
   version: 'v2.7';
   engine: 'wan';
@@ -5378,7 +5377,10 @@ export type Wan27FalImageToVideoInput = Omit<
   Wan27FalVideoGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  images?: Array<string>;
+  /**
+   * First frame image URL
+   */
+  startImage?: null | string;
   /**
    * Last frame image for first-and-last-frame-to-video
    */
@@ -5387,6 +5389,12 @@ export type Wan27FalImageToVideoInput = Omit<
    * URL of a video clip to continue from (MP4/MOV, 2-10s, max 100 MB)
    */
   videoUrl?: null | string;
+  negativePrompt?: null | string;
+  enablePromptExpansion?: boolean;
+  /**
+   * URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)
+   */
+  audioUrl?: null | string;
   operation: 'image-to-video';
   provider: 'fal';
   version: 'v2.7';
@@ -5408,10 +5416,7 @@ export type Wan27FalReferenceToVideoInput = Omit<
   referenceVideoUrls?: Array<string>;
   aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
   multiShots?: boolean;
-  /**
-   * Duration for reference-to-video is limited to 2-10 seconds
-   */
-  duration?: number;
+  negativePrompt?: null | string;
   operation: 'reference-to-video';
   provider: 'fal';
   version: 'v2.7';
@@ -5422,7 +5427,7 @@ export type Wan27FalTextToImageInput = Omit<
   Wan27FalImageGenInput,
   'engine' | 'version' | 'provider' | 'operation'
 > & {
-  operation: 'text-to-image';
+  operation: 'createImage';
   provider: 'fal';
   version: 'v2.7';
   engine: 'wan';
@@ -5433,6 +5438,12 @@ export type Wan27FalTextToVideoInput = Omit<
   'engine' | 'version' | 'provider' | 'operation'
 > & {
   aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  negativePrompt?: null | string;
+  enablePromptExpansion?: boolean;
+  /**
+   * URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)
+   */
+  audioUrl?: null | string;
   operation: 'text-to-video';
   provider: 'fal';
   version: 'v2.7';
@@ -5442,14 +5453,7 @@ export type Wan27FalTextToVideoInput = Omit<
 export type Wan27FalVideoGenInput = Omit<Wan27VideoGenInput, 'engine' | 'version' | 'provider'> & {
   operation: null | string;
   resolution?: '720p' | '1080p';
-  negativePrompt?: null | string;
-  enablePromptExpansion?: boolean;
   enableSafetyChecker?: boolean;
-  /**
-   * URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)
-   * Supported for text-to-video and image-to-video
-   */
-  audioUrl?: null | string;
   provider: 'fal';
   version: 'v2.7';
   engine: 'wan';

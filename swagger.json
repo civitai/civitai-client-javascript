@@ -21282,56 +21282,6 @@
           }
         ]
       },
-      "Wan27FalEditInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Wan27FalImageGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "provider",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "images": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "description": "Either A URL, A DataURL or a Base64 string"
-                }
-              },
-              "operation": {
-                "enum": [
-                  "edit"
-                ],
-                "type": "string"
-              },
-              "provider": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v2.7"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "wan"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
-      },
       "Wan27FalEditVideoInput": {
         "allOf": [
           {
@@ -21382,17 +21332,61 @@
                 "description": "Audio handling: \"auto\" or \"origin\" (keep original audio)",
                 "default": "auto"
               },
-              "duration": {
-                "maximum": 10,
-                "minimum": 0,
-                "type": "integer",
-                "description": "Duration: 0 = match input video duration, or 2-10 seconds",
-                "format": "int32",
-                "default": 0
-              },
               "operation": {
                 "enum": [
                   "edit-video"
+                ],
+                "type": "string"
+              },
+              "provider": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v2.7"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "wan"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Wan27FalImageEditInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Wan27FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "operation",
+              "provider",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                },
+                "description": "Reference images for editing (1-4 images required)"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
                 ],
                 "type": "string"
               },
@@ -21438,7 +21432,7 @@
                   "null",
                   "string"
                 ],
-                "default": "text-to-image"
+                "default": "createImage"
               },
               "usePro": {
                 "type": "boolean",
@@ -21467,8 +21461,8 @@
             "discriminator": {
               "propertyName": "operation",
               "mapping": {
-                "text-to-image": "#/components/schemas/Wan27FalTextToImageInput",
-                "edit": "#/components/schemas/Wan27FalEditInput"
+                "createImage": "#/components/schemas/Wan27FalTextToImageInput",
+                "editImage": "#/components/schemas/Wan27FalImageEditInput"
               }
             }
           }
@@ -21488,12 +21482,12 @@
             ],
             "type": "object",
             "properties": {
-              "images": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "description": "Either A URL, A DataURL or a Base64 string"
-                }
+              "startImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "First frame image URL"
               },
               "endImage": {
                 "type": [
@@ -21508,6 +21502,23 @@
                   "string"
                 ],
                 "description": "URL of a video clip to continue from (MP4/MOV, 2-10s, max 100 MB)"
+              },
+              "negativePrompt": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": true
+              },
+              "audioUrl": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)"
               },
               "operation": {
                 "enum": [
@@ -21582,13 +21593,11 @@
                 "type": "boolean",
                 "default": false
               },
-              "duration": {
-                "maximum": 10,
-                "minimum": 2,
-                "type": "integer",
-                "description": "Duration for reference-to-video is limited to 2-10 seconds",
-                "format": "int32",
-                "default": 5
+              "negativePrompt": {
+                "type": [
+                  "null",
+                  "string"
+                ]
               },
               "operation": {
                 "enum": [
@@ -21635,7 +21644,7 @@
             "properties": {
               "operation": {
                 "enum": [
-                  "text-to-image"
+                  "createImage"
                 ],
                 "type": "string"
               },
@@ -21686,6 +21695,23 @@
                 ],
                 "type": "string",
                 "default": "16:9"
+              },
+              "negativePrompt": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": true
+              },
+              "audioUrl": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)"
               },
               "operation": {
                 "enum": [
@@ -21745,26 +21771,9 @@
                 "type": "string",
                 "default": "1080p"
               },
-              "negativePrompt": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              },
-              "enablePromptExpansion": {
-                "type": "boolean",
-                "default": true
-              },
               "enableSafetyChecker": {
                 "type": "boolean",
                 "default": true
-              },
-              "audioUrl": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "description": "URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)\nSupported for text-to-video and image-to-video"
               },
               "provider": {
                 "enum": [
