@@ -23253,28 +23253,7 @@
         "type": "object",
         "properties": {
           "mode": {
-            "$ref": "#/components/schemas/XGuardModerationMode"
-          },
-          "text": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "The text to evaluate (for Text mode)."
-          },
-          "positivePrompt": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "The positive prompt (for Prompt mode)."
-          },
-          "negativePrompt": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "The negative prompt (for Prompt mode)."
+            "type": "string"
           },
           "labelOverrides": {
             "type": [
@@ -23287,14 +23266,14 @@
             "description": "Optional label configuration overrides. When provided, these merge with/override the\ndefaults from the XGuardModerationOptionsGrain for the given mode."
           }
         },
-        "additionalProperties": false
-      },
-      "XGuardModerationMode": {
-        "enum": [
-          "prompt",
-          "text"
-        ],
-        "type": "string"
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "mode",
+          "mapping": {
+            "prompt": "#/components/schemas/XGuardPromptModerationInput",
+            "text": "#/components/schemas/XGuardTextModerationInput"
+          }
+        }
       },
       "XGuardModerationOutput": {
         "required": [
@@ -23381,6 +23360,48 @@
           }
         ],
         "description": "XGuardModeration"
+      },
+      "XGuardPromptModerationInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/XGuardModerationInput"
+          },
+          {
+            "required": [
+              "mode",
+              "positivePrompt"
+            ],
+            "type": "object",
+            "properties": {
+              "positivePrompt": {
+                "type": "string",
+                "description": "The positive prompt to evaluate."
+              },
+              "negativePrompt": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "The negative prompt to evaluate."
+              },
+              "instructions": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Additional instructions or context for the moderation evaluation."
+              },
+              "mode": {
+                "enum": [
+                  "prompt"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Input for evaluating generation prompts (positive/negative) against XGuard moderation policies."
       },
       "XGuardSignalMetadata": {
         "required": [
@@ -23480,6 +23501,34 @@
           }
         },
         "additionalProperties": false
+      },
+      "XGuardTextModerationInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/XGuardModerationInput"
+          },
+          {
+            "required": [
+              "mode",
+              "text"
+            ],
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "The text to evaluate."
+              },
+              "mode": {
+                "enum": [
+                  "text"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Input for evaluating site text content against XGuard moderation policies."
       },
       "ZImageBaseAIToolkitTrainingInput": {
         "allOf": [

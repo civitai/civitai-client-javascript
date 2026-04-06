@@ -6080,29 +6080,13 @@ export type XGuardMatchedTerms = {
 };
 
 export type XGuardModerationInput = {
-  mode: XGuardModerationMode;
-  /**
-   * The text to evaluate (for Text mode).
-   */
-  text?: null | string;
-  /**
-   * The positive prompt (for Prompt mode).
-   */
-  positivePrompt?: null | string;
-  /**
-   * The negative prompt (for Prompt mode).
-   */
-  negativePrompt?: null | string;
+  mode: string;
   /**
    * Optional label configuration overrides. When provided, these merge with/override the
    * defaults from the XGuardModerationOptionsGrain for the given mode.
    */
   labelOverrides?: null | Array<XGuardLabelConfiguration>;
 };
-
-export const XGuardModerationMode = { PROMPT: 'prompt', TEXT: 'text' } as const;
-
-export type XGuardModerationMode = (typeof XGuardModerationMode)[keyof typeof XGuardModerationMode];
 
 export type XGuardModerationOutput = {
   results: Array<XGuardLabelResult>;
@@ -6126,6 +6110,25 @@ export type XGuardModerationStep = Omit<WorkflowStep, '$type'> & {
 export type XGuardModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: XGuardModerationInput;
   $type: 'xGuardModeration';
+};
+
+/**
+ * Input for evaluating generation prompts (positive/negative) against XGuard moderation policies.
+ */
+export type XGuardPromptModerationInput = Omit<XGuardModerationInput, 'mode'> & {
+  /**
+   * The positive prompt to evaluate.
+   */
+  positivePrompt: string;
+  /**
+   * The negative prompt to evaluate.
+   */
+  negativePrompt?: null | string;
+  /**
+   * Additional instructions or context for the moderation evaluation.
+   */
+  instructions?: null | string;
+  mode: 'prompt';
 };
 
 export type XGuardSignalMetadata = {
@@ -6154,6 +6157,17 @@ export type XGuardSignalMetadata = {
   readonly negativeAdultCount: number;
   readonly positiveSexualCount: number;
   readonly negativeSexualCount: number;
+};
+
+/**
+ * Input for evaluating site text content against XGuard moderation policies.
+ */
+export type XGuardTextModerationInput = Omit<XGuardModerationInput, 'mode'> & {
+  /**
+   * The text to evaluate.
+   */
+  text: string;
+  mode: 'text';
 };
 
 /**
