@@ -21199,7 +21199,7 @@
               },
               "enableSafetyChecker": {
                 "type": "boolean",
-                "default": true
+                "default": false
               },
               "audioUrl": {
                 "type": [
@@ -21773,7 +21773,7 @@
               },
               "enableSafetyChecker": {
                 "type": "boolean",
-                "default": true
+                "default": false
               },
               "provider": {
                 "enum": [
@@ -23254,6 +23254,16 @@
         "properties": {
           "mode": {
             "type": "string"
+          },
+          "labels": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional label filter. When provided, only the named labels are evaluated.\nLabels not found in the defaults (or label overrides) are silently ignored.\nWhen omitted or empty, all labels are evaluated."
           },
           "labelOverrides": {
             "type": [

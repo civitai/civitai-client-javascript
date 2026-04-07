@@ -6082,6 +6082,12 @@ export type XGuardMatchedTerms = {
 export type XGuardModerationInput = {
   mode: string;
   /**
+   * Optional label filter. When provided, only the named labels are evaluated.
+   * Labels not found in the defaults (or label overrides) are silently ignored.
+   * When omitted or empty, all labels are evaluated.
+   */
+  labels?: null | Array<string>;
+  /**
    * Optional label configuration overrides. When provided, these merge with/override the
    * defaults from the XGuardModerationOptionsGrain for the given mode.
    */
