@@ -16856,7 +16856,8 @@
           "lcm",
           "res_multistep",
           "res_2s",
-          "tcd"
+          "tcd",
+          "er_sde"
         ],
         "type": "string"
       },

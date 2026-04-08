@@ -3964,6 +3964,7 @@ export const SdCppSampleMethod = {
   RES_MULTISTEP: 'res_multistep',
   RES_2S: 'res_2s',
   TCD: 'tcd',
+  ER_SDE: 'er_sde',
 } as const;
 
 export type SdCppSampleMethod = (typeof SdCppSampleMethod)[keyof typeof SdCppSampleMethod];
