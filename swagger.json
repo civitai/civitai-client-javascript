@@ -5272,6 +5272,13 @@
                 "format": "int32",
                 "default": 1
               },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
               "ecosystem": {
                 "enum": [
                   "anima"

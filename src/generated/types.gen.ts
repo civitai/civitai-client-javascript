@@ -337,6 +337,9 @@ export type AnimaImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'
   cfgScale?: number;
   seed?: null | number;
   quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
   ecosystem: 'anima';
   engine: 'sdcpp';
 };
