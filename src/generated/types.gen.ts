@@ -340,6 +340,7 @@ export type AnimaImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'
   loras?: {
     [key: string]: number;
   };
+  diffuserModel?: string;
   ecosystem: 'anima';
   engine: 'sdcpp';
 };
