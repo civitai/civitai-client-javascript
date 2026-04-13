@@ -85,6 +85,15 @@ import type {
   InvokeMediaRatingStepTemplateData,
   InvokeMediaRatingStepTemplateErrors,
   InvokeMediaRatingStepTemplateResponses,
+  InvokeModelClamScanStepTemplateData,
+  InvokeModelClamScanStepTemplateErrors,
+  InvokeModelClamScanStepTemplateResponses,
+  InvokeModelHashStepTemplateData,
+  InvokeModelHashStepTemplateErrors,
+  InvokeModelHashStepTemplateResponses,
+  InvokeModelPickleScanStepTemplateData,
+  InvokeModelPickleScanStepTemplateErrors,
+  InvokeModelPickleScanStepTemplateResponses,
   InvokePreprocessImageStepTemplateData,
   InvokePreprocessImageStepTemplateErrors,
   InvokePreprocessImageStepTemplateResponses,
@@ -570,6 +579,69 @@ export const invokeMediaRatingStepTemplate = <ThrowOnError extends boolean = fal
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/mediaRating',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * ModelClamScan
+ *
+ * Runs ClamAV malware scanning against a model file.
+ */
+export const invokeModelClamScanStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeModelClamScanStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeModelClamScanStepTemplateResponses,
+    InvokeModelClamScanStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/modelClamScan',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * ModelHash
+ *
+ * Computes Civitai content hashes (SHA256, AutoV1/2/3, Blake3, CRC32) of a model file.
+ */
+export const invokeModelHashStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeModelHashStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeModelHashStepTemplateResponses,
+    InvokeModelHashStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/modelHash',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * ModelPickleScan
+ *
+ * Runs picklescan against a model file to detect dangerous pickle imports.
+ */
+export const invokeModelPickleScanStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeModelPickleScanStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeModelPickleScanStepTemplateResponses,
+    InvokeModelPickleScanStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/modelPickleScan',
     ...options,
     headers: {
       'Content-Type': 'application/json',

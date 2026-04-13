@@ -439,6 +439,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -516,6 +523,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -587,6 +601,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -668,6 +689,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -745,6 +773,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -817,6 +852,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -898,6 +940,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -969,6 +1018,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1050,6 +1106,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1123,6 +1186,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1204,6 +1274,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1275,6 +1352,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1356,6 +1440,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1429,6 +1520,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1510,6 +1608,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1565,6 +1670,258 @@
         }
       }
     },
+    "/v2/consumer/recipes/modelClamScan": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "ModelClamScan",
+        "description": "Runs ClamAV malware scanning against a model file.",
+        "operationId": "InvokeModelClamScanStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelClamScanInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelClamScanInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelClamScanInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelClamScanOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/modelHash": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "ModelHash",
+        "description": "Computes Civitai content hashes (SHA256, AutoV1/2/3, Blake3, CRC32) of a model file.",
+        "operationId": "InvokeModelHashStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelHashInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelHashInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelHashInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelHashOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/modelPickleScan": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "ModelPickleScan",
+        "description": "Runs picklescan against a model file to detect dangerous pickle imports.",
+        "operationId": "InvokeModelPickleScanStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelPickleScanInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelPickleScanInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelPickleScanInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelPickleScanOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/preprocessImage": {
       "post": {
         "tags": [
@@ -1581,6 +1938,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1662,6 +2026,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1734,6 +2105,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1815,6 +2193,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1888,6 +2273,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1969,6 +2361,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2041,6 +2440,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2122,6 +2528,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2193,6 +2606,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2269,6 +2689,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2350,6 +2777,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2423,6 +2857,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2503,6 +2944,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2579,6 +3027,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2651,6 +3106,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2732,6 +3194,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2805,6 +3274,13 @@
           },
           {
             "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -13038,6 +13514,337 @@
           }
         ]
       },
+      "ModelClamScanInput": {
+        "required": [
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The AIR of the model file to scan."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the ModelClamScan workflow step."
+      },
+      "ModelClamScanOutput": {
+        "type": "object",
+        "properties": {
+          "exitCode": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "The ClamAV scan exit code.",
+            "format": "int32"
+          },
+          "output": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The raw ClamAV scan output."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the ModelClamScan workflow step."
+      },
+      "ModelClamScanStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelClamScanInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ModelClamScanOutput"
+              },
+              "$type": {
+                "enum": [
+                  "modelClamScan"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelClamScan"
+      },
+      "ModelClamScanStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelClamScanInput"
+              },
+              "$type": {
+                "enum": [
+                  "modelClamScan"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelClamScan"
+      },
+      "ModelHashInput": {
+        "required": [
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The AIR of the model file to hash."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the ModelHash workflow step."
+      },
+      "ModelHashOutput": {
+        "type": "object",
+        "properties": {
+          "shA256": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "SHA256 hash of the full file."
+          },
+          "autoV1": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "AutoV1 short hash (8 chars of SHA256 over a 64 KB block starting at 1 MB)."
+          },
+          "autoV2": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "AutoV2 short hash (first 10 chars of SHA256)."
+          },
+          "autoV3": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "AutoV3 hash (SHA256 of the file with safetensors header metadata stripped)."
+          },
+          "blake3": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Blake3 hash of the full file."
+          },
+          "crC32": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "CRC32 of the full file."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the ModelHash workflow step."
+      },
+      "ModelHashStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelHashInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ModelHashOutput"
+              },
+              "$type": {
+                "enum": [
+                  "modelHash"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelHash"
+      },
+      "ModelHashStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelHashInput"
+              },
+              "$type": {
+                "enum": [
+                  "modelHash"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelHash"
+      },
+      "ModelPickleScanInput": {
+        "required": [
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The AIR of the model file to scan."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the ModelPickleScan workflow step."
+      },
+      "ModelPickleScanOutput": {
+        "type": "object",
+        "properties": {
+          "exitCode": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "The picklescan exit code.",
+            "format": "int32"
+          },
+          "output": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The raw picklescan output."
+          },
+          "globalImports": {
+            "uniqueItems": true,
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Global imports discovered during pickle scanning."
+          },
+          "dangerousImports": {
+            "uniqueItems": true,
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Dangerous imports discovered during pickle scanning."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the ModelPickleScan workflow step."
+      },
+      "ModelPickleScanStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelPickleScanInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ModelPickleScanOutput"
+              },
+              "$type": {
+                "enum": [
+                  "modelPickleScan"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelPickleScan"
+      },
+      "ModelPickleScanStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelPickleScanInput"
+              },
+              "$type": {
+                "enum": [
+                  "modelPickleScan"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelPickleScan"
+      },
       "MusubiImageResourceTrainingInput": {
         "allOf": [
           {
@@ -22634,6 +23441,9 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStep",
             "mediaHash": "#/components/schemas/MediaHashStep",
             "mediaRating": "#/components/schemas/MediaRatingStep",
+            "modelClamScan": "#/components/schemas/ModelClamScanStep",
+            "modelHash": "#/components/schemas/ModelHashStep",
+            "modelPickleScan": "#/components/schemas/ModelPickleScanStep",
             "preprocessImage": "#/components/schemas/PreprocessImageStep",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStep",
             "textToImage": "#/components/schemas/TextToImageStep",
@@ -22948,6 +23758,9 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStepTemplate",
             "mediaHash": "#/components/schemas/MediaHashStepTemplate",
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
+            "modelClamScan": "#/components/schemas/ModelClamScanStepTemplate",
+            "modelHash": "#/components/schemas/ModelHashStepTemplate",
+            "modelPickleScan": "#/components/schemas/ModelPickleScanStepTemplate",
             "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
@@ -23260,7 +24073,8 @@
       },
       "XGuardModerationInput": {
         "required": [
-          "mode"
+          "mode",
+          "storeFullResponse"
         ],
         "type": "object",
         "properties": {
@@ -23286,6 +24100,10 @@
               "$ref": "#/components/schemas/XGuardLabelConfiguration"
             },
             "description": "Optional label configuration overrides. When provided, these merge with/override the\ndefaults from the XGuardModerationOptionsGrain for the given mode."
+          },
+          "storeFullResponse": {
+            "type": "boolean",
+            "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic."
           }
         },
         "additionalProperties": false,

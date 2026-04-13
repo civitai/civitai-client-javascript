@@ -2958,6 +2958,153 @@ export type MochiVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'mochi';
 };
 
+/**
+ * Represents the input information needed for the ModelClamScan workflow step.
+ */
+export type ModelClamScanInput = {
+  /**
+   * The AIR of the model file to scan.
+   */
+  model: string;
+};
+
+/**
+ * Represents the output information returned from the ModelClamScan workflow step.
+ */
+export type ModelClamScanOutput = {
+  /**
+   * The ClamAV scan exit code.
+   */
+  exitCode?: null | number;
+  /**
+   * The raw ClamAV scan output.
+   */
+  output?: null | string;
+};
+
+/**
+ * ModelClamScan
+ */
+export type ModelClamScanStep = Omit<WorkflowStep, '$type'> & {
+  input: ModelClamScanInput;
+  output?: ModelClamScanOutput;
+  $type: 'modelClamScan';
+};
+
+/**
+ * ModelClamScan
+ */
+export type ModelClamScanStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ModelClamScanInput;
+  $type: 'modelClamScan';
+};
+
+/**
+ * Represents the input information needed for the ModelHash workflow step.
+ */
+export type ModelHashInput = {
+  /**
+   * The AIR of the model file to hash.
+   */
+  model: string;
+};
+
+/**
+ * Represents the output information returned from the ModelHash workflow step.
+ */
+export type ModelHashOutput = {
+  /**
+   * SHA256 hash of the full file.
+   */
+  shA256?: null | string;
+  /**
+   * AutoV1 short hash (8 chars of SHA256 over a 64 KB block starting at 1 MB).
+   */
+  autoV1?: null | string;
+  /**
+   * AutoV2 short hash (first 10 chars of SHA256).
+   */
+  autoV2?: null | string;
+  /**
+   * AutoV3 hash (SHA256 of the file with safetensors header metadata stripped).
+   */
+  autoV3?: null | string;
+  /**
+   * Blake3 hash of the full file.
+   */
+  blake3?: null | string;
+  /**
+   * CRC32 of the full file.
+   */
+  crC32?: null | string;
+};
+
+/**
+ * ModelHash
+ */
+export type ModelHashStep = Omit<WorkflowStep, '$type'> & {
+  input: ModelHashInput;
+  output?: ModelHashOutput;
+  $type: 'modelHash';
+};
+
+/**
+ * ModelHash
+ */
+export type ModelHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ModelHashInput;
+  $type: 'modelHash';
+};
+
+/**
+ * Represents the input information needed for the ModelPickleScan workflow step.
+ */
+export type ModelPickleScanInput = {
+  /**
+   * The AIR of the model file to scan.
+   */
+  model: string;
+};
+
+/**
+ * Represents the output information returned from the ModelPickleScan workflow step.
+ */
+export type ModelPickleScanOutput = {
+  /**
+   * The picklescan exit code.
+   */
+  exitCode?: null | number;
+  /**
+   * The raw picklescan output.
+   */
+  output?: null | string;
+  /**
+   * Global imports discovered during pickle scanning.
+   */
+  globalImports?: null | Array<string>;
+  /**
+   * Dangerous imports discovered during pickle scanning.
+   */
+  dangerousImports?: null | Array<string>;
+};
+
+/**
+ * ModelPickleScan
+ */
+export type ModelPickleScanStep = Omit<WorkflowStep, '$type'> & {
+  input: ModelPickleScanInput;
+  output?: ModelPickleScanOutput;
+  $type: 'modelPickleScan';
+};
+
+/**
+ * ModelPickleScan
+ */
+export type ModelPickleScanStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ModelPickleScanInput;
+  $type: 'modelPickleScan';
+};
+
 export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
   /**
    * Number of training epochs. An epoch is one complete pass through the training dataset.
@@ -6097,6 +6244,14 @@ export type XGuardModerationInput = {
    * defaults from the XGuardModerationOptionsGrain for the given mode.
    */
   labelOverrides?: null | Array<XGuardLabelConfiguration>;
+  /**
+   * Debug opt-out. When true, the worker stores the full raw chat completion response
+   * (including the complete logprobs.content array) in the destination blob instead of
+   * the trimmed version. Intended for one-off debugging of classification decisions
+   * where the full logprobs distribution or generated token stream needs inspection.
+   * Leaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.
+   */
+  storeFullResponse: boolean;
 };
 
 export type XGuardModerationOutput = {
@@ -6553,6 +6708,33 @@ export type MediaRatingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
   input: MediaRatingInput;
   output?: MediaRatingOutput;
   $type: 'mediaRating';
+};
+
+/**
+ * ModelClamScan
+ */
+export type ModelClamScanStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
+  input: ModelClamScanInput;
+  output?: ModelClamScanOutput;
+  $type: 'modelClamScan';
+};
+
+/**
+ * ModelHash
+ */
+export type ModelHashStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
+  input: ModelHashInput;
+  output?: ModelHashOutput;
+  $type: 'modelHash';
+};
+
+/**
+ * ModelPickleScan
+ */
+export type ModelPickleScanStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
+  input: ModelPickleScanInput;
+  output?: ModelPickleScanOutput;
+  $type: 'modelPickleScan';
 };
 
 export type MusubiImageResourceTrainingInputWritable = Omit<
@@ -7684,6 +7866,7 @@ export type InvokeAceStepAudioStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/aceStepAudio';
 };
@@ -7718,6 +7901,7 @@ export type InvokeAgeClassificationStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/ageClassification';
 };
@@ -7752,6 +7936,7 @@ export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/batchOCRSafetyClassification';
 };
@@ -7786,6 +7971,7 @@ export type InvokeChatCompletionStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/chatCompletion';
 };
@@ -7820,6 +8006,7 @@ export type InvokeComfyStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/comfy';
 };
@@ -7854,6 +8041,7 @@ export type InvokeConvertImageStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/convertImage';
 };
@@ -7888,6 +8076,7 @@ export type InvokeEchoStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/echo';
 };
@@ -7922,6 +8111,7 @@ export type InvokeHumanoidImageMaskStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/humanoidImageMask';
 };
@@ -7956,6 +8146,7 @@ export type InvokeImageGenStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/imageGen';
 };
@@ -7990,6 +8181,7 @@ export type InvokeImageResourceTrainingStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/imageResourceTraining';
 };
@@ -8024,6 +8216,7 @@ export type InvokeImageUploadStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/imageUpload';
 };
@@ -8058,6 +8251,7 @@ export type InvokeImageUpscalerStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/imageUpscaler';
 };
@@ -8092,6 +8286,7 @@ export type InvokeMediaCaptioningStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/mediaCaptioning';
 };
@@ -8126,6 +8321,7 @@ export type InvokeMediaHashStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/mediaHash';
 };
@@ -8160,6 +8356,7 @@ export type InvokeMediaRatingStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/mediaRating';
 };
@@ -8188,12 +8385,118 @@ export type InvokeMediaRatingStepTemplateResponses = {
 export type InvokeMediaRatingStepTemplateResponse =
   InvokeMediaRatingStepTemplateResponses[keyof InvokeMediaRatingStepTemplateResponses];
 
+export type InvokeModelClamScanStepTemplateData = {
+  body?: ModelClamScanInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+  };
+  url: '/v2/consumer/recipes/modelClamScan';
+};
+
+export type InvokeModelClamScanStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeModelClamScanStepTemplateError =
+  InvokeModelClamScanStepTemplateErrors[keyof InvokeModelClamScanStepTemplateErrors];
+
+export type InvokeModelClamScanStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ModelClamScanOutput;
+};
+
+export type InvokeModelClamScanStepTemplateResponse =
+  InvokeModelClamScanStepTemplateResponses[keyof InvokeModelClamScanStepTemplateResponses];
+
+export type InvokeModelHashStepTemplateData = {
+  body?: ModelHashInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+  };
+  url: '/v2/consumer/recipes/modelHash';
+};
+
+export type InvokeModelHashStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeModelHashStepTemplateError =
+  InvokeModelHashStepTemplateErrors[keyof InvokeModelHashStepTemplateErrors];
+
+export type InvokeModelHashStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ModelHashOutput;
+};
+
+export type InvokeModelHashStepTemplateResponse =
+  InvokeModelHashStepTemplateResponses[keyof InvokeModelHashStepTemplateResponses];
+
+export type InvokeModelPickleScanStepTemplateData = {
+  body?: ModelPickleScanInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+  };
+  url: '/v2/consumer/recipes/modelPickleScan';
+};
+
+export type InvokeModelPickleScanStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeModelPickleScanStepTemplateError =
+  InvokeModelPickleScanStepTemplateErrors[keyof InvokeModelPickleScanStepTemplateErrors];
+
+export type InvokeModelPickleScanStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ModelPickleScanOutput;
+};
+
+export type InvokeModelPickleScanStepTemplateResponse =
+  InvokeModelPickleScanStepTemplateResponses[keyof InvokeModelPickleScanStepTemplateResponses];
+
 export type InvokePreprocessImageStepTemplateData = {
   body?: PreprocessImageInputWritable;
   path?: never;
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/preprocessImage';
 };
@@ -8228,6 +8531,7 @@ export type InvokePromptEnhancementStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/promptEnhancement';
 };
@@ -8262,6 +8566,7 @@ export type InvokeRepeatStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/repeat';
 };
@@ -8296,6 +8601,7 @@ export type InvokeTextToImageStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/textToImage';
 };
@@ -8330,6 +8636,7 @@ export type InvokeTextToSpeechStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/textToSpeech';
 };
@@ -8364,6 +8671,7 @@ export type InvokeTrainingStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/training';
 };
@@ -8398,6 +8706,7 @@ export type InvokeTranscodeStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/transcode';
 };
@@ -8432,6 +8741,7 @@ export type InvokeTranscriptionStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/transcription';
 };
@@ -8466,6 +8776,7 @@ export type InvokeTryOnUStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/tryOnU';
 };
@@ -8500,6 +8811,7 @@ export type InvokeVideoEnhancementStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/videoEnhancement';
 };
@@ -8534,6 +8846,7 @@ export type InvokeVideoFrameExtractionStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/videoFrameExtraction';
 };
@@ -8568,6 +8881,7 @@ export type InvokeVideoGenStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/videoGen';
 };
@@ -8602,6 +8916,7 @@ export type InvokeVideoInterpolationStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/videoInterpolation';
 };
@@ -8636,6 +8951,7 @@ export type InvokeVideoMetadataStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/videoMetadata';
 };
@@ -8670,6 +8986,7 @@ export type InvokeVideoUpscalerStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/videoUpscaler';
 };
@@ -8704,6 +9021,7 @@ export type InvokeWdTaggingStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/wdTagging';
 };
@@ -8738,6 +9056,7 @@ export type InvokeXGuardModerationStepTemplateData = {
   query?: {
     experimental?: boolean;
     allowMatureContent?: boolean;
+    whatif?: boolean;
   };
   url: '/v2/consumer/recipes/xGuardModeration';
 };
