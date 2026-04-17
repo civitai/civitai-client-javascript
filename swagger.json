@@ -1838,6 +1838,90 @@
         }
       }
     },
+    "/v2/consumer/recipes/modelParseMetadata": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "ModelParseMetadata",
+        "description": "Extracts the embedded JSON metadata header from a safetensors model file.",
+        "operationId": "InvokeModelParseMetadataStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelParseMetadataInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelParseMetadataInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelParseMetadataInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelParseMetadataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/modelPickleScan": {
       "post": {
         "tags": [
@@ -5184,6 +5268,7 @@
                 "sdxl": "#/components/schemas/SdxlAIToolkitTrainingInput",
                 "sd1": "#/components/schemas/SD1AIToolkitTrainingInput",
                 "chroma": "#/components/schemas/ChromaAIToolkitTrainingInput",
+                "ernie": "#/components/schemas/ErnieAIToolkitTrainingInput",
                 "qwen": "#/components/schemas/QwenAIToolkitTrainingInput",
                 "zimageturbo": "#/components/schemas/ZImageTurboAIToolkitTrainingInput",
                 "zimagebase": "#/components/schemas/ZImageBaseAIToolkitTrainingInput",
@@ -5274,16 +5359,56 @@
             "format": "float",
             "default": 0.9
           },
-          "model": {
+          "diffusionModel": {
             "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
               "string"
             ],
-            "description": "Optional model override (uses default ACE Step 1.5 turbo if not specified)"
+            "description": "Optional diffusion model (unet) override. Defaults to ACE-Step 1.5 turbo 2B."
           },
           "cover": {
             "$ref": "#/components/schemas/AceStepAudioCover"
+          },
+          "clipModel": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional text encoder (CLIP) override. Defaults to qwen_4b_ace15."
+          },
+          "vaeModel": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional VAE override. Defaults to ace_1.5_vae."
+          },
+          "languageModel": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional language model override for audio code generation. Defaults to qwen_0.6b_ace15."
+          },
+          "steps": {
+            "maximum": 200,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of sampling steps. Turbo variants converge at 8; non-turbo base / sft\nvariants expect the full 50-step schedule.",
+            "format": "int32",
+            "default": 8
+          },
+          "cfg": {
+            "maximum": 30,
+            "minimum": 0,
+            "type": "number",
+            "description": "Classifier-free guidance scale. Turbo variants run CFG-off at 1.0;\nnon-turbo base / sft variants expect CFG on (around 4).",
+            "format": "float",
+            "default": 1
           }
         },
         "additionalProperties": false,
@@ -6639,6 +6764,362 @@
         ],
         "type": "string"
       },
+      "ComfyErnieImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "ernie": "#/components/schemas/ComfyErnieStandardImageGenInput",
+                "turbo": "#/components/schemas/ComfyErnieTurboImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyErnieStandardCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyErnieStandardImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyErnieStandardImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyErnieImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 4
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "model": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyErnieStandardCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyErnieTurboCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyErnieTurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyErnieTurboImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyErnieImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 8
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "model": {
+                "enum": [
+                  "turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyErnieTurboCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyFlux1CreateImageGenInput": {
         "allOf": [
           {
@@ -6878,7 +7359,8 @@
               "mapping": {
                 "sd1": "#/components/schemas/ComfySd1ImageGenInput",
                 "sdxl": "#/components/schemas/ComfySdxlImageGenInput",
-                "flux1": "#/components/schemas/ComfyFlux1ImageGenInput"
+                "flux1": "#/components/schemas/ComfyFlux1ImageGenInput",
+                "ernie": "#/components/schemas/ComfyErnieImageGenInput"
               }
             }
           }
@@ -8628,6 +9110,36 @@
         },
         "additionalProperties": false,
         "description": "An epock result."
+      },
+      "ErnieAIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "enum": [
+                  "ernie"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for ERNIE-Image models"
       },
       "FaceDetection": {
         "required": [
@@ -11823,6 +12335,13 @@
             "type": "number",
             "description": "A value representing the end step selected for the ControlNet.",
             "format": "double"
+          },
+          "image": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The preprocessed control image. Accepts an AIR URN, a URL, or a base64 data URL; the\norchestrator processes it into a stored blob before the job is dispatched."
           }
         },
         "additionalProperties": false,
@@ -12086,8 +12605,39 @@
       "ImageTransformer": {
         "enum": [
           "canny",
+          "mlsd",
           "depthZoe",
+          "depthAnything",
+          "depthAnythingV2",
+          "zoeDepthAnything",
+          "zoeDepth",
+          "midasDepth",
+          "leresDepth",
+          "metric3dDepth",
           "softedgePidinet",
+          "hed",
+          "teed",
+          "midasNormal",
+          "baeNormal",
+          "dsineNormal",
+          "metric3dNormal",
+          "lineartRealistic",
+          "lineartStandard",
+          "lineartAnime",
+          "lineartManga",
+          "anyline",
+          "scribble",
+          "scribbleXdog",
+          "scribblePidinet",
+          "fakeScribble",
+          "openpose",
+          "dwpose",
+          "oneformerCoco",
+          "oneformerAde20k",
+          "uniformer",
+          "shuffle",
+          "tile",
+          "gray",
           "rembg"
         ],
         "type": "string",
@@ -13291,15 +13841,16 @@
           "includeAgeClassification",
           "includeAIRecognition",
           "includeAnimeRecognition",
-          "includeFaceRecognition",
-          "mediaUrl"
+          "includeFaceRecognition"
         ],
         "type": "object",
         "properties": {
-          "mediaUrl": {
-            "type": "string",
-            "description": "The URL of the media to rate (image or video).",
-            "format": "uri"
+          "image": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The image to rate. Pre-processed in the API layer — imported into blob storage so the\nworker can pre-fetch it as a declared resource. After processing, contains the blob AIR URL."
           },
           "engine": {
             "type": "string",
@@ -13728,6 +14279,92 @@
           }
         ],
         "description": "ModelHash"
+      },
+      "ModelParseMetadataInput": {
+        "required": [
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The AIR of the model file to read metadata from."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the ModelParseMetadata workflow step."
+      },
+      "ModelParseMetadataOutput": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The raw JSON metadata header as stored in the safetensors file, or null when\nthe model is not a safetensors file or the header could not be parsed."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the ModelParseMetadata workflow step."
+      },
+      "ModelParseMetadataStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelParseMetadataInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ModelParseMetadataOutput"
+              },
+              "$type": {
+                "enum": [
+                  "modelParseMetadata"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelParseMetadata"
+      },
+      "ModelParseMetadataStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelParseMetadataInput"
+              },
+              "$type": {
+                "enum": [
+                  "modelParseMetadata"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "ModelParseMetadata"
       },
       "ModelPickleScanInput": {
         "required": [
@@ -17977,6 +18614,96 @@
           }
         ]
       },
+      "SeedanceModel": {
+        "enum": [
+          "v2",
+          "v2-fast"
+        ],
+        "type": "string"
+      },
+      "SeedanceVideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "aspectRatio",
+              "duration",
+              "engine",
+              "resolution"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "$ref": "#/components/schemas/SeedanceModel"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "1:1",
+                  "4:3",
+                  "3:4",
+                  "21:9",
+                  "adaptive"
+                ],
+                "type": "string"
+              },
+              "duration": {
+                "enum": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15
+                ],
+                "type": "integer",
+                "format": "int32"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "default": true
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "resolution": {
+                "enum": [
+                  "480p",
+                  "720p"
+                ],
+                "type": "string"
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "engine": {
+                "enum": [
+                  "seedance"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "SeedreamImageGenInput": {
         "allOf": [
           {
@@ -19748,7 +20475,8 @@
             "veo3": "#/components/schemas/Veo3VideoGenInput",
             "sora": "#/components/schemas/SoraVideoGenInput",
             "kling-v3": "#/components/schemas/KlingV3VideoGenInput",
-            "grok": "#/components/schemas/GrokVideoGenInput"
+            "grok": "#/components/schemas/GrokVideoGenInput",
+            "seedance": "#/components/schemas/SeedanceVideoGenInput"
           }
         }
       },
@@ -23418,9 +24146,8 @@
               "null",
               "number"
             ],
-            "description": "An estimation on the current progression of this step, or null if there is no estimation",
-            "format": "double",
-            "readOnly": true
+            "description": "An estimation on the current progression of this step, or null if there is no estimation.\nComputed by the step's handler (see `WorkflowStepHandler.GetEstimatedProgressRate`)\nand refreshed by `WorkflowStepManager` on each job event. Cleared to null once the\nstep reaches a final status.",
+            "format": "double"
           }
         },
         "additionalProperties": false,
@@ -23443,6 +24170,7 @@
             "mediaRating": "#/components/schemas/MediaRatingStep",
             "modelClamScan": "#/components/schemas/ModelClamScanStep",
             "modelHash": "#/components/schemas/ModelHashStep",
+            "modelParseMetadata": "#/components/schemas/ModelParseMetadataStep",
             "modelPickleScan": "#/components/schemas/ModelPickleScanStep",
             "preprocessImage": "#/components/schemas/PreprocessImageStep",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStep",
@@ -23760,6 +24488,7 @@
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
             "modelClamScan": "#/components/schemas/ModelClamScanStepTemplate",
             "modelHash": "#/components/schemas/ModelHashStepTemplate",
+            "modelParseMetadata": "#/components/schemas/ModelParseMetadataStepTemplate",
             "modelPickleScan": "#/components/schemas/ModelPickleScanStepTemplate",
             "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStepTemplate",

@@ -157,10 +157,32 @@ export type AceStepAudioInput = {
    */
   vocalWeight?: number;
   /**
-   * Optional model override (uses default ACE Step 1.5 turbo if not specified)
+   * Optional diffusion model (unet) override. Defaults to ACE-Step 1.5 turbo 2B.
    */
-  model?: null | string;
+  diffusionModel?: null | string;
   cover?: AceStepAudioCover;
+  /**
+   * Optional text encoder (CLIP) override. Defaults to qwen_4b_ace15.
+   */
+  clipModel?: null | string;
+  /**
+   * Optional VAE override. Defaults to ace_1.5_vae.
+   */
+  vaeModel?: null | string;
+  /**
+   * Optional language model override for audio code generation. Defaults to qwen_0.6b_ace15.
+   */
+  languageModel?: null | string;
+  /**
+   * Number of sampling steps. Turbo variants converge at 8; non-turbo base / sft
+   * variants expect the full 50-step schedule.
+   */
+  steps?: number;
+  /**
+   * Classifier-free guidance scale. Turbo variants run CFG-off at 1.0;
+   * non-turbo base / sft variants expect CFG on (around 4).
+   */
+  cfg?: number;
 };
 
 /**
@@ -773,6 +795,78 @@ export type ChromaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine'
 export const CoarseMode = { DISABLE: 'disable', ENABLE: 'enable' } as const;
 
 export type CoarseMode = (typeof CoarseMode)[keyof typeof CoarseMode];
+
+export type ComfyErnieImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: string;
+  ecosystem: 'ernie';
+  engine: 'comfy';
+};
+
+export type ComfyErnieStandardCreateImageGenInput = Omit<
+  ComfyErnieStandardImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'ernie';
+  ecosystem: 'ernie';
+  engine: 'comfy';
+};
+
+export type ComfyErnieStandardImageGenInput = Omit<
+  ComfyErnieImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  model: 'ernie';
+  ecosystem: 'ernie';
+  engine: 'comfy';
+};
+
+export type ComfyErnieTurboCreateImageGenInput = Omit<
+  ComfyErnieTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'turbo';
+  ecosystem: 'ernie';
+  engine: 'comfy';
+};
+
+export type ComfyErnieTurboImageGenInput = Omit<
+  ComfyErnieImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  model: 'turbo';
+  ecosystem: 'ernie';
+  engine: 'comfy';
+};
 
 export type ComfyFlux1CreateImageGenInput = Omit<
   ComfyFlux1ImageGenInput,
@@ -1416,6 +1510,14 @@ export type EpochResult = {
    * A presigned url that points to the epoch file
    */
   blobUrl: string;
+};
+
+/**
+ * AI Toolkit training for ERNIE-Image models
+ */
+export type ErnieAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  ecosystem: 'ernie';
+  engine: 'ai-toolkit';
 };
 
 /**
@@ -2241,6 +2343,11 @@ export type ImageJobControlNet = {
    * A value representing the end step selected for the ControlNet.
    */
   endStep: number;
+  /**
+   * The preprocessed control image. Accepts an AIR URN, a URL, or a base64 data URL; the
+   * orchestrator processes it into a stored blob before the job is dispatched.
+   */
+  image?: null | string;
 };
 
 export type ImageJobNetworkParams = {
@@ -2366,8 +2473,39 @@ export type ImageTransform = {
  */
 export const ImageTransformer = {
   CANNY: 'canny',
+  MLSD: 'mlsd',
   DEPTH_ZOE: 'depthZoe',
+  DEPTH_ANYTHING: 'depthAnything',
+  DEPTH_ANYTHING_V2: 'depthAnythingV2',
+  ZOE_DEPTH_ANYTHING: 'zoeDepthAnything',
+  ZOE_DEPTH: 'zoeDepth',
+  MIDAS_DEPTH: 'midasDepth',
+  LERES_DEPTH: 'leresDepth',
+  METRIC3D_DEPTH: 'metric3dDepth',
   SOFTEDGE_PIDINET: 'softedgePidinet',
+  HED: 'hed',
+  TEED: 'teed',
+  MIDAS_NORMAL: 'midasNormal',
+  BAE_NORMAL: 'baeNormal',
+  DSINE_NORMAL: 'dsineNormal',
+  METRIC3D_NORMAL: 'metric3dNormal',
+  LINEART_REALISTIC: 'lineartRealistic',
+  LINEART_STANDARD: 'lineartStandard',
+  LINEART_ANIME: 'lineartAnime',
+  LINEART_MANGA: 'lineartManga',
+  ANYLINE: 'anyline',
+  SCRIBBLE: 'scribble',
+  SCRIBBLE_XDOG: 'scribbleXdog',
+  SCRIBBLE_PIDINET: 'scribblePidinet',
+  FAKE_SCRIBBLE: 'fakeScribble',
+  OPENPOSE: 'openpose',
+  DWPOSE: 'dwpose',
+  ONEFORMER_COCO: 'oneformerCoco',
+  ONEFORMER_ADE20K: 'oneformerAde20k',
+  UNIFORMER: 'uniformer',
+  SHUFFLE: 'shuffle',
+  TILE: 'tile',
+  GRAY: 'gray',
   REMBG: 'rembg',
 } as const;
 
@@ -2865,9 +3003,10 @@ export type MediaHashType = (typeof MediaHashType)[keyof typeof MediaHashType];
  */
 export type MediaRatingInput = {
   /**
-   * The URL of the media to rate (image or video).
+   * The image to rate. Pre-processed in the API layer — imported into blob storage so the
+   * worker can pre-fetch it as a declared resource. After processing, contains the blob AIR URL.
    */
-  mediaUrl: string;
+  image?: null | string;
   /**
    * The engine to use for media rating. Valid values: "default" (HiveVLM) or "civitai".
    */
@@ -3054,6 +3193,44 @@ export type ModelHashStep = Omit<WorkflowStep, '$type'> & {
 export type ModelHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ModelHashInput;
   $type: 'modelHash';
+};
+
+/**
+ * Represents the input information needed for the ModelParseMetadata workflow step.
+ */
+export type ModelParseMetadataInput = {
+  /**
+   * The AIR of the model file to read metadata from.
+   */
+  model: string;
+};
+
+/**
+ * Represents the output information returned from the ModelParseMetadata workflow step.
+ */
+export type ModelParseMetadataOutput = {
+  /**
+   * The raw JSON metadata header as stored in the safetensors file, or null when
+   * the model is not a safetensors file or the header could not be parsed.
+   */
+  metadata?: null | string;
+};
+
+/**
+ * ModelParseMetadata
+ */
+export type ModelParseMetadataStep = Omit<WorkflowStep, '$type'> & {
+  input: ModelParseMetadataInput;
+  output?: ModelParseMetadataOutput;
+  $type: 'modelParseMetadata';
+};
+
+/**
+ * ModelParseMetadata
+ */
+export type ModelParseMetadataStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ModelParseMetadataInput;
+  $type: 'modelParseMetadata';
 };
 
 /**
@@ -4207,6 +4384,21 @@ export type SdxlVariantImageGenInput = Omit<
   operation: 'createVariant';
   ecosystem: 'sdxl';
   engine: 'sdcpp';
+};
+
+export const SeedanceModel = { V2: 'v2', V2_FAST: 'v2-fast' } as const;
+
+export type SeedanceModel = (typeof SeedanceModel)[keyof typeof SeedanceModel];
+
+export type SeedanceVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  model?: SeedanceModel;
+  aspectRatio: '16:9' | '9:16' | '1:1' | '4:3' | '3:4' | '21:9' | 'adaptive';
+  duration: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+  generateAudio?: boolean;
+  seed?: null | number;
+  resolution: '480p' | '720p';
+  images?: Array<string>;
+  engine: 'seedance';
 };
 
 export type SeedreamImageGenInput = Omit<ImageGenInput, 'engine'> & {
@@ -5961,9 +6153,12 @@ export type WorkflowStep = {
     [key: string]: unknown;
   };
   /**
-   * An estimation on the current progression of this step, or null if there is no estimation
+   * An estimation on the current progression of this step, or null if there is no estimation.
+   * Computed by the step's handler (see `WorkflowStepHandler.GetEstimatedProgressRate`)
+   * and refreshed by `WorkflowStepManager` on each job event. Cleared to null once the
+   * step reaches a final status.
    */
-  readonly estimatedProgressRate?: null | number;
+  estimatedProgressRate?: null | number;
 };
 
 /**
@@ -6450,25 +6645,6 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
 /**
- * Workflow step for generating music using ACE Step 1.5.
- * Produces full songs from text descriptions and structured lyrics.
- */
-export type AceStepAudioStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: AceStepAudioInput;
-  output?: AceStepAudioOutput;
-  $type: 'aceStepAudio';
-};
-
-/**
- * Age classification
- */
-export type AgeClassificationStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: AgeClassificationInput;
-  output?: AgeClassificationOutput;
-  $type: 'ageClassification';
-};
-
-/**
  * Base type for message content parts.
  * Supports both camelCase (imageUrl) and snake_case (image_url) type discriminators via ContentPartJsonConverter.
  */
@@ -6480,45 +6656,9 @@ export type ChatCompletionContentPartWritable = {
   imageUrl?: ChatCompletionImageUrl;
 };
 
-/**
- * ChatCompletion
- */
-export type ChatCompletionStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ChatCompletionInput;
-  output?: ChatCompletionOutput;
-  $type: 'chatCompletion';
-};
-
-/**
- * Comfy workflows
- */
-export type ComfyStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ComfyInput;
-  output?: ComfyOutput;
-  $type: 'comfy';
-};
-
-/**
- * A workflow step that converts images to different formats and applies optional transforms.
- */
-export type ConvertImageStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ConvertImageInput;
-  output?: ConvertImageOutput;
-  $type: 'convertImage';
-};
-
 export type CursedArrayOfTelemetryCursorAndWorkflowWritable = {
   next: string;
   items: Array<WorkflowWritable>;
-};
-
-/**
- * Echo
- */
-export type EchoStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: EchoInput;
-  output?: EchoOutput;
-  $type: 'echo';
 };
 
 export type Flux1KontextDevImageGenInputWritable = Omit<
@@ -6553,42 +6693,6 @@ export type Flux1KontextProImageGenInputWritable = Omit<
 > & {
   model: 'pro';
   engine: 'flux1-kontext';
-};
-
-/**
- * Image Generation
- */
-export type ImageGenStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ImageGenInput;
-  output?: ImageGenOutput;
-  $type: 'imageGen';
-};
-
-/**
- * LORA Training
- */
-export type ImageResourceTrainingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ImageResourceTrainingInput;
-  output?: ImageResourceTrainingOutput;
-  $type: 'imageResourceTraining';
-};
-
-/**
- * Image upload
- */
-export type ImageUploadStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  /**
-   * The workflow's input.
-   */
-  input: string;
-  output?: ImageUploadOutput;
-  $type: 'imageUpload';
-};
-
-export type ImageUpscalerStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ImageUpscalerInput;
-  output?: ImageUpscalerOutput;
-  $type: 'imageUpscaler';
 };
 
 export type KohyaImageResourceTrainingInputWritable = Omit<
@@ -6681,60 +6785,6 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
    */
   optimizerType?: null | string;
   engine: 'kohya';
-};
-
-/**
- * Media Captioning
- */
-export type MediaCaptioningStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: MediaCaptioningInput;
-  output?: MediaCaptioningOutput;
-  $type: 'mediaCaptioning';
-};
-
-/**
- * MediaHash
- */
-export type MediaHashStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: MediaHashInput;
-  output?: MediaHashOutput;
-  $type: 'mediaHash';
-};
-
-/**
- * MediaRating
- */
-export type MediaRatingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: MediaRatingInput;
-  output?: MediaRatingOutput;
-  $type: 'mediaRating';
-};
-
-/**
- * ModelClamScan
- */
-export type ModelClamScanStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ModelClamScanInput;
-  output?: ModelClamScanOutput;
-  $type: 'modelClamScan';
-};
-
-/**
- * ModelHash
- */
-export type ModelHashStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ModelHashInput;
-  output?: ModelHashOutput;
-  $type: 'modelHash';
-};
-
-/**
- * ModelPickleScan
- */
-export type ModelPickleScanStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: ModelPickleScanInput;
-  output?: ModelPickleScanOutput;
-  $type: 'modelPickleScan';
 };
 
 export type MusubiImageResourceTrainingInputWritable = Omit<
@@ -7022,7 +7072,7 @@ export type PreprocessImageStandardLineartInputWritable = Omit<
   kind: 'lineart-standard';
 };
 
-export type PreprocessImageStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
+export type PreprocessImageStepWritable = Omit<WorkflowStepWritable, '$type'> & {
   input: PreprocessImageInputWritable;
   output?: PreprocessImageOutput;
   $type: 'preprocessImage';
@@ -7059,15 +7109,6 @@ export type PreprocessImageZoeDepthInputWritable = Omit<PreprocessImageInputWrit
   kind: 'zoe-depth';
 };
 
-/**
- * PromptEnhancement
- */
-export type PromptEnhancementStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: PromptEnhancementInput;
-  output?: PromptEnhancementOutput;
-  $type: 'promptEnhancement';
-};
-
 export type Qwen20bEditImageGenInputWritable = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
@@ -7097,58 +7138,6 @@ export type Qwen20bVariantImageGenInputWritable = Omit<
 };
 
 /**
- * Represents the output information returned from the Repeat workflow step.
- */
-export type RepeatOutputWritable = {
-  steps: Array<WorkflowStepWritable>;
-};
-
-/**
- * TextToImage
- */
-export type TextToImageStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: TextToImageInput;
-  output?: TextToImageOutput;
-  $type: 'textToImage';
-};
-
-/**
- * Text-to-Speech
- */
-export type TextToSpeechStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: TextToSpeechInput;
-  output?: TextToSpeechOutput;
-  $type: 'textToSpeech';
-};
-
-/**
- * Training
- */
-export type TrainingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: TrainingInput;
-  output?: TrainingOutput;
-  $type: 'training';
-};
-
-/**
- * Transcoding
- */
-export type TranscodeStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: TranscodeInput;
-  output?: TranscodeOutput;
-  $type: 'transcode';
-};
-
-/**
- * Transcription
- */
-export type TranscriptionStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: TranscriptionInput;
-  output?: TranscriptionOutput;
-  $type: 'transcription';
-};
-
-/**
  * A user message that can contain text and/or images.
  */
 export type UserMessageWritable = Omit<ChatCompletionMessageWritable, 'role'> & {
@@ -7162,69 +7151,6 @@ export type UserMessageWritable = Omit<ChatCompletionMessageWritable, 'role'> & 
    */
   name?: null | string;
   role: 'user';
-};
-
-/**
- * Upscale videos and/or interpolate frames
- */
-export type VideoEnhancementStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: VideoEnhancementInput;
-  output?: VideoEnhancementOutput;
-  $type: 'videoEnhancement';
-};
-
-/**
- * Video Frame Extraction
- */
-export type VideoFrameExtractionStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: VideoFrameExtractionInput;
-  output?: VideoFrameExtractionOutput;
-  $type: 'videoFrameExtraction';
-};
-
-/**
- * Video generation
- */
-export type VideoGenStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: VideoGenInput;
-  output?: VideoGenOutput;
-  $type: 'videoGen';
-};
-
-/**
- * Interpolate videos using VFI Mamba
- */
-export type VideoInterpolationStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: VideoInterpolationInput;
-  output?: VideoInterpolationOutput;
-  $type: 'videoInterpolation';
-};
-
-/**
- * Extract metadata from videos including width, height, FPS, and duration
- */
-export type VideoMetadataStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: VideoMetadataInput;
-  output?: VideoMetadataOutput;
-  $type: 'videoMetadata';
-};
-
-/**
- * Upscale videos using FlashVSR
- */
-export type VideoUpscalerStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: VideoUpscalerInput;
-  output?: VideoUpscalerOutput;
-  $type: 'videoUpscaler';
-};
-
-/**
- * WDTagging
- */
-export type WdTaggingStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
-  input: WdTaggingInput;
-  output?: WdTaggingOutput;
-  $type: 'wdTagging';
 };
 
 /**
@@ -7329,45 +7255,6 @@ export type WorkflowEventWritable = {
 };
 
 /**
- * Details of a workflow step.
- */
-export type WorkflowStepWritable = {
-  $type: string;
-  /**
-   * The name of the workflow step. Used to allow steps to refer to one another.
-   */
-  name: string;
-  priority: Priority;
-  /**
-   * The maximum time to wait for this step to complete.
-   */
-  timeout?: null | string;
-  /**
-   * The maximum number of times this step should be retried.
-   */
-  retries?: null | number;
-  /**
-   * The jobs generated by this step.
-   */
-  jobs?: null | Array<WorkflowStepJob>;
-  status: WorkflowStatus;
-  /**
-   * The date / time the step was started. Null if not yet started.
-   */
-  startedAt?: null | string;
-  /**
-   * The date / time the step was completed. Null if not yet completed.
-   */
-  completedAt?: null | string;
-  /**
-   * A collection of user defined metadata for the workflow step.
-   */
-  metadata: {
-    [key: string]: unknown;
-  };
-};
-
-/**
  * Details of a workflow step event.
  */
 export type WorkflowStepEventWritable = {
@@ -7429,7 +7316,7 @@ export type XGuardModerationOutputWritable = {
 /**
  * XGuardModeration
  */
-export type XGuardModerationStepWritable = Omit<WorkflowStepWritable2, '$type'> & {
+export type XGuardModerationStepWritable = Omit<WorkflowStepWritable, '$type'> & {
   input: XGuardModerationInput;
   output?: XGuardModerationOutputWritable;
   $type: 'xGuardModeration';
@@ -7455,49 +7342,6 @@ export type XGuardSignalMetadataWritable = {
     [key: string]: number;
   };
   customSignals: Array<XGuardCustomSignalMetadataWritable>;
-};
-
-/**
- * Details of a workflow step.
- */
-export type WorkflowStepWritable2 = {
-  $type: string;
-  /**
-   * The name of the workflow step. Used to allow steps to refer to one another.
-   */
-  name: string;
-  priority: Priority;
-  /**
-   * The maximum time to wait for this step to complete.
-   */
-  timeout?: null | string;
-  /**
-   * The maximum number of times this step should be retried.
-   */
-  retries?: null | number;
-  /**
-   * The jobs generated by this step.
-   */
-  jobs?: null | Array<WorkflowStepJob>;
-  status: WorkflowStatus;
-  /**
-   * The date / time the step was started. Null if not yet started.
-   */
-  startedAt?: null | string;
-  /**
-   * The date / time the step was completed. Null if not yet completed.
-   */
-  completedAt?: null | string;
-  /**
-   * A collection of user defined metadata for the workflow step.
-   */
-  metadata: {
-    [key: string]: unknown;
-  };
-  /**
-   * An estimation on the current progression of this step, or null if there is no estimation
-   */
-  readonly estimatedProgressRate?: null | number;
 };
 
 export type ImageGenInputWritable = {
@@ -7552,6 +7396,52 @@ export type PreprocessImageInputWritable2 = {
    * This is derived from the JsonDerivedType discriminator.
    */
   readonly preprocessorType: string;
+};
+
+/**
+ * Details of a workflow step.
+ */
+export type WorkflowStepWritable = {
+  $type: string;
+  /**
+   * The name of the workflow step. Used to allow steps to refer to one another.
+   */
+  name: string;
+  priority: Priority;
+  /**
+   * The maximum time to wait for this step to complete.
+   */
+  timeout?: null | string;
+  /**
+   * The maximum number of times this step should be retried.
+   */
+  retries?: null | number;
+  /**
+   * The jobs generated by this step.
+   */
+  jobs?: null | Array<WorkflowStepJob>;
+  status: WorkflowStatus;
+  /**
+   * The date / time the step was started. Null if not yet started.
+   */
+  startedAt?: null | string;
+  /**
+   * The date / time the step was completed. Null if not yet completed.
+   */
+  completedAt?: null | string;
+  /**
+   * A collection of user defined metadata for the workflow step.
+   */
+  metadata: {
+    [key: string]: unknown;
+  };
+  /**
+   * An estimation on the current progression of this step, or null if there is no estimation.
+   * Computed by the step's handler (see `WorkflowStepHandler.GetEstimatedProgressRate`)
+   * and refreshed by `WorkflowStepManager` on each job event. Cleared to null once the
+   * step reaches a final status.
+   */
+  estimatedProgressRate?: null | number;
 };
 
 /**
@@ -8454,6 +8344,41 @@ export type InvokeModelHashStepTemplateResponses = {
 
 export type InvokeModelHashStepTemplateResponse =
   InvokeModelHashStepTemplateResponses[keyof InvokeModelHashStepTemplateResponses];
+
+export type InvokeModelParseMetadataStepTemplateData = {
+  body?: ModelParseMetadataInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+  };
+  url: '/v2/consumer/recipes/modelParseMetadata';
+};
+
+export type InvokeModelParseMetadataStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeModelParseMetadataStepTemplateError =
+  InvokeModelParseMetadataStepTemplateErrors[keyof InvokeModelParseMetadataStepTemplateErrors];
+
+export type InvokeModelParseMetadataStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ModelParseMetadataOutput;
+};
+
+export type InvokeModelParseMetadataStepTemplateResponse =
+  InvokeModelParseMetadataStepTemplateResponses[keyof InvokeModelParseMetadataStepTemplateResponses];
 
 export type InvokeModelPickleScanStepTemplateData = {
   body?: ModelPickleScanInput;

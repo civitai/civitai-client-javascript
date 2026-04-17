@@ -91,6 +91,9 @@ import type {
   InvokeModelHashStepTemplateData,
   InvokeModelHashStepTemplateErrors,
   InvokeModelHashStepTemplateResponses,
+  InvokeModelParseMetadataStepTemplateData,
+  InvokeModelParseMetadataStepTemplateErrors,
+  InvokeModelParseMetadataStepTemplateResponses,
   InvokeModelPickleScanStepTemplateData,
   InvokeModelPickleScanStepTemplateErrors,
   InvokeModelPickleScanStepTemplateResponses,
@@ -621,6 +624,27 @@ export const invokeModelHashStepTemplate = <ThrowOnError extends boolean = false
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/modelHash',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * ModelParseMetadata
+ *
+ * Extracts the embedded JSON metadata header from a safetensors model file.
+ */
+export const invokeModelParseMetadataStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeModelParseMetadataStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeModelParseMetadataStepTemplateResponses,
+    InvokeModelParseMetadataStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/modelParseMetadata',
     ...options,
     headers: {
       'Content-Type': 'application/json',
