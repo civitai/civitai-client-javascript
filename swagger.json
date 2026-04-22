@@ -38,6 +38,22 @@
             "schema": {
               "$ref": "#/components/schemas/NSFWLevel"
             }
+          },
+          {
+            "name": "filename",
+            "in": "query",
+            "description": "Optional filename to use in the Content-Disposition header when the blob is served. Path components and control characters are stripped.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "When true, the blob is served with Content-Disposition: attachment to prompt a download. Defaults to inline.",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -311,6 +327,51 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/blobs/archive/{encryptedToken}": {
+      "get": {
+        "tags": [
+          "Blobs"
+        ],
+        "summary": "Streams an archive (zip or tar) of the blobs referenced by a signed archive token.\nTokens are produced by the `blobArchive` workflow step.",
+        "operationId": "GetBlobArchive",
+        "parameters": [
+          {
+            "name": "encryptedToken",
+            "in": "path",
+            "description": "The signed token containing the archive manifest.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          },
+          "410": {
+            "description": "Gone",
             "content": {
               "application/json": {
                 "schema": {
@@ -650,6 +711,89 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BatchOCRSafetyClassificationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/blobArchive": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Bundles a set of blobs into a single archive (zip or tar) that callers can\n/// download from a signed streaming URL. Runs in-process in the orchestrator;\n/// no worker job is dispatched.",
+        "operationId": "InvokeBlobArchiveStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlobArchiveInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlobArchiveInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlobArchiveInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlobArchiveOutput"
                 }
               }
             }
@@ -3636,7 +3780,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -3664,7 +3808,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -3692,7 +3836,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -3708,7 +3852,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -3820,7 +3964,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -3847,7 +3991,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -3875,7 +4019,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -3903,7 +4047,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -3919,7 +4063,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -4031,7 +4175,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -4058,7 +4202,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -4086,7 +4230,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -4114,7 +4258,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -4130,7 +4274,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -4242,7 +4386,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -5953,6 +6097,14 @@
         ],
         "type": "string"
       },
+      "ArchiveFormat": {
+        "enum": [
+          "zip",
+          "tar"
+        ],
+        "type": "string",
+        "description": "Container format for a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep output."
+      },
       "AssistantMessage": {
         "allOf": [
           {
@@ -6154,6 +6306,143 @@
             "audio": "#/components/schemas/AudioBlob"
           }
         }
+      },
+      "BlobArchiveEntry": {
+        "required": [
+          "blobId"
+        ],
+        "type": "object",
+        "properties": {
+          "blobId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "The blob ID to include in the archive."
+          },
+          "fileName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional filename to use inside the archive. When omitted, the blob ID is used.\nPath components and control characters are stripped."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A single entry within a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep."
+      },
+      "BlobArchiveInput": {
+        "required": [
+          "entries"
+        ],
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlobArchiveEntry"
+            },
+            "description": "The blobs to include in the archive. Must contain at least 1 and at most 1000 entries."
+          },
+          "archiveName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional filename for the archive itself (used in the Content-Disposition header).\nDefaults to \"archive.zip\" or \"archive.tar\" based on Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveInput.Format."
+          },
+          "format": {
+            "$ref": "#/components/schemas/ArchiveFormat"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input configuration for the BlobArchive workflow step."
+      },
+      "BlobArchiveOutput": {
+        "required": [
+          "entryCount",
+          "expiresAt",
+          "format",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The signed URL that streams the archive when requested.",
+            "format": "uri"
+          },
+          "entryCount": {
+            "type": "integer",
+            "description": "The number of entries included in the archive.",
+            "format": "int32"
+          },
+          "format": {
+            "$ref": "#/components/schemas/ArchiveFormat"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "The UTC time at which this URL expires.",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output produced by the BlobArchive workflow step."
+      },
+      "BlobArchiveStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/BlobArchiveInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/BlobArchiveOutput"
+              },
+              "$type": {
+                "enum": [
+                  "blobArchive"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Bundles a set of blobs into a single archive (zip or tar) that callers can\ndownload from a signed streaming URL. Runs in-process in the orchestrator;\nno worker job is dispatched."
+      },
+      "BlobArchiveStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/BlobArchiveInput"
+              },
+              "$type": {
+                "enum": [
+                  "blobArchive"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Bundles a set of blobs into a single archive (zip or tar) that callers can\ndownload from a signed streaming URL. Runs in-process in the orchestrator;\nno worker job is dispatched."
       },
       "BlurRegion": {
         "required": [
@@ -6514,7 +6803,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Extra kwargs passed to the chat template (for example custom policy inputs for vLLM chat templates)."
           },
           "tools": {
@@ -14177,7 +14466,7 @@
       "ModelHashOutput": {
         "type": "object",
         "properties": {
-          "shA256": {
+          "sha256": {
             "type": [
               "null",
               "string"
@@ -14212,7 +14501,7 @@
             ],
             "description": "Blake3 hash of the full file."
           },
-          "crC32": {
+          "crc32": {
             "type": [
               "null",
               "string"
@@ -15389,6 +15678,191 @@
           }
         ]
       },
+      "OpenAIGpt2CreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt2ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt2EditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt2ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "maskImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "width": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nWhen set, the requested width is sent to fal as image_size.width.\nBoth Width and Height must be set together, or both null.",
+                "format": "int32"
+              },
+              "height": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nWhen set, the requested height is sent to fal as image_size.height.\nBoth Width and Height must be set together, or both null.",
+                "format": "int32"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt2ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 32000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 3840,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 3840,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32",
+                "default": 1024
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "quality": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "high"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIGpt2CreateImageInput",
+                "editImage": "#/components/schemas/OpenAIGpt2EditImageInput"
+              }
+            }
+          }
+        ]
+      },
       "OpenApiImageGenInput": {
         "allOf": [
           {
@@ -15421,6 +15895,7 @@
               "mapping": {
                 "gpt-image-1": "#/components/schemas/OpenAIGpt1ImageGenInput",
                 "gpt-image-1.5": "#/components/schemas/OpenAIGpt15ImageGenInput",
+                "gpt-image-2": "#/components/schemas/OpenAIGpt2ImageGenInput",
                 "dall-e-2": "#/components/schemas/OpenAIDallE2ImageGenInput",
                 "dall-e-3": "#/components/schemas/OpenAIDallE3ImageGenInput"
               }
@@ -16737,7 +17212,7 @@
             ]
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "PromptEnhancementInput": {
         "required": [
@@ -19927,7 +20402,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -19966,7 +20441,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -20057,7 +20532,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -23695,7 +24170,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -23726,7 +24201,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -24138,7 +24613,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -24157,6 +24632,7 @@
           "mapping": {
             "aceStepAudio": "#/components/schemas/AceStepAudioStep",
             "ageClassification": "#/components/schemas/AgeClassificationStep",
+            "blobArchive": "#/components/schemas/BlobArchiveStep",
             "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
             "convertImage": "#/components/schemas/ConvertImageStep",
@@ -24464,7 +24940,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -24475,6 +24951,7 @@
           "mapping": {
             "aceStepAudio": "#/components/schemas/AceStepAudioStepTemplate",
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
+            "blobArchive": "#/components/schemas/BlobArchiveStepTemplate",
             "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
             "convertImage": "#/components/schemas/ConvertImageStepTemplate",
@@ -24520,7 +24997,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -24561,7 +25038,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -25568,7 +26045,7 @@
     }
   },
   "security": [
-    {}
+    { }
   ],
   "tags": [
     {

@@ -409,6 +409,16 @@ export const AnylineMergeWith = {
 export type AnylineMergeWith = (typeof AnylineMergeWith)[keyof typeof AnylineMergeWith];
 
 /**
+ * Container format for a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep output.
+ */
+export const ArchiveFormat = { ZIP: 'zip', TAR: 'tar' } as const;
+
+/**
+ * Container format for a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep output.
+ */
+export type ArchiveFormat = (typeof ArchiveFormat)[keyof typeof ArchiveFormat];
+
+/**
  * An assistant message representing a prior response.
  */
 export type AssistantMessage = Omit<ChatCompletionMessage, 'role'> & {
@@ -483,6 +493,77 @@ export type Blob = {
    * Get an optional reason for why the blob was blocked. This is only set if the blob was blocked.
    */
   blockedReason?: null | string;
+};
+
+/**
+ * A single entry within a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep.
+ */
+export type BlobArchiveEntry = {
+  /**
+   * The blob ID to include in the archive.
+   */
+  blobId: string;
+  /**
+   * Optional filename to use inside the archive. When omitted, the blob ID is used.
+   * Path components and control characters are stripped.
+   */
+  fileName?: null | string;
+};
+
+/**
+ * Input configuration for the BlobArchive workflow step.
+ */
+export type BlobArchiveInput = {
+  /**
+   * The blobs to include in the archive. Must contain at least 1 and at most 1000 entries.
+   */
+  entries: Array<BlobArchiveEntry>;
+  /**
+   * Optional filename for the archive itself (used in the Content-Disposition header).
+   * Defaults to "archive.zip" or "archive.tar" based on Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveInput.Format.
+   */
+  archiveName?: null | string;
+  format?: ArchiveFormat;
+};
+
+/**
+ * Output produced by the BlobArchive workflow step.
+ */
+export type BlobArchiveOutput = {
+  /**
+   * The signed URL that streams the archive when requested.
+   */
+  url: string;
+  /**
+   * The number of entries included in the archive.
+   */
+  entryCount: number;
+  format: ArchiveFormat;
+  /**
+   * The UTC time at which this URL expires.
+   */
+  expiresAt: string;
+};
+
+/**
+ * Bundles a set of blobs into a single archive (zip or tar) that callers can
+ * download from a signed streaming URL. Runs in-process in the orchestrator;
+ * no worker job is dispatched.
+ */
+export type BlobArchiveStep = Omit<WorkflowStep, '$type'> & {
+  input: BlobArchiveInput;
+  output?: BlobArchiveOutput;
+  $type: 'blobArchive';
+};
+
+/**
+ * Bundles a set of blobs into a single archive (zip or tar) that callers can
+ * download from a signed streaming URL. Runs in-process in the orchestrator;
+ * no worker job is dispatched.
+ */
+export type BlobArchiveStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: BlobArchiveInput;
+  $type: 'blobArchive';
 };
 
 /**
@@ -3155,7 +3236,7 @@ export type ModelHashOutput = {
   /**
    * SHA256 hash of the full file.
    */
-  shA256?: null | string;
+  sha256?: null | string;
   /**
    * AutoV1 short hash (8 chars of SHA256 over a 64 KB block starting at 1 MB).
    */
@@ -3175,7 +3256,7 @@ export type ModelHashOutput = {
   /**
    * CRC32 of the full file.
    */
-  crC32?: null | string;
+  crc32?: null | string;
 };
 
 /**
@@ -3489,6 +3570,52 @@ export type OpenAiGpt1ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'mod
   background?: 'auto' | 'transparent' | 'opaque';
   quality?: 'auto' | 'high' | 'medium' | 'low';
   model: 'gpt-image-1';
+  engine: 'openai';
+};
+
+export type OpenAiGpt2CreateImageInput = Omit<
+  OpenAiGpt2ImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'gpt-image-2';
+  engine: 'openai';
+};
+
+export type OpenAiGpt2EditImageInput = Omit<
+  OpenAiGpt2ImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  maskImage?: null | string;
+  /**
+   * When null, fal infers output size from the input images (image_size: "auto").
+   * When set, the requested width is sent to fal as image_size.width.
+   * Both Width and Height must be set together, or both null.
+   */
+  width?: null | number;
+  /**
+   * When null, fal infers output size from the input images (image_size: "auto").
+   * When set, the requested height is sent to fal as image_size.height.
+   * Both Width and Height must be set together, or both null.
+   */
+  height?: null | number;
+  operation: 'editImage';
+  model: 'gpt-image-2';
+  engine: 'openai';
+};
+
+export type OpenAiGpt2ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  width?: null | number;
+  height?: null | number;
+  quantity?: number;
+  quality?: 'low' | 'medium' | 'high';
+  model: 'gpt-image-2';
   engine: 'openai';
 };
 
@@ -7495,6 +7622,14 @@ export type GetBlobData = {
      * A maximum nsfw level. If this is specified and the blob does not have a NSFW level specified or the NSFW level exceeds our max then we'll return an error
      */
     nsfwLevel?: NsfwLevel;
+    /**
+     * Optional filename to use in the Content-Disposition header when the blob is served. Path components and control characters are stripped.
+     */
+    filename?: string;
+    /**
+     * When true, the blob is served with Content-Disposition: attachment to prompt a download. Defaults to inline.
+     */
+    download?: boolean;
   };
   url: '/v2/consumer/blobs/{blobId}';
 };
@@ -7684,6 +7819,38 @@ export type GetBlockedContentErrors = {
 
 export type GetBlockedContentError = GetBlockedContentErrors[keyof GetBlockedContentErrors];
 
+export type GetBlobArchiveData = {
+  body?: never;
+  path: {
+    /**
+     * The signed token containing the archive manifest.
+     */
+    encryptedToken: string;
+  };
+  query?: never;
+  url: '/v2/consumer/blobs/archive/{encryptedToken}';
+};
+
+export type GetBlobArchiveErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Gone
+   */
+  410: ProblemDetails;
+};
+
+export type GetBlobArchiveError = GetBlobArchiveErrors[keyof GetBlobArchiveErrors];
+
+export type GetBlobArchiveResponses = {
+  /**
+   * OK
+   */
+  200: unknown;
+};
+
 export type RefreshBlobData = {
   body?: never;
   path: {
@@ -7854,6 +8021,41 @@ export type InvokeBatchOcrSafetyClassificationStepTemplateResponses = {
 
 export type InvokeBatchOcrSafetyClassificationStepTemplateResponse =
   InvokeBatchOcrSafetyClassificationStepTemplateResponses[keyof InvokeBatchOcrSafetyClassificationStepTemplateResponses];
+
+export type InvokeBlobArchiveStepTemplateData = {
+  body?: BlobArchiveInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+  };
+  url: '/v2/consumer/recipes/blobArchive';
+};
+
+export type InvokeBlobArchiveStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeBlobArchiveStepTemplateError =
+  InvokeBlobArchiveStepTemplateErrors[keyof InvokeBlobArchiveStepTemplateErrors];
+
+export type InvokeBlobArchiveStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: BlobArchiveOutput;
+};
+
+export type InvokeBlobArchiveStepTemplateResponse =
+  InvokeBlobArchiveStepTemplateResponses[keyof InvokeBlobArchiveStepTemplateResponses];
 
 export type InvokeChatCompletionStepTemplateData = {
   body?: ChatCompletionInput;

@@ -9,6 +9,9 @@ import type {
   DeleteWorkflowData,
   DeleteWorkflowErrors,
   DeleteWorkflowResponses,
+  GetBlobArchiveData,
+  GetBlobArchiveErrors,
+  GetBlobArchiveResponses,
   GetBlobContentData,
   GetBlobContentErrors,
   GetBlobContentResponses,
@@ -49,6 +52,9 @@ import type {
   InvokeBatchOcrSafetyClassificationStepTemplateData,
   InvokeBatchOcrSafetyClassificationStepTemplateErrors,
   InvokeBatchOcrSafetyClassificationStepTemplateResponses,
+  InvokeBlobArchiveStepTemplateData,
+  InvokeBlobArchiveStepTemplateErrors,
+  InvokeBlobArchiveStepTemplateResponses,
   InvokeChatCompletionStepTemplateData,
   InvokeChatCompletionStepTemplateErrors,
   InvokeChatCompletionStepTemplateResponses,
@@ -268,6 +274,18 @@ export const getBlockedContent = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Streams an archive (zip or tar) of the blobs referenced by a signed archive token.
+ * Tokens are produced by the `blobArchive` workflow step.
+ */
+export const getBlobArchive = <ThrowOnError extends boolean = false>(
+  options: Options<GetBlobArchiveData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetBlobArchiveResponses, GetBlobArchiveErrors, ThrowOnError>({
+    url: '/v2/consumer/blobs/archive/{encryptedToken}',
+    ...options,
+  });
+
+/**
  * Refresh a blob's URL and debounce its lifetime.
  * Returns a fresh presigned URL and resets the 30-day TTL.
  */
@@ -340,6 +358,27 @@ export const invokeBatchOcrSafetyClassificationStepTemplate = <
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/batchOCRSafetyClassification',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Bundles a set of blobs into a single archive (zip or tar) that callers can
+ * /// download from a signed streaming URL. Runs in-process in the orchestrator;
+ * /// no worker job is dispatched.
+ */
+export const invokeBlobArchiveStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeBlobArchiveStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeBlobArchiveStepTemplateResponses,
+    InvokeBlobArchiveStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/blobArchive',
     ...options,
     headers: {
       'Content-Type': 'application/json',
