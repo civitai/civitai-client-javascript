@@ -3780,7 +3780,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -3808,7 +3808,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -3836,7 +3836,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -3852,7 +3852,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -3964,7 +3964,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -3991,7 +3991,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -4019,7 +4019,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -4047,7 +4047,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -4063,7 +4063,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -4175,7 +4175,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -4202,7 +4202,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -4230,7 +4230,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -4258,7 +4258,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -4274,7 +4274,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -4386,7 +4386,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -6803,7 +6803,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Extra kwargs passed to the chat template (for example custom policy inputs for vLLM chat templates)."
           },
           "tools": {
@@ -7222,6 +7222,13 @@
                   "format": "double"
                 }
               },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
               "model": {
                 "enum": [
                   "ernie"
@@ -7379,6 +7386,13 @@
                   "type": "number",
                   "format": "double"
                 }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
               },
               "model": {
                 "enum": [
@@ -12280,6 +12294,311 @@
             "additionalProperties": false
           }
         ]
+      },
+      "HappyHorseV1ImageToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/HappyHorseV1VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "image",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "operation": {
+                "enum": [
+                  "imageToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "happyHorse"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Animate a single source image (used as the first frame) into a video."
+      },
+      "HappyHorseV1ReferenceToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/HappyHorseV1VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "1:1",
+                  "4:3",
+                  "3:4"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "operation": {
+                "enum": [
+                  "referenceToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "happyHorse"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a video using 1–9 reference images for subject consistency.\nReference subjects via \"character1\" through \"character9\" placeholders in the prompt."
+      },
+      "HappyHorseV1TextToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/HappyHorseV1VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "1:1",
+                  "4:3",
+                  "3:4"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "operation": {
+                "enum": [
+                  "textToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "happyHorse"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a video from a text prompt only."
+      },
+      "HappyHorseV1VideoEditInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/HappyHorseV1VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "sourceVideo",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "sourceVideo": {
+                "type": "string",
+                "format": "uri"
+              },
+              "referenceImages": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "audioSetting": {
+                "enum": [
+                  "auto",
+                  "origin"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "operation": {
+                "enum": [
+                  "videoEdit"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "happyHorse"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Edit an existing video, optionally guided by reference images.\nFAL bills both the input and output seconds — the per-second rate is doubled."
+      },
+      "HappyHorseV1VideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/HappyHorseVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "1080p"
+              },
+              "duration": {
+                "maximum": 15,
+                "minimum": 3,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": true
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "happyHorse"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textToVideo": "#/components/schemas/HappyHorseV1TextToVideoInput",
+                "imageToVideo": "#/components/schemas/HappyHorseV1ImageToVideoInput",
+                "videoEdit": "#/components/schemas/HappyHorseV1VideoEditInput",
+                "referenceToVideo": "#/components/schemas/HappyHorseV1ReferenceToVideoInput"
+              }
+            }
+          }
+        ],
+        "description": "Version-level base for Happy-Horse v1.0. Carries common v1.0 parameters and the operation discriminator."
+      },
+      "HappyHorseVideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "happyHorse"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "version",
+              "mapping": {
+                "v1.0": "#/components/schemas/HappyHorseV1VideoGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Engine-level base for Alibaba Happy-Horse video generation (FAL).\nThe version derived type carries the operation-level discriminator."
       },
       "HumanoidImageMaskCategory": {
         "enum": [
@@ -17212,7 +17531,7 @@
             ]
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "PromptEnhancementInput": {
         "required": [
@@ -20402,7 +20721,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -20441,7 +20760,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -20532,7 +20851,7 @@
             }
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -20951,7 +21270,8 @@
             "sora": "#/components/schemas/SoraVideoGenInput",
             "kling-v3": "#/components/schemas/KlingV3VideoGenInput",
             "grok": "#/components/schemas/GrokVideoGenInput",
-            "seedance": "#/components/schemas/SeedanceVideoGenInput"
+            "seedance": "#/components/schemas/SeedanceVideoGenInput",
+            "happyHorse": "#/components/schemas/HappyHorseVideoGenInput"
           }
         }
       },
@@ -24170,7 +24490,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -24201,7 +24521,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -24613,7 +24933,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -24940,7 +25260,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -24997,7 +25317,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -25038,7 +25358,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -26045,7 +26365,7 @@
     }
   },
   "security": [
-    { }
+    {}
   ],
   "tags": [
     {

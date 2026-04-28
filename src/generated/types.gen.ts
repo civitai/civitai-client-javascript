@@ -911,6 +911,7 @@ export type ComfyErnieStandardImageGenInput = Omit<
   loras?: {
     [key: string]: number;
   };
+  diffusionModel?: null | string;
   model: 'ernie';
   ecosystem: 'ernie';
   engine: 'comfy';
@@ -944,6 +945,7 @@ export type ComfyErnieTurboImageGenInput = Omit<
   loras?: {
     [key: string]: number;
   };
+  diffusionModel?: null | string;
   model: 'turbo';
   ecosystem: 'ernie';
   engine: 'comfy';
@@ -2310,6 +2312,88 @@ export type HaiperVideoGenOutput = VideoGenOutput & {
   progress?: null | number;
   externalTOSViolation?: null | boolean;
   message?: null | string;
+};
+
+/**
+ * Animate a single source image (used as the first frame) into a video.
+ */
+export type HappyHorseV1ImageToVideoInput = Omit<
+  HappyHorseV1VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  operation: 'imageToVideo';
+  version: 'v1.0';
+  engine: 'happyHorse';
+};
+
+/**
+ * Generate a video using 1–9 reference images for subject consistency.
+ * Reference subjects via "character1" through "character9" placeholders in the prompt.
+ */
+export type HappyHorseV1ReferenceToVideoInput = Omit<
+  HappyHorseV1VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  images: Array<string>;
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  operation: 'referenceToVideo';
+  version: 'v1.0';
+  engine: 'happyHorse';
+};
+
+/**
+ * Generate a video from a text prompt only.
+ */
+export type HappyHorseV1TextToVideoInput = Omit<
+  HappyHorseV1VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  operation: 'textToVideo';
+  version: 'v1.0';
+  engine: 'happyHorse';
+};
+
+/**
+ * Edit an existing video, optionally guided by reference images.
+ * FAL bills both the input and output seconds — the per-second rate is doubled.
+ */
+export type HappyHorseV1VideoEditInput = Omit<
+  HappyHorseV1VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  sourceVideo: string;
+  referenceImages?: Array<string>;
+  audioSetting?: 'auto' | 'origin';
+  operation: 'videoEdit';
+  version: 'v1.0';
+  engine: 'happyHorse';
+};
+
+/**
+ * Version-level base for Happy-Horse v1.0. Carries common v1.0 parameters and the operation discriminator.
+ */
+export type HappyHorseV1VideoGenInput = Omit<HappyHorseVideoGenInput, 'engine' | 'version'> & {
+  operation: string;
+  resolution?: '720p' | '1080p';
+  duration?: number;
+  seed?: null | number;
+  enableSafetyChecker?: boolean;
+  version: 'v1.0';
+  engine: 'happyHorse';
+};
+
+/**
+ * Engine-level base for Alibaba Happy-Horse video generation (FAL).
+ * The version derived type carries the operation-level discriminator.
+ */
+export type HappyHorseVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  version: string;
+  engine: 'happyHorse';
 };
 
 export const HumanoidImageMaskCategory = {
