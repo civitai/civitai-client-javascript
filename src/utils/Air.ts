@@ -1,5 +1,5 @@
 const regex =
-  /^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\-\/]+):)?(?:(?<type>[a-zA-Z0-9_\-\/]+):)?(?<source>[a-zA-Z0-9_\-\/]+):(?<id>[a-zA-Z0-9_\-\/\.]+)(?:@(?<version>[a-zA-Z0-9_\-\/.]+))?(?:\.(?<format>[a-zA-Z0-9_\-]+))?$/i;
+  /^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\-\/]+):)?(?:(?<type>[a-zA-Z0-9_\-\/]+):)?(?<source>[a-zA-Z0-9_\-\/]+):(?<id>[a-zA-Z0-9_\-\/\.]+)(?:@(?<version>[a-zA-Z0-9_\-\/.]+))?(?:\+(?<modelFileId>\d+))?(?:\.(?<format>[a-zA-Z0-9_\-]+))?$/i;
 
 type AirProps = {
   /** Type of the ecosystem (sd1, sd2, sdxl) */
@@ -11,6 +11,8 @@ type AirProps = {
   /** Id of the resource from the source */
   id: string;
   version?: string;
+  /** Id of a specific model file within the version */
+  modelFileId?: string;
   /** The format of the model (safetensor, ckpt, diffuser, tensor rt) optional */
   format?: string;
 };
@@ -31,7 +33,7 @@ export abstract class Air {
   static isAir(identifier: string) {
     return regex.test(identifier);
   }
-  static stringify({ ecosystem, type, source, id, version, format }: AirProps) {
-    return `urn:air:${ecosystem}:${type}:${source}:${id}${version ? `@${version}` : ''}${format ? `:${format}` : ''}`;
+  static stringify({ ecosystem, type, source, id, version, modelFileId, format }: AirProps) {
+    return `urn:air:${ecosystem}:${type}:${source}:${id}${version ? `@${version}` : ''}${modelFileId ? `+${modelFileId}` : ''}${format ? `.${format}` : ''}`;
   }
 }
