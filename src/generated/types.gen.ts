@@ -102,6 +102,53 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
 };
 
 /**
+ * AI Toolkit training for ACE-Step 1.5 base models.
+ */
+export type AceStep15AiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ace_step_15';
+  engine: 'ai-toolkit';
+};
+
+/**
+ * AI Toolkit training for ACE-Step 1.5 XL models.
+ */
+export type AceStep15XlAiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  modelVariant: string;
+  ecosystem: 'ace_step_15_xl';
+  engine: 'ai-toolkit';
+};
+
+/**
+ * AI Toolkit training for ACE-Step 1.5 XL base models.
+ */
+export type AceStep15XlBaseAiToolkitTrainingInput = Omit<
+  AceStep15XlAiToolkitTrainingInput,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'base';
+  ecosystem: 'ace_step_15_xl';
+  engine: 'ai-toolkit';
+};
+
+/**
+ * AI Toolkit training for ACE-Step 1.5 XL SFT models.
+ */
+export type AceStep15XlSftAiToolkitTrainingInput = Omit<
+  AceStep15XlAiToolkitTrainingInput,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'sft';
+  ecosystem: 'ace_step_15_xl';
+  engine: 'ai-toolkit';
+};
+
+/**
  * Cover image configuration for ACE Step audio output.
  * When present, the output is a WebM video with this image as the visual.
  */
@@ -139,15 +186,73 @@ export type AceStepAudioInput = {
   /**
    * Time signature (e.g., "4" for 4/4 time)
    */
-  timeSignature?: string;
+  timeSignature?: '2' | '3' | '4' | '6';
   /**
    * Language code (e.g., "en", "zh", "ja", "ko")
    */
-  language?: string;
+  language?:
+    | 'en'
+    | 'ja'
+    | 'zh'
+    | 'es'
+    | 'de'
+    | 'fr'
+    | 'pt'
+    | 'ru'
+    | 'it'
+    | 'nl'
+    | 'pl'
+    | 'tr'
+    | 'vi'
+    | 'cs'
+    | 'fa'
+    | 'id'
+    | 'ko'
+    | 'uk'
+    | 'hu'
+    | 'ar'
+    | 'sv'
+    | 'ro'
+    | 'el';
   /**
-   * Musical key (e.g., "C major", "E minor")
+   * Musical key (e.g., "C major", "E minor"). Mirrors ComfyUI's
+   * TextEncodeAceStepAudio1.5 keyscale combo: 17 roots × {major, minor}.
    */
-  key?: string;
+  key?:
+    | 'C major'
+    | 'C# major'
+    | 'Db major'
+    | 'D major'
+    | 'D# major'
+    | 'Eb major'
+    | 'E major'
+    | 'F major'
+    | 'F# major'
+    | 'Gb major'
+    | 'G major'
+    | 'G# major'
+    | 'Ab major'
+    | 'A major'
+    | 'A# major'
+    | 'Bb major'
+    | 'B major'
+    | 'C minor'
+    | 'C# minor'
+    | 'Db minor'
+    | 'D minor'
+    | 'D# minor'
+    | 'Eb minor'
+    | 'E minor'
+    | 'F minor'
+    | 'F# minor'
+    | 'Gb minor'
+    | 'G minor'
+    | 'G# minor'
+    | 'Ab minor'
+    | 'A minor'
+    | 'A# minor'
+    | 'Bb minor'
+    | 'B minor';
   /**
    * Weight for instrumental elements (0.0-1.0)
    */
@@ -183,6 +288,14 @@ export type AceStepAudioInput = {
    * non-turbo base / sft variants expect CFG on (around 4).
    */
   cfg?: number;
+  /**
+   * Optional LoRAs to apply. Each entry's strength is applied to both the
+   * diffusion model (UNET) and the dual CLIP via ComfyUI's LoraLoader.
+   * Compatibility with non-default base models is the caller's responsibility.
+   */
+  loras: {
+    [key: string]: number;
+  };
 };
 
 /**
@@ -438,6 +551,11 @@ export type AssistantMessage = Omit<ChatCompletionMessage, 'role'> & {
    * Tool calls requested by the model.
    */
   tool_calls?: null | Array<ChatCompletionToolCall>;
+  /**
+   * Generated images attached to this assistant message, populated when the request
+   * included "image" in its modalities. Each entry is a base64 data URI.
+   */
+  images?: null | Array<ChatCompletionGeneratedImage>;
   role: 'assistant';
 };
 
@@ -447,6 +565,62 @@ export type AudioBlob = Omit<Blob, 'type'> & {
    */
   duration?: null | number;
   type: 'audio';
+};
+
+export type AudioCaptioningInput = {
+  /**
+   * The URL of the audio file or zip archive to caption.
+   */
+  mediaUrl: string;
+  /**
+   * Sampling temperature for both ACE-Step requests.
+   */
+  temperature: number;
+  /**
+   * Maximum number of tokens to generate for each ACE-Step request.
+   */
+  maxNewTokens: number;
+};
+
+export type AudioCaptioningOutput = {
+  /**
+   * Combined caption, transcription, and music metadata for the first or only audio item.
+   */
+  text?: null | string;
+  /**
+   * Per-file results when the input is an archive or contains multiple audio items.
+   */
+  results: {
+    [key: string]: AudioCaptioningOutputItem;
+  };
+};
+
+export type AudioCaptioningOutputItem = {
+  text: string;
+  caption?: null | string;
+  lyrics?: null | string;
+  bpm?: null | string;
+  keyScale?: null | string;
+  timeSignature?: null | string;
+  duration?: null | string;
+  language?: null | string;
+};
+
+/**
+ * Audio Captioning
+ */
+export type AudioCaptioningStep = Omit<WorkflowStep, '$type'> & {
+  input: AudioCaptioningInput;
+  output?: AudioCaptioningOutput;
+  $type: 'audioCaptioning';
+};
+
+/**
+ * Audio Captioning
+ */
+export type AudioCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: AudioCaptioningInput;
+  $type: 'audioCaptioning';
 };
 
 export type BatchOcrSafetyClassificationInput = {
@@ -684,6 +858,47 @@ export type ChatCompletionFunctionCall = {
 };
 
 /**
+ * A generated image attached to an assistant message when "image" is included in
+ * Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities. Matches the OpenRouter wire shape.
+ */
+export type ChatCompletionGeneratedImage = {
+  /**
+   * Always "image_url".
+   */
+  type?: string;
+  image_url: ChatCompletionGeneratedImageUrl;
+};
+
+/**
+ * The image_url payload on a generated image. Currently always a base64 data URI.
+ */
+export type ChatCompletionGeneratedImageUrl = {
+  /**
+   * Base64 data URI (e.g. "data:image/png;base64,...").
+   */
+  url: string;
+};
+
+/**
+ * Image generation parameters used when Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities contains "image".
+ * Mirrors OpenRouter's `image_config` shape on chat-completion requests.
+ */
+export type ChatCompletionImageConfig = {
+  /**
+   * Width:height aspect ratio. Examples: "1:1", "16:9", "9:16", "4:3", "3:4", "21:9".
+   */
+  aspect_ratio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '21:9';
+  /**
+   * Approximate output resolution. "1K" ≈ 1MP, "2K" ≈ 2MP, etc. Engines clamp to their supported range.
+   */
+  image_size?: '0.5K' | '1K' | '2K' | '4K';
+  /**
+   * Number of images to generate. Engines may clamp to their supported maximum.
+   */
+  n?: null | number;
+};
+
+/**
  * Image URL details matching OpenAI API spec.
  */
 export type ChatCompletionImageUrl = {
@@ -772,6 +987,24 @@ export type ChatCompletionInput = {
    * Can be "auto", "none", "required", or an object specifying a particular function.
    */
   tool_choice?: null;
+  /**
+   * Output modalities the model should produce. Defaults to text-only when omitted.
+   * Supported values: "text", "image". When "image" is included, the request is routed
+   * to the image generation pipeline and returns generated images on the assistant message.
+   */
+  modalities?: null | Array<string>;
+  image_config?: ChatCompletionImageConfig;
+  responseFormat?: ChatCompletionResponseFormat;
+};
+
+export type ChatCompletionJsonSchema = {
+  name: string;
+  description?: null | string;
+  schema: unknown;
+  /**
+   * OpenAI strict mode. Forces additionalProperties=false and all fields required.
+   */
+  strict?: null | boolean;
 };
 
 /**
@@ -811,6 +1044,28 @@ export type ChatCompletionOutput = {
    * System fingerprint for the model configuration.
    */
   systemFingerprint?: null | string;
+  /**
+   * Parsed JSON content of `Choices[0].Message.Content`. Populated when the request
+   * specified a JSON-flavored `response_format` and the content was parseable.
+   * Reachable from downstream workflow steps via `$ref` paths like
+   * `output.parsed.<field>` — DynamicAssignmentEvaluator walks JsonElement trees
+   * the same way it walks the rest of this output.
+   */
+  parsed?: null;
+};
+
+/**
+ * OpenAI-compatible response_format. When Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionResponseFormat.Type is `json_object` or
+ * `json_schema`, the LLM-emitted content is parsed as JSON server-side and exposed on
+ * Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionOutput.Parsed, allowing downstream workflow steps to reference
+ * individual fields via `$ref` paths like `output.parsed.<field>`.
+ */
+export type ChatCompletionResponseFormat = {
+  /**
+   * OpenAI-compatible value: `text`, `json_object`, or `json_schema`.
+   */
+  type: string;
+  jsonSchema?: ChatCompletionJsonSchema;
 };
 
 /**
@@ -835,7 +1090,11 @@ export type ChatCompletionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
  */
 export type ChatCompletionTool = {
   type: string;
-  function: ChatCompletionFunction;
+  function?: ChatCompletionFunction;
+  /**
+   * Server-tool parameters for providers such as OpenRouter.
+   */
+  parameters?: null;
 };
 
 /**
@@ -876,6 +1135,35 @@ export type ChromaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine'
 export const CoarseMode = { DISABLE: 'disable', ENABLE: 'enable' } as const;
 
 export type CoarseMode = (typeof CoarseMode)[keyof typeof CoarseMode];
+
+export type ComfyAnimaCreateImageGenInput = Omit<
+  ComfyAnimaImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  ecosystem: 'anima';
+  engine: 'comfy';
+};
+
+export type ComfyAnimaImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffuserModel?: string;
+  ecosystem: 'anima';
+  engine: 'comfy';
+};
 
 export type ComfyErnieImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
@@ -993,6 +1281,44 @@ export type ComfyFlux1VariantImageGenInput = Omit<
   denoiseStrength?: number;
   operation: 'createVariant';
   ecosystem: 'flux1';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2DevCreateImageInput = Omit<
+  ComfyFlux2DevImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  operation: 'createImage';
+  ecosystem: 'flux2Dev';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2DevEditImageInput = Omit<
+  ComfyFlux2DevImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  images?: Array<string>;
+  operation: 'editImage';
+  ecosystem: 'flux2Dev';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2DevImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  cfgScale?: number;
+  steps?: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  negativePrompt?: null | string;
+  loras?: {
+    [key: string]: number;
+  };
+  ecosystem: 'flux2Dev';
   engine: 'comfy';
 };
 
@@ -1123,6 +1449,12 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   loras?: {
     [key: string]: number;
   };
+  /**
+   * Optional override for the LTX 2.3 diffusion-model checkpoint. When set, replaces the
+   * transformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx23VideoGenInput.Model while leaving the CLIPs, VAEs, and
+   * upscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base).
+   */
+  diffusionModel?: null | string;
   engine: 'ltx2.3';
 };
 
@@ -1265,6 +1597,7 @@ export const ComfySampler = {
   DDIM: 'ddim',
   UNI_PC: 'uni_pc',
   UNI_PC_BH2: 'uni_pc_bh2',
+  ER_SDE: 'er_sde',
 } as const;
 
 export type ComfySampler = (typeof ComfySampler)[keyof typeof ComfySampler];
@@ -3284,7 +3617,29 @@ export type ModelClamScanOutput = {
    * The raw ClamAV scan output.
    */
   output?: null | string;
+  status?: ModelClamScanStatus;
+  /**
+   * True when ClamAV reported one or more infected files (exit code 1).
+   */
+  infected?: null | boolean;
+  /**
+   * Number of infected files parsed from the ClamAV scan summary.
+   */
+  infectedFileCount?: null | number;
+  /**
+   * Number of files scanned, parsed from the ClamAV scan summary.
+   */
+  scannedFileCount?: null | number;
 };
+
+export const ModelClamScanStatus = {
+  CLEAN: 'clean',
+  INFECTED: 'infected',
+  TIMEOUT: 'timeout',
+  ERROR: 'error',
+} as const;
+
+export type ModelClamScanStatus = (typeof ModelClamScanStatus)[keyof typeof ModelClamScanStatus];
 
 /**
  * ModelClamScan
@@ -3375,8 +3730,9 @@ export type ModelParseMetadataInput = {
  */
 export type ModelParseMetadataOutput = {
   /**
-   * The raw JSON metadata header as stored in the safetensors file, or null when
-   * the model is not a safetensors file or the header could not be parsed.
+   * The `__metadata__` object from the safetensors header as a JSON string,
+   * or null when the model is not a safetensors file, the header could not be
+   * parsed, or no `__metadata__` object is present.
    */
   metadata?: null | string;
 };
@@ -3428,7 +3784,45 @@ export type ModelPickleScanOutput = {
    * Dangerous imports discovered during pickle scanning.
    */
   dangerousImports?: null | Array<string>;
+  status?: ModelPickleScanStatus;
+  /**
+   * True when one or more dangerous imports were detected.
+   */
+  dangerousImportsFound?: null | boolean;
+  /**
+   * True when picklescan was skipped (e.g. file is safetensors and cannot contain pickled code).
+   */
+  skipped?: null | boolean;
+  /**
+   * Reason picklescan was skipped, if applicable. Examples: "safetensors", "safetensors-extension".
+   */
+  skipReason?: null | string;
+  /**
+   * Number of files scanned, parsed from the picklescan summary.
+   */
+  scannedFileCount?: null | number;
+  /**
+   * Number of infected files reported by picklescan.
+   */
+  infectedFileCount?: null | number;
+  /**
+   * Number of dangerous globals reported by picklescan.
+   */
+  dangerousGlobalCount?: null | number;
 };
+
+export const ModelPickleScanStatus = {
+  CLEAN: 'clean',
+  DANGEROUS_IMPORTS_FOUND: 'dangerousImportsFound',
+  SKIPPED_SAFETENSORS: 'skippedSafetensors',
+  SKIPPED_GGUF: 'skippedGguf',
+  SKIPPED: 'skipped',
+  PARSE_ERROR: 'parseError',
+  ERROR: 'error',
+} as const;
+
+export type ModelPickleScanStatus =
+  (typeof ModelPickleScanStatus)[keyof typeof ModelPickleScanStatus];
 
 /**
  * ModelPickleScan
@@ -4001,6 +4395,13 @@ export type PromptEnhancementInput = {
    * Optional instruction to guide how the prompt is enhanced (e.g., "expand to 77 tokens", "keep it under 20 words").
    */
   instruction?: null | string;
+  /**
+   * Optional reference images for the prompt enhancement model to consider when enhancing the prompt
+   * (subject, style, lighting, composition, color palette). Accepts URLs, data URIs, raw base64, or AIR strings.
+   * Requires the per-ecosystem prompt-analysis model to be a vision-capable LLM (configured via
+   * IPromptAnalysisGrain.SetConfigurationAsync) — non-VLM models will silently ignore the images.
+   */
+  images?: null | Array<string>;
 };
 
 /**
@@ -4235,6 +4636,20 @@ export type Qwen3TextToSpeechInput = Omit<VllmOmniTextToSpeechInput, 'engine' | 
   engine: 'vllm-omni';
 };
 
+export type Qwen3VoiceDesignTtsInput = Omit<
+  Qwen3TextToSpeechInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Natural-language description of the desired voice
+   * (e.g., "a calm middle-aged male narrator with a slight British accent").
+   */
+  instruct: string;
+  operation: 'voiceDesign';
+  ecosystem: 'qwen3';
+  engine: 'vllm-omni';
+};
+
 /**
  * AI Toolkit training for Qwen Image models
  */
@@ -4368,7 +4783,7 @@ export type ResourceInfo = {
   publishedAt?: null | string;
   /**
    * A boolean indicating whether this resource restricts to SFW content generation.
-   * NSFWContent covers X and AA whereas MatureContent includes R rated content.
+   * NSFWContent covers X and XXX whereas MatureContent includes R rated content.
    */
   hasNSFWContentRestriction: boolean;
 };
@@ -4607,7 +5022,7 @@ export type SeedanceVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   duration: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
   generateAudio?: boolean;
   seed?: null | number;
-  resolution: '480p' | '720p';
+  resolution: '480p' | '720p' | '1080p';
   images?: Array<string>;
   engine: 'seedance';
 };
@@ -8070,6 +8485,41 @@ export type InvokeAgeClassificationStepTemplateResponses = {
 
 export type InvokeAgeClassificationStepTemplateResponse =
   InvokeAgeClassificationStepTemplateResponses[keyof InvokeAgeClassificationStepTemplateResponses];
+
+export type InvokeAudioCaptioningStepTemplateData = {
+  body?: AudioCaptioningInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+  };
+  url: '/v2/consumer/recipes/audioCaptioning';
+};
+
+export type InvokeAudioCaptioningStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeAudioCaptioningStepTemplateError =
+  InvokeAudioCaptioningStepTemplateErrors[keyof InvokeAudioCaptioningStepTemplateErrors];
+
+export type InvokeAudioCaptioningStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: AudioCaptioningOutput;
+};
+
+export type InvokeAudioCaptioningStepTemplateResponse =
+  InvokeAudioCaptioningStepTemplateResponses[keyof InvokeAudioCaptioningStepTemplateResponses];
 
 export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
   body?: BatchOcrSafetyClassificationInput;

@@ -49,6 +49,9 @@ import type {
   InvokeAgeClassificationStepTemplateData,
   InvokeAgeClassificationStepTemplateErrors,
   InvokeAgeClassificationStepTemplateResponses,
+  InvokeAudioCaptioningStepTemplateData,
+  InvokeAudioCaptioningStepTemplateErrors,
+  InvokeAudioCaptioningStepTemplateResponses,
   InvokeBatchOcrSafetyClassificationStepTemplateData,
   InvokeBatchOcrSafetyClassificationStepTemplateErrors,
   InvokeBatchOcrSafetyClassificationStepTemplateResponses,
@@ -340,6 +343,27 @@ export const invokeAgeClassificationStepTemplate = <ThrowOnError extends boolean
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/ageClassification',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Audio Captioning
+ *
+ * Generates music captions, lyrics, and metadata by running the ACE-Step captioner and transcriber models.
+ */
+export const invokeAudioCaptioningStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeAudioCaptioningStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeAudioCaptioningStepTemplateResponses,
+    InvokeAudioCaptioningStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/audioCaptioning',
     ...options,
     headers: {
       'Content-Type': 'application/json',

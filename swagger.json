@@ -646,6 +646,90 @@
         }
       }
     },
+    "/v2/consumer/recipes/audioCaptioning": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Audio Captioning",
+        "description": "Generates music captions, lyrics, and metadata by running the ACE-Step captioner and transcriber models.",
+        "operationId": "InvokeAudioCaptioningStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioCaptioningInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioCaptioningInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioCaptioningInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioCaptioningOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/batchOCRSafetyClassification": {
       "post": {
         "tags": [
@@ -3780,7 +3864,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -3808,7 +3892,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -3836,7 +3920,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -3852,7 +3936,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -3964,7 +4048,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -3991,7 +4075,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -4019,7 +4103,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -4047,7 +4131,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -4063,7 +4147,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -4175,7 +4259,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -4202,7 +4286,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -4230,7 +4314,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -4258,7 +4342,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -4274,7 +4358,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -4386,7 +4470,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -5418,12 +5502,159 @@
                 "zimagebase": "#/components/schemas/ZImageBaseAIToolkitTrainingInput",
                 "flux2klein": "#/components/schemas/Flux2KleinAIToolkitTrainingInput",
                 "ltx2": "#/components/schemas/Ltx2AIToolkitTrainingInput",
-                "ltx23": "#/components/schemas/Ltx23AIToolkitTrainingInput"
+                "ltx23": "#/components/schemas/Ltx23AIToolkitTrainingInput",
+                "ace_step_15": "#/components/schemas/AceStep15AIToolkitTrainingInput",
+                "ace_step_15_xl": "#/components/schemas/AceStep15XlAIToolkitTrainingInput"
               }
             }
           }
         ],
         "description": "Base input for AI Toolkit training across all ecosystems"
+      },
+      "AceStep15AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "enum": [
+                  "ace_step_15"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for ACE-Step 1.5 base models."
+      },
+      "AceStep15XlAIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "modelVariant"
+            ],
+            "type": "object",
+            "properties": {
+              "modelVariant": {
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ace_step_15_xl"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "modelVariant",
+              "mapping": {
+                "base": "#/components/schemas/AceStep15XlBaseAIToolkitTrainingInput",
+                "sft": "#/components/schemas/AceStep15XlSftAIToolkitTrainingInput"
+              }
+            }
+          }
+        ],
+        "description": "AI Toolkit training for ACE-Step 1.5 XL models."
+      },
+      "AceStep15XlBaseAIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AceStep15XlAIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "modelVariant"
+            ],
+            "type": "object",
+            "properties": {
+              "modelVariant": {
+                "enum": [
+                  "base"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ace_step_15_xl"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for ACE-Step 1.5 XL base models."
+      },
+      "AceStep15XlSftAIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AceStep15XlAIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "modelVariant"
+            ],
+            "type": "object",
+            "properties": {
+              "modelVariant": {
+                "enum": [
+                  "sft"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ace_step_15_xl"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for ACE-Step 1.5 XL SFT models."
       },
       "AceStepAudioCover": {
         "required": [
@@ -5441,6 +5672,7 @@
       },
       "AceStepAudioInput": {
         "required": [
+          "loras",
           "lyrics",
           "musicDescription",
           "seed"
@@ -5477,18 +5709,85 @@
             "default": 120
           },
           "timeSignature": {
+            "enum": [
+              "2",
+              "3",
+              "4",
+              "6"
+            ],
             "type": "string",
             "description": "Time signature (e.g., \"4\" for 4/4 time)",
             "default": "4"
           },
           "language": {
+            "enum": [
+              "en",
+              "ja",
+              "zh",
+              "es",
+              "de",
+              "fr",
+              "pt",
+              "ru",
+              "it",
+              "nl",
+              "pl",
+              "tr",
+              "vi",
+              "cs",
+              "fa",
+              "id",
+              "ko",
+              "uk",
+              "hu",
+              "ar",
+              "sv",
+              "ro",
+              "el"
+            ],
             "type": "string",
             "description": "Language code (e.g., \"en\", \"zh\", \"ja\", \"ko\")",
             "default": "en"
           },
           "key": {
+            "enum": [
+              "C major",
+              "C# major",
+              "Db major",
+              "D major",
+              "D# major",
+              "Eb major",
+              "E major",
+              "F major",
+              "F# major",
+              "Gb major",
+              "G major",
+              "G# major",
+              "Ab major",
+              "A major",
+              "A# major",
+              "Bb major",
+              "B major",
+              "C minor",
+              "C# minor",
+              "Db minor",
+              "D minor",
+              "D# minor",
+              "Eb minor",
+              "E minor",
+              "F minor",
+              "F# minor",
+              "Gb minor",
+              "G minor",
+              "G# minor",
+              "Ab minor",
+              "A minor",
+              "A# minor",
+              "Bb minor",
+              "B minor"
+            ],
             "type": "string",
-            "description": "Musical key (e.g., \"C major\", \"E minor\")",
+            "description": "Musical key (e.g., \"C major\", \"E minor\"). Mirrors ComfyUI's\nTextEncodeAceStepAudio1.5 keyscale combo: 17 roots × {major, minor}.",
             "default": "C major"
           },
           "instrumentalWeight": {
@@ -5504,7 +5803,7 @@
             "default": 0.9
           },
           "diffusionModel": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
               "string"
@@ -5515,7 +5814,7 @@
             "$ref": "#/components/schemas/AceStepAudioCover"
           },
           "clipModel": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
               "string"
@@ -5523,7 +5822,7 @@
             "description": "Optional text encoder (CLIP) override. Defaults to qwen_4b_ace15."
           },
           "vaeModel": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
               "string"
@@ -5531,7 +5830,7 @@
             "description": "Optional VAE override. Defaults to ace_1.5_vae."
           },
           "languageModel": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
               "string"
@@ -5553,6 +5852,14 @@
             "description": "Classifier-free guidance scale. Turbo variants run CFG-off at 1.0;\nnon-turbo base / sft variants expect CFG on (around 4).",
             "format": "float",
             "default": 1
+          },
+          "loras": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Optional LoRAs to apply. Each entry's strength is applied to both the\ndiffusion model (UNET) and the dual CLIP via ComfyUI's LoraLoader.\nCompatibility with non-default base models is the caller's responsibility."
           }
         },
         "additionalProperties": false,
@@ -5635,7 +5942,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
               "string"
@@ -6025,7 +6332,7 @@
                 }
               },
               "diffuserModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "ecosystem": {
@@ -6147,6 +6454,16 @@
                 },
                 "description": "Tool calls requested by the model."
               },
+              "images": {
+                "type": [
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "$ref": "#/components/schemas/ChatCompletionGeneratedImage"
+                },
+                "description": "Generated images attached to this assistant message, populated when the request\nincluded \"image\" in its modalities. Each entry is a base64 data URI."
+              },
               "role": {
                 "enum": [
                   "assistant"
@@ -6188,6 +6505,166 @@
             "additionalProperties": false
           }
         ]
+      },
+      "AudioCaptioningInput": {
+        "required": [
+          "maxNewTokens",
+          "mediaUrl",
+          "temperature"
+        ],
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "description": "The URL of the audio file or zip archive to caption.",
+            "format": "uri"
+          },
+          "temperature": {
+            "type": "number",
+            "description": "Sampling temperature for both ACE-Step requests.",
+            "format": "double"
+          },
+          "maxNewTokens": {
+            "type": "integer",
+            "description": "Maximum number of tokens to generate for each ACE-Step request.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioCaptioningOutput": {
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Combined caption, transcription, and music metadata for the first or only audio item."
+          },
+          "results": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AudioCaptioningOutputItem"
+            },
+            "description": "Per-file results when the input is an archive or contains multiple audio items."
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioCaptioningOutputItem": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "caption": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lyrics": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bpm": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "keyScale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "timeSignature": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "duration": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioCaptioningStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/AudioCaptioningInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/AudioCaptioningOutput"
+              },
+              "$type": {
+                "enum": [
+                  "audioCaptioning"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Audio Captioning"
+      },
+      "AudioCaptioningStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/AudioCaptioningInput"
+              },
+              "$type": {
+                "enum": [
+                  "audioCaptioning"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Audio Captioning"
       },
       "BatchOCRSafetyClassificationInput": {
         "required": [
@@ -6664,6 +7141,83 @@
         "additionalProperties": false,
         "description": "The function call details within a tool call."
       },
+      "ChatCompletionGeneratedImage": {
+        "required": [
+          "image_url"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Always \"image_url\".",
+            "default": "image_url"
+          },
+          "image_url": {
+            "$ref": "#/components/schemas/ChatCompletionGeneratedImageUrl"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A generated image attached to an assistant message when \"image\" is included in\nCivitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities. Matches the OpenRouter wire shape."
+      },
+      "ChatCompletionGeneratedImageUrl": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Base64 data URI (e.g. \"data:image/png;base64,...\")."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The image_url payload on a generated image. Currently always a base64 data URI."
+      },
+      "ChatCompletionImageConfig": {
+        "type": "object",
+        "properties": {
+          "aspect_ratio": {
+            "enum": [
+              "1:1",
+              "16:9",
+              "9:16",
+              "4:3",
+              "3:4",
+              "21:9"
+            ],
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Width:height aspect ratio. Examples: \"1:1\", \"16:9\", \"9:16\", \"4:3\", \"3:4\", \"21:9\"."
+          },
+          "image_size": {
+            "enum": [
+              "0.5K",
+              "1K",
+              "2K",
+              "4K"
+            ],
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Approximate output resolution. \"1K\" ≈ 1MP, \"2K\" ≈ 2MP, etc. Engines clamp to their supported range."
+          },
+          "n": {
+            "maximum": 10,
+            "minimum": 1,
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Number of images to generate. Engines may clamp to their supported maximum.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Image generation parameters used when Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities contains \"image\".\nMirrors OpenRouter's `image_config` shape on chat-completion requests."
+      },
       "ChatCompletionImageUrl": {
         "required": [
           "url"
@@ -6803,7 +7357,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Extra kwargs passed to the chat template (for example custom policy inputs for vLLM chat templates)."
           },
           "tools": {
@@ -6819,10 +7373,54 @@
           "tool_choice": {
             "type": "null",
             "description": "Controls which (if any) tool is called by the model.\nCan be \"auto\", \"none\", \"required\", or an object specifying a particular function."
+          },
+          "modalities": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Output modalities the model should produce. Defaults to text-only when omitted.\nSupported values: \"text\", \"image\". When \"image\" is included, the request is routed\nto the image generation pipeline and returns generated images on the assistant message."
+          },
+          "image_config": {
+            "$ref": "#/components/schemas/ChatCompletionImageConfig"
+          },
+          "responseFormat": {
+            "$ref": "#/components/schemas/ChatCompletionResponseFormat"
           }
         },
         "additionalProperties": false,
         "description": "Input for a chat completion step, compatible with OpenAI Chat Completions API."
+      },
+      "ChatCompletionJsonSchema": {
+        "required": [
+          "name",
+          "schema"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "schema": { },
+          "strict": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "OpenAI strict mode. Forces additionalProperties=false and all fields required."
+          }
+        },
+        "additionalProperties": false
       },
       "ChatCompletionMessage": {
         "required": [
@@ -6889,10 +7487,32 @@
               "string"
             ],
             "description": "System fingerprint for the model configuration."
+          },
+          "parsed": {
+            "type": "null",
+            "description": "Parsed JSON content of `Choices[0].Message.Content`. Populated when the request\nspecified a JSON-flavored `response_format` and the content was parseable.\nReachable from downstream workflow steps via `$ref` paths like\n`output.parsed.<field>` — DynamicAssignmentEvaluator walks JsonElement trees\nthe same way it walks the rest of this output."
           }
         },
         "additionalProperties": false,
         "description": "Output from a chat completion step."
+      },
+      "ChatCompletionResponseFormat": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "minLength": 1,
+            "type": "string",
+            "description": "OpenAI-compatible value: `text`, `json_object`, or `json_schema`."
+          },
+          "jsonSchema": {
+            "$ref": "#/components/schemas/ChatCompletionJsonSchema"
+          }
+        },
+        "additionalProperties": false,
+        "description": "OpenAI-compatible response_format. When Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionResponseFormat.Type is `json_object` or\n`json_schema`, the LLM-emitted content is parsed as JSON server-side and exposed on\nCivitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionOutput.Parsed, allowing downstream workflow steps to reference\nindividual fields via `$ref` paths like `output.parsed.<field>`."
       },
       "ChatCompletionStep": {
         "allOf": [
@@ -6953,7 +7573,6 @@
       },
       "ChatCompletionTool": {
         "required": [
-          "function",
           "type"
         ],
         "type": "object",
@@ -6963,6 +7582,10 @@
           },
           "function": {
             "$ref": "#/components/schemas/ChatCompletionFunction"
+          },
+          "parameters": {
+            "type": "null",
+            "description": "Server-tool parameters for providers such as OpenRouter."
           }
         },
         "additionalProperties": false,
@@ -7052,6 +7675,154 @@
           "enable"
         ],
         "type": "string"
+      },
+      "ComfyAnimaCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyAnimaImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "anima"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyAnimaImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 30
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 4
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffuserModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "anima"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyAnimaCreateImageGenInput"
+              }
+            }
+          }
+        ]
       },
       "ComfyErnieImageGenInput": {
         "allOf": [
@@ -7223,7 +7994,7 @@
                 }
               },
               "diffusionModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -7388,7 +8159,7 @@
                 }
               },
               "diffusionModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -7531,11 +8302,11 @@
                 "default": 1
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "vaeModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -7634,6 +8405,193 @@
           }
         ]
       },
+      "ComfyFlux2DevCreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux2DevImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Dev"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyFlux2DevEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux2DevImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 9,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Dev"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyFlux2DevImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 1000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "cfgScale": {
+                "maximum": 20,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 4,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "negativePrompt": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Dev"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyFlux2DevCreateImageInput",
+                "editImage": "#/components/schemas/ComfyFlux2DevEditImageInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyImageGenInput": {
         "allOf": [
           {
@@ -7663,7 +8621,9 @@
                 "sd1": "#/components/schemas/ComfySd1ImageGenInput",
                 "sdxl": "#/components/schemas/ComfySdxlImageGenInput",
                 "flux1": "#/components/schemas/ComfyFlux1ImageGenInput",
-                "ernie": "#/components/schemas/ComfyErnieImageGenInput"
+                "flux2Dev": "#/components/schemas/ComfyFlux2DevImageGenInput",
+                "ernie": "#/components/schemas/ComfyErnieImageGenInput",
+                "anima": "#/components/schemas/ComfyAnimaImageGenInput"
               }
             }
           }
@@ -8045,6 +9005,14 @@
                   "type": "number",
                   "format": "double"
                 }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Optional override for the LTX 2.3 diffusion-model checkpoint. When set, replaces the\ntransformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx23VideoGenInput.Model while leaving the CLIPs, VAEs, and\nupscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base)."
               },
               "engine": {
                 "enum": [
@@ -8511,7 +9479,8 @@
           "deis",
           "ddim",
           "uni_pc",
-          "uni_pc_bh2"
+          "uni_pc_bh2",
+          "er_sde"
         ],
         "type": "string"
       },
@@ -8643,11 +9612,11 @@
                 "default": 1
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "vaeModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -8867,11 +9836,11 @@
                 "default": 1
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "vaeModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -10044,19 +11013,19 @@
                 }
               },
               "diffuserModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "vaeModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "clipLModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "t5XXLModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "ecosystem": {
@@ -12538,7 +13507,7 @@
               },
               "enableSafetyChecker": {
                 "type": "boolean",
-                "default": true
+                "default": false
               },
               "version": {
                 "enum": [
@@ -12699,7 +13668,7 @@
                 }
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -12813,7 +13782,7 @@
         "type": "object",
         "properties": {
           "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string"
           },
           "strength": {
@@ -13032,7 +14001,7 @@
             "type": "string"
           },
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The primary model to train upon."
           },
@@ -14680,7 +15649,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The AIR of the model file to scan."
           }
@@ -14705,10 +15674,45 @@
               "string"
             ],
             "description": "The raw ClamAV scan output."
+          },
+          "status": {
+            "$ref": "#/components/schemas/ModelClamScanStatus"
+          },
+          "infected": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "True when ClamAV reported one or more infected files (exit code 1)."
+          },
+          "infectedFileCount": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Number of infected files parsed from the ClamAV scan summary.",
+            "format": "int32"
+          },
+          "scannedFileCount": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Number of files scanned, parsed from the ClamAV scan summary.",
+            "format": "int32"
           }
         },
         "additionalProperties": false,
         "description": "Represents the output information returned from the ModelClamScan workflow step."
+      },
+      "ModelClamScanStatus": {
+        "enum": [
+          "clean",
+          "infected",
+          "timeout",
+          "error"
+        ],
+        "type": "string"
       },
       "ModelClamScanStep": {
         "allOf": [
@@ -14774,7 +15778,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The AIR of the model file to hash."
           }
@@ -14895,7 +15899,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The AIR of the model file to read metadata from."
           }
@@ -14911,7 +15915,7 @@
               "null",
               "string"
             ],
-            "description": "The raw JSON metadata header as stored in the safetensors file, or null when\nthe model is not a safetensors file or the header could not be parsed."
+            "description": "The `__metadata__` object from the safetensors header as a JSON string,\nor null when the model is not a safetensors file, the header could not be\nparsed, or no `__metadata__` object is present."
           }
         },
         "additionalProperties": false,
@@ -14981,7 +15985,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The AIR of the model file to scan."
           }
@@ -15028,10 +16032,70 @@
               "type": "string"
             },
             "description": "Dangerous imports discovered during pickle scanning."
+          },
+          "status": {
+            "$ref": "#/components/schemas/ModelPickleScanStatus"
+          },
+          "dangerousImportsFound": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "True when one or more dangerous imports were detected."
+          },
+          "skipped": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "True when picklescan was skipped (e.g. file is safetensors and cannot contain pickled code)."
+          },
+          "skipReason": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Reason picklescan was skipped, if applicable. Examples: \"safetensors\", \"safetensors-extension\"."
+          },
+          "scannedFileCount": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Number of files scanned, parsed from the picklescan summary.",
+            "format": "int32"
+          },
+          "infectedFileCount": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Number of infected files reported by picklescan.",
+            "format": "int32"
+          },
+          "dangerousGlobalCount": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Number of dangerous globals reported by picklescan.",
+            "format": "int32"
           }
         },
         "additionalProperties": false,
         "description": "Represents the output information returned from the ModelPickleScan workflow step."
+      },
+      "ModelPickleScanStatus": {
+        "enum": [
+          "clean",
+          "dangerousImportsFound",
+          "skippedSafetensors",
+          "skippedGguf",
+          "skipped",
+          "parseError",
+          "error"
+        ],
+        "type": "string"
       },
       "ModelPickleScanStep": {
         "allOf": [
@@ -17531,7 +18595,7 @@
             ]
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "PromptEnhancementInput": {
         "required": [
@@ -17573,6 +18637,17 @@
               "string"
             ],
             "description": "Optional instruction to guide how the prompt is enhanced (e.g., \"expand to 77 tokens\", \"keep it under 20 words\")."
+          },
+          "images": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "description": "Either A URL, A DataURL or a Base64 string"
+            },
+            "description": "Optional reference images for the prompt enhancement model to consider when enhancing the prompt\n(subject, style, lighting, composition, color palette). Accepts URLs, data URIs, raw base64, or AIR strings.\nRequires the per-ecosystem prompt-analysis model to be a vision-capable LLM (configured via\nIPromptAnalysisGrain.SetConfigurationAsync) — non-VLM models will silently ignore the images."
           }
         },
         "additionalProperties": false,
@@ -18429,9 +19504,51 @@
               "propertyName": "operation",
               "mapping": {
                 "base": "#/components/schemas/Qwen3BaseTTSInput",
-                "customVoice": "#/components/schemas/Qwen3CustomVoiceTTSInput"
+                "customVoice": "#/components/schemas/Qwen3CustomVoiceTTSInput",
+                "voiceDesign": "#/components/schemas/Qwen3VoiceDesignTTSInput"
               }
             }
+          }
+        ]
+      },
+      "Qwen3VoiceDesignTTSInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Qwen3TextToSpeechInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "instruct",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "instruct": {
+                "type": "string",
+                "description": "Natural-language description of the desired voice\n(e.g., \"a calm middle-aged male narrator with a slight British accent\")."
+              },
+              "operation": {
+                "enum": [
+                  "voiceDesign"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen3"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "vllm-omni"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -18618,7 +19735,7 @@
         "type": "object",
         "properties": {
           "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "An AIR ID for the resource."
           },
@@ -18727,7 +19844,7 @@
           },
           "hasNSFWContentRestriction": {
             "type": "boolean",
-            "description": "A boolean indicating whether this resource restricts to SFW content generation.\nNSFWContent covers X and AA whereas MatureContent includes R rated content."
+            "description": "A boolean indicating whether this resource restricts to SFW content generation.\nNSFWContent covers X and XXX whereas MatureContent includes R rated content."
           }
         },
         "additionalProperties": false,
@@ -18756,7 +19873,7 @@
                 "format": "int32"
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "description": "The primary model to train upon.",
                 "default": "urn:air:sd1:checkpoint:civitai:127227@139180"
@@ -18933,11 +20050,11 @@
                 "default": 1
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "vaeModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -18953,7 +20070,7 @@
               "embeddings": {
                 "type": "array",
                 "items": {
-                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                   "type": "string"
                 }
               },
@@ -19156,7 +20273,7 @@
                 "format": "int32"
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "description": "The primary model to train upon.",
                 "default": "urn:air:sdxl:checkpoint:civitai:101055@128078"
@@ -19295,11 +20412,11 @@
                 "default": 1
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
               "vaeModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -19315,7 +20432,7 @@
               "embeddings": {
                 "type": "array",
                 "items": {
-                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                   "type": "string"
                 }
               },
@@ -19476,7 +20593,8 @@
               "resolution": {
                 "enum": [
                   "480p",
-                  "720p"
+                  "720p",
+                  "1080p"
                 ],
                 "type": "string"
               },
@@ -19784,7 +20902,7 @@
             "default": 1
           },
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string",
             "description": "The AIR of the checkpoint model to use for generation.",
             "default": "urn:air:sd1:checkpoint:civitai:4384@128713"
@@ -20721,7 +21839,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -20760,7 +21878,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -20851,7 +21969,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -21033,7 +22151,7 @@
         "type": "object",
         "properties": {
           "model": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
               "string"
@@ -21283,7 +22401,7 @@
         "type": "object",
         "properties": {
           "air": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": "string"
           },
           "strength": {
@@ -22004,7 +23122,7 @@
                 "default": 480
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -22498,7 +23616,7 @@
                 "default": 720
               },
               "model": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
@@ -24490,7 +25608,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -24521,7 +25639,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -24933,7 +26051,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -24952,6 +26070,7 @@
           "mapping": {
             "aceStepAudio": "#/components/schemas/AceStepAudioStep",
             "ageClassification": "#/components/schemas/AgeClassificationStep",
+            "audioCaptioning": "#/components/schemas/AudioCaptioningStep",
             "blobArchive": "#/components/schemas/BlobArchiveStep",
             "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
@@ -25260,7 +26379,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -25271,6 +26390,7 @@
           "mapping": {
             "aceStepAudio": "#/components/schemas/AceStepAudioStepTemplate",
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
+            "audioCaptioning": "#/components/schemas/AudioCaptioningStepTemplate",
             "blobArchive": "#/components/schemas/BlobArchiveStepTemplate",
             "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
@@ -25317,7 +26437,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -25358,7 +26478,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -26326,7 +27446,7 @@
             "type": "object",
             "properties": {
               "sourceUrl": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "description": "AIR pointing to the zip file containing training data"
               },
@@ -26365,7 +27485,7 @@
     }
   },
   "security": [
-    {}
+    { }
   ],
   "tags": [
     {
