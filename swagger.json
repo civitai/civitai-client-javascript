@@ -3864,7 +3864,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -3892,7 +3892,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -3920,7 +3920,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -3936,7 +3936,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -4048,7 +4048,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -4075,7 +4075,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -4103,7 +4103,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -4131,7 +4131,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -4147,7 +4147,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -4259,7 +4259,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -4286,7 +4286,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -4314,7 +4314,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -4342,7 +4342,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -4358,7 +4358,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -4470,7 +4470,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -7357,7 +7357,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Extra kwargs passed to the chat template (for example custom policy inputs for vLLM chat templates)."
           },
           "tools": {
@@ -7411,7 +7411,7 @@
               "string"
             ]
           },
-          "schema": { },
+          "schema": {},
           "strict": {
             "type": [
               "null",
@@ -18595,7 +18595,7 @@
             ]
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "PromptEnhancementInput": {
         "required": [
@@ -21839,7 +21839,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -21878,7 +21878,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -21969,7 +21969,7 @@
             }
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -25608,7 +25608,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -25639,7 +25639,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -26051,7 +26051,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -26379,7 +26379,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -26437,7 +26437,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -26478,7 +26478,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -27220,6 +27220,10 @@
               "model": {
                 "type": "string"
               },
+              "diffuserModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
               "ecosystem": {
                 "enum": [
                   "zImage"
@@ -27485,7 +27489,7 @@
     }
   },
   "security": [
-    { }
+    {}
   ],
   "tags": [
     {

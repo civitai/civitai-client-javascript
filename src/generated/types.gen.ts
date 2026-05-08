@@ -7203,6 +7203,7 @@ export type ZImageBaseImageGenInput = Omit<
 
 export type ZImageImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
+  diffuserModel?: string;
   ecosystem: 'zImage';
   engine: 'sdcpp';
 };
