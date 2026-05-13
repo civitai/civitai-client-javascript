@@ -1322,6 +1322,98 @@ export type ComfyFlux2DevImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ec
   engine: 'comfy';
 };
 
+export type ComfyHiDreamImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: string;
+  ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamO1CreateImageGenInput = Omit<
+  ComfyHiDreamO1ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'HiDream-O1-Image';
+  ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamO1DevCreateImageGenInput = Omit<
+  ComfyHiDreamO1DevImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'HiDream-O1-Image-dev';
+  ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamO1DevEditImageGenInput = Omit<
+  ComfyHiDreamO1DevImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images?: Array<string>;
+  operation: 'editImage';
+  model: 'HiDream-O1-Image-dev';
+  ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamO1DevImageGenInput = Omit<
+  ComfyHiDreamImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  width?: number;
+  height?: number;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  checkpointModel?: string;
+  loras?: {
+    [key: string]: number;
+  };
+  model: 'HiDream-O1-Image-dev';
+  ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamO1EditImageGenInput = Omit<
+  ComfyHiDreamO1ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images?: Array<string>;
+  operation: 'editImage';
+  model: 'HiDream-O1-Image';
+  ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamO1ImageGenInput = Omit<
+  ComfyHiDreamImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  width?: number;
+  height?: number;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  checkpointModel?: string;
+  loras?: {
+    [key: string]: number;
+  };
+  model: 'HiDream-O1-Image';
+  ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
 export type ComfyImageGenInput = Omit<ImageGenInput, 'engine'> & {
   ecosystem: string;
   engine: 'comfy';
@@ -1455,6 +1547,11 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    * upscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base).
    */
   diffusionModel?: null | string;
+  /**
+   * Number of videos to generate in this single job. Each video uses a distinct seed
+   * (Seed + slotIndex) and is produced by re-running the Comfy workflow.
+   */
+  quantity?: number;
   engine: 'ltx2.3';
 };
 
@@ -2727,6 +2824,17 @@ export type HappyHorseV1VideoGenInput = Omit<HappyHorseVideoGenInput, 'engine' |
 export type HappyHorseVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version: string;
   engine: 'happyHorse';
+};
+
+/**
+ * AI Toolkit training for HiDream O1 Image models.
+ */
+export type HiDreamO1AiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'hidream-o1';
+  engine: 'ai-toolkit';
 };
 
 export const HumanoidImageMaskCategory = {
@@ -4709,6 +4817,16 @@ export type ResizeTransform = Omit<ImageTransform, 'type'> & {
   type: 'resize';
 };
 
+export type ResourceFee = {
+  amount: number;
+  type: ResourceFeeType;
+  settlementCurrency: SettlementCurrency;
+};
+
+export const ResourceFeeType = { PER_IMAGE_BUZZ: 'perImageBuzz' } as const;
+
+export type ResourceFeeType = (typeof ResourceFeeType)[keyof typeof ResourceFeeType];
+
 /**
  * Details for a specific resource.
  */
@@ -4786,6 +4904,7 @@ export type ResourceInfo = {
    * NSFWContent covers X and XXX whereas MatureContent includes R rated content.
    */
   hasNSFWContentRestriction: boolean;
+  fee?: ResourceFee;
 };
 
 /**
@@ -5048,6 +5167,10 @@ export const SeedreamVersion = {
 } as const;
 
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
+
+export const SettlementCurrency = { BUZZ: 'buzz', CASH: 'cash' } as const;
+
+export type SettlementCurrency = (typeof SettlementCurrency)[keyof typeof SettlementCurrency];
 
 /**
  * Sora 2 Image-to-Video
@@ -5743,6 +5866,12 @@ export type VideoGenInputLora = {
 
 export type VideoGenOutput = {
   video?: VideoBlob;
+  /**
+   * Extra videos produced by the step when Quantity > 1. Always null/empty for single-output
+   * engines; populated alongside Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.VideoGenOutput.Video (the primary slot) by engines that batch
+   * multiple videos in a single job (e.g. LTX 2.3).
+   */
+  additionalVideos?: null | Array<VideoBlob>;
 };
 
 /**
@@ -7044,6 +7173,7 @@ export type XGuardLabelResult = {
   responseId?: null | string;
   error?: null | string;
   matchedTerms?: XGuardMatchedTerms;
+  policyHash?: null | string;
 };
 
 export type XGuardMatchedTerms = {

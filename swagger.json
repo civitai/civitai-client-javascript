@@ -5504,7 +5504,8 @@
                 "ltx2": "#/components/schemas/Ltx2AIToolkitTrainingInput",
                 "ltx23": "#/components/schemas/Ltx23AIToolkitTrainingInput",
                 "ace_step_15": "#/components/schemas/AceStep15AIToolkitTrainingInput",
-                "ace_step_15_xl": "#/components/schemas/AceStep15XlAIToolkitTrainingInput"
+                "ace_step_15_xl": "#/components/schemas/AceStep15XlAIToolkitTrainingInput",
+                "hidream-o1": "#/components/schemas/HiDreamO1AIToolkitTrainingInput"
               }
             }
           }
@@ -8592,6 +8593,464 @@
           }
         ]
       },
+      "ComfyHiDreamImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "HiDream-O1-Image": "#/components/schemas/ComfyHiDreamO1ImageGenInput",
+                "HiDream-O1-Image-dev": "#/components/schemas/ComfyHiDreamO1DevImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyHiDreamO1CreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyHiDreamO1ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "HiDream-O1-Image"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyHiDreamO1DevCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyHiDreamO1DevImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "HiDream-O1-Image-dev"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyHiDreamO1DevEditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyHiDreamO1DevImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "HiDream-O1-Image-dev"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyHiDreamO1DevImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyHiDreamImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 2048
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 2048
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 28
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "checkpointModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "default": "urn:air:hidream-o1:checkpoint:civitai:2618495@2939964"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "model": {
+                "enum": [
+                  "HiDream-O1-Image-dev"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyHiDreamO1DevCreateImageGenInput",
+                "editImage": "#/components/schemas/ComfyHiDreamO1DevEditImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyHiDreamO1EditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyHiDreamO1ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "HiDream-O1-Image"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyHiDreamO1ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyHiDreamImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 2048
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 2048
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 40
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 5
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "checkpointModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "default": "urn:air:hidream-o1:checkpoint:civitai:2618495@2939946"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "model": {
+                "enum": [
+                  "HiDream-O1-Image"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyHiDreamO1CreateImageGenInput",
+                "editImage": "#/components/schemas/ComfyHiDreamO1EditImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyImageGenInput": {
         "allOf": [
           {
@@ -8623,6 +9082,7 @@
                 "flux1": "#/components/schemas/ComfyFlux1ImageGenInput",
                 "flux2Dev": "#/components/schemas/ComfyFlux2DevImageGenInput",
                 "ernie": "#/components/schemas/ComfyErnieImageGenInput",
+                "hidream-o1": "#/components/schemas/ComfyHiDreamImageGenInput",
                 "anima": "#/components/schemas/ComfyAnimaImageGenInput"
               }
             }
@@ -9013,6 +9473,14 @@
                   "string"
                 ],
                 "description": "Optional override for the LTX 2.3 diffusion-model checkpoint. When set, replaces the\ntransformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx23VideoGenInput.Model while leaving the CLIPs, VAEs, and\nupscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base)."
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Number of videos to generate in this single job. Each video uses a distinct seed\n(Seed + slotIndex) and is produced by re-running the Comfy workflow.",
+                "format": "int32",
+                "default": 1
               },
               "engine": {
                 "enum": [
@@ -13568,6 +14036,36 @@
           }
         ],
         "description": "Engine-level base for Alibaba Happy-Horse video generation (FAL).\nThe version derived type carries the operation-level discriminator."
+      },
+      "HiDreamO1AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for HiDream O1 Image models."
       },
       "HumanoidImageMaskCategory": {
         "enum": [
@@ -19720,6 +20218,33 @@
         ],
         "description": "Resizes an image to a target width while maintaining aspect ratio."
       },
+      "ResourceFee": {
+        "required": [
+          "amount",
+          "settlementCurrency",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ResourceFeeType"
+          },
+          "settlementCurrency": {
+            "$ref": "#/components/schemas/SettlementCurrency"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResourceFeeType": {
+        "enum": [
+          "perImageBuzz"
+        ],
+        "type": "string"
+      },
       "ResourceInfo": {
         "required": [
           "air",
@@ -19845,6 +20370,9 @@
           "hasNSFWContentRestriction": {
             "type": "boolean",
             "description": "A boolean indicating whether this resource restricts to SFW content generation.\nNSFWContent covers X and XXX whereas MatureContent includes R rated content."
+          },
+          "fee": {
+            "$ref": "#/components/schemas/ResourceFee"
           }
         },
         "additionalProperties": false,
@@ -20699,6 +21227,13 @@
           "v4",
           "v4.5",
           "v5.0-lite"
+        ],
+        "type": "string"
+      },
+      "SettlementCurrency": {
+        "enum": [
+          "buzz",
+          "cash"
         ],
         "type": "string"
       },
@@ -22416,6 +22951,16 @@
         "properties": {
           "video": {
             "$ref": "#/components/schemas/VideoBlob"
+          },
+          "additionalVideos": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/VideoBlob"
+            },
+            "description": "Extra videos produced by the step when Quantity > 1. Always null/empty for single-output\nengines; populated alongside Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.VideoGenOutput.Video (the primary slot) by engines that batch\nmultiple videos in a single job (e.g. LTX 2.3)."
           }
         },
         "additionalProperties": false
@@ -26684,6 +27229,12 @@
           },
           "matchedTerms": {
             "$ref": "#/components/schemas/XGuardMatchedTerms"
+          },
+          "policyHash": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
