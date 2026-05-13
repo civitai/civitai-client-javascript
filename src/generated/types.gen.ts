@@ -1324,7 +1324,7 @@ export type ComfyFlux2DevImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ec
 
 export type ComfyHiDreamImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
-  ecosystem: 'hidream';
+  ecosystem: 'hidream-o1';
   engine: 'comfy';
 };
 
@@ -1334,7 +1334,7 @@ export type ComfyHiDreamO1CreateImageGenInput = Omit<
 > & {
   operation: 'createImage';
   model: 'HiDream-O1-Image';
-  ecosystem: 'hidream';
+  ecosystem: 'hidream-o1';
   engine: 'comfy';
 };
 
@@ -1344,7 +1344,7 @@ export type ComfyHiDreamO1DevCreateImageGenInput = Omit<
 > & {
   operation: 'createImage';
   model: 'HiDream-O1-Image-dev';
-  ecosystem: 'hidream';
+  ecosystem: 'hidream-o1';
   engine: 'comfy';
 };
 
@@ -1355,7 +1355,7 @@ export type ComfyHiDreamO1DevEditImageGenInput = Omit<
   images?: Array<string>;
   operation: 'editImage';
   model: 'HiDream-O1-Image-dev';
-  ecosystem: 'hidream';
+  ecosystem: 'hidream-o1';
   engine: 'comfy';
 };
 
@@ -1377,7 +1377,7 @@ export type ComfyHiDreamO1DevImageGenInput = Omit<
     [key: string]: number;
   };
   model: 'HiDream-O1-Image-dev';
-  ecosystem: 'hidream';
+  ecosystem: 'hidream-o1';
   engine: 'comfy';
 };
 
@@ -1388,7 +1388,7 @@ export type ComfyHiDreamO1EditImageGenInput = Omit<
   images?: Array<string>;
   operation: 'editImage';
   model: 'HiDream-O1-Image';
-  ecosystem: 'hidream';
+  ecosystem: 'hidream-o1';
   engine: 'comfy';
 };
 
@@ -1410,7 +1410,7 @@ export type ComfyHiDreamO1ImageGenInput = Omit<
     [key: string]: number;
   };
   model: 'HiDream-O1-Image';
-  ecosystem: 'hidream';
+  ecosystem: 'hidream-o1';
   engine: 'comfy';
 };
 
@@ -2824,6 +2824,17 @@ export type HappyHorseV1VideoGenInput = Omit<HappyHorseVideoGenInput, 'engine' |
 export type HappyHorseVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version: string;
   engine: 'happyHorse';
+};
+
+/**
+ * AI Toolkit training for HiDream O1 Image models.
+ */
+export type HiDreamO1AiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'hidream-o1';
+  engine: 'ai-toolkit';
 };
 
 export const HumanoidImageMaskCategory = {
@@ -7162,6 +7173,7 @@ export type XGuardLabelResult = {
   responseId?: null | string;
   error?: null | string;
   matchedTerms?: XGuardMatchedTerms;
+  policyHash?: null | string;
 };
 
 export type XGuardMatchedTerms = {

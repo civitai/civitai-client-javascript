@@ -329,6 +329,7 @@ export {
   type HeadBlobErrors,
   type HeadBlobResponse,
   type HeadBlobResponses,
+  type HiDreamO1AiToolkitTrainingInput,
   HumanoidImageMaskCategory,
   type HumanoidImageMaskInput,
   type HumanoidImageMaskOutput,

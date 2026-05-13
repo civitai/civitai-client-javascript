@@ -5504,7 +5504,8 @@
                 "ltx2": "#/components/schemas/Ltx2AIToolkitTrainingInput",
                 "ltx23": "#/components/schemas/Ltx23AIToolkitTrainingInput",
                 "ace_step_15": "#/components/schemas/AceStep15AIToolkitTrainingInput",
-                "ace_step_15_xl": "#/components/schemas/AceStep15XlAIToolkitTrainingInput"
+                "ace_step_15_xl": "#/components/schemas/AceStep15XlAIToolkitTrainingInput",
+                "hidream-o1": "#/components/schemas/HiDreamO1AIToolkitTrainingInput"
               }
             }
           }
@@ -8610,7 +8611,7 @@
               },
               "ecosystem": {
                 "enum": [
-                  "hidream"
+                  "hidream-o1"
                 ],
                 "type": "string"
               },
@@ -8660,7 +8661,7 @@
               },
               "ecosystem": {
                 "enum": [
-                  "hidream"
+                  "hidream-o1"
                 ],
                 "type": "string"
               },
@@ -8703,7 +8704,7 @@
               },
               "ecosystem": {
                 "enum": [
-                  "hidream"
+                  "hidream-o1"
                 ],
                 "type": "string"
               },
@@ -8754,7 +8755,7 @@
               },
               "ecosystem": {
                 "enum": [
-                  "hidream"
+                  "hidream-o1"
                 ],
                 "type": "string"
               },
@@ -8845,7 +8846,7 @@
               "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
-                "default": "urn:air:hidream:checkpoint:huggingface:Comfy-Org/HiDream-O1-Image@main/checkpoints/hidream_o1_image_dev_fp8_scaled.safetensors"
+                "default": "urn:air:hidream-o1:checkpoint:civitai:2618495@2939964"
               },
               "loras": {
                 "type": "object",
@@ -8862,7 +8863,7 @@
               },
               "ecosystem": {
                 "enum": [
-                  "hidream"
+                  "hidream-o1"
                 ],
                 "type": "string"
               },
@@ -8920,7 +8921,7 @@
               },
               "ecosystem": {
                 "enum": [
-                  "hidream"
+                  "hidream-o1"
                 ],
                 "type": "string"
               },
@@ -9011,7 +9012,7 @@
               "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
-                "default": "urn:air:hidream:checkpoint:huggingface:Comfy-Org/HiDream-O1-Image@main/checkpoints/hidream_o1_image_fp8_scaled.safetensors"
+                "default": "urn:air:hidream-o1:checkpoint:civitai:2618495@2939946"
               },
               "loras": {
                 "type": "object",
@@ -9028,7 +9029,7 @@
               },
               "ecosystem": {
                 "enum": [
-                  "hidream"
+                  "hidream-o1"
                 ],
                 "type": "string"
               },
@@ -9081,7 +9082,7 @@
                 "flux1": "#/components/schemas/ComfyFlux1ImageGenInput",
                 "flux2Dev": "#/components/schemas/ComfyFlux2DevImageGenInput",
                 "ernie": "#/components/schemas/ComfyErnieImageGenInput",
-                "hidream": "#/components/schemas/ComfyHiDreamImageGenInput",
+                "hidream-o1": "#/components/schemas/ComfyHiDreamImageGenInput",
                 "anima": "#/components/schemas/ComfyAnimaImageGenInput"
               }
             }
@@ -14035,6 +14036,36 @@
           }
         ],
         "description": "Engine-level base for Alibaba Happy-Horse video generation (FAL).\nThe version derived type carries the operation-level discriminator."
+      },
+      "HiDreamO1AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "enum": [
+                  "hidream-o1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for HiDream O1 Image models."
       },
       "HumanoidImageMaskCategory": {
         "enum": [
@@ -27198,6 +27229,12 @@
           },
           "matchedTerms": {
             "$ref": "#/components/schemas/XGuardMatchedTerms"
+          },
+          "policyHash": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
