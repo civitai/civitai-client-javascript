@@ -108,6 +108,7 @@ export type AceStep15AiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
 > & {
+  samplesOverrides?: Array<AceStepSampleOverride>;
   ecosystem: 'ace_step_15';
   engine: 'ai-toolkit';
 };
@@ -120,6 +121,7 @@ export type AceStep15XlAiToolkitTrainingInput = Omit<
   'engine' | 'ecosystem'
 > & {
   modelVariant: string;
+  samplesOverrides?: Array<AceStepSampleOverride>;
   ecosystem: 'ace_step_15_xl';
   engine: 'ai-toolkit';
 };
@@ -323,6 +325,25 @@ export type AceStepAudioStep = Omit<WorkflowStep, '$type'> & {
 export type AceStepAudioStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: AceStepAudioInput;
   $type: 'aceStepAudio';
+};
+
+/**
+ * Optional per-prompt overrides for AceStep training sample generation.
+ * Index-aligned with `Samples.Prompts`: entry `[i]` overrides the
+ * defaults for the sample produced for prompt `[i]`. Any field left
+ * null falls back to the hardcoded sample default.
+ */
+export type AceStepSampleOverride = {
+  lyrics?: null | string;
+  duration?: null | number;
+  bpm?: null | number;
+  timeSignature?: null | string;
+  language?: null | string;
+  key?: null | string;
+  instrumentalWeight?: null | number;
+  vocalWeight?: null | number;
+  steps?: null | number;
+  cfg?: null | number;
 };
 
 export type AgeClassificationInput = {
@@ -583,13 +604,6 @@ export type AudioCaptioningInput = {
 };
 
 export type AudioCaptioningOutput = {
-  /**
-   * Combined caption, transcription, and music metadata for the first or only audio item.
-   */
-  text?: null | string;
-  /**
-   * Per-file results when the input is an archive or contains multiple audio items.
-   */
   results: {
     [key: string]: AudioCaptioningOutputItem;
   };

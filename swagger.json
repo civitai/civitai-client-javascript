@@ -5524,6 +5524,12 @@
             ],
             "type": "object",
             "properties": {
+              "samplesOverrides": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AceStepSampleOverride"
+                }
+              },
               "ecosystem": {
                 "enum": [
                   "ace_step_15"
@@ -5557,6 +5563,12 @@
             "properties": {
               "modelVariant": {
                 "type": "string"
+              },
+              "samplesOverrides": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AceStepSampleOverride"
+                }
               },
               "ecosystem": {
                 "enum": [
@@ -5935,6 +5947,79 @@
           }
         ],
         "description": "Workflow step for generating music using ACE Step 1.5.\nProduces full songs from text descriptions and structured lyrics."
+      },
+      "AceStepSampleOverride": {
+        "type": "object",
+        "properties": {
+          "lyrics": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "duration": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "float"
+          },
+          "bpm": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "timeSignature": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "key": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instrumentalWeight": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "float"
+          },
+          "vocalWeight": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "float"
+          },
+          "steps": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "cfg": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "float"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Optional per-prompt overrides for AceStep training sample generation.\nIndex-aligned with `Samples.Prompts`: entry `[i]` overrides the\ndefaults for the sample produced for prompt `[i]`. Any field left\nnull falls back to the hardcoded sample default."
       },
       "AgeClassificationInput": {
         "required": [
@@ -6539,19 +6624,11 @@
         ],
         "type": "object",
         "properties": {
-          "text": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "Combined caption, transcription, and music metadata for the first or only audio item."
-          },
           "results": {
             "type": "object",
             "additionalProperties": {
               "$ref": "#/components/schemas/AudioCaptioningOutputItem"
-            },
-            "description": "Per-file results when the input is an archive or contains multiple audio items."
+            }
           }
         },
         "additionalProperties": false

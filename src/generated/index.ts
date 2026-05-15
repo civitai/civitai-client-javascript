@@ -75,6 +75,7 @@ export {
   type AceStepAudioOutput,
   type AceStepAudioStep,
   type AceStepAudioStepTemplate,
+  type AceStepSampleOverride,
   type AddWorkflowTagData,
   type AddWorkflowTagError,
   type AddWorkflowTagErrors,
