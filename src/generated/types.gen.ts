@@ -295,7 +295,7 @@ export type AceStepAudioInput = {
    * diffusion model (UNET) and the dual CLIP via ComfyUI's LoraLoader.
    * Compatibility with non-default base models is the caller's responsibility.
    */
-  loras: {
+  loras?: {
     [key: string]: number;
   };
 };
@@ -635,6 +635,107 @@ export type AudioCaptioningStep = Omit<WorkflowStep, '$type'> & {
 export type AudioCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: AudioCaptioningInput;
   $type: 'audioCaptioning';
+};
+
+/**
+ * Input for the AudioMix workflow step.
+ */
+export type AudioMixInput = {
+  /**
+   * The tracks to mix. Each track is placed on the output timeline at its
+   * `StartSeconds`; overlapping intervals are summed (or normalised if `Normalize` is true).
+   */
+  tracks: Array<AudioMixTrackInput>;
+  /**
+   * If true, divide the mix by the number of tracks to avoid clipping when many tracks overlap.
+   * Defaults to false to preserve per-track `VolumeDb` levels.
+   */
+  normalize?: boolean;
+  /**
+   * Soft cap on output duration in seconds. The worker rejects the job before invoking
+   * ffmpeg if the union of track intervals exceeds this value.
+   */
+  maxDurationSeconds?: number;
+};
+
+/**
+ * Output from the AudioMix workflow step.
+ */
+export type AudioMixOutput = {
+  audioBlob: AudioBlob;
+  /**
+   * Per-track timing of the mix in input order — useful for rendering subtitles
+   * or speaker highlights without re-probing every source clip.
+   */
+  tracks: Array<AudioMixResolvedTrack>;
+};
+
+/**
+ * Resolved timing for a single track in the mix output.
+ */
+export type AudioMixResolvedTrack = {
+  /**
+   * Where this track starts on the output timeline, in seconds.
+   */
+  startSeconds: number;
+  /**
+   * Probed duration of the source clip, in seconds.
+   */
+  duration: number;
+};
+
+/**
+ * Audio Mix
+ */
+export type AudioMixStep = Omit<WorkflowStep, '$type'> & {
+  input: AudioMixInput;
+  output?: AudioMixOutput;
+  $type: 'audioMix';
+};
+
+/**
+ * Audio Mix
+ */
+export type AudioMixStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: AudioMixInput;
+  $type: 'audioMix';
+};
+
+/**
+ * A single track participating in an audio mix.
+ */
+export type AudioMixTrackInput = {
+  /**
+   * The source audio URL. Either a direct `"https://..."` URL (e.g. for a static music bed)
+   * or a `$ref` to a prior step's `Output.AudioBlob.Url`.
+   */
+  url?: null | string;
+  /**
+   * Absolute start time on the output timeline, in seconds. When set, this track is
+   * anchored at this position and is excluded from the implicit sequencing chain — useful
+   * for music beds or any audio that should play at a known absolute time.
+   * When unset, the track starts implicitly after the previous non-anchored track ends,
+   * nudged by `Offset`. Tracks may overlap.
+   */
+  startSeconds?: null | number;
+  /**
+   * Seconds to nudge this track relative to its implicit "after-previous" position.
+   * Negative values produce overlap/interruption; positive values produce a gap. Ignored
+   * when Civitai.Orchestration.Grains.Workflows.Steps.AudioMix.AudioMixTrackInput.StartSeconds is set (the absolute anchor takes precedence).
+   */
+  offset?: number;
+  /**
+   * Per-track volume adjustment in dB. `0` is unity gain; negative values attenuate.
+   */
+  volumeDb?: number;
+  /**
+   * Linear fade-in duration in milliseconds. `0` disables fade-in.
+   */
+  fadeInMs?: number;
+  /**
+   * Linear fade-out duration in milliseconds applied at the tail of the clip. `0` disables fade-out.
+   */
+  fadeOutMs?: number;
 };
 
 export type BatchOcrSafetyClassificationInput = {
@@ -1278,6 +1379,7 @@ export type ComfyFlux1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosy
   loras?: {
     [key: string]: number;
   };
+  controlNets?: Array<ImageJobControlNet>;
   ecosystem: 'flux1';
   engine: 'comfy';
 };
@@ -1752,6 +1854,7 @@ export type ComfySd1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosyst
     [key: string]: number;
   };
   clipSkip?: number;
+  controlNets?: Array<ImageJobControlNet>;
   ecosystem: 'sd1';
   engine: 'comfy';
 };
@@ -1798,6 +1901,7 @@ export type ComfySdxlImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosys
   loras?: {
     [key: string]: number;
   };
+  controlNets?: Array<ImageJobControlNet>;
   ecosystem: 'sdxl';
   engine: 'comfy';
 };
@@ -4919,6 +5023,10 @@ export type ResourceInfo = {
    */
   hasNSFWContentRestriction: boolean;
   fee?: ResourceFee;
+  /**
+   * If set to false, then this resource is not eligible for compenstation or tips
+   */
+  payoutEnabled?: null | boolean;
 };
 
 /**
@@ -7340,6 +7448,7 @@ export type ZImageBaseImageGenInput = Omit<
   loras?: {
     [key: string]: number;
   };
+  controlNets?: Array<ImageJobControlNet>;
   model: 'base';
   ecosystem: 'zImage';
   engine: 'sdcpp';
@@ -7391,6 +7500,7 @@ export type ZImageTurboImageGenInput = Omit<
   loras?: {
     [key: string]: number;
   };
+  controlNets?: Array<ImageJobControlNet>;
   model: 'turbo';
   ecosystem: 'zImage';
   engine: 'sdcpp';
@@ -8666,6 +8776,41 @@ export type InvokeAudioCaptioningStepTemplateResponses = {
 export type InvokeAudioCaptioningStepTemplateResponse =
   InvokeAudioCaptioningStepTemplateResponses[keyof InvokeAudioCaptioningStepTemplateResponses];
 
+export type InvokeAudioMixStepTemplateData = {
+  body?: AudioMixInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+  };
+  url: '/v2/consumer/recipes/audioMix';
+};
+
+export type InvokeAudioMixStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeAudioMixStepTemplateError =
+  InvokeAudioMixStepTemplateErrors[keyof InvokeAudioMixStepTemplateErrors];
+
+export type InvokeAudioMixStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: AudioMixOutput;
+};
+
+export type InvokeAudioMixStepTemplateResponse =
+  InvokeAudioMixStepTemplateResponses[keyof InvokeAudioMixStepTemplateResponses];
+
 export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
   body?: BatchOcrSafetyClassificationInput;
   path?: never;
@@ -9890,43 +10035,6 @@ export type InvokeXGuardModerationStepTemplateResponses = {
 
 export type InvokeXGuardModerationStepTemplateResponse =
   InvokeXGuardModerationStepTemplateResponses[keyof InvokeXGuardModerationStepTemplateResponses];
-
-export type InvalidateResourceData = {
-  body?: never;
-  path: {
-    /**
-     * A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.
-     */
-    air: string;
-  };
-  query?: {
-    /**
-     * One or more userIds to invalidate early access for
-     */
-    userId?: Array<number>;
-    etag?: string;
-  };
-  url: '/v2/resources/{air}';
-};
-
-export type InvalidateResourceErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-};
-
-export type InvalidateResourceError = InvalidateResourceErrors[keyof InvalidateResourceErrors];
-
-export type InvalidateResourceResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type InvalidateResourceResponse =
-  InvalidateResourceResponses[keyof InvalidateResourceResponses];
 
 export type GetResourceData = {
   body?: never;

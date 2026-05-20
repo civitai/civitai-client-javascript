@@ -730,6 +730,90 @@
         }
       }
     },
+    "/v2/consumer/recipes/audioMix": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Audio Mix",
+        "description": "Overlays multiple audio clips on a single timeline, each placed at its own start offset with optional per-track volume and fade controls.\n/// Pair with N text-to-speech steps to assemble multi-speaker dialogue, debate, or audio-drama scenes with cross-talk and interruption.",
+        "operationId": "InvokeAudioMixStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioMixInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioMixInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioMixInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioMixOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/batchOCRSafetyClassification": {
       "post": {
         "tags": [
@@ -3703,60 +3787,6 @@
             }
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "Resources"
-        ],
-        "summary": "Invalidates the cache of a specific resource.",
-        "operationId": "InvalidateResource",
-        "parameters": [
-          {
-            "name": "air",
-            "in": "path",
-            "description": "A unique ID for the resource being requested. See https://developer.civitai.com/docs/getting-started/ai-resource-identifier for more info on AIRs.",
-            "required": true,
-            "schema": {
-              "pattern": "^(?!huggingface/).*$",
-              "type": "string"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "query",
-            "description": "One or more userIds to invalidate early access for",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "integer",
-                "format": "int32"
-              }
-            }
-          },
-          {
-            "name": "etag",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -5685,7 +5715,6 @@
       },
       "AceStepAudioInput": {
         "required": [
-          "loras",
           "lyrics",
           "musicDescription",
           "seed"
@@ -6743,6 +6772,180 @@
           }
         ],
         "description": "Audio Captioning"
+      },
+      "AudioMixInput": {
+        "required": [
+          "tracks"
+        ],
+        "type": "object",
+        "properties": {
+          "tracks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudioMixTrackInput"
+            },
+            "description": "The tracks to mix. Each track is placed on the output timeline at its\n`StartSeconds`; overlapping intervals are summed (or normalised if `Normalize` is true)."
+          },
+          "normalize": {
+            "type": "boolean",
+            "description": "If true, divide the mix by the number of tracks to avoid clipping when many tracks overlap.\nDefaults to false to preserve per-track `VolumeDb` levels.",
+            "default": false
+          },
+          "maxDurationSeconds": {
+            "type": "number",
+            "description": "Soft cap on output duration in seconds. The worker rejects the job before invoking\nffmpeg if the union of track intervals exceeds this value.",
+            "format": "float",
+            "default": 600
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for the AudioMix workflow step."
+      },
+      "AudioMixOutput": {
+        "required": [
+          "audioBlob",
+          "tracks"
+        ],
+        "type": "object",
+        "properties": {
+          "audioBlob": {
+            "$ref": "#/components/schemas/AudioBlob"
+          },
+          "tracks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudioMixResolvedTrack"
+            },
+            "description": "Per-track timing of the mix in input order — useful for rendering subtitles\nor speaker highlights without re-probing every source clip."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from the AudioMix workflow step."
+      },
+      "AudioMixResolvedTrack": {
+        "required": [
+          "duration",
+          "startSeconds"
+        ],
+        "type": "object",
+        "properties": {
+          "startSeconds": {
+            "type": "number",
+            "description": "Where this track starts on the output timeline, in seconds.",
+            "format": "float"
+          },
+          "duration": {
+            "type": "number",
+            "description": "Probed duration of the source clip, in seconds.",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Resolved timing for a single track in the mix output."
+      },
+      "AudioMixStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/AudioMixInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/AudioMixOutput"
+              },
+              "$type": {
+                "enum": [
+                  "audioMix"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Audio Mix"
+      },
+      "AudioMixStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/AudioMixInput"
+              },
+              "$type": {
+                "enum": [
+                  "audioMix"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Audio Mix"
+      },
+      "AudioMixTrackInput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The source audio URL. Either a direct `\"https://...\"` URL (e.g. for a static music bed)\nor a `$ref` to a prior step's `Output.AudioBlob.Url`.",
+            "format": "uri"
+          },
+          "startSeconds": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "Absolute start time on the output timeline, in seconds. When set, this track is\nanchored at this position and is excluded from the implicit sequencing chain — useful\nfor music beds or any audio that should play at a known absolute time.\nWhen unset, the track starts implicitly after the previous non-anchored track ends,\nnudged by `Offset`. Tracks may overlap.",
+            "format": "float"
+          },
+          "offset": {
+            "type": "number",
+            "description": "Seconds to nudge this track relative to its implicit \"after-previous\" position.\nNegative values produce overlap/interruption; positive values produce a gap. Ignored\nwhen Civitai.Orchestration.Grains.Workflows.Steps.AudioMix.AudioMixTrackInput.StartSeconds is set (the absolute anchor takes precedence).",
+            "format": "float",
+            "default": 0
+          },
+          "volumeDb": {
+            "type": "number",
+            "description": "Per-track volume adjustment in dB. `0` is unity gain; negative values attenuate.",
+            "format": "float",
+            "default": 0
+          },
+          "fadeInMs": {
+            "type": "integer",
+            "description": "Linear fade-in duration in milliseconds. `0` disables fade-in.",
+            "format": "int32",
+            "default": 0
+          },
+          "fadeOutMs": {
+            "type": "integer",
+            "description": "Linear fade-out duration in milliseconds applied at the tail of the clip. `0` disables fade-out.",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "description": "A single track participating in an audio mix."
       },
       "BatchOCRSafetyClassificationInput": {
         "required": [
@@ -8395,6 +8598,12 @@
                 "additionalProperties": {
                   "type": "number",
                   "format": "double"
+                }
+              },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
                 }
               },
               "ecosystem": {
@@ -10179,6 +10388,12 @@
                 "format": "int32",
                 "default": 2
               },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
+                }
+              },
               "ecosystem": {
                 "enum": [
                   "sd1"
@@ -10396,6 +10611,12 @@
                 "additionalProperties": {
                   "type": "number",
                   "format": "double"
+                }
+              },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
                 }
               },
               "ecosystem": {
@@ -20450,6 +20671,13 @@
           },
           "fee": {
             "$ref": "#/components/schemas/ResourceFee"
+          },
+          "payoutEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "If set to false, then this resource is not eligible for compenstation or tips"
           }
         },
         "additionalProperties": false,
@@ -26693,6 +26921,7 @@
             "aceStepAudio": "#/components/schemas/AceStepAudioStep",
             "ageClassification": "#/components/schemas/AgeClassificationStep",
             "audioCaptioning": "#/components/schemas/AudioCaptioningStep",
+            "audioMix": "#/components/schemas/AudioMixStep",
             "blobArchive": "#/components/schemas/BlobArchiveStep",
             "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
@@ -27013,6 +27242,7 @@
             "aceStepAudio": "#/components/schemas/AceStepAudioStepTemplate",
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
             "audioCaptioning": "#/components/schemas/AudioCaptioningStepTemplate",
+            "audioMix": "#/components/schemas/AudioMixStepTemplate",
             "blobArchive": "#/components/schemas/BlobArchiveStepTemplate",
             "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
@@ -27803,6 +28033,12 @@
                   "format": "double"
                 }
               },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
+                }
+              },
               "model": {
                 "enum": [
                   "base"
@@ -28033,6 +28269,12 @@
                 "additionalProperties": {
                   "type": "number",
                   "format": "double"
+                }
+              },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
                 }
               },
               "model": {

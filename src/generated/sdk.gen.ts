@@ -37,9 +37,6 @@ import type {
   HeadBlobData,
   HeadBlobErrors,
   HeadBlobResponses,
-  InvalidateResourceData,
-  InvalidateResourceErrors,
-  InvalidateResourceResponses,
   InvalidateUserCacheData,
   InvalidateUserCacheErrors,
   InvalidateUserCacheResponses,
@@ -52,6 +49,9 @@ import type {
   InvokeAudioCaptioningStepTemplateData,
   InvokeAudioCaptioningStepTemplateErrors,
   InvokeAudioCaptioningStepTemplateResponses,
+  InvokeAudioMixStepTemplateData,
+  InvokeAudioMixStepTemplateErrors,
+  InvokeAudioMixStepTemplateResponses,
   InvokeBatchOcrSafetyClassificationStepTemplateData,
   InvokeBatchOcrSafetyClassificationStepTemplateErrors,
   InvokeBatchOcrSafetyClassificationStepTemplateResponses,
@@ -364,6 +364,28 @@ export const invokeAudioCaptioningStepTemplate = <ThrowOnError extends boolean =
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/audioCaptioning',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Audio Mix
+ *
+ * Overlays multiple audio clips on a single timeline, each placed at its own start offset with optional per-track volume and fade controls.
+ * /// Pair with N text-to-speech steps to assemble multi-speaker dialogue, debate, or audio-drama scenes with cross-talk and interruption.
+ */
+export const invokeAudioMixStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeAudioMixStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeAudioMixStepTemplateResponses,
+    InvokeAudioMixStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/audioMix',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1075,18 +1097,6 @@ export const invokeXGuardModerationStepTemplate = <ThrowOnError extends boolean 
       ...options?.headers,
     },
   });
-
-/**
- * Invalidates the cache of a specific resource.
- */
-export const invalidateResource = <ThrowOnError extends boolean = false>(
-  options: Options<InvalidateResourceData, ThrowOnError>
-) =>
-  (options.client ?? client).delete<
-    InvalidateResourceResponses,
-    InvalidateResourceErrors,
-    ThrowOnError
-  >({ url: '/v2/resources/{air}', ...options });
 
 /**
  * Get an existing resource.
