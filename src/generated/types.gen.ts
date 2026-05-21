@@ -472,6 +472,14 @@ export type AgeDetection = {
   };
 };
 
+/**
+ * AI Toolkit training for Anima models.
+ */
+export type AnimaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  ecosystem: 'anima';
+  engine: 'ai-toolkit';
+};
+
 export type AnimaCreateImageGenInput = Omit<
   AnimaImageGenInput,
   'engine' | 'ecosystem' | 'operation'

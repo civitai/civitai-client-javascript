@@ -90,6 +90,7 @@ export {
   type AgeDetection,
   type AiRecognitionResult,
   type AiToolkitTrainingInput,
+  type AnimaAiToolkitTrainingInput,
   type AnimaCreateImageGenInput,
   type AnimaImageGenInput,
   AnimalPoseBboxDetector,

@@ -5535,7 +5535,8 @@
                 "ltx23": "#/components/schemas/Ltx23AIToolkitTrainingInput",
                 "ace_step_15": "#/components/schemas/AceStep15AIToolkitTrainingInput",
                 "ace_step_15_xl": "#/components/schemas/AceStep15XlAIToolkitTrainingInput",
-                "hidream-o1": "#/components/schemas/HiDreamO1AIToolkitTrainingInput"
+                "hidream-o1": "#/components/schemas/HiDreamO1AIToolkitTrainingInput",
+                "anima": "#/components/schemas/AnimaAIToolkitTrainingInput"
               }
             }
           }
@@ -6324,6 +6325,36 @@
         },
         "additionalProperties": false,
         "description": "Represents a single age detection in an image."
+      },
+      "AnimaAIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "enum": [
+                  "anima"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for Anima models."
       },
       "AnimaCreateImageGenInput": {
         "allOf": [
