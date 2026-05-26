@@ -67,6 +67,9 @@ import type {
   InvokeConvertImageStepTemplateData,
   InvokeConvertImageStepTemplateErrors,
   InvokeConvertImageStepTemplateResponses,
+  InvokeCustomComfyStepTemplateData,
+  InvokeCustomComfyStepTemplateErrors,
+  InvokeCustomComfyStepTemplateResponses,
   InvokeEchoStepTemplateData,
   InvokeEchoStepTemplateErrors,
   InvokeEchoStepTemplateResponses,
@@ -487,6 +490,31 @@ export const invokeConvertImageStepTemplate = <ThrowOnError extends boolean = fa
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/convertImage',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * CustomComfy
+ *
+ * Submit a raw ComfyUI workflow graph for execution. Every resource the
+ * /// workflow uses (checkpoints, loras, AND <c>comfy:nodepack</c> URNs for
+ * /// runtime-installable custom nodes) must be declared in <c>Resources</c> —
+ * /// the orchestrator does not scan the workflow. Billing happens after
+ * /// execution based on actual ComfyUI runtime; infra failures don't charge.
+ */
+export const invokeCustomComfyStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeCustomComfyStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeCustomComfyStepTemplateResponses,
+    InvokeCustomComfyStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/customComfy',
     ...options,
     headers: {
       'Content-Type': 'application/json',

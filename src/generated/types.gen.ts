@@ -1564,6 +1564,80 @@ export type ComfyInput = {
   useSpineComfy?: null | boolean;
 };
 
+export type ComfyLensImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: string;
+  ecosystem: 'lens';
+  engine: 'comfy';
+};
+
+export type ComfyLensNormalCreateImageGenInput = Omit<
+  ComfyLensNormalImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'normal';
+  ecosystem: 'lens';
+  engine: 'comfy';
+};
+
+export type ComfyLensNormalImageGenInput = Omit<
+  ComfyLensImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: 'normal';
+  ecosystem: 'lens';
+  engine: 'comfy';
+};
+
+export type ComfyLensTurboCreateImageGenInput = Omit<
+  ComfyLensTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'turbo';
+  ecosystem: 'lens';
+  engine: 'comfy';
+};
+
+export type ComfyLensTurboImageGenInput = Omit<
+  ComfyLensImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: 'turbo';
+  ecosystem: 'lens';
+  engine: 'comfy';
+};
+
 /**
  * Generate video driven by a reference audio track, optionally anchored to a reference image (ComfyUI backend)
  */
@@ -1999,6 +2073,73 @@ export type ConvertImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
   next: string;
   items: Array<Workflow>;
+};
+
+export type CustomComfyHooks = {
+  /**
+   * WebSocket URL the worker forwards ComfyUI's `/ws` messages to.
+   * Used by the hosted UI for live progress; null for headless consumers.
+   */
+  websocket?: null | string;
+};
+
+/**
+ * Input for a CustomComfy step.
+ */
+export type CustomComfyInput = {
+  /**
+   * All resources the workflow needs, declared explicitly as AIR URNs.
+   * Includes checkpoint/lora/vae models AND `comfy:nodepack` URNs
+   * for runtime-installable custom nodes
+   * (e.g. `urn:air:comfy:nodepack:comfyregistry:kijai/comfyui-kjnodes@1.4.0`).
+   * Anything the workflow references that isn't listed here will fail at
+   * load time inside ComfyUI.
+   */
+  resources: Array<string>;
+  /**
+   * The raw ComfyUI workflow graph. Forwarded opaquely to the worker;
+   * the orchestrator does not inspect or validate node contents.
+   */
+  workflow: unknown;
+  hooks?: CustomComfyHooks;
+  /**
+   * Optional session identifier. When set, the scheduler prefers a
+   * worker that already holds this session's ComfyUI container (P5
+   * session affinity). Null = no preference, treated as a fresh session.
+   */
+  sessionId?: null | string;
+};
+
+/**
+ * Output from a CustomComfy step.
+ */
+export type CustomComfyOutput = {
+  /**
+   * The executed workflow JSON, with any `output/<filename>`
+   * references rewritten to blob URIs the consumer can fetch.
+   */
+  workflow: unknown;
+  /**
+   * Direct URIs to each generated asset (images, videos, etc).
+   */
+  assets: Array<string>;
+};
+
+/**
+ * CustomComfy
+ */
+export type CustomComfyStep = Omit<WorkflowStep, '$type'> & {
+  input: CustomComfyInput;
+  output?: CustomComfyOutput;
+  $type: 'customComfy';
+};
+
+/**
+ * CustomComfy
+ */
+export type CustomComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: CustomComfyInput;
+  $type: 'customComfy';
 };
 
 export type CustomTextToSpeechInput = Omit<TextToSpeechInput, 'engine'> & {
@@ -4947,6 +5088,7 @@ export type ResourceFee = {
   amount: number;
   type: ResourceFeeType;
   settlementCurrency: SettlementCurrency;
+  recipientModelVersionId?: null | number;
 };
 
 export const ResourceFeeType = { PER_IMAGE_BUZZ: 'perImageBuzz' } as const;
@@ -6813,6 +6955,12 @@ export type Workflow = {
    * Prevents re-charging on grain recovery.
    */
   forceRefunded: boolean;
+  /**
+   * When true, this workflow is not persisted to telemetry/MongoDB.
+   * In-flight state lives only in Orleans grain state (Redis); once the workflow
+   * reaches a terminal state the grain clears its state and no record remains.
+   */
+  ephemeral?: null | boolean;
 };
 
 /**
@@ -7243,6 +7391,13 @@ export type WorkflowTemplate = {
    * Limit the currencies that can be used to pay for this workflow.
    */
   currencies: Array<BuzzClientAccount>;
+  /**
+   * When true, the workflow is never persisted to long-term storage.
+   * Results are available via callbacks and via the synchronous `wait` parameter only;
+   * after the workflow reaches a terminal state, GET /v2/consumer/workflows/{id} returns 404.
+   * Requires at least one callback OR `wait > 0` on submission.
+   */
+  ephemeral?: null | boolean;
 };
 
 export type WorkflowTips = {
@@ -8105,6 +8260,12 @@ export type WorkflowWritable = {
    * Prevents re-charging on grain recovery.
    */
   forceRefunded: boolean;
+  /**
+   * When true, this workflow is not persisted to telemetry/MongoDB.
+   * In-flight state lives only in Orleans grain state (Redis); once the workflow
+   * reaches a terminal state the grain clears its state and no record remains.
+   */
+  ephemeral?: null | boolean;
 };
 
 export type WorkflowCostWritable = {
@@ -8686,6 +8847,7 @@ export type InvokeAceStepAudioStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/aceStepAudio';
 };
@@ -8721,6 +8883,7 @@ export type InvokeAgeClassificationStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/ageClassification';
 };
@@ -8756,6 +8919,7 @@ export type InvokeAudioCaptioningStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/audioCaptioning';
 };
@@ -8791,6 +8955,7 @@ export type InvokeAudioMixStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/audioMix';
 };
@@ -8826,6 +8991,7 @@ export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/batchOCRSafetyClassification';
 };
@@ -8861,6 +9027,7 @@ export type InvokeBlobArchiveStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/blobArchive';
 };
@@ -8896,6 +9063,7 @@ export type InvokeChatCompletionStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/chatCompletion';
 };
@@ -8931,6 +9099,7 @@ export type InvokeComfyStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/comfy';
 };
@@ -8966,6 +9135,7 @@ export type InvokeConvertImageStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/convertImage';
 };
@@ -8994,6 +9164,42 @@ export type InvokeConvertImageStepTemplateResponses = {
 export type InvokeConvertImageStepTemplateResponse =
   InvokeConvertImageStepTemplateResponses[keyof InvokeConvertImageStepTemplateResponses];
 
+export type InvokeCustomComfyStepTemplateData = {
+  body?: CustomComfyInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/customComfy';
+};
+
+export type InvokeCustomComfyStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeCustomComfyStepTemplateError =
+  InvokeCustomComfyStepTemplateErrors[keyof InvokeCustomComfyStepTemplateErrors];
+
+export type InvokeCustomComfyStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: CustomComfyOutput;
+};
+
+export type InvokeCustomComfyStepTemplateResponse =
+  InvokeCustomComfyStepTemplateResponses[keyof InvokeCustomComfyStepTemplateResponses];
+
 export type InvokeEchoStepTemplateData = {
   body?: EchoInput;
   path?: never;
@@ -9001,6 +9207,7 @@ export type InvokeEchoStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/echo';
 };
@@ -9036,6 +9243,7 @@ export type InvokeHumanoidImageMaskStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/humanoidImageMask';
 };
@@ -9071,6 +9279,7 @@ export type InvokeImageGenStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/imageGen';
 };
@@ -9106,6 +9315,7 @@ export type InvokeImageResourceTrainingStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/imageResourceTraining';
 };
@@ -9141,6 +9351,7 @@ export type InvokeImageUploadStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/imageUpload';
 };
@@ -9176,6 +9387,7 @@ export type InvokeImageUpscalerStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/imageUpscaler';
 };
@@ -9211,6 +9423,7 @@ export type InvokeMediaCaptioningStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/mediaCaptioning';
 };
@@ -9246,6 +9459,7 @@ export type InvokeMediaHashStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/mediaHash';
 };
@@ -9281,6 +9495,7 @@ export type InvokeMediaRatingStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/mediaRating';
 };
@@ -9316,6 +9531,7 @@ export type InvokeModelClamScanStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/modelClamScan';
 };
@@ -9351,6 +9567,7 @@ export type InvokeModelHashStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/modelHash';
 };
@@ -9386,6 +9603,7 @@ export type InvokeModelParseMetadataStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/modelParseMetadata';
 };
@@ -9421,6 +9639,7 @@ export type InvokeModelPickleScanStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/modelPickleScan';
 };
@@ -9456,6 +9675,7 @@ export type InvokePreprocessImageStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/preprocessImage';
 };
@@ -9491,6 +9711,7 @@ export type InvokePromptEnhancementStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/promptEnhancement';
 };
@@ -9526,6 +9747,7 @@ export type InvokeRepeatStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/repeat';
 };
@@ -9561,6 +9783,7 @@ export type InvokeTextToImageStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/textToImage';
 };
@@ -9596,6 +9819,7 @@ export type InvokeTextToSpeechStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/textToSpeech';
 };
@@ -9631,6 +9855,7 @@ export type InvokeTrainingStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/training';
 };
@@ -9666,6 +9891,7 @@ export type InvokeTranscodeStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/transcode';
 };
@@ -9701,6 +9927,7 @@ export type InvokeTranscriptionStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/transcription';
 };
@@ -9736,6 +9963,7 @@ export type InvokeTryOnUStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/tryOnU';
 };
@@ -9771,6 +9999,7 @@ export type InvokeVideoEnhancementStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/videoEnhancement';
 };
@@ -9806,6 +10035,7 @@ export type InvokeVideoFrameExtractionStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/videoFrameExtraction';
 };
@@ -9841,6 +10071,7 @@ export type InvokeVideoGenStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/videoGen';
 };
@@ -9876,6 +10107,7 @@ export type InvokeVideoInterpolationStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/videoInterpolation';
 };
@@ -9911,6 +10143,7 @@ export type InvokeVideoMetadataStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/videoMetadata';
 };
@@ -9946,6 +10179,7 @@ export type InvokeVideoUpscalerStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/videoUpscaler';
 };
@@ -9981,6 +10215,7 @@ export type InvokeWdTaggingStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/wdTagging';
 };
@@ -10016,6 +10251,7 @@ export type InvokeXGuardModerationStepTemplateData = {
     experimental?: boolean;
     allowMatureContent?: boolean;
     whatif?: boolean;
+    ephemeral?: boolean;
   };
   url: '/v2/consumer/recipes/xGuardModeration';
 };

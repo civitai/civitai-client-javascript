@@ -507,6 +507,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -587,6 +594,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -675,6 +689,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -755,6 +776,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -841,6 +869,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -920,6 +955,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1008,6 +1050,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1088,6 +1137,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1175,6 +1231,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1230,6 +1293,97 @@
         }
       }
     },
+    "/v2/consumer/recipes/customComfy": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "CustomComfy",
+        "description": "Submit a raw ComfyUI workflow graph for execution. Every resource the\n/// workflow uses (checkpoints, loras, AND <c>comfy:nodepack</c> URNs for\n/// runtime-installable custom nodes) must be declared in <c>Resources</c> —\n/// the orchestrator does not scan the workflow. Billing happens after\n/// execution based on actual ComfyUI runtime; infra failures don't charge.",
+        "operationId": "InvokeCustomComfyStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomComfyInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomComfyInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomComfyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomComfyOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/echo": {
       "post": {
         "tags": [
@@ -1255,6 +1409,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1337,6 +1498,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1425,6 +1593,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1505,6 +1680,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1593,6 +1775,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1671,6 +1860,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1759,6 +1955,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1839,6 +2042,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -1927,6 +2137,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2007,6 +2224,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2095,6 +2319,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2175,6 +2406,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2263,6 +2501,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2341,6 +2586,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2429,6 +2681,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2508,6 +2767,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2596,6 +2862,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2676,6 +2949,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2764,6 +3044,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -2843,6 +3130,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -2931,6 +3225,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -3009,6 +3310,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -3092,6 +3400,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -3180,6 +3495,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -3260,6 +3582,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -3347,6 +3676,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -3430,6 +3766,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -3509,6 +3852,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -3597,6 +3947,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -3677,6 +4034,13 @@
           },
           {
             "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -9400,7 +9764,8 @@
                 "flux2Dev": "#/components/schemas/ComfyFlux2DevImageGenInput",
                 "ernie": "#/components/schemas/ComfyErnieImageGenInput",
                 "hidream-o1": "#/components/schemas/ComfyHiDreamImageGenInput",
-                "anima": "#/components/schemas/ComfyAnimaImageGenInput"
+                "anima": "#/components/schemas/ComfyAnimaImageGenInput",
+                "lens": "#/components/schemas/ComfyLensImageGenInput"
               }
             }
           }
@@ -9443,6 +9808,376 @@
           }
         },
         "additionalProperties": false
+      },
+      "ComfyLensImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "lens"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "normal": "#/components/schemas/ComfyLensNormalImageGenInput",
+                "turbo": "#/components/schemas/ComfyLensTurboImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyLensNormalCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLensNormalImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "normal"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "lens"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyLensNormalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLensImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 4
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "model": {
+                "enum": [
+                  "normal"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "lens"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyLensNormalCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyLensTurboCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLensTurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "lens"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyLensTurboImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyLensImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 4
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "model": {
+                "enum": [
+                  "turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "lens"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyLensTurboCreateImageGenInput"
+              }
+            }
+          }
+        ]
       },
       "ComfyLtx23AudioToVideoInput": {
         "allOf": [
@@ -10928,6 +11663,131 @@
           }
         },
         "additionalProperties": false
+      },
+      "CustomComfyHooks": {
+        "type": "object",
+        "properties": {
+          "websocket": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "WebSocket URL the worker forwards ComfyUI's `/ws` messages to.\nUsed by the hosted UI for live progress; null for headless consumers.",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomComfyInput": {
+        "required": [
+          "resources",
+          "workflow"
+        ],
+        "type": "object",
+        "properties": {
+          "resources": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "All resources the workflow needs, declared explicitly as AIR URNs.\nIncludes checkpoint/lora/vae models AND `comfy:nodepack` URNs\nfor runtime-installable custom nodes\n(e.g. `urn:air:comfy:nodepack:comfyregistry:kijai/comfyui-kjnodes@1.4.0`).\nAnything the workflow references that isn't listed here will fail at\nload time inside ComfyUI."
+          },
+          "workflow": {
+            "description": "The raw ComfyUI workflow graph. Forwarded opaquely to the worker;\nthe orchestrator does not inspect or validate node contents."
+          },
+          "hooks": {
+            "$ref": "#/components/schemas/CustomComfyHooks"
+          },
+          "sessionId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional session identifier. When set, the scheduler prefers a\nworker that already holds this session's ComfyUI container (P5\nsession affinity). Null = no preference, treated as a fresh session."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for a CustomComfy step."
+      },
+      "CustomComfyOutput": {
+        "required": [
+          "assets",
+          "workflow"
+        ],
+        "type": "object",
+        "properties": {
+          "workflow": {
+            "description": "The executed workflow JSON, with any `output/<filename>`\nreferences rewritten to blob URIs the consumer can fetch."
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Direct URIs to each generated asset (images, videos, etc)."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from a CustomComfy step."
+      },
+      "CustomComfyStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/CustomComfyInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/CustomComfyOutput"
+              },
+              "$type": {
+                "enum": [
+                  "customComfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "CustomComfy"
+      },
+      "CustomComfyStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/CustomComfyInput"
+              },
+              "$type": {
+                "enum": [
+                  "customComfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "CustomComfy"
       },
       "CustomTextToSpeechInput": {
         "allOf": [
@@ -20564,6 +21424,13 @@
           },
           "settlementCurrency": {
             "$ref": "#/components/schemas/SettlementCurrency"
+          },
+          "recipientModelVersionId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -24538,7 +25405,7 @@
                   "uni_pc_bh2"
                 ],
                 "type": "string",
-                "default": "dpmpp_2m_sde"
+                "default": "euler"
               },
               "scheduler": {
                 "enum": [
@@ -26573,6 +27440,13 @@
           "forceRefunded": {
             "type": "boolean",
             "description": "Whether this workflow has been force-refunded.\nPrevents re-charging on grain recovery."
+          },
+          "ephemeral": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "When true, this workflow is not persisted to telemetry/MongoDB.\nIn-flight state lives only in Orleans grain state (Redis); once the workflow\nreaches a terminal state the grain clears its state and no record remains."
           }
         },
         "additionalProperties": false,
@@ -26957,6 +27831,7 @@
             "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
             "convertImage": "#/components/schemas/ConvertImageStep",
+            "customComfy": "#/components/schemas/CustomComfyStep",
             "echo": "#/components/schemas/EchoStep",
             "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
@@ -27278,6 +28153,7 @@
             "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
             "convertImage": "#/components/schemas/ConvertImageStepTemplate",
+            "customComfy": "#/components/schemas/CustomComfyStepTemplate",
             "echo": "#/components/schemas/EchoStepTemplate",
             "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
@@ -27390,6 +28266,13 @@
               "$ref": "#/components/schemas/BuzzClientAccount"
             },
             "description": "Limit the currencies that can be used to pay for this workflow."
+          },
+          "ephemeral": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "When true, the workflow is never persisted to long-term storage.\nResults are available via callbacks and via the synchronous `wait` parameter only;\nafter the workflow reaches a terminal state, GET /v2/consumer/workflows/{id} returns 404.\nRequires at least one callback OR `wait > 0` on submission."
           }
         },
         "additionalProperties": false,
