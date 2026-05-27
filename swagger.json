@@ -2563,6 +2563,97 @@
         }
       }
     },
+    "/v2/consumer/recipes/polyGen": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "3D model generation",
+        "description": "Generate 3D models through text or image inputs using any of our supported engines.",
+        "operationId": "InvokePolyGenStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolyGenInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolyGenInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolyGenInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolyGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/preprocessImage": {
       "post": {
         "tags": [
@@ -7456,7 +7547,8 @@
           "mapping": {
             "image": "#/components/schemas/ImageBlob",
             "video": "#/components/schemas/VideoBlob",
-            "audio": "#/components/schemas/AudioBlob"
+            "audio": "#/components/schemas/AudioBlob",
+            "model3d": "#/components/schemas/Model3DBlob"
           }
         }
       },
@@ -12198,7 +12290,40 @@
             "discriminator": {
               "propertyName": "model",
               "mapping": {
-                "qwen2": "#/components/schemas/Qwen2FalImageGenInput"
+                "qwen2": "#/components/schemas/Qwen2FalImageGenInput",
+                "krea2": "#/components/schemas/Krea2FalImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "FalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "meshy": "#/components/schemas/MeshyFalPolyGenInput"
               }
             }
           }
@@ -16745,6 +16870,161 @@
           }
         ]
       },
+      "Krea2CreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Krea2FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "krea2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Krea2FalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageStyleReferences",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 5000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "size": {
+                "enum": [
+                  "medium",
+                  "large"
+                ],
+                "type": "string",
+                "default": "medium"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "1:1",
+                  "4:3",
+                  "3:2",
+                  "16:9",
+                  "2.35:1",
+                  "4:5",
+                  "2:3",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "1:1"
+              },
+              "creativity": {
+                "enum": [
+                  "raw",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "medium"
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "imageStyleReferences": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Krea2StyleReference"
+                }
+              },
+              "model": {
+                "enum": [
+                  "krea2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Krea2CreateFalImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "Krea2StyleReference": {
+        "required": [
+          "imageUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "strength": {
+            "maximum": 2,
+            "minimum": -2,
+            "type": "number",
+            "format": "double",
+            "default": 1
+          }
+        },
+        "additionalProperties": false
+      },
       "LeresBoost": {
         "enum": [
           "disable",
@@ -17246,6 +17526,199 @@
         ],
         "description": "MediaRating"
       },
+      "MeshyFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "targetPolycount": {
+                "maximum": 300000,
+                "minimum": 100,
+                "type": "integer",
+                "format": "int32",
+                "default": 30000
+              },
+              "topology": {
+                "enum": [
+                  "quad",
+                  "triangle"
+                ],
+                "type": "string",
+                "default": "triangle"
+              },
+              "symmetryMode": {
+                "enum": [
+                  "off",
+                  "auto",
+                  "on"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "shouldRemesh": {
+                "type": "boolean",
+                "default": true
+              },
+              "enablePbr": {
+                "type": "boolean",
+                "default": false
+              },
+              "texturePrompt": {
+                "maxLength": 600,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "enableRigging": {
+                "type": "boolean",
+                "default": false
+              },
+              "enableAnimation": {
+                "type": "boolean",
+                "default": false
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "model": {
+                "enum": [
+                  "meshy"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textTo3D": "#/components/schemas/MeshyTextTo3DFalPolyGenInput",
+                "imageTo3D": "#/components/schemas/MeshyImageTo3DFalPolyGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "MeshyImageTo3DFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrl",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "shouldTexture": {
+                "type": "boolean",
+                "default": true
+              },
+              "operation": {
+                "enum": [
+                  "imageTo3D"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "meshy"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MeshyTextTo3DFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "maxLength": 600,
+                "minLength": 1,
+                "type": "string"
+              },
+              "mode": {
+                "enum": [
+                  "preview",
+                  "full"
+                ],
+                "type": "string",
+                "default": "full"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": false
+              },
+              "operation": {
+                "enum": [
+                  "textTo3D"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "meshy"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "Metric3dBackbone": {
         "enum": [
           "vit-small",
@@ -17321,6 +17794,33 @@
               "engine": {
                 "enum": [
                   "mochi"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Model3DBlob": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Blob"
+          },
+          {
+            "required": [
+              "format",
+              "type"
+            ],
+            "type": "object",
+            "properties": {
+              "format": {
+                "type": "string",
+                "description": "File format of the 3D model (e.g. \"glb\", \"fbx\", \"obj\", \"usdz\")."
+              },
+              "type": {
+                "enum": [
+                  "model3d"
                 ],
                 "type": "string"
               }
@@ -19003,6 +19503,99 @@
           }
         ],
         "description": "PNG output format configuration."
+      },
+      "PolyGenInput": {
+        "required": [
+          "engine"
+        ],
+        "type": "object",
+        "properties": {
+          "engine": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "engine",
+          "mapping": {
+            "fal": "#/components/schemas/FalPolyGenInput"
+          }
+        }
+      },
+      "PolyGenOutput": {
+        "required": [
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "$ref": "#/components/schemas/Model3DBlob"
+          },
+          "fbxModel": {
+            "$ref": "#/components/schemas/Model3DBlob"
+          },
+          "thumbnail": {
+            "$ref": "#/components/schemas/ImageBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PolyGenStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/PolyGenInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/PolyGenOutput"
+              },
+              "$type": {
+                "enum": [
+                  "polyGen"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "3D model generation"
+      },
+      "PolyGenStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/PolyGenInput"
+              },
+              "$type": {
+                "enum": [
+                  "polyGen"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "3D model generation"
       },
       "PreprocessImageAnimalPoseInput": {
         "allOf": [
@@ -27844,6 +28437,7 @@
             "modelHash": "#/components/schemas/ModelHashStep",
             "modelParseMetadata": "#/components/schemas/ModelParseMetadataStep",
             "modelPickleScan": "#/components/schemas/ModelPickleScanStep",
+            "polyGen": "#/components/schemas/PolyGenStep",
             "preprocessImage": "#/components/schemas/PreprocessImageStep",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStep",
             "textToImage": "#/components/schemas/TextToImageStep",
@@ -28166,6 +28760,7 @@
             "modelHash": "#/components/schemas/ModelHashStepTemplate",
             "modelParseMetadata": "#/components/schemas/ModelParseMetadataStepTemplate",
             "modelPickleScan": "#/components/schemas/ModelPickleScanStepTemplate",
+            "polyGen": "#/components/schemas/PolyGenStepTemplate",
             "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",

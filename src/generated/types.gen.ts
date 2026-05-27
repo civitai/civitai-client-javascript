@@ -2358,6 +2358,11 @@ export type FalImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'fal';
 };
 
+export type FalPolyGenInput = Omit<PolyGenInput, 'engine'> & {
+  model: string;
+  engine: 'fal';
+};
+
 export const FileFormat = {
   UNKNOWN: 'unknown',
   SAFE_TENSOR: 'safeTensor',
@@ -3726,6 +3731,33 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
   engine: 'kohya';
 };
 
+export type Krea2CreateFalImageGenInput = Omit<
+  Krea2FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'krea2';
+  engine: 'fal';
+};
+
+export type Krea2FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  size?: 'medium' | 'large';
+  aspectRatio?: '1:1' | '4:3' | '3:2' | '16:9' | '2.35:1' | '4:5' | '2:3' | '9:16';
+  creativity?: 'raw' | 'low' | 'medium' | 'high';
+  quantity?: number;
+  seed?: null | number;
+  imageStyleReferences: Array<Krea2StyleReference>;
+  model: 'krea2';
+  engine: 'fal';
+};
+
+export type Krea2StyleReference = {
+  imageUrl: string;
+  strength?: number;
+};
+
 export const LeresBoost = { DISABLE: 'disable', ENABLE: 'enable' } as const;
 
 export type LeresBoost = (typeof LeresBoost)[keyof typeof LeresBoost];
@@ -3942,6 +3974,44 @@ export type MediaRatingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'mediaRating';
 };
 
+export type MeshyFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
+  operation: string;
+  targetPolycount?: number;
+  topology?: 'quad' | 'triangle';
+  symmetryMode?: 'off' | 'auto' | 'on';
+  shouldRemesh?: boolean;
+  enablePbr?: boolean;
+  texturePrompt?: null | string;
+  enableRigging?: boolean;
+  enableAnimation?: boolean;
+  seed?: null | number;
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyImageTo3dFalPolyGenInput = Omit<
+  MeshyFalPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageUrl: string;
+  shouldTexture?: boolean;
+  operation: 'imageTo3D';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyTextTo3dFalPolyGenInput = Omit<
+  MeshyFalPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  prompt: string;
+  mode?: 'preview' | 'full';
+  enablePromptExpansion?: boolean;
+  operation: 'textTo3D';
+  model: 'meshy';
+  engine: 'fal';
+};
+
 export const Metric3dBackbone = {
   VIT_SMALL: 'vit-small',
   VIT_LARGE: 'vit-large',
@@ -3968,6 +4038,14 @@ export type MochiVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed: number;
   enablePromptEnhancer?: boolean;
   engine: 'mochi';
+};
+
+export type Model3dBlob = Omit<Blob, 'type'> & {
+  /**
+   * File format of the 3D model (e.g. "glb", "fbx", "obj", "usdz").
+   */
+  format: string;
+  type: 'model3d';
 };
 
 /**
@@ -4491,6 +4569,33 @@ export type OutputFormat = (typeof OutputFormat)[keyof typeof OutputFormat];
  */
 export type PngOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   format: 'png';
+};
+
+export type PolyGenInput = {
+  engine: string;
+};
+
+export type PolyGenOutput = {
+  model: Model3dBlob;
+  fbxModel?: Model3dBlob;
+  thumbnail?: ImageBlob;
+};
+
+/**
+ * 3D model generation
+ */
+export type PolyGenStep = Omit<WorkflowStep, '$type'> & {
+  input: PolyGenInput;
+  output?: PolyGenOutput;
+  $type: 'polyGen';
+};
+
+/**
+ * 3D model generation
+ */
+export type PolyGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: PolyGenInput;
+  $type: 'polyGen';
 };
 
 export type PreprocessImageAnimalPoseInput = Omit<PreprocessImageInput, 'kind'> & {
@@ -9667,6 +9772,42 @@ export type InvokeModelPickleScanStepTemplateResponses = {
 
 export type InvokeModelPickleScanStepTemplateResponse =
   InvokeModelPickleScanStepTemplateResponses[keyof InvokeModelPickleScanStepTemplateResponses];
+
+export type InvokePolyGenStepTemplateData = {
+  body?: PolyGenInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/polyGen';
+};
+
+export type InvokePolyGenStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokePolyGenStepTemplateError =
+  InvokePolyGenStepTemplateErrors[keyof InvokePolyGenStepTemplateErrors];
+
+export type InvokePolyGenStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: PolyGenOutput;
+};
+
+export type InvokePolyGenStepTemplateResponse =
+  InvokePolyGenStepTemplateResponses[keyof InvokePolyGenStepTemplateResponses];
 
 export type InvokePreprocessImageStepTemplateData = {
   body?: PreprocessImageInputWritable;

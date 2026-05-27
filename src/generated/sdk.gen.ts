@@ -109,6 +109,9 @@ import type {
   InvokeModelPickleScanStepTemplateData,
   InvokeModelPickleScanStepTemplateErrors,
   InvokeModelPickleScanStepTemplateResponses,
+  InvokePolyGenStepTemplateData,
+  InvokePolyGenStepTemplateErrors,
+  InvokePolyGenStepTemplateResponses,
   InvokePreprocessImageStepTemplateData,
   InvokePreprocessImageStepTemplateErrors,
   InvokePreprocessImageStepTemplateResponses,
@@ -779,6 +782,27 @@ export const invokeModelPickleScanStepTemplate = <ThrowOnError extends boolean =
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/modelPickleScan',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * 3D model generation
+ *
+ * Generate 3D models through text or image inputs using any of our supported engines.
+ */
+export const invokePolyGenStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokePolyGenStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokePolyGenStepTemplateResponses,
+    InvokePolyGenStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/polyGen',
     ...options,
     headers: {
       'Content-Type': 'application/json',
