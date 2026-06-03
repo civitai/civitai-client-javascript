@@ -617,6 +617,8 @@ export {
   type LightricksVideoGenInput,
   type Ltx23AiToolkitTrainingInput,
   type Ltx2AiToolkitTrainingInput,
+  type MaiImageCreateFalImageGenInput,
+  type MaiImageFalImageGenInput,
   type MediaCaptioningInput,
   type MediaCaptioningOutput,
   type MediaCaptioningStep,

@@ -3805,6 +3805,35 @@ export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   engine: 'ai-toolkit';
 };
 
+export type MaiImageCreateFalImageGenInput = Omit<
+  MaiImageFalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'maiImage';
+  engine: 'fal';
+};
+
+export type MaiImageFalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  aspectRatio?:
+    | 'auto'
+    | '21:9'
+    | '16:9'
+    | '3:2'
+    | '4:3'
+    | '5:4'
+    | '1:1'
+    | '4:5'
+    | '3:4'
+    | '2:3'
+    | '9:16';
+  quantity?: number;
+  model: 'maiImage';
+  engine: 'fal';
+};
+
 /**
  * Represents the input information needed for the MediaCaptioning workflow step.
  */
@@ -3821,6 +3850,11 @@ export type MediaCaptioningInput = {
    * Maximum number of tokens to generate.
    */
   maxNewTokens: number;
+  /**
+   * Optional extra instructions appended to the captioning prompt to steer
+   * tone, structure, or formatting. Leave unset for the default caption.
+   */
+  customInstructions?: null | string;
 };
 
 /**
@@ -7066,6 +7100,12 @@ export type Workflow = {
    * reaches a terminal state the grain clears its state and no record remains.
    */
   ephemeral?: null | boolean;
+  /**
+   * Client-supplied idempotency key. Stored as `"{userId}-{clientValue}"`
+   * so the partial unique index can be single-field while still scoping
+   * uniqueness per-user. See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
+   */
+  externalId?: null | string;
 };
 
 /**
@@ -7503,6 +7543,14 @@ export type WorkflowTemplate = {
    * Requires at least one callback OR `wait > 0` on submission.
    */
   ephemeral?: null | boolean;
+  /**
+   * Optional client-supplied idempotency key. If a workflow with the same
+   * `(userId, externalId)` already exists — including from a prior
+   * `whatif=true` request — the existing workflow is returned instead
+   * of creating a new one. Mirrors `externalTransactionId` in the buzz
+   * service. Max 128 chars, `[A-Za-z0-9_-]+`.
+   */
+  externalId?: null | string;
 };
 
 export type WorkflowTips = {
@@ -8371,6 +8419,12 @@ export type WorkflowWritable = {
    * reaches a terminal state the grain clears its state and no record remains.
    */
   ephemeral?: null | boolean;
+  /**
+   * Client-supplied idempotency key. Stored as `"{userId}-{clientValue}"`
+   * so the partial unique index can be single-field while still scoping
+   * uniqueness per-user. See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
+   */
+  externalId?: null | string;
 };
 
 export type WorkflowCostWritable = {
