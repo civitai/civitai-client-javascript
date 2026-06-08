@@ -618,6 +618,7 @@ export {
   type Ltx23AiToolkitTrainingInput,
   type Ltx2AiToolkitTrainingInput,
   type MaiImageCreateFalImageGenInput,
+  type MaiImageEditFalImageGenInput,
   type MaiImageFalImageGenInput,
   type MediaCaptioningInput,
   type MediaCaptioningOutput,

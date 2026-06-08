@@ -17215,6 +17215,52 @@
           }
         ]
       },
+      "MaiImageEditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MaiImageFalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "maiImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "MaiImageFalImageGenInput": {
         "allOf": [
           {
@@ -17278,7 +17324,8 @@
             "discriminator": {
               "propertyName": "operation",
               "mapping": {
-                "createImage": "#/components/schemas/MaiImageCreateFalImageGenInput"
+                "createImage": "#/components/schemas/MaiImageCreateFalImageGenInput",
+                "editImage": "#/components/schemas/MaiImageEditFalImageGenInput"
               }
             }
           }

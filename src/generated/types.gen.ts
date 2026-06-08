@@ -3814,6 +3814,16 @@ export type MaiImageCreateFalImageGenInput = Omit<
   engine: 'fal';
 };
 
+export type MaiImageEditFalImageGenInput = Omit<
+  MaiImageFalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'maiImage';
+  engine: 'fal';
+};
+
 export type MaiImageFalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
   operation: string;
   prompt: string;
