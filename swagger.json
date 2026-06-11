@@ -6,6 +6,313 @@
     "version": "v2"
   },
   "paths": {
+    "/v2/apps": {
+      "post": {
+        "tags": [
+          "Apps"
+        ],
+        "summary": "Register a new app version. Bump `version` to publish changes; the\nsame `(name, version)` cannot be registered twice (409).",
+        "operationId": "RegisterApp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterAppRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterAppRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppDefinition"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Apps"
+        ],
+        "summary": "List all apps registered by the authenticated user.",
+        "operationId": "ListApps",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppDefinition"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/apps/{owner}/{name}": {
+      "get": {
+        "tags": [
+          "Apps"
+        ],
+        "summary": "Resolve an app by name. Returns the most recently registered version.",
+        "operationId": "GetAppLatest",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppDefinition"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/apps/{owner}/{name}/{version}": {
+      "get": {
+        "tags": [
+          "Apps"
+        ],
+        "operationId": "GetApp",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppDefinition"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Apps"
+        ],
+        "operationId": "DeleteApp",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/blobs/{blobId}": {
       "get": {
         "tags": [
@@ -751,97 +1058,6 @@
         }
       }
     },
-    "/v2/consumer/recipes/audioMix": {
-      "post": {
-        "tags": [
-          "Recipes"
-        ],
-        "summary": "Audio Mix",
-        "description": "Overlays multiple audio clips on a single timeline, each placed at its own start offset with optional per-track volume and fade controls.\n/// Pair with N text-to-speech steps to assemble multi-speaker dialogue, debate, or audio-drama scenes with cross-talk and interruption.",
-        "operationId": "InvokeAudioMixStepTemplate",
-        "parameters": [
-          {
-            "name": "experimental",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "allowMatureContent",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "whatif",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "ephemeral",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AudioMixInput"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AudioMixInput"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AudioMixInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AudioMixOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v2/consumer/recipes/batchOCRSafetyClassification": {
       "post": {
         "tags": [
@@ -1203,6 +1419,97 @@
         }
       }
     },
+    "/v2/consumer/recipes/composeMedia": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Compose Media",
+        "description": "Composes multiple audio and/or video elements onto a single timeline and canvas: overlay and\n/// stack videos, scale and pad them to an output canvas, mix and place audio, and apply per-element\n/// transformers (fades, volume). Each element is placed at its own absolute or implicitly-sequenced\n/// start time. Produces a video blob when any element is video, otherwise an audio blob. Pair with\n/// text-to-speech, music, and video-generation steps to assemble narrated clips, multi-speaker\n/// scenes with cross-talk, or picture-in-picture compositions.",
+        "operationId": "InvokeComposeMediaStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComposeMediaInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComposeMediaInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComposeMediaInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComposeMediaOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/convertImage": {
       "post": {
         "tags": [
@@ -1276,6 +1583,97 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ConvertImageOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/customApp": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Invokes a user-registered app (see <c>/v2/apps</c>) as a single workflow step.",
+        "description": "The orchestrator resolves the app by <c>owner/name@version</c>, snapshots its\n/// definition (container image AIR, invocation contract, requirements) onto the\n/// emitted <c>CustomAppJob</c>, and forwards the user's JSON input verbatim to\n/// the container's invocation endpoint. Billing happens after execution based\n/// on actual GPU-seconds the worker reports.",
+        "operationId": "InvokeCustomAppStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomAppInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomAppInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomAppInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomAppOutput"
                 }
               }
             }
@@ -1547,6 +1945,96 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HumanoidImageMaskOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/imageBackgroundRemoval": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job).",
+        "operationId": "InvokeImageBackgroundRemovalStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageBackgroundRemovalInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageBackgroundRemovalInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageBackgroundRemovalInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageBackgroundRemovalOutput"
                 }
               }
             }
@@ -5827,8 +6315,12 @@
           },
           {
             "required": [
+              "defaultSteps",
               "ecosystem",
-              "engine"
+              "engine",
+              "maxBatchSize",
+              "storageBuzzPerEpoch",
+              "usesStepPricing"
             ],
             "type": "object",
             "properties": {
@@ -5838,19 +6330,31 @@
               "epochs": {
                 "maximum": 20,
                 "minimum": 1,
-                "type": "integer",
-                "description": "Number of training epochs. An epoch is one complete pass through the training dataset.\nMaximum of 100 epochs can be specified.",
-                "format": "int32",
-                "default": 5
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Number of training epochs — the number of saved checkpoints produced (each epoch\nyields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;\nwhen both are supplied, both are honored (epochs = checkpoint count, steps = total).",
+                "format": "int32"
               },
-              "numberOfRepeats": {
-                "maximum": 5000,
+              "steps": {
+                "maximum": 10000,
                 "minimum": 1,
                 "type": [
                   "null",
                   "integer"
                 ],
-                "description": "Number of repeats per image. This is used to calculate the total number of steps for training and can affect the training time and cost.",
+                "description": "Total number of training steps. This is the primary control over training length and\ndetermines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved\ncheckpoints) is derived from it; when omitted, steps are derived from epochs.",
+                "format": "int32"
+              },
+              "batchSize": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it (up to the ecosystem's maximum) to train faster at the\ncost of more GPU memory. A larger batch sees more images per step, so fewer steps are needed for a\ncomparable result. Values above the ecosystem maximum are clamped down.",
                 "format": "int32"
               },
               "lr": {
@@ -5966,6 +6470,37 @@
                 ],
                 "description": "A trigger word that activates the trained LoRA when used in prompts.\nOnly applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein)."
               },
+              "continueFrom": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Optional previously-trained LoRA to continue training from (\"train further\"). When set, the first\nepoch resumes from this model instead of the base model, and the new epochs build on top of it."
+              },
+              "storageBuzzPerEpoch": {
+                "type": "number",
+                "description": "Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on\ntop of the per-step training cost — so raising the epoch count raises the price by this much each.\nOverride per ecosystem where per-epoch samples are expensive to compute (e.g. video).",
+                "format": "double",
+                "readOnly": true
+              },
+              "defaultSteps": {
+                "type": "integer",
+                "description": "Default total step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied.\nOverride per ecosystem where the default training length differs (e.g. video needs more steps,\nquickly-overtrained models need fewer).",
+                "format": "int32",
+                "readOnly": true
+              },
+              "usesStepPricing": {
+                "type": "boolean",
+                "description": "True when billing uses the per-step model. This is the default; the only exception is the legacy\npath where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps (existing consumers),\nwhich keeps the historical flat per-epoch price.",
+                "readOnly": true
+              },
+              "maxBatchSize": {
+                "type": "integer",
+                "description": "Ecosystem-specific maximum training batch size — the upper bound the user's\nCivitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.BatchSize is clamped to. Most ecosystems cap at 1.",
+                "format": "int32",
+                "readOnly": true
+              },
               "engine": {
                 "enum": [
                   "ai-toolkit"
@@ -6027,6 +6562,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -6111,6 +6656,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -6148,6 +6703,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -6788,11 +7353,17 @@
           },
           {
             "required": [
+              "defaultSteps",
               "ecosystem",
               "engine"
             ],
             "type": "object",
             "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "anima"
@@ -6804,6 +7375,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -7004,6 +7585,120 @@
           "manga_line"
         ],
         "type": "string"
+      },
+      "AppDefinition": {
+        "required": [
+          "createdAt",
+          "image",
+          "invocation",
+          "name",
+          "owner",
+          "resources",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "integer",
+            "description": "Owning user id. Set server-side from the auth principal on register; not\naccepted from request bodies.",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "description": "Container image as an AIR URN — e.g. `urn:air:oci:image:dockerhub:foo/bar@v1.0.0`.\nThe spine-controller's OCI image cache pulls (and locks) this for the lifetime of a claim."
+          },
+          "invocation": {
+            "$ref": "#/components/schemas/AppInvocation"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "AIRs the app needs for every invocation (models, embeddings, …). The worker\ndownloads/caches them before invoking and exposes them to the container under\n`/mnt/resources`; their in-container paths are delivered via the injected\n`_resources` map on the input JSON (and `{resource:<air>}` tokens\nin exec commands). Per-invocation resources can be added via the step input's\n`resources` field."
+          },
+          "inputSchema": {
+            "type": "null",
+            "description": "JSON-schema (draft-07) describing the shape of `CustomAppInput.Input`.\nPublished via `GET /v2/apps/{owner}/{name}` so SDKs can validate\nclient-side. v1 does not enforce server-side; the container itself is\nthe source of truth."
+          },
+          "outputSchema": {
+            "type": "null",
+            "description": "JSON-schema (draft-07) describing the shape of `CustomAppOutput.Result`."
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/AppRequirements"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A user-defined \"app\" registered against the orchestrator. Each app binds a container\nimage (referenced as an `oci:image` AIR) to an invocation contract and\ndeclares its input/output JSON-schemas plus host requirements. Apps are immutable\nper `(Owner, Name, Version)`; bump Civitai.Orchestration.Grains.Apps.AppDefinition.Version to publish changes."
+      },
+      "AppInvocation": {
+        "required": [
+          "method"
+        ],
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Wall-clock budget for a single invocation. Worker default applies when null.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "How the worker invokes the app's container. Discriminated by `method`:\n`\"http\"` POSTs the input to an endpoint the container serves;\n`\"exec\"` runs a command inside the container per invocation.",
+        "discriminator": {
+          "propertyName": "method",
+          "mapping": {
+            "http": "#/components/schemas/HttpAppInvocation",
+            "exec": "#/components/schemas/ExecAppInvocation"
+          }
+        }
+      },
+      "AppRequirements": {
+        "required": [
+          "gpuClasses"
+        ],
+        "type": "object",
+        "properties": {
+          "minVramGb": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "gpuCount": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "gpuClasses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional whitelist of GPU class names this app is willing to run on\n(e.g. `[\"A100\", \"H100\"]`). Empty / null means no restriction."
+          }
+        },
+        "additionalProperties": false
       },
       "ArchiveFormat": {
         "enum": [
@@ -7259,97 +7954,24 @@
         ],
         "description": "Audio Captioning"
       },
-      "AudioMixInput": {
-        "required": [
-          "tracks"
-        ],
-        "type": "object",
-        "properties": {
-          "tracks": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AudioMixTrackInput"
-            },
-            "description": "The tracks to mix. Each track is placed on the output timeline at its\n`StartSeconds`; overlapping intervals are summed (or normalised if `Normalize` is true)."
-          },
-          "normalize": {
-            "type": "boolean",
-            "description": "If true, divide the mix by the number of tracks to avoid clipping when many tracks overlap.\nDefaults to false to preserve per-track `VolumeDb` levels.",
-            "default": false
-          },
-          "maxDurationSeconds": {
-            "type": "number",
-            "description": "Soft cap on output duration in seconds. The worker rejects the job before invoking\nffmpeg if the union of track intervals exceeds this value.",
-            "format": "float",
-            "default": 600
-          }
-        },
-        "additionalProperties": false,
-        "description": "Input for the AudioMix workflow step."
-      },
-      "AudioMixOutput": {
-        "required": [
-          "audioBlob",
-          "tracks"
-        ],
-        "type": "object",
-        "properties": {
-          "audioBlob": {
-            "$ref": "#/components/schemas/AudioBlob"
-          },
-          "tracks": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AudioMixResolvedTrack"
-            },
-            "description": "Per-track timing of the mix in input order — useful for rendering subtitles\nor speaker highlights without re-probing every source clip."
-          }
-        },
-        "additionalProperties": false,
-        "description": "Output from the AudioMix workflow step."
-      },
-      "AudioMixResolvedTrack": {
-        "required": [
-          "duration",
-          "startSeconds"
-        ],
-        "type": "object",
-        "properties": {
-          "startSeconds": {
-            "type": "number",
-            "description": "Where this track starts on the output timeline, in seconds.",
-            "format": "float"
-          },
-          "duration": {
-            "type": "number",
-            "description": "Probed duration of the source clip, in seconds.",
-            "format": "float"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Resolved timing for a single track in the mix output."
-      },
-      "AudioMixStep": {
+      "AudioComposeMediaOutput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/WorkflowStep"
+            "$ref": "#/components/schemas/ComposeMediaOutput"
           },
           {
             "required": [
-              "$type",
-              "input"
+              "audioBlob",
+              "type"
             ],
             "type": "object",
             "properties": {
-              "input": {
-                "$ref": "#/components/schemas/AudioMixInput"
+              "audioBlob": {
+                "$ref": "#/components/schemas/AudioBlob"
               },
-              "output": {
-                "$ref": "#/components/schemas/AudioMixOutput"
-              },
-              "$type": {
+              "type": {
                 "enum": [
-                  "audioMix"
+                  "audio"
                 ],
                 "type": "string"
               }
@@ -7357,81 +7979,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Audio Mix"
-      },
-      "AudioMixStepTemplate": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WorkflowStepTemplate"
-          },
-          {
-            "required": [
-              "$type",
-              "input"
-            ],
-            "type": "object",
-            "properties": {
-              "input": {
-                "$ref": "#/components/schemas/AudioMixInput"
-              },
-              "$type": {
-                "enum": [
-                  "audioMix"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Audio Mix"
-      },
-      "AudioMixTrackInput": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "The source audio URL. Either a direct `\"https://...\"` URL (e.g. for a static music bed)\nor a `$ref` to a prior step's `Output.AudioBlob.Url`.",
-            "format": "uri"
-          },
-          "startSeconds": {
-            "type": [
-              "null",
-              "number"
-            ],
-            "description": "Absolute start time on the output timeline, in seconds. When set, this track is\nanchored at this position and is excluded from the implicit sequencing chain — useful\nfor music beds or any audio that should play at a known absolute time.\nWhen unset, the track starts implicitly after the previous non-anchored track ends,\nnudged by `Offset`. Tracks may overlap.",
-            "format": "float"
-          },
-          "offset": {
-            "type": "number",
-            "description": "Seconds to nudge this track relative to its implicit \"after-previous\" position.\nNegative values produce overlap/interruption; positive values produce a gap. Ignored\nwhen Civitai.Orchestration.Grains.Workflows.Steps.AudioMix.AudioMixTrackInput.StartSeconds is set (the absolute anchor takes precedence).",
-            "format": "float",
-            "default": 0
-          },
-          "volumeDb": {
-            "type": "number",
-            "description": "Per-track volume adjustment in dB. `0` is unity gain; negative values attenuate.",
-            "format": "float",
-            "default": 0
-          },
-          "fadeInMs": {
-            "type": "integer",
-            "description": "Linear fade-in duration in milliseconds. `0` disables fade-in.",
-            "format": "int32",
-            "default": 0
-          },
-          "fadeOutMs": {
-            "type": "integer",
-            "description": "Linear fade-out duration in milliseconds applied at the tail of the clip. `0` disables fade-out.",
-            "format": "int32",
-            "default": 0
-          }
-        },
-        "additionalProperties": false,
-        "description": "A single track participating in an audio mix."
+        "description": "An audio mixdown produced when the composition has no video."
       },
       "BatchOCRSafetyClassificationInput": {
         "required": [
@@ -8430,6 +8978,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -8568,6 +9126,12 @@
               "diffuserModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
+              },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
+                }
               },
               "ecosystem": {
                 "enum": [
@@ -9824,6 +10388,153 @@
           }
         ]
       },
+      "ComfyIdeogram4CreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyIdeogram4ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ideogram4"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyIdeogram4ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 12
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 7
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "unconditionalDiffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "ecosystem": {
+                "enum": [
+                  "ideogram4"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyIdeogram4CreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyImageGenInput": {
         "allOf": [
           {
@@ -9857,7 +10568,8 @@
                 "ernie": "#/components/schemas/ComfyErnieImageGenInput",
                 "hidream-o1": "#/components/schemas/ComfyHiDreamImageGenInput",
                 "anima": "#/components/schemas/ComfyAnimaImageGenInput",
-                "lens": "#/components/schemas/ComfyLensImageGenInput"
+                "lens": "#/components/schemas/ComfyLensImageGenInput",
+                "ideogram4": "#/components/schemas/ComfyIdeogram4ImageGenInput"
               }
             }
           }
@@ -11092,6 +11804,7 @@
           "ddim",
           "uni_pc",
           "uni_pc_bh2",
+          "res_multistep",
           "er_sde"
         ],
         "type": "string"
@@ -11620,6 +12333,192 @@
         ],
         "description": "Comfy workflows"
       },
+      "ComposeMediaElementInput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The source media URL. Either a direct `\"https://...\"` URL or a `$ref` to a prior\nstep's `Output.AudioBlob.Url` or `Output.VideoBlob.Url`.",
+            "format": "uri"
+          },
+          "at": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "Absolute start time on the output timeline, in seconds. When set, this element is anchored\nat this position and excluded from the implicit sequencing chain — useful for a music bed,\nor for placing an audio track at a known time over a video. When unset, the element starts\nafter the previous non-anchored element ends, nudged by Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.Offset.",
+            "format": "float"
+          },
+          "offset": {
+            "type": "number",
+            "description": "Seconds to nudge this element relative to its implicit \"after-previous\" position. Negative\nvalues produce overlap/interruption; positive values produce a gap. Ignored when\nCivitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.At is set.",
+            "format": "float",
+            "default": 0
+          },
+          "layout": {
+            "$ref": "#/components/schemas/MediaLayout"
+          },
+          "transformers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaTransformer"
+            },
+            "description": "Ordered per-element transformers (fades, volume, ...) applied in array order."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A single audio or video element participating in a composition."
+      },
+      "ComposeMediaInput": {
+        "required": [
+          "elements"
+        ],
+        "type": "object",
+        "properties": {
+          "elements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComposeMediaElementInput"
+            },
+            "description": "The elements to compose, in implicit sequencing order. Overlapping audio intervals are\nmixed; overlapping video is layered by canvas `zOrder` then array order. To stitch\nvideos end-to-end, list them in order with no `at`/`offset`."
+          },
+          "canvas": {
+            "$ref": "#/components/schemas/MediaCanvas"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ComposeMediaOutputSpec"
+          },
+          "normalize": {
+            "type": "boolean",
+            "description": "If true, divide the audio mix by the number of overlapping elements to avoid clipping.\nDefaults to false to preserve per-element volume levels.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for the ComposeMedia workflow step."
+      },
+      "ComposeMediaOutput": {
+        "required": [
+          "elements",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComposeMediaResolvedElement"
+            },
+            "description": "Per-element resolved timing in input order — useful for rendering subtitles, speaker\nhighlights, or chapter markers without re-probing every source clip."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from the ComposeMedia workflow step. Discriminated on `type`: an\nCivitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.AudioComposeMediaOutput (`\"audio\"`) for an audio mixdown, or a\nCivitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.VideoComposeMediaOutput (`\"video\"`) for a video composition.",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "audio": "#/components/schemas/AudioComposeMediaOutput",
+            "video": "#/components/schemas/VideoComposeMediaOutput"
+          }
+        }
+      },
+      "ComposeMediaOutputSpec": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/MediaOutputType"
+          },
+          "container": {
+            "$ref": "#/components/schemas/MediaContainer"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Describes the desired output of a composition. Both fields are optional — leave\nCivitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaOutputSpec.Type unset to derive the kind from the elements."
+      },
+      "ComposeMediaResolvedElement": {
+        "required": [
+          "duration",
+          "startSeconds"
+        ],
+        "type": "object",
+        "properties": {
+          "startSeconds": {
+            "type": "number",
+            "description": "Where this element starts on the output timeline, in seconds.",
+            "format": "float"
+          },
+          "duration": {
+            "type": "number",
+            "description": "Probed duration of the source clip, in seconds.",
+            "format": "float"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Resolved timing for a single element in the composed output."
+      },
+      "ComposeMediaStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ComposeMediaInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ComposeMediaOutput"
+              },
+              "$type": {
+                "enum": [
+                  "composeMedia"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Compose Media"
+      },
+      "ComposeMediaStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ComposeMediaInput"
+              },
+              "$type": {
+                "enum": [
+                  "composeMedia"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Compose Media"
+      },
       "ConsumerBlobPresignResponse": {
         "required": [
           "expiresAt",
@@ -11755,6 +12654,114 @@
           }
         },
         "additionalProperties": false
+      },
+      "CustomAppInput": {
+        "required": [
+          "app",
+          "input",
+          "resources"
+        ],
+        "type": "object",
+        "properties": {
+          "app": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Reference to the registered app. Format: `{owner}/{name}` for the latest\npublished version, or `{owner}/{name}@{version}` to pin a specific one."
+          },
+          "input": {
+            "minLength": 1,
+            "type": "string",
+            "description": "JSON payload forwarded verbatim to the app's invocation endpoint. The\napp's published `inputSchema` describes the expected shape; the\norchestrator does not enforce it server-side in v1 — the container is\nthe source of truth. The wire format is a normal JSON object (the\nconverter maps to/from a raw string in-process so Orleans/Mongo\nserialization stays trivial)."
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Per-invocation resource AIRs, prepared on the worker in addition to the\napp's declared `resources`. In-container paths are delivered via the\n`_resources` map injected into the input JSON the app receives (and\n`{resource:<air>}` tokens in exec commands). An unparseable AIR\nfails the step at submission."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for a CustomApp step."
+      },
+      "CustomAppOutput": {
+        "required": [
+          "gpuSeconds"
+        ],
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "JSON payload returned by the app. Shape is whatever the app's\n`outputSchema` declares; opaque to the orchestrator. Stored as a\nraw JSON string; the wire format on the response is a normal JSON object."
+          },
+          "gpuSeconds": {
+            "type": "number",
+            "description": "On-GPU active time reported by the worker, in seconds. Drives billing.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from a CustomApp step."
+      },
+      "CustomAppStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/CustomAppInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/CustomAppOutput"
+              },
+              "$type": {
+                "enum": [
+                  "customApp"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Invokes a user-registered app (see `/v2/apps`) as a single workflow step."
+      },
+      "CustomAppStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/CustomAppInput"
+              },
+              "$type": {
+                "enum": [
+                  "customApp"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Invokes a user-registered app (see `/v2/apps`) as a single workflow step."
       },
       "CustomComfyHooks": {
         "type": "object",
@@ -12140,10 +13147,16 @@
           {
             "required": [
               "ecosystem",
-              "engine"
+              "engine",
+              "maxBatchSize"
             ],
             "type": "object",
             "properties": {
+              "maxBatchSize": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "ernie"
@@ -12155,12 +13168,53 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 2,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.",
+                "default": 1
               }
             },
             "additionalProperties": false
           }
         ],
         "description": "AI Toolkit training for ERNIE-Image models"
+      },
+      "ExecAppInvocation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppInvocation"
+          },
+          {
+            "required": [
+              "command",
+              "method"
+            ],
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Argv executed inside the container (no shell). Arguments may embed\n`{input}` (the whole input JSON) or `{input.some.path}`\n(a value from the input; array indices are numeric segments) — tokens\nare substituted from the step's input at submission time, and an\nunresolvable token fails the step before any worker is involved.\n`{resource:<air>}` tokens resolve to the resource's\nin-container path on the worker once resources are prepared."
+              },
+              "method": {
+                "enum": [
+                  "exec"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Each invocation runs Civitai.Orchestration.Grains.Apps.ExecAppInvocation.Command inside the (held-alive) container —\nno server required, e.g. a plain python script. The input JSON is piped to the\nprocess on stdin; stdout must be the result JSON; stderr goes to logs; a\nnon-zero exit code fails the invocation. The process starts fresh per\ninvocation, so per-call startup cost (imports, model loads) is billed —\nprefer Civitai.Orchestration.Grains.Apps.HttpAppInvocation for heavy model serving."
       },
       "FaceDetection": {
         "required": [
@@ -12264,6 +13318,64 @@
         "additionalProperties": false,
         "description": "Represents face recognition results for media content."
       },
+      "FadeInTransformer": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MediaTransformer"
+          },
+          {
+            "required": [
+              "durationMs",
+              "type"
+            ],
+            "type": "object",
+            "properties": {
+              "durationMs": {
+                "type": "integer",
+                "description": "Fade-in duration in milliseconds.",
+                "format": "int32"
+              },
+              "type": {
+                "enum": [
+                  "fadeIn"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Linear fade from silence (audio) and/or black (video) at the head of the element."
+      },
+      "FadeOutTransformer": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MediaTransformer"
+          },
+          {
+            "required": [
+              "durationMs",
+              "type"
+            ],
+            "type": "object",
+            "properties": {
+              "durationMs": {
+                "type": "integer",
+                "description": "Fade-out duration in milliseconds.",
+                "format": "int32"
+              },
+              "type": {
+                "enum": [
+                  "fadeOut"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Linear fade to silence (audio) and/or black (video) at the tail of the element."
+      },
       "FalImageGenInput": {
         "allOf": [
           {
@@ -12351,12 +13463,18 @@
             "required": [
               "ecosystem",
               "engine",
-              "modelVariant"
+              "modelVariant",
+              "storageBuzzPerEpoch"
             ],
             "type": "object",
             "properties": {
               "modelVariant": {
                 "type": "string"
+              },
+              "storageBuzzPerEpoch": {
+                "type": "number",
+                "format": "double",
+                "readOnly": true
               },
               "ecosystem": {
                 "enum": [
@@ -12413,6 +13531,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -12621,6 +13749,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -13571,10 +14709,16 @@
             "required": [
               "ecosystem",
               "engine",
+              "maxBatchSize",
               "modelVariant"
             ],
             "type": "object",
             "properties": {
+              "maxBatchSize": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
               "modelVariant": {
                 "enum": [
                   "4b"
@@ -13592,6 +14736,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 2,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -13629,6 +14783,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -15375,12 +16539,61 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
           }
         ],
         "description": "AI Toolkit training for HiDream O1 Image models."
+      },
+      "HttpAppInvocation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppInvocation"
+          },
+          {
+            "required": [
+              "method",
+              "path",
+              "port"
+            ],
+            "type": "object",
+            "properties": {
+              "port": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "path": {
+                "type": "string"
+              },
+              "healthPath": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Optional health probe path. When set, the strategy GETs this on\nCivitai.Orchestration.Grains.Apps.HttpAppInvocation.Port until 2xx; when null, falls back to TCP-ready."
+              },
+              "method": {
+                "enum": [
+                  "http"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "The container runs a long-lived HTTP server; each invocation POSTs the input\nJSON to Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Path on Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Port. Best for apps with expensive\nstartup (model loads) amortized across invocations."
       },
       "HumanoidImageMaskCategory": {
         "enum": [
@@ -15497,6 +16710,97 @@
             "additionalProperties": false
           }
         ]
+      },
+      "ImageBackgroundRemovalFormat": {
+        "enum": [
+          "png",
+          "webp"
+        ],
+        "type": "string"
+      },
+      "ImageBackgroundRemovalInput": {
+        "required": [
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "The source image to remove the background from."
+          },
+          "format": {
+            "$ref": "#/components/schemas/ImageBackgroundRemovalFormat"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input configuration for the ImageBackgroundRemoval workflow step."
+      },
+      "ImageBackgroundRemovalOutput": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "$ref": "#/components/schemas/ImageBlob"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from the ImageBackgroundRemoval workflow step."
+      },
+      "ImageBackgroundRemovalStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageBackgroundRemovalInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ImageBackgroundRemovalOutput"
+              },
+              "$type": {
+                "enum": [
+                  "imageBackgroundRemoval"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job)."
+      },
+      "ImageBackgroundRemovalStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageBackgroundRemovalInput"
+              },
+              "$type": {
+                "enum": [
+                  "imageBackgroundRemoval"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job)."
       },
       "ImageBlob": {
         "allOf": [
@@ -17126,11 +18430,23 @@
           },
           {
             "required": [
+              "defaultSteps",
               "ecosystem",
-              "engine"
+              "engine",
+              "storageBuzzPerEpoch"
             ],
             "type": "object",
             "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "storageBuzzPerEpoch": {
+                "type": "number",
+                "format": "double",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "ltx23"
@@ -17142,6 +18458,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -17156,11 +18482,23 @@
           },
           {
             "required": [
+              "defaultSteps",
               "ecosystem",
-              "engine"
+              "engine",
+              "storageBuzzPerEpoch"
             ],
             "type": "object",
             "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "storageBuzzPerEpoch": {
+                "type": "number",
+                "format": "double",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "ltx2"
@@ -17172,6 +18510,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -17331,6 +18679,38 @@
           }
         ]
       },
+      "MediaCanvas": {
+        "required": [
+          "height",
+          "width"
+        ],
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "description": "Output width in pixels.",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "description": "Output height in pixels.",
+            "format": "int32"
+          },
+          "fps": {
+            "type": "integer",
+            "description": "Output frame rate.",
+            "format": "int32",
+            "default": 30
+          },
+          "background": {
+            "type": "string",
+            "description": "Hex background colour (e.g. `\"#000000\"`) painted where no element covers the canvas.",
+            "default": "#000000"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output canvas geometry. Set this to produce a video composition; leave it null for an\nall-audio mixdown."
+      },
       "MediaCaptioningInput": {
         "required": [
           "maxNewTokens",
@@ -17436,6 +18816,26 @@
         ],
         "description": "Media Captioning"
       },
+      "MediaContainer": {
+        "enum": [
+          "auto",
+          "mp4",
+          "webm",
+          "ogg",
+          "mp3"
+        ],
+        "type": "string",
+        "description": "Output container for a composition."
+      },
+      "MediaFit": {
+        "enum": [
+          "contain",
+          "cover",
+          "stretch"
+        ],
+        "type": "string",
+        "description": "How a video element is fitted into the output canvas when its aspect ratio differs."
+      },
       "MediaHashInput": {
         "required": [
           "hashTypes",
@@ -17539,6 +18939,48 @@
         ],
         "type": "string",
         "description": "Represents the type of hash algorithm to use for media content."
+      },
+      "MediaLayout": {
+        "type": "object",
+        "properties": {
+          "zOrder": {
+            "type": "integer",
+            "description": "Stacking order. Higher values draw on top; ties are broken by element index.",
+            "format": "int32",
+            "default": 0
+          },
+          "x": {
+            "type": "integer",
+            "description": "X offset, in pixels, of the element's top-left corner on the canvas.",
+            "format": "int32",
+            "default": 0
+          },
+          "y": {
+            "type": "integer",
+            "description": "Y offset, in pixels, of the element's top-left corner on the canvas.",
+            "format": "int32",
+            "default": 0
+          },
+          "scale": {
+            "type": "number",
+            "description": "Uniform scale applied to the element before placement. `1.0` keeps the fitted size.",
+            "format": "float",
+            "default": 1
+          },
+          "fit": {
+            "$ref": "#/components/schemas/MediaFit"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Spatial placement of a video element on the output canvas. Ignored for audio elements and\nfor all-audio compositions. Exactly one layout per element."
+      },
+      "MediaOutputType": {
+        "enum": [
+          "audio",
+          "video"
+        ],
+        "type": "string",
+        "description": "The kind of output a composition produces. When left unspecified on the input, it is derived\nfrom the elements: video if any element is video (or a canvas is supplied), otherwise audio."
       },
       "MediaRatingInput": {
         "required": [
@@ -17685,6 +19127,27 @@
           }
         ],
         "description": "MediaRating"
+      },
+      "MediaTransformer": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Base class for per-element transformers applied to a single media element before it is\ncomposited onto the output timeline. Transformers are applied in array order. Extensible:\nadd a derived record plus a `[JsonDerivedType]` entry here.",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "fadeIn": "#/components/schemas/FadeInTransformer",
+            "fadeOut": "#/components/schemas/FadeOutTransformer",
+            "volume": "#/components/schemas/VolumeTransformer"
+          }
+        }
       },
       "MeshyFalPolyGenInput": {
         "allOf": [
@@ -18778,6 +20241,57 @@
               "engine": {
                 "enum": [
                   "google"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OmniVoiceTextToSpeechInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VllmOmniTextToSpeechInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "refAudioUrl": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Reference audio AIR URN or external URL for voice cloning.",
+                "format": "uri"
+              },
+              "refText": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Transcript of the reference audio."
+              },
+              "instruct": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Optional voice/style instruction."
+              },
+              "ecosystem": {
+                "enum": [
+                  "omnivoice"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "vllm-omni"
                 ],
                 "type": "string"
               }
@@ -22024,6 +23538,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -22069,6 +23593,46 @@
             }
           }
         ]
+      },
+      "RegisterAppRequest": {
+        "required": [
+          "image",
+          "invocation",
+          "name",
+          "resources",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "invocation": {
+            "$ref": "#/components/schemas/AppInvocation"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "inputSchema": {
+            "type": "null"
+          },
+          "outputSchema": {
+            "type": "null"
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/AppRequirements"
+          }
+        },
+        "additionalProperties": false
       },
       "RepeatForClause": {
         "required": [
@@ -22342,7 +23906,8 @@
           {
             "required": [
               "ecosystem",
-              "engine"
+              "engine",
+              "maxBatchSize"
             ],
             "type": "object",
             "properties": {
@@ -22362,6 +23927,11 @@
                 "description": "The primary model to train upon.",
                 "default": "urn:air:sd1:checkpoint:civitai:127227@139180"
               },
+              "maxBatchSize": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "sd1"
@@ -22373,6 +23943,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -22742,7 +24322,8 @@
           {
             "required": [
               "ecosystem",
-              "engine"
+              "engine",
+              "maxBatchSize"
             ],
             "type": "object",
             "properties": {
@@ -22762,6 +24343,11 @@
                 "description": "The primary model to train upon.",
                 "default": "urn:air:sdxl:checkpoint:civitai:101055@128078"
               },
+              "maxBatchSize": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "sdxl"
@@ -22773,6 +24359,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -23800,6 +25396,22 @@
               "description": "Either A URL, A DataURL or a Base64 string"
             },
             "description": "Source images for edit training sample generation.\nProcessed by ISourceImageProcessor during initialization, then TryGetUri() yields URLs\nthat are passed as ReferenceImageUrls when generating samples with edit LoRAs."
+          },
+          "cfgScale": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "CFG (guidance) scale for sample generation. When unset, each ecosystem uses its own default.",
+            "format": "double"
+          },
+          "strength": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "Strength of the trained LoRA when generating samples. Defaults to 1.0 when unset.",
+            "format": "double"
           }
         },
         "additionalProperties": false,
@@ -24601,6 +26213,33 @@
             "additionalProperties": false
           }
         ]
+      },
+      "VideoComposeMediaOutput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComposeMediaOutput"
+          },
+          {
+            "required": [
+              "type",
+              "videoBlob"
+            ],
+            "type": "object",
+            "properties": {
+              "videoBlob": {
+                "$ref": "#/components/schemas/VideoBlob"
+              },
+              "type": {
+                "enum": [
+                  "video"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "A video composition produced when any element is video, or video output was requested."
       },
       "VideoEnhancementInput": {
         "required": [
@@ -25470,11 +27109,41 @@
             "discriminator": {
               "propertyName": "ecosystem",
               "mapping": {
-                "qwen3": "#/components/schemas/Qwen3TextToSpeechInput"
+                "qwen3": "#/components/schemas/Qwen3TextToSpeechInput",
+                "omnivoice": "#/components/schemas/OmniVoiceTextToSpeechInput"
               }
             }
           }
         ]
+      },
+      "VolumeTransformer": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MediaTransformer"
+          },
+          {
+            "required": [
+              "db",
+              "type"
+            ],
+            "type": "object",
+            "properties": {
+              "db": {
+                "type": "number",
+                "description": "Gain adjustment in dB.",
+                "format": "float"
+              },
+              "type": {
+                "enum": [
+                  "volume"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Adjusts the element's audio gain in decibels. `0` is unity gain; negative values\nattenuate. No-op for elements with no audio stream."
       },
       "WDTaggingInput": {
         "required": [
@@ -28586,13 +30255,15 @@
             "aceStepAudio": "#/components/schemas/AceStepAudioStep",
             "ageClassification": "#/components/schemas/AgeClassificationStep",
             "audioCaptioning": "#/components/schemas/AudioCaptioningStep",
-            "audioMix": "#/components/schemas/AudioMixStep",
             "blobArchive": "#/components/schemas/BlobArchiveStep",
             "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
+            "composeMedia": "#/components/schemas/ComposeMediaStep",
             "convertImage": "#/components/schemas/ConvertImageStep",
+            "customApp": "#/components/schemas/CustomAppStep",
             "customComfy": "#/components/schemas/CustomComfyStep",
             "echo": "#/components/schemas/EchoStep",
+            "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStep",
             "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
             "imageUpload": "#/components/schemas/ImageUploadStep",
@@ -28909,13 +30580,15 @@
             "aceStepAudio": "#/components/schemas/AceStepAudioStepTemplate",
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
             "audioCaptioning": "#/components/schemas/AudioCaptioningStepTemplate",
-            "audioMix": "#/components/schemas/AudioMixStepTemplate",
             "blobArchive": "#/components/schemas/BlobArchiveStepTemplate",
             "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
+            "composeMedia": "#/components/schemas/ComposeMediaStepTemplate",
             "convertImage": "#/components/schemas/ConvertImageStepTemplate",
+            "customApp": "#/components/schemas/CustomAppStepTemplate",
             "customComfy": "#/components/schemas/CustomComfyStepTemplate",
             "echo": "#/components/schemas/EchoStepTemplate",
+            "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStepTemplate",
             "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
@@ -29058,11 +30731,15 @@
         "type": "object",
         "properties": {
           "civitai": {
+            "maximum": 2,
+            "minimum": 0,
             "type": "number",
             "description": "The rate of tipping that should be allocated to civitai",
             "format": "double"
           },
           "creators": {
+            "maximum": 2,
+            "minimum": 0,
             "type": "number",
             "description": "The rate of tipping that should be allocated to creators involved in this workflow",
             "format": "double"
@@ -29568,10 +31245,16 @@
           {
             "required": [
               "ecosystem",
-              "engine"
+              "engine",
+              "maxBatchSize"
             ],
             "type": "object",
             "properties": {
+              "maxBatchSize": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "zimagebase"
@@ -29583,6 +31266,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 2,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -29806,10 +31499,16 @@
           {
             "required": [
               "ecosystem",
-              "engine"
+              "engine",
+              "maxBatchSize"
             ],
             "type": "object",
             "properties": {
+              "maxBatchSize": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
               "ecosystem": {
                 "enum": [
                   "zimageturbo"
@@ -29821,6 +31520,16 @@
                   "ai-toolkit"
                 ],
                 "type": "string"
+              },
+              "batchSize": {
+                "maximum": 2,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.",
+                "default": 1
               }
             },
             "additionalProperties": false
@@ -30048,6 +31757,9 @@
     {}
   ],
   "tags": [
+    {
+      "name": "Apps"
+    },
     {
       "name": "Blobs"
     },

@@ -24,14 +24,23 @@ export type AiRecognitionResult = {
 export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
   ecosystem: string;
   /**
-   * Number of training epochs. An epoch is one complete pass through the training dataset.
-   * Maximum of 100 epochs can be specified.
+   * Number of training epochs — the number of saved checkpoints produced (each epoch
+   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
+   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
    */
-  epochs?: number;
+  epochs?: null | number;
   /**
-   * Number of repeats per image. This is used to calculate the total number of steps for training and can affect the training time and cost.
+   * Total number of training steps. This is the primary control over training length and
+   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
+   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
    */
-  numberOfRepeats?: null | number;
+  steps?: null | number;
+  /**
+   * Training batch size. Defaults to 1; raise it (up to the ecosystem's maximum) to train faster at the
+   * cost of more GPU memory. A larger batch sees more images per step, so fewer steps are needed for a
+   * comparable result. Values above the ecosystem maximum are clamped down.
+   */
+  batchSize?: null | number;
   /**
    * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
    */
@@ -98,6 +107,34 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    * Only applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein).
    */
   triggerWord?: null | string;
+  /**
+   * Optional previously-trained LoRA to continue training from ("train further"). When set, the first
+   * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
+   */
+  continueFrom?: null | string;
+  /**
+   * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
+   * top of the per-step training cost — so raising the epoch count raises the price by this much each.
+   * Override per ecosystem where per-epoch samples are expensive to compute (e.g. video).
+   */
+  readonly storageBuzzPerEpoch: number;
+  /**
+   * Default total step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied.
+   * Override per ecosystem where the default training length differs (e.g. video needs more steps,
+   * quickly-overtrained models need fewer).
+   */
+  readonly defaultSteps: number;
+  /**
+   * True when billing uses the per-step model. This is the default; the only exception is the legacy
+   * path where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps (existing consumers),
+   * which keeps the historical flat per-epoch price.
+   */
+  readonly usesStepPricing: boolean;
+  /**
+   * Ecosystem-specific maximum training batch size — the upper bound the user's
+   * Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.BatchSize is clamped to. Most ecosystems cap at 1.
+   */
+  readonly maxBatchSize: number;
   engine: 'ai-toolkit';
 };
 
@@ -111,6 +148,10 @@ export type AceStep15AiToolkitTrainingInput = Omit<
   samplesOverrides?: Array<AceStepSampleOverride>;
   ecosystem: 'ace_step_15';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 /**
@@ -136,6 +177,10 @@ export type AceStep15XlBaseAiToolkitTrainingInput = Omit<
   modelVariant: 'base';
   ecosystem: 'ace_step_15_xl';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 /**
@@ -148,6 +193,10 @@ export type AceStep15XlSftAiToolkitTrainingInput = Omit<
   modelVariant: 'sft';
   ecosystem: 'ace_step_15_xl';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 /**
@@ -476,8 +525,13 @@ export type AgeDetection = {
  * AI Toolkit training for Anima models.
  */
 export type AnimaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
   ecosystem: 'anima';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type AnimaCreateImageGenInput = Omit<
@@ -549,6 +603,73 @@ export const AnylineMergeWith = {
 } as const;
 
 export type AnylineMergeWith = (typeof AnylineMergeWith)[keyof typeof AnylineMergeWith];
+
+/**
+ * A user-defined "app" registered against the orchestrator. Each app binds a container
+ * image (referenced as an `oci:image` AIR) to an invocation contract and
+ * declares its input/output JSON-schemas plus host requirements. Apps are immutable
+ * per `(Owner, Name, Version)`; bump Civitai.Orchestration.Grains.Apps.AppDefinition.Version to publish changes.
+ */
+export type AppDefinition = {
+  /**
+   * Owning user id. Set server-side from the auth principal on register; not
+   * accepted from request bodies.
+   */
+  owner: number;
+  name: string;
+  version: string;
+  /**
+   * Container image as an AIR URN — e.g. `urn:air:oci:image:dockerhub:foo/bar@v1.0.0`.
+   * The spine-controller's OCI image cache pulls (and locks) this for the lifetime of a claim.
+   */
+  image: string;
+  invocation: AppInvocation;
+  /**
+   * AIRs the app needs for every invocation (models, embeddings, …). The worker
+   * downloads/caches them before invoking and exposes them to the container under
+   * `/mnt/resources`; their in-container paths are delivered via the injected
+   * `_resources` map on the input JSON (and `{resource:<air>}` tokens
+   * in exec commands). Per-invocation resources can be added via the step input's
+   * `resources` field.
+   */
+  resources: Array<string>;
+  /**
+   * JSON-schema (draft-07) describing the shape of `CustomAppInput.Input`.
+   * Published via `GET /v2/apps/{owner}/{name}` so SDKs can validate
+   * client-side. v1 does not enforce server-side; the container itself is
+   * the source of truth.
+   */
+  inputSchema?: null;
+  /**
+   * JSON-schema (draft-07) describing the shape of `CustomAppOutput.Result`.
+   */
+  outputSchema?: null;
+  requirements?: AppRequirements;
+  createdAt: string;
+};
+
+/**
+ * How the worker invokes the app's container. Discriminated by `method`:
+ * `"http"` POSTs the input to an endpoint the container serves;
+ * `"exec"` runs a command inside the container per invocation.
+ */
+export type AppInvocation = {
+  method: string;
+  /**
+   * Wall-clock budget for a single invocation. Worker default applies when null.
+   */
+  timeoutSeconds?: null | number;
+};
+
+export type AppRequirements = {
+  minVramGb?: null | number;
+  gpuCount?: null | number;
+  /**
+   * Optional whitelist of GPU class names this app is willing to run on
+   * (e.g. `["A100", "H100"]`). Empty / null means no restriction.
+   */
+  gpuClasses: Array<string>;
+};
 
 /**
  * Container format for a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep output.
@@ -646,104 +767,11 @@ export type AudioCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
 };
 
 /**
- * Input for the AudioMix workflow step.
+ * An audio mixdown produced when the composition has no video.
  */
-export type AudioMixInput = {
-  /**
-   * The tracks to mix. Each track is placed on the output timeline at its
-   * `StartSeconds`; overlapping intervals are summed (or normalised if `Normalize` is true).
-   */
-  tracks: Array<AudioMixTrackInput>;
-  /**
-   * If true, divide the mix by the number of tracks to avoid clipping when many tracks overlap.
-   * Defaults to false to preserve per-track `VolumeDb` levels.
-   */
-  normalize?: boolean;
-  /**
-   * Soft cap on output duration in seconds. The worker rejects the job before invoking
-   * ffmpeg if the union of track intervals exceeds this value.
-   */
-  maxDurationSeconds?: number;
-};
-
-/**
- * Output from the AudioMix workflow step.
- */
-export type AudioMixOutput = {
+export type AudioComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
   audioBlob: AudioBlob;
-  /**
-   * Per-track timing of the mix in input order — useful for rendering subtitles
-   * or speaker highlights without re-probing every source clip.
-   */
-  tracks: Array<AudioMixResolvedTrack>;
-};
-
-/**
- * Resolved timing for a single track in the mix output.
- */
-export type AudioMixResolvedTrack = {
-  /**
-   * Where this track starts on the output timeline, in seconds.
-   */
-  startSeconds: number;
-  /**
-   * Probed duration of the source clip, in seconds.
-   */
-  duration: number;
-};
-
-/**
- * Audio Mix
- */
-export type AudioMixStep = Omit<WorkflowStep, '$type'> & {
-  input: AudioMixInput;
-  output?: AudioMixOutput;
-  $type: 'audioMix';
-};
-
-/**
- * Audio Mix
- */
-export type AudioMixStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
-  input: AudioMixInput;
-  $type: 'audioMix';
-};
-
-/**
- * A single track participating in an audio mix.
- */
-export type AudioMixTrackInput = {
-  /**
-   * The source audio URL. Either a direct `"https://..."` URL (e.g. for a static music bed)
-   * or a `$ref` to a prior step's `Output.AudioBlob.Url`.
-   */
-  url?: null | string;
-  /**
-   * Absolute start time on the output timeline, in seconds. When set, this track is
-   * anchored at this position and is excluded from the implicit sequencing chain — useful
-   * for music beds or any audio that should play at a known absolute time.
-   * When unset, the track starts implicitly after the previous non-anchored track ends,
-   * nudged by `Offset`. Tracks may overlap.
-   */
-  startSeconds?: null | number;
-  /**
-   * Seconds to nudge this track relative to its implicit "after-previous" position.
-   * Negative values produce overlap/interruption; positive values produce a gap. Ignored
-   * when Civitai.Orchestration.Grains.Workflows.Steps.AudioMix.AudioMixTrackInput.StartSeconds is set (the absolute anchor takes precedence).
-   */
-  offset?: number;
-  /**
-   * Per-track volume adjustment in dB. `0` is unity gain; negative values attenuate.
-   */
-  volumeDb?: number;
-  /**
-   * Linear fade-in duration in milliseconds. `0` disables fade-in.
-   */
-  fadeInMs?: number;
-  /**
-   * Linear fade-out duration in milliseconds applied at the tail of the clip. `0` disables fade-out.
-   */
-  fadeOutMs?: number;
+  type: 'audio';
 };
 
 export type BatchOcrSafetyClassificationInput = {
@@ -1253,6 +1281,10 @@ export type ChatCompletionUsage = {
 export type ChromaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   ecosystem: 'chroma';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export const CoarseMode = { DISABLE: 'disable', ENABLE: 'enable' } as const;
@@ -1284,6 +1316,7 @@ export type ComfyAnimaImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosy
     [key: string]: number;
   };
   diffuserModel?: string;
+  controlNets?: Array<ImageJobControlNet>;
   ecosystem: 'anima';
   engine: 'comfy';
 };
@@ -1535,6 +1568,34 @@ export type ComfyHiDreamO1ImageGenInput = Omit<
   };
   model: 'HiDream-O1-Image';
   ecosystem: 'hidream-o1';
+  engine: 'comfy';
+};
+
+export type ComfyIdeogram4CreateImageGenInput = Omit<
+  ComfyIdeogram4ImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  ecosystem: 'ideogram4';
+  engine: 'comfy';
+};
+
+export type ComfyIdeogram4ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  sampler?: ComfySampler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  unconditionalDiffusionModel?: null | string;
+  ecosystem: 'ideogram4';
   engine: 'comfy';
 };
 
@@ -1892,6 +1953,7 @@ export const ComfySampler = {
   DDIM: 'ddim',
   UNI_PC: 'uni_pc',
   UNI_PC_BH2: 'uni_pc_bh2',
+  RES_MULTISTEP: 'res_multistep',
   ER_SDE: 'er_sde',
 } as const;
 
@@ -2021,6 +2083,108 @@ export type ComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'comfy';
 };
 
+/**
+ * A single audio or video element participating in a composition.
+ */
+export type ComposeMediaElementInput = {
+  /**
+   * The source media URL. Either a direct `"https://..."` URL or a `$ref` to a prior
+   * step's `Output.AudioBlob.Url` or `Output.VideoBlob.Url`.
+   */
+  url?: null | string;
+  /**
+   * Absolute start time on the output timeline, in seconds. When set, this element is anchored
+   * at this position and excluded from the implicit sequencing chain — useful for a music bed,
+   * or for placing an audio track at a known time over a video. When unset, the element starts
+   * after the previous non-anchored element ends, nudged by Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.Offset.
+   */
+  at?: null | number;
+  /**
+   * Seconds to nudge this element relative to its implicit "after-previous" position. Negative
+   * values produce overlap/interruption; positive values produce a gap. Ignored when
+   * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.At is set.
+   */
+  offset?: number;
+  layout?: MediaLayout;
+  /**
+   * Ordered per-element transformers (fades, volume, ...) applied in array order.
+   */
+  transformers?: Array<MediaTransformer>;
+};
+
+/**
+ * Input for the ComposeMedia workflow step.
+ */
+export type ComposeMediaInput = {
+  /**
+   * The elements to compose, in implicit sequencing order. Overlapping audio intervals are
+   * mixed; overlapping video is layered by canvas `zOrder` then array order. To stitch
+   * videos end-to-end, list them in order with no `at`/`offset`.
+   */
+  elements: Array<ComposeMediaElementInput>;
+  canvas?: MediaCanvas;
+  output?: ComposeMediaOutputSpec;
+  /**
+   * If true, divide the audio mix by the number of overlapping elements to avoid clipping.
+   * Defaults to false to preserve per-element volume levels.
+   */
+  normalize?: boolean;
+};
+
+/**
+ * Output from the ComposeMedia workflow step. Discriminated on `type`: an
+ * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.AudioComposeMediaOutput (`"audio"`) for an audio mixdown, or a
+ * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.VideoComposeMediaOutput (`"video"`) for a video composition.
+ */
+export type ComposeMediaOutput = {
+  type: string;
+  /**
+   * Per-element resolved timing in input order — useful for rendering subtitles, speaker
+   * highlights, or chapter markers without re-probing every source clip.
+   */
+  elements: Array<ComposeMediaResolvedElement>;
+};
+
+/**
+ * Describes the desired output of a composition. Both fields are optional — leave
+ * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaOutputSpec.Type unset to derive the kind from the elements.
+ */
+export type ComposeMediaOutputSpec = {
+  type?: MediaOutputType;
+  container?: MediaContainer;
+};
+
+/**
+ * Resolved timing for a single element in the composed output.
+ */
+export type ComposeMediaResolvedElement = {
+  /**
+   * Where this element starts on the output timeline, in seconds.
+   */
+  startSeconds: number;
+  /**
+   * Probed duration of the source clip, in seconds.
+   */
+  duration: number;
+};
+
+/**
+ * Compose Media
+ */
+export type ComposeMediaStep = Omit<WorkflowStep, '$type'> & {
+  input: ComposeMediaInput;
+  output?: ComposeMediaOutput;
+  $type: 'composeMedia';
+};
+
+/**
+ * Compose Media
+ */
+export type ComposeMediaStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ComposeMediaInput;
+  $type: 'composeMedia';
+};
+
 export type ConsumerBlobPresignResponse = {
   uploadUrl: string;
   expiresAt: string;
@@ -2073,6 +2237,67 @@ export type ConvertImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
   next: string;
   items: Array<Workflow>;
+};
+
+/**
+ * Input for a CustomApp step.
+ */
+export type CustomAppInput = {
+  /**
+   * Reference to the registered app. Format: `{owner}/{name}` for the latest
+   * published version, or `{owner}/{name}@{version}` to pin a specific one.
+   */
+  app: string;
+  /**
+   * JSON payload forwarded verbatim to the app's invocation endpoint. The
+   * app's published `inputSchema` describes the expected shape; the
+   * orchestrator does not enforce it server-side in v1 — the container is
+   * the source of truth. The wire format is a normal JSON object (the
+   * converter maps to/from a raw string in-process so Orleans/Mongo
+   * serialization stays trivial).
+   */
+  input: string;
+  /**
+   * Per-invocation resource AIRs, prepared on the worker in addition to the
+   * app's declared `resources`. In-container paths are delivered via the
+   * `_resources` map injected into the input JSON the app receives (and
+   * `{resource:<air>}` tokens in exec commands). An unparseable AIR
+   * fails the step at submission.
+   */
+  resources: Array<string>;
+};
+
+/**
+ * Output from a CustomApp step.
+ */
+export type CustomAppOutput = {
+  /**
+   * JSON payload returned by the app. Shape is whatever the app's
+   * `outputSchema` declares; opaque to the orchestrator. Stored as a
+   * raw JSON string; the wire format on the response is a normal JSON object.
+   */
+  result?: null | string;
+  /**
+   * On-GPU active time reported by the worker, in seconds. Drives billing.
+   */
+  gpuSeconds: number;
+};
+
+/**
+ * Invokes a user-registered app (see `/v2/apps`) as a single workflow step.
+ */
+export type CustomAppStep = Omit<WorkflowStep, '$type'> & {
+  input: CustomAppInput;
+  output?: CustomAppOutput;
+  $type: 'customApp';
+};
+
+/**
+ * Invokes a user-registered app (see `/v2/apps`) as a single workflow step.
+ */
+export type CustomAppStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: CustomAppInput;
+  $type: 'customApp';
 };
 
 export type CustomComfyHooks = {
@@ -2296,8 +2521,35 @@ export type EpochResult = {
  * AI Toolkit training for ERNIE-Image models
  */
 export type ErnieAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly maxBatchSize: number;
   ecosystem: 'ernie';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * Each invocation runs Civitai.Orchestration.Grains.Apps.ExecAppInvocation.Command inside the (held-alive) container —
+ * no server required, e.g. a plain python script. The input JSON is piped to the
+ * process on stdin; stdout must be the result JSON; stderr goes to logs; a
+ * non-zero exit code fails the invocation. The process starts fresh per
+ * invocation, so per-call startup cost (imports, model loads) is billed —
+ * prefer Civitai.Orchestration.Grains.Apps.HttpAppInvocation for heavy model serving.
+ */
+export type ExecAppInvocation = Omit<AppInvocation, 'method'> & {
+  /**
+   * Argv executed inside the container (no shell). Arguments may embed
+   * `{input}` (the whole input JSON) or `{input.some.path}`
+   * (a value from the input; array indices are numeric segments) — tokens
+   * are substituted from the step's input at submission time, and an
+   * unresolvable token fails the step before any worker is involved.
+   * `{resource:<air>}` tokens resolve to the resource's
+   * in-container path on the worker once resources are prepared.
+   */
+  command: Array<string>;
+  method: 'exec';
 };
 
 /**
@@ -2353,6 +2605,28 @@ export type FaceRecognitionResult = {
   similarityMatrix?: null | Array<Array<number>>;
 };
 
+/**
+ * Linear fade from silence (audio) and/or black (video) at the head of the element.
+ */
+export type FadeInTransformer = Omit<MediaTransformer, 'type'> & {
+  /**
+   * Fade-in duration in milliseconds.
+   */
+  durationMs: number;
+  type: 'fadeIn';
+};
+
+/**
+ * Linear fade to silence (audio) and/or black (video) at the tail of the element.
+ */
+export type FadeOutTransformer = Omit<MediaTransformer, 'type'> & {
+  /**
+   * Fade-out duration in milliseconds.
+   */
+  durationMs: number;
+  type: 'fadeOut';
+};
+
 export type FalImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   engine: 'fal';
@@ -2380,6 +2654,7 @@ export type FileFormat = (typeof FileFormat)[keyof typeof FileFormat];
  */
 export type Flux1AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   modelVariant: string;
+  readonly storageBuzzPerEpoch: number;
   ecosystem: 'flux1';
   engine: 'ai-toolkit';
 };
@@ -2394,6 +2669,10 @@ export type Flux1DevAiToolkitTrainingInput = Omit<
   modelVariant: 'dev';
   ecosystem: 'flux1';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type Flux1KontextDevImageGenInput = Omit<Flux1KontextImageGenInput, 'engine' | 'model'> & {
@@ -2432,6 +2711,10 @@ export type Flux1SchnellAiToolkitTrainingInput = Omit<
   modelVariant: 'schnell';
   ecosystem: 'flux1';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type Flux1SdCppCreateImageInput = Omit<
@@ -2658,9 +2941,14 @@ export type Flux2Klein4bAiToolkitTrainingInput = Omit<
   Flux2KleinAiToolkitTrainingInput,
   'engine' | 'ecosystem' | 'modelVariant'
 > & {
+  readonly maxBatchSize: number;
   modelVariant: '4b';
   ecosystem: 'flux2klein';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
 };
 
 /**
@@ -2673,6 +2961,10 @@ export type Flux2Klein9bAiToolkitTrainingInput = Omit<
   modelVariant: '9b';
   ecosystem: 'flux2klein';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 /**
@@ -3107,6 +3399,26 @@ export type HiDreamO1AiToolkitTrainingInput = Omit<
 > & {
   ecosystem: 'hidream-o1';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * The container runs a long-lived HTTP server; each invocation POSTs the input
+ * JSON to Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Path on Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Port. Best for apps with expensive
+ * startup (model loads) amortized across invocations.
+ */
+export type HttpAppInvocation = Omit<AppInvocation, 'method'> & {
+  port: number;
+  path: string;
+  /**
+   * Optional health probe path. When set, the strategy GETs this on
+   * Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Port until 2xx; when null, falls back to TCP-ready.
+   */
+  healthPath?: null | string;
+  method: 'http';
 };
 
 export const HumanoidImageMaskCategory = {
@@ -3138,6 +3450,46 @@ export type HunyuanVdeoGenInput = Omit<VideoGenInput, 'engine'> & {
   loras?: Array<VideoGenInputLora>;
   model?: null | string;
   engine: 'hunyuan';
+};
+
+export const ImageBackgroundRemovalFormat = { PNG: 'png', WEBP: 'webp' } as const;
+
+export type ImageBackgroundRemovalFormat =
+  (typeof ImageBackgroundRemovalFormat)[keyof typeof ImageBackgroundRemovalFormat];
+
+/**
+ * Input configuration for the ImageBackgroundRemoval workflow step.
+ */
+export type ImageBackgroundRemovalInput = {
+  /**
+   * The source image to remove the background from.
+   */
+  image: string;
+  format?: ImageBackgroundRemovalFormat;
+};
+
+/**
+ * Output from the ImageBackgroundRemoval workflow step.
+ */
+export type ImageBackgroundRemovalOutput = {
+  image?: ImageBlob;
+};
+
+/**
+ * A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job).
+ */
+export type ImageBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
+  input: ImageBackgroundRemovalInput;
+  output?: ImageBackgroundRemovalOutput;
+  $type: 'imageBackgroundRemoval';
+};
+
+/**
+ * A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job).
+ */
+export type ImageBackgroundRemovalStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ImageBackgroundRemovalInput;
+  $type: 'imageBackgroundRemoval';
 };
 
 export type ImageBlob = Omit<Blob, 'type'> & {
@@ -3793,16 +4145,28 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
  * AI Toolkit training for LTX 2.3 video models
  */
 export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  readonly storageBuzzPerEpoch: number;
   ecosystem: 'ltx23';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 /**
  * AI Toolkit training for LTX2 video models
  */
 export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  readonly storageBuzzPerEpoch: number;
   ecosystem: 'ltx2';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type MaiImageCreateFalImageGenInput = Omit<
@@ -3842,6 +4206,29 @@ export type MaiImageFalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'
   quantity?: number;
   model: 'maiImage';
   engine: 'fal';
+};
+
+/**
+ * Output canvas geometry. Set this to produce a video composition; leave it null for an
+ * all-audio mixdown.
+ */
+export type MediaCanvas = {
+  /**
+   * Output width in pixels.
+   */
+  width: number;
+  /**
+   * Output height in pixels.
+   */
+  height: number;
+  /**
+   * Output frame rate.
+   */
+  fps?: number;
+  /**
+   * Hex background colour (e.g. `"#000000"`) painted where no element covers the canvas.
+   */
+  background?: string;
 };
 
 /**
@@ -3895,6 +4282,36 @@ export type MediaCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
 };
 
 /**
+ * Output container for a composition.
+ */
+export const MediaContainer = {
+  AUTO: 'auto',
+  MP4: 'mp4',
+  WEBM: 'webm',
+  OGG: 'ogg',
+  MP3: 'mp3',
+} as const;
+
+/**
+ * Output container for a composition.
+ */
+export type MediaContainer = (typeof MediaContainer)[keyof typeof MediaContainer];
+
+/**
+ * How a video element is fitted into the output canvas when its aspect ratio differs.
+ */
+export const MediaFit = {
+  CONTAIN: 'contain',
+  COVER: 'cover',
+  STRETCH: 'stretch',
+} as const;
+
+/**
+ * How a video element is fitted into the output canvas when its aspect ratio differs.
+ */
+export type MediaFit = (typeof MediaFit)[keyof typeof MediaFit];
+
+/**
  * Represents the input information needed for the MediaHash workflow step.
  */
 export type MediaHashInput = {
@@ -3946,6 +4363,42 @@ export const MediaHashType = { PERCEPTUAL: 'perceptual' } as const;
  * Represents the type of hash algorithm to use for media content.
  */
 export type MediaHashType = (typeof MediaHashType)[keyof typeof MediaHashType];
+
+/**
+ * Spatial placement of a video element on the output canvas. Ignored for audio elements and
+ * for all-audio compositions. Exactly one layout per element.
+ */
+export type MediaLayout = {
+  /**
+   * Stacking order. Higher values draw on top; ties are broken by element index.
+   */
+  zOrder?: number;
+  /**
+   * X offset, in pixels, of the element's top-left corner on the canvas.
+   */
+  x?: number;
+  /**
+   * Y offset, in pixels, of the element's top-left corner on the canvas.
+   */
+  y?: number;
+  /**
+   * Uniform scale applied to the element before placement. `1.0` keeps the fitted size.
+   */
+  scale?: number;
+  fit?: MediaFit;
+};
+
+/**
+ * The kind of output a composition produces. When left unspecified on the input, it is derived
+ * from the elements: video if any element is video (or a canvas is supplied), otherwise audio.
+ */
+export const MediaOutputType = { AUDIO: 'audio', VIDEO: 'video' } as const;
+
+/**
+ * The kind of output a composition produces. When left unspecified on the input, it is derived
+ * from the elements: video if any element is video (or a canvas is supplied), otherwise audio.
+ */
+export type MediaOutputType = (typeof MediaOutputType)[keyof typeof MediaOutputType];
 
 /**
  * Represents the input information needed for the MediaRating workflow step.
@@ -4016,6 +4469,15 @@ export type MediaRatingStep = Omit<WorkflowStep, '$type'> & {
 export type MediaRatingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: MediaRatingInput;
   $type: 'mediaRating';
+};
+
+/**
+ * Base class for per-element transformers applied to a single media element before it is
+ * composited onto the output timeline. Transformers are applied in array order. Extensible:
+ * add a derived record plus a `[JsonDerivedType]` entry here.
+ */
+export type MediaTransformer = {
+  type: string;
 };
 
 export type MeshyFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
@@ -4418,6 +4880,23 @@ export type NanoBananaProImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'm
   images?: Array<string>;
   model: 'nano-banana-pro';
   engine: 'google';
+};
+
+export type OmniVoiceTextToSpeechInput = Omit<VllmOmniTextToSpeechInput, 'engine' | 'ecosystem'> & {
+  /**
+   * Reference audio AIR URN or external URL for voice cloning.
+   */
+  refAudioUrl?: null | string;
+  /**
+   * Transcript of the reference audio.
+   */
+  refText?: null | string;
+  /**
+   * Optional voice/style instruction.
+   */
+  instruct?: null | string;
+  ecosystem: 'omnivoice';
+  engine: 'vllm-omni';
 };
 
 export type OpenAiDallE2CreateImageGenInput = Omit<
@@ -5181,12 +5660,27 @@ export type QwenAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   version?: 'latest' | '2509' | '2512';
   ecosystem: 'qwen';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type QwenImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
   ecosystem: 'qwen';
   engine: 'sdcpp';
+};
+
+export type RegisterAppRequest = {
+  name: string;
+  version: string;
+  image: string;
+  invocation: AppInvocation;
+  resources: Array<string>;
+  inputSchema?: null;
+  outputSchema?: null;
+  requirements?: AppRequirements;
 };
 
 /**
@@ -5345,8 +5839,13 @@ export type Sd1AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 
    * The primary model to train upon.
    */
   model?: string;
+  readonly maxBatchSize: number;
   ecosystem: 'sd1';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
 };
 
 export const SafeMode = { ENABLE: 'enable', DISABLE: 'disable' } as const;
@@ -5500,8 +5999,13 @@ export type SdxlAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
    * The primary model to train upon.
    */
   model?: string;
+  readonly maxBatchSize: number;
   ecosystem: 'sdxl';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
 };
 
 export type SdxlCreateImageGenInput = Omit<
@@ -5844,6 +6348,14 @@ export type TrainingInputSamples = {
    * that are passed as ReferenceImageUrls when generating samples with edit LoRAs.
    */
   sourceImages?: Array<string>;
+  /**
+   * CFG (guidance) scale for sample generation. When unset, each ecosystem uses its own default.
+   */
+  cfgScale?: null | number;
+  /**
+   * Strength of the trained LoRA when generating samples. Defaults to 1.0 when unset.
+   */
+  strength?: null | number;
 };
 
 /**
@@ -6176,6 +6688,14 @@ export type VideoBlob = Omit<Blob, 'type'> & {
   type: 'video';
 };
 
+/**
+ * A video composition produced when any element is video, or video output was requested.
+ */
+export type VideoComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
+  videoBlob: VideoBlob;
+  type: 'video';
+};
+
 export type VideoEnhancementInput = {
   sourceUrl: string;
   upscaler?: VideoEnhancementInputUpscalerOptions;
@@ -6461,6 +6981,18 @@ export type ViduVideoGenStyle = (typeof ViduVideoGenStyle)[keyof typeof ViduVide
 export type VllmOmniTextToSpeechInput = Omit<TextToSpeechInput, 'engine'> & {
   ecosystem: string;
   engine: 'vllm-omni';
+};
+
+/**
+ * Adjusts the element's audio gain in decibels. `0` is unity gain; negative values
+ * attenuate. No-op for elements with no audio stream.
+ */
+export type VolumeTransformer = Omit<MediaTransformer, 'type'> & {
+  /**
+   * Gain adjustment in dB.
+   */
+  db: number;
+  type: 'volume';
 };
 
 /**
@@ -7742,8 +8274,13 @@ export type ZImageBaseAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
 > & {
+  readonly maxBatchSize: number;
   ecosystem: 'zimagebase';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
 };
 
 export type ZImageBaseCreateImageGenInput = Omit<
@@ -7794,8 +8331,13 @@ export type ZImageTurboAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
 > & {
+  readonly maxBatchSize: number;
   ecosystem: 'zimageturbo';
   engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
 };
 
 export type ZImageTurboCreateImageGenInput = Omit<
@@ -7852,6 +8394,179 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
 /**
+ * Base input for AI Toolkit training across all ecosystems
+ */
+export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable, 'engine'> & {
+  ecosystem: string;
+  /**
+   * Number of training epochs — the number of saved checkpoints produced (each epoch
+   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
+   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
+   */
+  epochs?: null | number;
+  /**
+   * Total number of training steps. This is the primary control over training length and
+   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
+   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
+   */
+  steps?: null | number;
+  /**
+   * Training batch size. Defaults to 1; raise it (up to the ecosystem's maximum) to train faster at the
+   * cost of more GPU memory. A larger batch sees more images per step, so fewer steps are needed for a
+   * comparable result. Values above the ecosystem maximum are clamped down.
+   */
+  batchSize?: null | number;
+  /**
+   * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
+   */
+  lr?: number;
+  /**
+   * Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.
+   */
+  textEncoderLr?: null | number;
+  /**
+   * Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage.
+   */
+  trainTextEncoder?: null | boolean;
+  /**
+   * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+   */
+  lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
+  /**
+   * The optimizer determines how to update the neural net weights during training.
+   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
+   */
+  optimizerType?:
+    | 'adamw'
+    | 'adamw8bit'
+    | 'adam8bit'
+    | 'lion'
+    | 'lion8bit'
+    | 'adafactor'
+    | 'adagrad'
+    | 'prodigy'
+    | 'prodigy8bit'
+    | 'automagic';
+  /**
+   * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
+   */
+  networkDim?: null | number;
+  /**
+   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
+   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
+   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
+   *
+   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   */
+  networkAlpha?: null | number;
+  /**
+   * Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.
+   */
+  noiseOffset?: null | number;
+  /**
+   * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
+   */
+  flipAugmentation?: boolean;
+  /**
+   * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
+   */
+  shuffleTokens?: boolean;
+  /**
+   * If your training images have tags, you can randomly shuffle them.
+   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
+   * This option does nothing if the Shuffle Tokens option is off.
+   */
+  keepTokens?: number;
+  /**
+   * A trigger word that activates the trained LoRA when used in prompts.
+   * Only applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein).
+   */
+  triggerWord?: null | string;
+  /**
+   * Optional previously-trained LoRA to continue training from ("train further"). When set, the first
+   * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
+   */
+  continueFrom?: null | string;
+  engine: 'ai-toolkit';
+};
+
+/**
+ * AI Toolkit training for ACE-Step 1.5 base models.
+ */
+export type AceStep15AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  samplesOverrides?: Array<AceStepSampleOverride>;
+  ecosystem: 'ace_step_15';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for ACE-Step 1.5 XL models.
+ */
+export type AceStep15XlAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  modelVariant: string;
+  samplesOverrides?: Array<AceStepSampleOverride>;
+  ecosystem: 'ace_step_15_xl';
+  engine: 'ai-toolkit';
+};
+
+/**
+ * AI Toolkit training for ACE-Step 1.5 XL base models.
+ */
+export type AceStep15XlBaseAiToolkitTrainingInputWritable = Omit<
+  AceStep15XlAiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'base';
+  ecosystem: 'ace_step_15_xl';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for ACE-Step 1.5 XL SFT models.
+ */
+export type AceStep15XlSftAiToolkitTrainingInputWritable = Omit<
+  AceStep15XlAiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'sft';
+  ecosystem: 'ace_step_15_xl';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Anima models.
+ */
+export type AnimaAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'anima';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * Base type for message content parts.
  * Supports both camelCase (imageUrl) and snake_case (image_url) type discriminators via ContentPartJsonConverter.
  */
@@ -7863,9 +8578,67 @@ export type ChatCompletionContentPartWritable = {
   imageUrl?: ChatCompletionImageUrl;
 };
 
+/**
+ * AI Toolkit training for Chroma models
+ */
+export type ChromaAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'chroma';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type CursedArrayOfTelemetryCursorAndWorkflowWritable = {
   next: string;
   items: Array<WorkflowWritable>;
+};
+
+/**
+ * AI Toolkit training for ERNIE-Image models
+ */
+export type ErnieAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ernie';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Flux.1 models
+ */
+export type Flux1AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  modelVariant: string;
+  ecosystem: 'flux1';
+  engine: 'ai-toolkit';
+};
+
+/**
+ * AI Toolkit training for Flux.1 Dev models
+ */
+export type Flux1DevAiToolkitTrainingInputWritable = Omit<
+  Flux1AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'dev';
+  ecosystem: 'flux1';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type Flux1KontextDevImageGenInputWritable = Omit<
@@ -7900,6 +8673,86 @@ export type Flux1KontextProImageGenInputWritable = Omit<
 > & {
   model: 'pro';
   engine: 'flux1-kontext';
+};
+
+/**
+ * AI Toolkit training for Flux.1 Schnell models
+ */
+export type Flux1SchnellAiToolkitTrainingInputWritable = Omit<
+  Flux1AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'schnell';
+  ecosystem: 'flux1';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Flux2 Klein 4b-base models
+ */
+export type Flux2Klein4bAiToolkitTrainingInputWritable = Omit<
+  Flux2KleinAiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: '4b';
+  ecosystem: 'flux2klein';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Flux2 Klein 9b-base models
+ */
+export type Flux2Klein9bAiToolkitTrainingInputWritable = Omit<
+  Flux2KleinAiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: '9b';
+  ecosystem: 'flux2klein';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Flux2 Klein models (image training)
+ */
+export type Flux2KleinAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  modelVariant: string;
+  /**
+   * Whether this is image-edit training (uses control paths for reference images).
+   * When true, the training data zip should contain subfolders: main/, control_1/, control_2/, control_3/.
+   */
+  isEditTraining?: boolean;
+  ecosystem: 'flux2klein';
+  engine: 'ai-toolkit';
+};
+
+/**
+ * AI Toolkit training for HiDream O1 Image models.
+ */
+export type HiDreamO1AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'hidream-o1';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type KohyaImageResourceTrainingInputWritable = Omit<
@@ -7992,6 +8845,36 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
    */
   optimizerType?: null | string;
   engine: 'kohya';
+};
+
+/**
+ * AI Toolkit training for LTX 2.3 video models
+ */
+export type Ltx23AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ltx23';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for LTX2 video models
+ */
+export type Ltx2AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ltx2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type MusubiImageResourceTrainingInputWritable = Omit<
@@ -8345,6 +9228,78 @@ export type Qwen20bVariantImageGenInputWritable = Omit<
 };
 
 /**
+ * AI Toolkit training for Qwen Image models
+ */
+export type QwenAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  version?: 'latest' | '2509' | '2512';
+  ecosystem: 'qwen';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Stable Diffusion 1.5 models
+ */
+export type Sd1AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  /**
+   * Learning is performed by putting noise of various strengths on the training image,
+   * but depending on the difference in strength of the noise on which it is placed, learning will be
+   * stable by moving closer to or farther from the learning target.
+   *
+   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
+   * it may deviate greatly from the target, so try to suppress this jump.
+   */
+  minSnrGamma?: null | number;
+  /**
+   * The primary model to train upon.
+   */
+  model?: string;
+  ecosystem: 'sd1';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Stable Diffusion XL models
+ */
+export type SdxlAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  /**
+   * Learning is performed by putting noise of various strengths on the training image,
+   * but depending on the difference in strength of the noise on which it is placed, learning will be
+   * stable by moving closer to or farther from the learning target.
+   *
+   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
+   * it may deviate greatly from the target, so try to suppress this jump.
+   */
+  minSnrGamma?: null | number;
+  /**
+   * The primary model to train upon.
+   */
+  model?: string;
+  ecosystem: 'sdxl';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * A user message that can contain text and/or images.
  */
 export type UserMessageWritable = Omit<ChatCompletionMessageWritable, 'role'> & {
@@ -8563,6 +9518,45 @@ export type XGuardSignalMetadataWritable = {
   customSignals: Array<XGuardCustomSignalMetadataWritable>;
 };
 
+/**
+ * AI Toolkit training for Z Image Turbo models
+ */
+export type ZImageBaseAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'zimagebase';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for Z Image Turbo models
+ */
+export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'zimageturbo';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * Input for a training step.
+ */
+export type TrainingInputWritable = {
+  engine: string;
+  trainingData: TrainingData;
+  samples?: TrainingInputSamples;
+};
+
 export type ImageGenInputWritable = {
   engine: string;
   outputFormat?: ImageGenOutputFormat;
@@ -8696,6 +9690,170 @@ export type WorkflowStepTemplateWritable = {
 export type ChatCompletionMessageWritable = {
   role: string;
 };
+
+export type ListAppsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v2/apps';
+};
+
+export type ListAppsErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type ListAppsError = ListAppsErrors[keyof ListAppsErrors];
+
+export type ListAppsResponses = {
+  /**
+   * OK
+   */
+  200: Array<AppDefinition>;
+};
+
+export type ListAppsResponse = ListAppsResponses[keyof ListAppsResponses];
+
+export type RegisterAppData = {
+  body?: RegisterAppRequest;
+  path?: never;
+  query?: never;
+  url: '/v2/apps';
+};
+
+export type RegisterAppErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Conflict
+   */
+  409: ProblemDetails;
+};
+
+export type RegisterAppError = RegisterAppErrors[keyof RegisterAppErrors];
+
+export type RegisterAppResponses = {
+  /**
+   * Created
+   */
+  201: AppDefinition;
+};
+
+export type RegisterAppResponse = RegisterAppResponses[keyof RegisterAppResponses];
+
+export type GetAppLatestData = {
+  body?: never;
+  path: {
+    owner: number;
+    name: string;
+  };
+  query?: never;
+  url: '/v2/apps/{owner}/{name}';
+};
+
+export type GetAppLatestErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetAppLatestError = GetAppLatestErrors[keyof GetAppLatestErrors];
+
+export type GetAppLatestResponses = {
+  /**
+   * OK
+   */
+  200: AppDefinition;
+};
+
+export type GetAppLatestResponse = GetAppLatestResponses[keyof GetAppLatestResponses];
+
+export type DeleteAppData = {
+  body?: never;
+  path: {
+    owner: number;
+    name: string;
+    version: string;
+  };
+  query?: never;
+  url: '/v2/apps/{owner}/{name}/{version}';
+};
+
+export type DeleteAppErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type DeleteAppError = DeleteAppErrors[keyof DeleteAppErrors];
+
+export type DeleteAppResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type DeleteAppResponse = DeleteAppResponses[keyof DeleteAppResponses];
+
+export type GetAppData = {
+  body?: never;
+  path: {
+    owner: number;
+    name: string;
+    version: string;
+  };
+  query?: never;
+  url: '/v2/apps/{owner}/{name}/{version}';
+};
+
+export type GetAppErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetAppError = GetAppErrors[keyof GetAppErrors];
+
+export type GetAppResponses = {
+  /**
+   * OK
+   */
+  200: AppDefinition;
+};
+
+export type GetAppResponse = GetAppResponses[keyof GetAppResponses];
 
 export type GetBlobData = {
   body?: never;
@@ -9117,42 +10275,6 @@ export type InvokeAudioCaptioningStepTemplateResponses = {
 export type InvokeAudioCaptioningStepTemplateResponse =
   InvokeAudioCaptioningStepTemplateResponses[keyof InvokeAudioCaptioningStepTemplateResponses];
 
-export type InvokeAudioMixStepTemplateData = {
-  body?: AudioMixInput;
-  path?: never;
-  query?: {
-    experimental?: boolean;
-    allowMatureContent?: boolean;
-    whatif?: boolean;
-    ephemeral?: boolean;
-  };
-  url: '/v2/consumer/recipes/audioMix';
-};
-
-export type InvokeAudioMixStepTemplateErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-};
-
-export type InvokeAudioMixStepTemplateError =
-  InvokeAudioMixStepTemplateErrors[keyof InvokeAudioMixStepTemplateErrors];
-
-export type InvokeAudioMixStepTemplateResponses = {
-  /**
-   * OK
-   */
-  200: AudioMixOutput;
-};
-
-export type InvokeAudioMixStepTemplateResponse =
-  InvokeAudioMixStepTemplateResponses[keyof InvokeAudioMixStepTemplateResponses];
-
 export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
   body?: BatchOcrSafetyClassificationInput;
   path?: never;
@@ -9297,6 +10419,42 @@ export type InvokeComfyStepTemplateResponses = {
 export type InvokeComfyStepTemplateResponse =
   InvokeComfyStepTemplateResponses[keyof InvokeComfyStepTemplateResponses];
 
+export type InvokeComposeMediaStepTemplateData = {
+  body?: ComposeMediaInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/composeMedia';
+};
+
+export type InvokeComposeMediaStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeComposeMediaStepTemplateError =
+  InvokeComposeMediaStepTemplateErrors[keyof InvokeComposeMediaStepTemplateErrors];
+
+export type InvokeComposeMediaStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ComposeMediaOutput;
+};
+
+export type InvokeComposeMediaStepTemplateResponse =
+  InvokeComposeMediaStepTemplateResponses[keyof InvokeComposeMediaStepTemplateResponses];
+
 export type InvokeConvertImageStepTemplateData = {
   body?: ConvertImageInput;
   path?: never;
@@ -9332,6 +10490,42 @@ export type InvokeConvertImageStepTemplateResponses = {
 
 export type InvokeConvertImageStepTemplateResponse =
   InvokeConvertImageStepTemplateResponses[keyof InvokeConvertImageStepTemplateResponses];
+
+export type InvokeCustomAppStepTemplateData = {
+  body?: CustomAppInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/customApp';
+};
+
+export type InvokeCustomAppStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeCustomAppStepTemplateError =
+  InvokeCustomAppStepTemplateErrors[keyof InvokeCustomAppStepTemplateErrors];
+
+export type InvokeCustomAppStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: CustomAppOutput;
+};
+
+export type InvokeCustomAppStepTemplateResponse =
+  InvokeCustomAppStepTemplateResponses[keyof InvokeCustomAppStepTemplateResponses];
 
 export type InvokeCustomComfyStepTemplateData = {
   body?: CustomComfyInput;
@@ -9440,6 +10634,42 @@ export type InvokeHumanoidImageMaskStepTemplateResponses = {
 
 export type InvokeHumanoidImageMaskStepTemplateResponse =
   InvokeHumanoidImageMaskStepTemplateResponses[keyof InvokeHumanoidImageMaskStepTemplateResponses];
+
+export type InvokeImageBackgroundRemovalStepTemplateData = {
+  body?: ImageBackgroundRemovalInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/imageBackgroundRemoval';
+};
+
+export type InvokeImageBackgroundRemovalStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeImageBackgroundRemovalStepTemplateError =
+  InvokeImageBackgroundRemovalStepTemplateErrors[keyof InvokeImageBackgroundRemovalStepTemplateErrors];
+
+export type InvokeImageBackgroundRemovalStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ImageBackgroundRemovalOutput;
+};
+
+export type InvokeImageBackgroundRemovalStepTemplateResponse =
+  InvokeImageBackgroundRemovalStepTemplateResponses[keyof InvokeImageBackgroundRemovalStepTemplateResponses];
 
 export type InvokeImageGenStepTemplateData = {
   body?: ImageGenInput;

@@ -6,9 +6,18 @@ import type {
   AddWorkflowTagData,
   AddWorkflowTagErrors,
   AddWorkflowTagResponses,
+  DeleteAppData,
+  DeleteAppErrors,
+  DeleteAppResponses,
   DeleteWorkflowData,
   DeleteWorkflowErrors,
   DeleteWorkflowResponses,
+  GetAppData,
+  GetAppErrors,
+  GetAppLatestData,
+  GetAppLatestErrors,
+  GetAppLatestResponses,
+  GetAppResponses,
   GetBlobArchiveData,
   GetBlobArchiveErrors,
   GetBlobArchiveResponses,
@@ -49,9 +58,6 @@ import type {
   InvokeAudioCaptioningStepTemplateData,
   InvokeAudioCaptioningStepTemplateErrors,
   InvokeAudioCaptioningStepTemplateResponses,
-  InvokeAudioMixStepTemplateData,
-  InvokeAudioMixStepTemplateErrors,
-  InvokeAudioMixStepTemplateResponses,
   InvokeBatchOcrSafetyClassificationStepTemplateData,
   InvokeBatchOcrSafetyClassificationStepTemplateErrors,
   InvokeBatchOcrSafetyClassificationStepTemplateResponses,
@@ -64,9 +70,15 @@ import type {
   InvokeComfyStepTemplateData,
   InvokeComfyStepTemplateErrors,
   InvokeComfyStepTemplateResponses,
+  InvokeComposeMediaStepTemplateData,
+  InvokeComposeMediaStepTemplateErrors,
+  InvokeComposeMediaStepTemplateResponses,
   InvokeConvertImageStepTemplateData,
   InvokeConvertImageStepTemplateErrors,
   InvokeConvertImageStepTemplateResponses,
+  InvokeCustomAppStepTemplateData,
+  InvokeCustomAppStepTemplateErrors,
+  InvokeCustomAppStepTemplateResponses,
   InvokeCustomComfyStepTemplateData,
   InvokeCustomComfyStepTemplateErrors,
   InvokeCustomComfyStepTemplateResponses,
@@ -76,6 +88,9 @@ import type {
   InvokeHumanoidImageMaskStepTemplateData,
   InvokeHumanoidImageMaskStepTemplateErrors,
   InvokeHumanoidImageMaskStepTemplateResponses,
+  InvokeImageBackgroundRemovalStepTemplateData,
+  InvokeImageBackgroundRemovalStepTemplateErrors,
+  InvokeImageBackgroundRemovalStepTemplateResponses,
   InvokeImageGenStepTemplateData,
   InvokeImageGenStepTemplateErrors,
   InvokeImageGenStepTemplateResponses,
@@ -163,6 +178,9 @@ import type {
   InvokeXGuardModerationStepTemplateData,
   InvokeXGuardModerationStepTemplateErrors,
   InvokeXGuardModerationStepTemplateResponses,
+  ListAppsData,
+  ListAppsErrors,
+  ListAppsResponses,
   PatchWorkflowData,
   PatchWorkflowErrors,
   PatchWorkflowResponses,
@@ -175,6 +193,9 @@ import type {
   RefreshBlobData,
   RefreshBlobErrors,
   RefreshBlobResponses,
+  RegisterAppData,
+  RegisterAppErrors,
+  RegisterAppResponses,
   RemoveAllWorkflowTagsData,
   RemoveAllWorkflowTagsErrors,
   RemoveAllWorkflowTagsResponses,
@@ -211,6 +232,60 @@ export type Options<
    */
   meta?: Record<string, unknown>;
 };
+
+/**
+ * List all apps registered by the authenticated user.
+ */
+export const listApps = <ThrowOnError extends boolean = false>(
+  options?: Options<ListAppsData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListAppsResponses, ListAppsErrors, ThrowOnError>({
+    url: '/v2/apps',
+    ...options,
+  });
+
+/**
+ * Register a new app version. Bump `version` to publish changes; the
+ * same `(name, version)` cannot be registered twice (409).
+ */
+export const registerApp = <ThrowOnError extends boolean = false>(
+  options?: Options<RegisterAppData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<RegisterAppResponses, RegisterAppErrors, ThrowOnError>({
+    url: '/v2/apps',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Resolve an app by name. Returns the most recently registered version.
+ */
+export const getAppLatest = <ThrowOnError extends boolean = false>(
+  options: Options<GetAppLatestData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetAppLatestResponses, GetAppLatestErrors, ThrowOnError>({
+    url: '/v2/apps/{owner}/{name}',
+    ...options,
+  });
+
+export const deleteApp = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteAppData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteAppResponses, DeleteAppErrors, ThrowOnError>({
+    url: '/v2/apps/{owner}/{name}/{version}',
+    ...options,
+  });
+
+export const getApp = <ThrowOnError extends boolean = false>(
+  options: Options<GetAppData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetAppResponses, GetAppErrors, ThrowOnError>({
+    url: '/v2/apps/{owner}/{name}/{version}',
+    ...options,
+  });
 
 /**
  * Get blob by ID. This will redirect to a cacheable content URL.
@@ -377,28 +452,6 @@ export const invokeAudioCaptioningStepTemplate = <ThrowOnError extends boolean =
     },
   });
 
-/**
- * Audio Mix
- *
- * Overlays multiple audio clips on a single timeline, each placed at its own start offset with optional per-track volume and fade controls.
- * /// Pair with N text-to-speech steps to assemble multi-speaker dialogue, debate, or audio-drama scenes with cross-talk and interruption.
- */
-export const invokeAudioMixStepTemplate = <ThrowOnError extends boolean = false>(
-  options?: Options<InvokeAudioMixStepTemplateData, ThrowOnError>
-) =>
-  (options?.client ?? client).post<
-    InvokeAudioMixStepTemplateResponses,
-    InvokeAudioMixStepTemplateErrors,
-    ThrowOnError
-  >({
-    url: '/v2/consumer/recipes/audioMix',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-
 export const invokeBatchOcrSafetyClassificationStepTemplate = <
   ThrowOnError extends boolean = false,
 >(
@@ -482,6 +535,32 @@ export const invokeComfyStepTemplate = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Compose Media
+ *
+ * Composes multiple audio and/or video elements onto a single timeline and canvas: overlay and
+ * /// stack videos, scale and pad them to an output canvas, mix and place audio, and apply per-element
+ * /// transformers (fades, volume). Each element is placed at its own absolute or implicitly-sequenced
+ * /// start time. Produces a video blob when any element is video, otherwise an audio blob. Pair with
+ * /// text-to-speech, music, and video-generation steps to assemble narrated clips, multi-speaker
+ * /// scenes with cross-talk, or picture-in-picture compositions.
+ */
+export const invokeComposeMediaStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeComposeMediaStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeComposeMediaStepTemplateResponses,
+    InvokeComposeMediaStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/composeMedia',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
  * A workflow step that converts images to different formats and applies optional transforms.
  */
 export const invokeConvertImageStepTemplate = <ThrowOnError extends boolean = false>(
@@ -493,6 +572,31 @@ export const invokeConvertImageStepTemplate = <ThrowOnError extends boolean = fa
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/convertImage',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Invokes a user-registered app (see <c>/v2/apps</c>) as a single workflow step.
+ *
+ * The orchestrator resolves the app by <c>owner/name@version</c>, snapshots its
+ * /// definition (container image AIR, invocation contract, requirements) onto the
+ * /// emitted <c>CustomAppJob</c>, and forwards the user's JSON input verbatim to
+ * /// the container's invocation endpoint. Billing happens after execution based
+ * /// on actual GPU-seconds the worker reports.
+ */
+export const invokeCustomAppStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeCustomAppStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeCustomAppStepTemplateResponses,
+    InvokeCustomAppStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/customApp',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -556,6 +660,25 @@ export const invokeHumanoidImageMaskStepTemplate = <ThrowOnError extends boolean
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/humanoidImageMask',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job).
+ */
+export const invokeImageBackgroundRemovalStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeImageBackgroundRemovalStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeImageBackgroundRemovalStepTemplateResponses,
+    InvokeImageBackgroundRemovalStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/imageBackgroundRemoval',
     ...options,
     headers: {
       'Content-Type': 'application/json',
