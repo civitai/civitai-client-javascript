@@ -563,6 +563,22 @@ export type AnimaImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'
   engine: 'sdcpp';
 };
 
+export type AnimaVariantImageGenInput = Omit<
+  AnimaImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  strength?: number;
+  operation: 'createVariant';
+  ecosystem: 'anima';
+  engine: 'sdcpp';
+};
+
 export const AnimalPoseBboxDetector = {
   YOLOX_L_TORCHSCRIPT_PT: 'yolox_l.torchscript.pt',
   YOLOX_L_ONNX: 'yolox_l.onnx',
@@ -603,73 +619,6 @@ export const AnylineMergeWith = {
 } as const;
 
 export type AnylineMergeWith = (typeof AnylineMergeWith)[keyof typeof AnylineMergeWith];
-
-/**
- * A user-defined "app" registered against the orchestrator. Each app binds a container
- * image (referenced as an `oci:image` AIR) to an invocation contract and
- * declares its input/output JSON-schemas plus host requirements. Apps are immutable
- * per `(Owner, Name, Version)`; bump Civitai.Orchestration.Grains.Apps.AppDefinition.Version to publish changes.
- */
-export type AppDefinition = {
-  /**
-   * Owning user id. Set server-side from the auth principal on register; not
-   * accepted from request bodies.
-   */
-  owner: number;
-  name: string;
-  version: string;
-  /**
-   * Container image as an AIR URN — e.g. `urn:air:oci:image:dockerhub:foo/bar@v1.0.0`.
-   * The spine-controller's OCI image cache pulls (and locks) this for the lifetime of a claim.
-   */
-  image: string;
-  invocation: AppInvocation;
-  /**
-   * AIRs the app needs for every invocation (models, embeddings, …). The worker
-   * downloads/caches them before invoking and exposes them to the container under
-   * `/mnt/resources`; their in-container paths are delivered via the injected
-   * `_resources` map on the input JSON (and `{resource:<air>}` tokens
-   * in exec commands). Per-invocation resources can be added via the step input's
-   * `resources` field.
-   */
-  resources: Array<string>;
-  /**
-   * JSON-schema (draft-07) describing the shape of `CustomAppInput.Input`.
-   * Published via `GET /v2/apps/{owner}/{name}` so SDKs can validate
-   * client-side. v1 does not enforce server-side; the container itself is
-   * the source of truth.
-   */
-  inputSchema?: null;
-  /**
-   * JSON-schema (draft-07) describing the shape of `CustomAppOutput.Result`.
-   */
-  outputSchema?: null;
-  requirements?: AppRequirements;
-  createdAt: string;
-};
-
-/**
- * How the worker invokes the app's container. Discriminated by `method`:
- * `"http"` POSTs the input to an endpoint the container serves;
- * `"exec"` runs a command inside the container per invocation.
- */
-export type AppInvocation = {
-  method: string;
-  /**
-   * Wall-clock budget for a single invocation. Worker default applies when null.
-   */
-  timeoutSeconds?: null | number;
-};
-
-export type AppRequirements = {
-  minVramGb?: null | number;
-  gpuCount?: null | number;
-  /**
-   * Optional whitelist of GPU class names this app is willing to run on
-   * (e.g. `["A100", "H100"]`). Empty / null means no restriction.
-   */
-  gpuClasses: Array<string>;
-};
 
 /**
  * Container format for a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep output.
@@ -772,6 +721,15 @@ export type AudioCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
 export type AudioComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
   audioBlob: AudioBlob;
   type: 'audio';
+};
+
+export type BasicAnimationsBlobs = {
+  walkingModel?: Model3dBlob;
+  walkingFbxModel?: Model3dBlob;
+  walkingArmatureModel?: Model3dBlob;
+  runningModel?: Model3dBlob;
+  runningFbxModel?: Model3dBlob;
+  runningArmatureModel?: Model3dBlob;
 };
 
 export type BatchOcrSafetyClassificationInput = {
@@ -1317,6 +1275,22 @@ export type ComfyAnimaImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosy
   };
   diffuserModel?: string;
   controlNets?: Array<ImageJobControlNet>;
+  ecosystem: 'anima';
+  engine: 'comfy';
+};
+
+export type ComfyAnimaVariantImageGenInput = Omit<
+  ComfyAnimaImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  denoiseStrength?: number;
+  operation: 'createVariant';
   ecosystem: 'anima';
   engine: 'comfy';
 };
@@ -2239,67 +2213,6 @@ export type CursedArrayOfTelemetryCursorAndWorkflow = {
   items: Array<Workflow>;
 };
 
-/**
- * Input for a CustomApp step.
- */
-export type CustomAppInput = {
-  /**
-   * Reference to the registered app. Format: `{owner}/{name}` for the latest
-   * published version, or `{owner}/{name}@{version}` to pin a specific one.
-   */
-  app: string;
-  /**
-   * JSON payload forwarded verbatim to the app's invocation endpoint. The
-   * app's published `inputSchema` describes the expected shape; the
-   * orchestrator does not enforce it server-side in v1 — the container is
-   * the source of truth. The wire format is a normal JSON object (the
-   * converter maps to/from a raw string in-process so Orleans/Mongo
-   * serialization stays trivial).
-   */
-  input: string;
-  /**
-   * Per-invocation resource AIRs, prepared on the worker in addition to the
-   * app's declared `resources`. In-container paths are delivered via the
-   * `_resources` map injected into the input JSON the app receives (and
-   * `{resource:<air>}` tokens in exec commands). An unparseable AIR
-   * fails the step at submission.
-   */
-  resources: Array<string>;
-};
-
-/**
- * Output from a CustomApp step.
- */
-export type CustomAppOutput = {
-  /**
-   * JSON payload returned by the app. Shape is whatever the app's
-   * `outputSchema` declares; opaque to the orchestrator. Stored as a
-   * raw JSON string; the wire format on the response is a normal JSON object.
-   */
-  result?: null | string;
-  /**
-   * On-GPU active time reported by the worker, in seconds. Drives billing.
-   */
-  gpuSeconds: number;
-};
-
-/**
- * Invokes a user-registered app (see `/v2/apps`) as a single workflow step.
- */
-export type CustomAppStep = Omit<WorkflowStep, '$type'> & {
-  input: CustomAppInput;
-  output?: CustomAppOutput;
-  $type: 'customApp';
-};
-
-/**
- * Invokes a user-registered app (see `/v2/apps`) as a single workflow step.
- */
-export type CustomAppStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
-  input: CustomAppInput;
-  $type: 'customApp';
-};
-
 export type CustomComfyHooks = {
   /**
    * WebSocket URL the worker forwards ComfyUI's `/ws` messages to.
@@ -2333,6 +2246,38 @@ export type CustomComfyInput = {
    * session affinity). Null = no preference, treated as a fresh session.
    */
   sessionId?: null | string;
+  /**
+   * Optional custom comfy container image, declared as an
+   * `urn:air:oci:image:<source>:<repo>@<version|sha256:…>` AIR
+   * (e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy@v2.5.5`).
+   * When set, the worker pulls and runs this image instead of its default
+   * comfy image. Null = worker default.
+   */
+  comfyImage?: null | string;
+  /**
+   * Optional Civitai API token belonging to the session owner. When set,
+   * the worker exposes it to the ComfyUI container as the
+   * `CIVITAI_API_TOKEN` environment variable, so custom-pack recipe
+   * nodes (e.g. civitai-comfy-nodes) can call the orchestrator and bill the
+   * user. Sensitive: persisted on the workflow/job and forwarded to the
+   * claiming worker — never log it. Null = no token exposed.
+   */
+  sessionOwnerApiToken?: null | string;
+  /**
+   * Optional minimum GPU VRAM (in GB) the claiming worker must have. The
+   * scheduler only offers the job to workers whose reported host VRAM
+   * (`WorkerCapabilities.HostResources.MaxVramGb`) is at least this.
+   * Null = no requirement (any comfy-capable worker). Lets a session
+   * request a higher-VRAM tier (e.g. 48) for heavy workflows.
+   */
+  minVramGb?: null | number;
+  /**
+   * Optional toggle for ComfyUI's Sage Attention. When true, the worker
+   * launches ComfyUI with `--use-sage-attention`. Null/false = the
+   * image's default (off for the cloud/slim images). The SageAttention
+   * wheel is baked into the comfy images; this only flips the flag.
+   */
+  useSageAttention?: null | boolean;
 };
 
 /**
@@ -2345,9 +2290,9 @@ export type CustomComfyOutput = {
    */
   workflow: unknown;
   /**
-   * Direct URIs to each generated asset (images, videos, etc).
+   * Blobs generated by the executed workflow (images, videos, etc).
    */
-  assets: Array<string>;
+  blobs: Array<Blob>;
 };
 
 /**
@@ -2528,28 +2473,6 @@ export type ErnieAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
    * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
    */
   batchSize?: null | number;
-};
-
-/**
- * Each invocation runs Civitai.Orchestration.Grains.Apps.ExecAppInvocation.Command inside the (held-alive) container —
- * no server required, e.g. a plain python script. The input JSON is piped to the
- * process on stdin; stdout must be the result JSON; stderr goes to logs; a
- * non-zero exit code fails the invocation. The process starts fresh per
- * invocation, so per-call startup cost (imports, model loads) is billed —
- * prefer Civitai.Orchestration.Grains.Apps.HttpAppInvocation for heavy model serving.
- */
-export type ExecAppInvocation = Omit<AppInvocation, 'method'> & {
-  /**
-   * Argv executed inside the container (no shell). Arguments may embed
-   * `{input}` (the whole input JSON) or `{input.some.path}`
-   * (a value from the input; array indices are numeric segments) — tokens
-   * are substituted from the step's input at submission time, and an
-   * unresolvable token fails the step before any worker is involved.
-   * `{resource:<air>}` tokens resolve to the resource's
-   * in-container path on the worker once resources are prepared.
-   */
-  command: Array<string>;
-  method: 'exec';
 };
 
 /**
@@ -3405,22 +3328,6 @@ export type HiDreamO1AiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
-/**
- * The container runs a long-lived HTTP server; each invocation POSTs the input
- * JSON to Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Path on Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Port. Best for apps with expensive
- * startup (model loads) amortized across invocations.
- */
-export type HttpAppInvocation = Omit<AppInvocation, 'method'> & {
-  port: number;
-  path: string;
-  /**
-   * Optional health probe path. When set, the strategy GETs this on
-   * Civitai.Orchestration.Grains.Apps.HttpAppInvocation.Port until 2xx; when null, falls back to TCP-ready.
-   */
-  healthPath?: null | string;
-  method: 'http';
-};
-
 export const HumanoidImageMaskCategory = {
   DRESSES: 'dresses',
   UPPER_BODY: 'upperBody',
@@ -4242,11 +4149,11 @@ export type MediaCaptioningInput = {
   /**
    * Sampling temperature for caption generation.
    */
-  temperature: number;
+  temperature?: number;
   /**
    * Maximum number of tokens to generate.
    */
-  maxNewTokens: number;
+  maxNewTokens?: number;
   /**
    * Optional extra instructions appended to the captioning prompt to steer
    * tone, structure, or formatting. Leave unset for the default caption.
@@ -5102,6 +5009,11 @@ export type PolyGenOutput = {
   model: Model3dBlob;
   fbxModel?: Model3dBlob;
   thumbnail?: ImageBlob;
+  riggedModel?: Model3dBlob;
+  riggedFbxModel?: Model3dBlob;
+  animatedModel?: Model3dBlob;
+  animatedFbxModel?: Model3dBlob;
+  basicAnimations?: BasicAnimationsBlobs;
 };
 
 /**
@@ -5670,17 +5582,6 @@ export type QwenImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
   model: string;
   ecosystem: 'qwen';
   engine: 'sdcpp';
-};
-
-export type RegisterAppRequest = {
-  name: string;
-  version: string;
-  image: string;
-  invocation: AppInvocation;
-  resources: Array<string>;
-  inputSchema?: null;
-  outputSchema?: null;
-  requirements?: AppRequirements;
 };
 
 /**
@@ -7648,6 +7549,12 @@ export type Workflow = {
    * uniqueness per-user. See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
    */
   externalId?: null | string;
+  /**
+   * Net buzz refunded because deliverable blobs were lost in the 2026-06-12 storage
+   * incident (v2.20.1 wrote Default-tier blobs to the wrong store). Null = not yet
+   * checked, 0 = checked and intact. A value > 0 also prevents re-charging on recovery.
+   */
+  lostBlobsRefund?: null | number;
 };
 
 /**
@@ -9390,6 +9297,12 @@ export type WorkflowWritable = {
    * uniqueness per-user. See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
    */
   externalId?: null | string;
+  /**
+   * Net buzz refunded because deliverable blobs were lost in the 2026-06-12 storage
+   * incident (v2.20.1 wrote Default-tier blobs to the wrong store). Null = not yet
+   * checked, 0 = checked and intact. A value > 0 also prevents re-charging on recovery.
+   */
+  lostBlobsRefund?: null | number;
 };
 
 export type WorkflowCostWritable = {
@@ -9690,170 +9603,6 @@ export type WorkflowStepTemplateWritable = {
 export type ChatCompletionMessageWritable = {
   role: string;
 };
-
-export type ListAppsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: '/v2/apps';
-};
-
-export type ListAppsErrors = {
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-};
-
-export type ListAppsError = ListAppsErrors[keyof ListAppsErrors];
-
-export type ListAppsResponses = {
-  /**
-   * OK
-   */
-  200: Array<AppDefinition>;
-};
-
-export type ListAppsResponse = ListAppsResponses[keyof ListAppsResponses];
-
-export type RegisterAppData = {
-  body?: RegisterAppRequest;
-  path?: never;
-  query?: never;
-  url: '/v2/apps';
-};
-
-export type RegisterAppErrors = {
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Conflict
-   */
-  409: ProblemDetails;
-};
-
-export type RegisterAppError = RegisterAppErrors[keyof RegisterAppErrors];
-
-export type RegisterAppResponses = {
-  /**
-   * Created
-   */
-  201: AppDefinition;
-};
-
-export type RegisterAppResponse = RegisterAppResponses[keyof RegisterAppResponses];
-
-export type GetAppLatestData = {
-  body?: never;
-  path: {
-    owner: number;
-    name: string;
-  };
-  query?: never;
-  url: '/v2/apps/{owner}/{name}';
-};
-
-export type GetAppLatestErrors = {
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type GetAppLatestError = GetAppLatestErrors[keyof GetAppLatestErrors];
-
-export type GetAppLatestResponses = {
-  /**
-   * OK
-   */
-  200: AppDefinition;
-};
-
-export type GetAppLatestResponse = GetAppLatestResponses[keyof GetAppLatestResponses];
-
-export type DeleteAppData = {
-  body?: never;
-  path: {
-    owner: number;
-    name: string;
-    version: string;
-  };
-  query?: never;
-  url: '/v2/apps/{owner}/{name}/{version}';
-};
-
-export type DeleteAppErrors = {
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type DeleteAppError = DeleteAppErrors[keyof DeleteAppErrors];
-
-export type DeleteAppResponses = {
-  /**
-   * No Content
-   */
-  204: void;
-};
-
-export type DeleteAppResponse = DeleteAppResponses[keyof DeleteAppResponses];
-
-export type GetAppData = {
-  body?: never;
-  path: {
-    owner: number;
-    name: string;
-    version: string;
-  };
-  query?: never;
-  url: '/v2/apps/{owner}/{name}/{version}';
-};
-
-export type GetAppErrors = {
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-};
-
-export type GetAppError = GetAppErrors[keyof GetAppErrors];
-
-export type GetAppResponses = {
-  /**
-   * OK
-   */
-  200: AppDefinition;
-};
-
-export type GetAppResponse = GetAppResponses[keyof GetAppResponses];
 
 export type GetBlobData = {
   body?: never;
@@ -10490,42 +10239,6 @@ export type InvokeConvertImageStepTemplateResponses = {
 
 export type InvokeConvertImageStepTemplateResponse =
   InvokeConvertImageStepTemplateResponses[keyof InvokeConvertImageStepTemplateResponses];
-
-export type InvokeCustomAppStepTemplateData = {
-  body?: CustomAppInput;
-  path?: never;
-  query?: {
-    experimental?: boolean;
-    allowMatureContent?: boolean;
-    whatif?: boolean;
-    ephemeral?: boolean;
-  };
-  url: '/v2/consumer/recipes/customApp';
-};
-
-export type InvokeCustomAppStepTemplateErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-};
-
-export type InvokeCustomAppStepTemplateError =
-  InvokeCustomAppStepTemplateErrors[keyof InvokeCustomAppStepTemplateErrors];
-
-export type InvokeCustomAppStepTemplateResponses = {
-  /**
-   * OK
-   */
-  200: CustomAppOutput;
-};
-
-export type InvokeCustomAppStepTemplateResponse =
-  InvokeCustomAppStepTemplateResponses[keyof InvokeCustomAppStepTemplateResponses];
 
 export type InvokeCustomComfyStepTemplateData = {
   body?: CustomComfyInput;
@@ -11950,7 +11663,7 @@ export type GetWorkflowData = {
      * The request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout.
      * In which case the client should use the token to query the status of the workflow.
      */
-    wait?: boolean;
+    wait?: number;
     /**
      * When set to true, any blob that has mature won't be available and won't have a URL
      */
@@ -11977,6 +11690,10 @@ export type GetWorkflowResponses = {
    * OK
    */
   200: Workflow;
+  /**
+   * Accepted
+   */
+  202: Workflow;
 };
 
 export type GetWorkflowResponse = GetWorkflowResponses[keyof GetWorkflowResponses];

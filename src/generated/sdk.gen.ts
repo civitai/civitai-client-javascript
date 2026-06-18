@@ -6,18 +6,9 @@ import type {
   AddWorkflowTagData,
   AddWorkflowTagErrors,
   AddWorkflowTagResponses,
-  DeleteAppData,
-  DeleteAppErrors,
-  DeleteAppResponses,
   DeleteWorkflowData,
   DeleteWorkflowErrors,
   DeleteWorkflowResponses,
-  GetAppData,
-  GetAppErrors,
-  GetAppLatestData,
-  GetAppLatestErrors,
-  GetAppLatestResponses,
-  GetAppResponses,
   GetBlobArchiveData,
   GetBlobArchiveErrors,
   GetBlobArchiveResponses,
@@ -76,9 +67,6 @@ import type {
   InvokeConvertImageStepTemplateData,
   InvokeConvertImageStepTemplateErrors,
   InvokeConvertImageStepTemplateResponses,
-  InvokeCustomAppStepTemplateData,
-  InvokeCustomAppStepTemplateErrors,
-  InvokeCustomAppStepTemplateResponses,
   InvokeCustomComfyStepTemplateData,
   InvokeCustomComfyStepTemplateErrors,
   InvokeCustomComfyStepTemplateResponses,
@@ -178,9 +166,6 @@ import type {
   InvokeXGuardModerationStepTemplateData,
   InvokeXGuardModerationStepTemplateErrors,
   InvokeXGuardModerationStepTemplateResponses,
-  ListAppsData,
-  ListAppsErrors,
-  ListAppsResponses,
   PatchWorkflowData,
   PatchWorkflowErrors,
   PatchWorkflowResponses,
@@ -193,9 +178,6 @@ import type {
   RefreshBlobData,
   RefreshBlobErrors,
   RefreshBlobResponses,
-  RegisterAppData,
-  RegisterAppErrors,
-  RegisterAppResponses,
   RemoveAllWorkflowTagsData,
   RemoveAllWorkflowTagsErrors,
   RemoveAllWorkflowTagsResponses,
@@ -232,60 +214,6 @@ export type Options<
    */
   meta?: Record<string, unknown>;
 };
-
-/**
- * List all apps registered by the authenticated user.
- */
-export const listApps = <ThrowOnError extends boolean = false>(
-  options?: Options<ListAppsData, ThrowOnError>
-) =>
-  (options?.client ?? client).get<ListAppsResponses, ListAppsErrors, ThrowOnError>({
-    url: '/v2/apps',
-    ...options,
-  });
-
-/**
- * Register a new app version. Bump `version` to publish changes; the
- * same `(name, version)` cannot be registered twice (409).
- */
-export const registerApp = <ThrowOnError extends boolean = false>(
-  options?: Options<RegisterAppData, ThrowOnError>
-) =>
-  (options?.client ?? client).post<RegisterAppResponses, RegisterAppErrors, ThrowOnError>({
-    url: '/v2/apps',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-
-/**
- * Resolve an app by name. Returns the most recently registered version.
- */
-export const getAppLatest = <ThrowOnError extends boolean = false>(
-  options: Options<GetAppLatestData, ThrowOnError>
-) =>
-  (options.client ?? client).get<GetAppLatestResponses, GetAppLatestErrors, ThrowOnError>({
-    url: '/v2/apps/{owner}/{name}',
-    ...options,
-  });
-
-export const deleteApp = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteAppData, ThrowOnError>
-) =>
-  (options.client ?? client).delete<DeleteAppResponses, DeleteAppErrors, ThrowOnError>({
-    url: '/v2/apps/{owner}/{name}/{version}',
-    ...options,
-  });
-
-export const getApp = <ThrowOnError extends boolean = false>(
-  options: Options<GetAppData, ThrowOnError>
-) =>
-  (options.client ?? client).get<GetAppResponses, GetAppErrors, ThrowOnError>({
-    url: '/v2/apps/{owner}/{name}/{version}',
-    ...options,
-  });
 
 /**
  * Get blob by ID. This will redirect to a cacheable content URL.
@@ -572,31 +500,6 @@ export const invokeConvertImageStepTemplate = <ThrowOnError extends boolean = fa
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/convertImage',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-
-/**
- * Invokes a user-registered app (see <c>/v2/apps</c>) as a single workflow step.
- *
- * The orchestrator resolves the app by <c>owner/name@version</c>, snapshots its
- * /// definition (container image AIR, invocation contract, requirements) onto the
- * /// emitted <c>CustomAppJob</c>, and forwards the user's JSON input verbatim to
- * /// the container's invocation endpoint. Billing happens after execution based
- * /// on actual GPU-seconds the worker reports.
- */
-export const invokeCustomAppStepTemplate = <ThrowOnError extends boolean = false>(
-  options?: Options<InvokeCustomAppStepTemplateData, ThrowOnError>
-) =>
-  (options?.client ?? client).post<
-    InvokeCustomAppStepTemplateResponses,
-    InvokeCustomAppStepTemplateErrors,
-    ThrowOnError
-  >({
-    url: '/v2/consumer/recipes/customApp',
     ...options,
     headers: {
       'Content-Type': 'application/json',
