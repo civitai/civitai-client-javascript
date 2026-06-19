@@ -121,6 +121,9 @@ import type {
   InvokePromptEnhancementStepTemplateData,
   InvokePromptEnhancementStepTemplateErrors,
   InvokePromptEnhancementStepTemplateResponses,
+  InvokeQwenImageBenchStepTemplateData,
+  InvokeQwenImageBenchStepTemplateErrors,
+  InvokeQwenImageBenchStepTemplateResponses,
   InvokeRepeatStepTemplateData,
   InvokeRepeatStepTemplateErrors,
   InvokeRepeatStepTemplateResponses,
@@ -867,6 +870,27 @@ export const invokePromptEnhancementStepTemplate = <ThrowOnError extends boolean
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/promptEnhancement',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Qwen Image Bench
+ *
+ * Scores generated images against their prompts using Qwen-Image-Bench.
+ */
+export const invokeQwenImageBenchStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeQwenImageBenchStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeQwenImageBenchStepTemplateResponses,
+    InvokeQwenImageBenchStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/qwenImageBench',
     ...options,
     headers: {
       'Content-Type': 'application/json',
