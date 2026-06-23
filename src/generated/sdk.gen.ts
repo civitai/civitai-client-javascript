@@ -40,6 +40,9 @@ import type {
   InvalidateUserCacheData,
   InvalidateUserCacheErrors,
   InvalidateUserCacheResponses,
+  InvalidateUserTokensData,
+  InvalidateUserTokensErrors,
+  InvalidateUserTokensResponses,
   InvokeAceStepAudioStepTemplateData,
   InvokeAceStepAudioStepTemplateErrors,
   InvokeAceStepAudioStepTemplateResponses,
@@ -58,6 +61,9 @@ import type {
   InvokeChatCompletionStepTemplateData,
   InvokeChatCompletionStepTemplateErrors,
   InvokeChatCompletionStepTemplateResponses,
+  InvokeComfyNodepackSnapshotStepTemplateData,
+  InvokeComfyNodepackSnapshotStepTemplateErrors,
+  InvokeComfyNodepackSnapshotStepTemplateResponses,
   InvokeComfyStepTemplateData,
   InvokeComfyStepTemplateErrors,
   InvokeComfyStepTemplateResponses,
@@ -321,6 +327,15 @@ export const invalidateUserCache = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({ url: '/v2/consumer/civitai/{userId}', ...options });
 
+export const invalidateUserTokens = <ThrowOnError extends boolean = false>(
+  options: Options<InvalidateUserTokensData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<
+    InvalidateUserTokensResponses,
+    InvalidateUserTokensErrors,
+    ThrowOnError
+  >({ url: '/v2/consumer/civitai/{userId}/tokens', ...options });
+
 /**
  * Workflow step for generating music using ACE Step 1.5.
  * /// Produces full songs from text descriptions and structured lyrics.
@@ -458,6 +473,22 @@ export const invokeComfyStepTemplate = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/comfy',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+export const invokeComfyNodepackSnapshotStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeComfyNodepackSnapshotStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeComfyNodepackSnapshotStepTemplateResponses,
+    InvokeComfyNodepackSnapshotStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/comfyNodepackSnapshot',
     ...options,
     headers: {
       'Content-Type': 'application/json',
