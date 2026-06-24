@@ -1725,6 +1725,80 @@ export type ComfyInput = {
   useSpineComfy?: null | boolean;
 };
 
+export type ComfyKrea2BaseCreateImageGenInput = Omit<
+  ComfyKrea2BaseImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'base';
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
+export type ComfyKrea2BaseImageGenInput = Omit<
+  ComfyKrea2ImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: 'base';
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
+export type ComfyKrea2ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: string;
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
+export type ComfyKrea2TurboCreateImageGenInput = Omit<
+  ComfyKrea2TurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'turbo';
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
+export type ComfyKrea2TurboImageGenInput = Omit<
+  ComfyKrea2ImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: 'turbo';
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
 export type ComfyLensImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
   ecosystem: 'lens';
@@ -2469,6 +2543,15 @@ export type CustomComfyInput = {
    * wheel is baked into the comfy images; this only flips the flag.
    */
   useSageAttention?: null | boolean;
+  /**
+   * Optional submit-time affordability gate (seconds). When set, the workflow is rejected at
+   * submit (→ 400) unless the user can afford at least this many seconds of generation — the
+   * check lives in `CustomComfyHandler.InitializeAsync`. The consumer (comfy-cloud)
+   * defaults it to e.g. 300 and, when rejected, warns the user how much generation they have
+   * left; choosing "run anyway" resubmits with this omitted to skip the gate. The live-balance
+   * guard still cancels mid-run if the balance later goes negative. Null = no gate.
+   */
+  minimumDurationSeconds?: null | number;
 };
 
 /**
@@ -4250,6 +4333,19 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
   optimizerType?: null | string;
   readonly targetSteps?: null | number;
   engine: 'kohya';
+};
+
+/**
+ * AI Toolkit training for Krea 2 models.
+ */
+export type Krea2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  ecosystem: 'krea2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type Krea2CreateFalImageGenInput = Omit<
@@ -9176,6 +9272,21 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
    */
   optimizerType?: null | string;
   engine: 'kohya';
+};
+
+/**
+ * AI Toolkit training for Krea 2 models.
+ */
+export type Krea2AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'krea2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 /**
