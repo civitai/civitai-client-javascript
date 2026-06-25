@@ -25979,7 +25979,8 @@
       "SeedanceModel": {
         "enum": [
           "v2",
-          "v2-fast"
+          "v2-fast",
+          "v2-mini"
         ],
         "type": "string"
       },
@@ -26054,6 +26055,20 @@
                 "items": {
                   "type": "string",
                   "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "referenceVideos": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "referenceAudios": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
                 }
               },
               "engine": {

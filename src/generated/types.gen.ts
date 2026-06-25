@@ -6442,7 +6442,11 @@ export type SdxlVariantImageGenInput = Omit<
   engine: 'sdcpp';
 };
 
-export const SeedanceModel = { V2: 'v2', V2_FAST: 'v2-fast' } as const;
+export const SeedanceModel = {
+  V2: 'v2',
+  V2_FAST: 'v2-fast',
+  V2_MINI: 'v2-mini',
+} as const;
 
 export type SeedanceModel = (typeof SeedanceModel)[keyof typeof SeedanceModel];
 
@@ -6454,6 +6458,8 @@ export type SeedanceVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed?: null | number;
   resolution: '480p' | '720p' | '1080p';
   images?: Array<string>;
+  referenceVideos?: Array<string>;
+  referenceAudios?: Array<string>;
   engine: 'seedance';
 };
 
