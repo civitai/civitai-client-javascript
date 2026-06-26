@@ -11088,10 +11088,50 @@
         },
         "additionalProperties": false
       },
-      "ComfyKrea2BaseCreateImageGenInput": {
+      "ComfyKrea2ImageGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ComfyKrea2BaseImageGenInput"
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "krea2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "raw": "#/components/schemas/ComfyKrea2RawImageGenInput",
+                "turbo": "#/components/schemas/ComfyKrea2TurboImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyKrea2RawCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyKrea2RawImageGenInput"
           },
           {
             "required": [
@@ -11124,7 +11164,7 @@
               },
               "model": {
                 "enum": [
-                  "base"
+                  "raw"
                 ],
                 "type": "string"
               },
@@ -11145,7 +11185,7 @@
           }
         ]
       },
-      "ComfyKrea2BaseImageGenInput": {
+      "ComfyKrea2RawImageGenInput": {
         "allOf": [
           {
             "$ref": "#/components/schemas/ComfyKrea2ImageGenInput"
@@ -11226,7 +11266,7 @@
               },
               "model": {
                 "enum": [
-                  "base"
+                  "raw"
                 ],
                 "type": "string"
               },
@@ -11247,47 +11287,7 @@
             "discriminator": {
               "propertyName": "operation",
               "mapping": {
-                "createImage": "#/components/schemas/ComfyKrea2BaseCreateImageGenInput"
-              }
-            }
-          }
-        ]
-      },
-      "ComfyKrea2ImageGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ComfyImageGenInput"
-          },
-          {
-            "required": [
-              "ecosystem",
-              "engine",
-              "model"
-            ],
-            "type": "object",
-            "properties": {
-              "model": {
-                "type": "string"
-              },
-              "ecosystem": {
-                "enum": [
-                  "krea2"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "comfy"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "model",
-              "mapping": {
-                "base": "#/components/schemas/ComfyKrea2BaseImageGenInput",
-                "turbo": "#/components/schemas/ComfyKrea2TurboImageGenInput"
+                "createImage": "#/components/schemas/ComfyKrea2RawCreateImageGenInput"
               }
             }
           }
@@ -20142,26 +20142,21 @@
             ],
             "description": "The image to rate. Pre-processed in the API layer — imported into blob storage so the\nworker can pre-fetch it as a declared resource. After processing, contains the blob AIR URL."
           },
-          "engine": {
-            "type": "string",
-            "description": "The engine to use for media rating. Valid values: \"default\" (HiveVLM) or \"civitai\".",
-            "default": "default"
-          },
           "includeAgeClassification": {
             "type": "boolean",
-            "description": "Include age classification analysis in the results (civitai engine only)."
+            "description": "Include age classification analysis in the results"
           },
           "includeFaceRecognition": {
             "type": "boolean",
-            "description": "Include face recognition and similarity analysis in the results (civitai engine only)."
+            "description": "Include face recognition and similarity analysis in the results"
           },
           "includeAIRecognition": {
             "type": "boolean",
-            "description": "Include AI vs real image detection in the results (civitai engine only, GPU-only)."
+            "description": "Include AI vs real image detection in the results"
           },
           "includeAnimeRecognition": {
             "type": "boolean",
-            "description": "Include anime vs real image detection in the results (civitai engine only, GPU-only)."
+            "description": "Include anime vs real image detection in the results"
           }
         },
         "additionalProperties": false,

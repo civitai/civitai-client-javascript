@@ -1725,19 +1725,25 @@ export type ComfyInput = {
   useSpineComfy?: null | boolean;
 };
 
-export type ComfyKrea2BaseCreateImageGenInput = Omit<
-  ComfyKrea2BaseImageGenInput,
+export type ComfyKrea2ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: string;
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
+export type ComfyKrea2RawCreateImageGenInput = Omit<
+  ComfyKrea2RawImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
 > & {
   width?: number;
   height?: number;
   operation: 'createImage';
-  model: 'base';
+  model: 'raw';
   ecosystem: 'krea2';
   engine: 'comfy';
 };
 
-export type ComfyKrea2BaseImageGenInput = Omit<
+export type ComfyKrea2RawImageGenInput = Omit<
   ComfyKrea2ImageGenInput,
   'engine' | 'ecosystem' | 'model'
 > & {
@@ -1754,13 +1760,7 @@ export type ComfyKrea2BaseImageGenInput = Omit<
     [key: string]: number;
   };
   diffusionModel?: null | string;
-  model: 'base';
-  ecosystem: 'krea2';
-  engine: 'comfy';
-};
-
-export type ComfyKrea2ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
-  model: string;
+  model: 'raw';
   ecosystem: 'krea2';
   engine: 'comfy';
 };
@@ -4675,23 +4675,19 @@ export type MediaRatingInput = {
    */
   image?: null | string;
   /**
-   * The engine to use for media rating. Valid values: "default" (HiveVLM) or "civitai".
-   */
-  engine?: string;
-  /**
-   * Include age classification analysis in the results (civitai engine only).
+   * Include age classification analysis in the results
    */
   includeAgeClassification: boolean;
   /**
-   * Include face recognition and similarity analysis in the results (civitai engine only).
+   * Include face recognition and similarity analysis in the results
    */
   includeFaceRecognition: boolean;
   /**
-   * Include AI vs real image detection in the results (civitai engine only, GPU-only).
+   * Include AI vs real image detection in the results
    */
   includeAIRecognition: boolean;
   /**
-   * Include anime vs real image detection in the results (civitai engine only, GPU-only).
+   * Include anime vs real image detection in the results
    */
   includeAnimeRecognition: boolean;
 };
