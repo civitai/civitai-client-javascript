@@ -5133,6 +5133,16 @@ export type NanoBanana2ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'mod
   engine: 'google';
 };
 
+export type NanoBanana2LiteImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
+  prompt: string;
+  aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
+  numImages?: number;
+  images?: Array<string>;
+  seed?: null | number;
+  model: 'nano-banana-2-lite';
+  engine: 'google';
+};
+
 export type NanoBananaProImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
   aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';

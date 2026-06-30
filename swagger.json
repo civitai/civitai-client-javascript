@@ -16667,7 +16667,8 @@
               "mapping": {
                 "imagen4": "#/components/schemas/Imagen4ImageGenInput",
                 "nano-banana-pro": "#/components/schemas/NanoBananaProImageGenInput",
-                "nano-banana-2": "#/components/schemas/NanoBanana2ImageGenInput"
+                "nano-banana-2": "#/components/schemas/NanoBanana2ImageGenInput",
+                "nano-banana-2-lite": "#/components/schemas/NanoBanana2LiteImageGenInput"
               }
             }
           }
@@ -21299,6 +21300,79 @@
               "model": {
                 "enum": [
                   "nano-banana-2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "google"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "NanoBanana2LiteImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GoogleImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "maxLength": 50000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "21:9",
+                  "16:9",
+                  "3:2",
+                  "4:3",
+                  "5:4",
+                  "1:1",
+                  "4:5",
+                  "3:4",
+                  "2:3",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "1:1"
+              },
+              "numImages": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "images": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "model": {
+                "enum": [
+                  "nano-banana-2-lite"
                 ],
                 "type": "string"
               },

@@ -748,6 +748,7 @@ export {
   type MusubiImageResourceTrainingInput,
   type MusubiImageResourceTrainingInputWritable,
   type NanoBanana2ImageGenInput,
+  type NanoBanana2LiteImageGenInput,
   type NanoBananaProImageGenInput,
   NsfwLevel,
   type OmniVoiceTextToSpeechInput,
