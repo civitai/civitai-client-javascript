@@ -106,6 +106,9 @@ import type {
   InvokeMediaRatingStepTemplateData,
   InvokeMediaRatingStepTemplateErrors,
   InvokeMediaRatingStepTemplateResponses,
+  InvokeModel3dPreviewStepTemplateData,
+  InvokeModel3dPreviewStepTemplateErrors,
+  InvokeModel3dPreviewStepTemplateResponses,
   InvokeModelClamScanStepTemplateData,
   InvokeModelClamScanStepTemplateErrors,
   InvokeModelClamScanStepTemplateResponses,
@@ -758,6 +761,27 @@ export const invokeMediaRatingStepTemplate = <ThrowOnError extends boolean = fal
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/mediaRating',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * 3D model preview
+ *
+ * Renders screenshots of a 3D model from predefined or supplied camera poses.
+ */
+export const invokeModel3dPreviewStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeModel3dPreviewStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeModel3dPreviewStepTemplateResponses,
+    InvokeModel3dPreviewStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/model3DPreview',
     ...options,
     headers: {
       'Content-Type': 'application/json',

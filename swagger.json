@@ -2422,6 +2422,97 @@
         }
       }
     },
+    "/v2/consumer/recipes/model3DPreview": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "3D model preview",
+        "description": "Renders screenshots of a 3D model from predefined or supplied camera poses.",
+        "operationId": "InvokeModel3DPreviewStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Model3DPreviewInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Model3DPreviewInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Model3DPreviewInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Model3DPreviewOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/modelClamScan": {
       "post": {
         "tags": [
@@ -12760,6 +12851,38 @@
         },
         "additionalProperties": false
       },
+      "ComfyPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "hunyuan3D": "#/components/schemas/Hunyuan3DComfyPolyGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfySampler": {
         "enum": [
           "euler",
@@ -13319,6 +13442,341 @@
           }
         ],
         "description": "Comfy workflows"
+      },
+      "ComfyTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "engine",
+              "maxBatchSize",
+              "storageBuzzPerEpoch",
+              "usesStepPricing"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "type": "string"
+              },
+              "epochs": {
+                "maximum": 200,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Number of training epochs — the number of saved checkpoints produced (each epoch\nyields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;\nwhen both are supplied, both are honored (epochs = checkpoint count, steps = total).",
+                "format": "int32"
+              },
+              "steps": {
+                "maximum": 10000,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Total number of training steps. This is the primary control over training length and\ndetermines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved\ncheckpoints) is derived from it; when omitted, steps are derived from epochs.",
+                "format": "int32"
+              },
+              "batchSize": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.",
+                "default": 1
+              },
+              "lr": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "description": "Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).",
+                "format": "double",
+                "default": 0.0001
+              },
+              "textEncoderLr": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.",
+                "format": "double"
+              },
+              "trainTextEncoder": {
+                "type": [
+                  "null",
+                  "boolean"
+                ],
+                "description": "Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage."
+              },
+              "lrScheduler": {
+                "enum": [
+                  "constant",
+                  "constant_with_warmup",
+                  "cosine",
+                  "linear",
+                  "step"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate."
+              },
+              "optimizerType": {
+                "enum": [
+                  "adamw",
+                  "adamw8bit",
+                  "adam8bit",
+                  "lion",
+                  "lion8bit",
+                  "adafactor",
+                  "adagrad",
+                  "prodigy",
+                  "prodigy8bit",
+                  "automagic"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "The optimizer determines how to update the neural net weights during training.\nVarious methods have been proposed for smart learning, but the most commonly used in LoRA learning is \"adamw8bit\"."
+              },
+              "networkDim": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.",
+                "format": "int32"
+              },
+              "networkAlpha": {
+                "maximum": 256,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "The smaller the Network alpha value, the larger the stored LoRA neural net weights.\nFor example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,\nmeaning that the learning rate is only half as powerful as the Learning Rate setting.\n            \nIf Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.",
+                "format": "int32"
+              },
+              "noiseOffset": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.",
+                "format": "double"
+              },
+              "flipAugmentation": {
+                "type": "boolean",
+                "description": "If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.",
+                "default": false
+              },
+              "shuffleTokens": {
+                "type": "boolean",
+                "description": "Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.",
+                "default": false
+              },
+              "keepTokens": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "integer",
+                "description": "If your training images have tags, you can randomly shuffle them.\nHowever, if you have words that you want to keep at the beginning, you can use this option to specify \"Keep the first 0 words at the beginning\".\nThis option does nothing if the Shuffle Tokens option is off.",
+                "format": "int32",
+                "default": 0
+              },
+              "triggerWord": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "A trigger word that activates the trained LoRA when used in prompts.\nOnly applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein)."
+              },
+              "continueFrom": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Optional previously-trained LoRA to continue training from (\"train further\"). When set, the first\nepoch resumes from this model instead of the base model, and the new epochs build on top of it."
+              },
+              "storageBuzzPerEpoch": {
+                "type": "number",
+                "description": "Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on\ntop of the per-step training cost — so raising the epoch count raises the price by this much each.\nOverride per ecosystem where per-epoch samples are expensive to compute (e.g. video).",
+                "format": "double",
+                "readOnly": true
+              },
+              "defaultSteps": {
+                "type": "integer",
+                "description": "Default total step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied.\nOverride per ecosystem where the default training length differs (e.g. video needs more steps,\nquickly-overtrained models need fewer).",
+                "format": "int32",
+                "readOnly": true
+              },
+              "usesStepPricing": {
+                "type": "boolean",
+                "description": "True when billing uses the per-step model. This is the default; the only exception is the legacy\npath where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps (existing consumers),\nwhich keeps the historical flat per-epoch price.",
+                "readOnly": true
+              },
+              "resolution": {
+                "maximum": 1024,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "noHalfVae": {
+                "type": "boolean",
+                "default": false
+              },
+              "minSnrGamma": {
+                "maximum": 20,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Min-SNR gamma passed through to compatible training backends.",
+                "format": "int32"
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string",
+                "description": "The primary checkpoint to train upon. The model ecosystem drives Comfy training behavior.",
+                "default": "urn:air:sdxl:checkpoint:civitai:101055@128078"
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Split diffusion model used by native Comfy training nodes. When omitted, checkpoint-backed families load Civitai.Orchestration.Grains.Workflows.Steps.Training.Comfy.ComfyTrainingInput.Model."
+              },
+              "textEncoderModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Split text encoder used by native Comfy training nodes."
+              },
+              "vaeModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Split VAE used by native Comfy training nodes."
+              },
+              "trainingDtype": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "loraDtype": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "quantizedBackward": {
+                "type": [
+                  "null",
+                  "boolean"
+                ]
+              },
+              "bypassMode": {
+                "type": [
+                  "null",
+                  "boolean"
+                ]
+              },
+              "gradAccumulationSteps": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "lossFunction": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "algorithm": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "checkpointDepth": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "offloading": {
+                "type": [
+                  "null",
+                  "boolean"
+                ]
+              },
+              "clipType": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "unetWeightDtype": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "modelSamplingShift": {
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "format": "double"
+              },
+              "datasetCaching": {
+                "type": [
+                  "null",
+                  "boolean"
+                ]
+              },
+              "maxBatchSize": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Input for model-family-driven Comfy-backed LoRA training."
       },
       "ComposeMediaElementInput": {
         "type": "object",
@@ -14358,7 +14816,8 @@
             "discriminator": {
               "propertyName": "model",
               "mapping": {
-                "meshy": "#/components/schemas/MeshyFalPolyGenInput"
+                "meshy": "#/components/schemas/MeshyFalPolyGenInput",
+                "tripo": "#/components/schemas/TripoFalPolyGenInput"
               }
             }
           }
@@ -17731,6 +18190,326 @@
         },
         "additionalProperties": false
       },
+      "Hunyuan3DComfyPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "imageTo3D"
+              },
+              "modelVersion": {
+                "enum": [
+                  "v2",
+                  "v2.1",
+                  "v2-mini"
+                ],
+                "type": "string",
+                "default": "v2"
+              },
+              "modelAir": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "format": "double"
+              },
+              "sampler": {
+                "enum": [
+                  "euler",
+                  "euler_ancestral",
+                  "heun",
+                  "heunpp2",
+                  "dpm_2",
+                  "dpm_2_ancestral",
+                  "lms",
+                  "dpm_fast",
+                  "dpm_adaptive",
+                  "dpmpp_2s_ancestral",
+                  "dpmpp_sde",
+                  "dpmpp_2m",
+                  "dpmpp_2m_sde",
+                  "dpmpp_3m_sde",
+                  "ddpm",
+                  "lcm",
+                  "uni_pc",
+                  "uni_pc_bh2"
+                ],
+                "type": "string",
+                "default": "euler"
+              },
+              "scheduler": {
+                "enum": [
+                  "normal",
+                  "karras",
+                  "exponential",
+                  "sgm_uniform",
+                  "simple",
+                  "ddim_uniform",
+                  "beta"
+                ],
+                "type": "string",
+                "default": "normal"
+              },
+              "resolution": {
+                "maximum": 8192,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "vaeNumChunks": {
+                "maximum": 500000,
+                "minimum": 1000,
+                "type": "integer",
+                "format": "int32",
+                "default": 8000
+              },
+              "octreeResolution": {
+                "maximum": 512,
+                "minimum": 16,
+                "type": "integer",
+                "format": "int32",
+                "default": 256
+              },
+              "meshThreshold": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.6
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "shift": {
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "model": {
+                "enum": [
+                  "hunyuan3D"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "imageTo3D": "#/components/schemas/Hunyuan3DImageTo3DComfyPolyGenInput",
+                "shapeGen": "#/components/schemas/Hunyuan3DShapeGenComfyPolyGenInput",
+                "texGen": "#/components/schemas/Hunyuan3DTexGenComfyPolyGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "Hunyuan3DImageTo3DComfyPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Hunyuan3DComfyPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrl",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "prompt": {
+                "maxLength": 600,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "shouldTexture": {
+                "type": "boolean",
+                "default": true
+              },
+              "shouldRemesh": {
+                "type": "boolean",
+                "default": false
+              },
+              "enablePbr": {
+                "type": "boolean",
+                "default": true
+              },
+              "operation": {
+                "enum": [
+                  "imageTo3D"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "hunyuan3D"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Hunyuan3DShapeGenComfyPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Hunyuan3DComfyPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrl",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "prompt": {
+                "maxLength": 600,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "operation": {
+                "enum": [
+                  "shapeGen"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "hunyuan3D"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Hunyuan3DTexGenComfyPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Hunyuan3DComfyPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrl",
+              "mesh",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "mesh": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "shouldRemesh": {
+                "type": "boolean",
+                "default": false
+              },
+              "enablePbr": {
+                "type": "boolean",
+                "default": true
+              },
+              "operation": {
+                "enum": [
+                  "texGen"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "hunyuan3D"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "HunyuanVdeoGenInput": {
         "allOf": [
           {
@@ -18135,6 +18914,13 @@
               "string"
             ],
             "description": "The preprocessed control image. Accepts an AIR URN, a URL, or a base64 data URL; the\norchestrator processes it into a stored blob before the job is dispatched."
+          },
+          "mask": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The inpaint mask image. Required when the preprocessor is Inpaint."
           }
         },
         "additionalProperties": false,
@@ -18431,7 +19217,8 @@
           "shuffle",
           "tile",
           "gray",
-          "rembg"
+          "rembg",
+          "inpaint"
         ],
         "type": "string",
         "description": "Available image transformers."
@@ -20592,6 +21379,158 @@
           }
         ]
       },
+      "Model3DPreviewCameraPose": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "yaw": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "pitch": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "distance": {
+            "type": "number",
+            "format": "double",
+            "default": 2.8
+          },
+          "fov": {
+            "type": "number",
+            "format": "double",
+            "default": 45
+          }
+        },
+        "additionalProperties": false
+      },
+      "Model3DPreviewInput": {
+        "required": [
+          "cameraPoses",
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string"
+          },
+          "width": {
+            "maximum": 4096,
+            "minimum": 256,
+            "type": "integer",
+            "format": "int32",
+            "default": 1024
+          },
+          "height": {
+            "maximum": 4096,
+            "minimum": 256,
+            "type": "integer",
+            "format": "int32",
+            "default": 1024
+          },
+          "outputFormat": {
+            "$ref": "#/components/schemas/ImageGenOutputFormat"
+          },
+          "cameraPoses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Model3DPreviewCameraPose"
+            }
+          },
+          "format": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "background": {
+            "pattern": "^#[0-9a-fA-F]{6}$",
+            "type": "string",
+            "default": "#D9D9D9"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Model3DPreviewOutput": {
+        "required": [
+          "images"
+        ],
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageBlob"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "Model3DPreviewStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/Model3DPreviewInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/Model3DPreviewOutput"
+              },
+              "$type": {
+                "enum": [
+                  "model3DPreview"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "3D model preview"
+      },
+      "Model3DPreviewStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/Model3DPreviewInput"
+              },
+              "$type": {
+                "enum": [
+                  "model3DPreview"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "3D model preview"
+      },
       "ModelClamScanInput": {
         "required": [
           "model"
@@ -22405,6 +23344,7 @@
         "discriminator": {
           "propertyName": "engine",
           "mapping": {
+            "comfy": "#/components/schemas/ComfyPolyGenInput",
             "fal": "#/components/schemas/FalPolyGenInput"
           }
         }
@@ -24801,15 +25741,15 @@
           "model": {
             "type": "string",
             "description": "The AIR model to use for the benchmark judge.",
-            "default": "urn:air:qwen3:repository:huggingface:Civitai/Qwen-Image-Bench-FP8@main.tar"
+            "default": "urn:air:qwen3:repository:huggingface:Civitai/Qwen-Image-Bench-AutoRound-AWQ-INT4@main.tar"
           },
           "maxTokens": {
             "maximum": 128000,
             "minimum": 1,
             "type": "integer",
-            "description": "Maximum number of tokens to generate. The model card recommends 4096.",
+            "description": "Maximum number of tokens to generate.",
             "format": "int32",
-            "default": 4096
+            "default": 2048
           },
           "seed": {
             "type": "integer",
@@ -24858,7 +25798,6 @@
         "required": [
           "errors",
           "fieldScores",
-          "rawOutputs",
           "scores"
         ],
         "type": "object",
@@ -24888,27 +25827,6 @@
               "$ref": "#/components/schemas/QwenImageBenchScoreNode"
             },
             "description": "Recursive score tree derived from the model output."
-          },
-          "rawScores": {
-            "type": "null",
-            "description": "Raw JSON object extracted from the model response."
-          },
-          "rawContent": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "Raw assistant content from the chat completion response."
-          },
-          "rawOutputs": {
-            "type": "object",
-            "additionalProperties": {
-              "type": [
-                "null",
-                "string"
-              ]
-            },
-            "description": "Raw assistant content keyed by benchmark dimension."
           },
           "errors": {
             "type": "object",
@@ -24961,12 +25879,6 @@
               "number"
             ],
             "format": "double"
-          },
-          "rawScore": {
-            "type": [
-              "null",
-              "string"
-            ]
           },
           "children": {
             "type": "array",
@@ -25333,6 +26245,16 @@
               "boolean"
             ],
             "description": "If set to false, then this resource is not eligible for compenstation or tips"
+          },
+          "fees": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ResourceFee"
+            },
+            "description": "The full licensing-fee breakdown; each entry settles to its own recipient"
           }
         },
         "additionalProperties": false,
@@ -26233,7 +27155,8 @@
           "v3",
           "v4",
           "v4.5",
-          "v5.0-lite"
+          "v5.0-lite",
+          "v5.0-pro"
         ],
         "type": "string"
       },
@@ -26813,7 +27736,9 @@
       "TrainingInput": {
         "required": [
           "engine",
-          "trainingData"
+          "requiresAgeClassification",
+          "trainingData",
+          "usesStepPricing"
         ],
         "type": "object",
         "properties": {
@@ -26825,6 +27750,16 @@
           },
           "samples": {
             "$ref": "#/components/schemas/TrainingInputSamples"
+          },
+          "usesStepPricing": {
+            "type": "boolean",
+            "description": "Whether this run uses step-based pricing rather than the legacy flat per-epoch price.",
+            "readOnly": true
+          },
+          "requiresAgeClassification": {
+            "type": "boolean",
+            "description": "Whether age classification should run on this training type's dataset.",
+            "readOnly": true
           }
         },
         "additionalProperties": false,
@@ -26832,7 +27767,8 @@
         "discriminator": {
           "propertyName": "engine",
           "mapping": {
-            "ai-toolkit": "#/components/schemas/AIToolkitTrainingInput"
+            "ai-toolkit": "#/components/schemas/AIToolkitTrainingInput",
+            "comfy": "#/components/schemas/ComfyTrainingInput"
           }
         }
       },
@@ -27325,6 +28261,101 @@
           }
         },
         "additionalProperties": false
+      },
+      "TripoFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrl",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "texture": {
+                "enum": [
+                  "no",
+                  "standard",
+                  "HD"
+                ],
+                "type": "string",
+                "default": "standard"
+              },
+              "pbr": {
+                "type": "boolean",
+                "default": false
+              },
+              "faceLimit": {
+                "maximum": 500000,
+                "minimum": 1000,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "autoSize": {
+                "type": "boolean",
+                "default": false
+              },
+              "quad": {
+                "type": "boolean",
+                "description": "Quad topology. Forces the mesh output to FBX instead of GLB.",
+                "default": false
+              },
+              "textureAlignment": {
+                "enum": [
+                  "original_image",
+                  "geometry"
+                ],
+                "type": "string",
+                "default": "original_image"
+              },
+              "orientation": {
+                "enum": [
+                  "default",
+                  "align_image"
+                ],
+                "type": "string",
+                "default": "default"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "textureSeed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "model": {
+                "enum": [
+                  "tripo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "TryOnUInput": {
         "required": [
@@ -31445,6 +32476,17 @@
           "tips": {
             "$ref": "#/components/schemas/WorkflowCostTips"
           },
+          "fees": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Per-resource licensing fees for this request, keyed by resource AIR. The\nuser is charged the sum of the values; each entry is settled to its\nresource's recipient (see `EmitFeeCompensationsAsync`)."
+          },
           "total": {
             "type": "integer",
             "description": "The total cost of this request, including tips",
@@ -31743,6 +32785,7 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStep",
             "mediaHash": "#/components/schemas/MediaHashStep",
             "mediaRating": "#/components/schemas/MediaRatingStep",
+            "model3DPreview": "#/components/schemas/Model3DPreviewStep",
             "modelClamScan": "#/components/schemas/ModelClamScanStep",
             "modelHash": "#/components/schemas/ModelHashStep",
             "modelParseMetadata": "#/components/schemas/ModelParseMetadataStep",
@@ -32069,6 +33112,7 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStepTemplate",
             "mediaHash": "#/components/schemas/MediaHashStepTemplate",
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
+            "model3DPreview": "#/components/schemas/Model3DPreviewStepTemplate",
             "modelClamScan": "#/components/schemas/ModelClamScanStepTemplate",
             "modelHash": "#/components/schemas/ModelHashStepTemplate",
             "modelParseMetadata": "#/components/schemas/ModelParseMetadataStepTemplate",

@@ -2170,6 +2170,11 @@ export type ComfyOutput = {
   blobs: Array<Blob>;
 };
 
+export type ComfyPolyGenInput = Omit<PolyGenInput, 'engine'> & {
+  model: string;
+  engine: 'comfy';
+};
+
 export const ComfySampler = {
   EULER: 'euler',
   EULER_ANCESTRAL: 'euler_ancestral',
@@ -2328,6 +2333,155 @@ export type ComfyStep = Omit<WorkflowStep, '$type'> & {
 export type ComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ComfyInput;
   $type: 'comfy';
+};
+
+/**
+ * Input for model-family-driven Comfy-backed LoRA training.
+ */
+export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
+  ecosystem?: string;
+  /**
+   * Number of training epochs — the number of saved checkpoints produced (each epoch
+   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
+   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
+   */
+  epochs?: null | number;
+  /**
+   * Total number of training steps. This is the primary control over training length and
+   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
+   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
+   */
+  steps?: null | number;
+  /**
+   * Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+  /**
+   * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
+   */
+  lr?: number;
+  /**
+   * Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.
+   */
+  textEncoderLr?: null | number;
+  /**
+   * Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage.
+   */
+  trainTextEncoder?: null | boolean;
+  /**
+   * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+   */
+  lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
+  /**
+   * The optimizer determines how to update the neural net weights during training.
+   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
+   */
+  optimizerType?:
+    | 'adamw'
+    | 'adamw8bit'
+    | 'adam8bit'
+    | 'lion'
+    | 'lion8bit'
+    | 'adafactor'
+    | 'adagrad'
+    | 'prodigy'
+    | 'prodigy8bit'
+    | 'automagic';
+  /**
+   * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
+   */
+  networkDim?: null | number;
+  /**
+   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
+   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
+   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
+   *
+   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   */
+  networkAlpha?: null | number;
+  /**
+   * Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.
+   */
+  noiseOffset?: null | number;
+  /**
+   * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
+   */
+  flipAugmentation?: boolean;
+  /**
+   * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
+   */
+  shuffleTokens?: boolean;
+  /**
+   * If your training images have tags, you can randomly shuffle them.
+   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
+   * This option does nothing if the Shuffle Tokens option is off.
+   */
+  keepTokens?: number;
+  /**
+   * A trigger word that activates the trained LoRA when used in prompts.
+   * Only applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein).
+   */
+  triggerWord?: null | string;
+  /**
+   * Optional previously-trained LoRA to continue training from ("train further"). When set, the first
+   * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
+   */
+  continueFrom?: null | string;
+  /**
+   * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
+   * top of the per-step training cost — so raising the epoch count raises the price by this much each.
+   * Override per ecosystem where per-epoch samples are expensive to compute (e.g. video).
+   */
+  readonly storageBuzzPerEpoch: number;
+  /**
+   * Default total step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied.
+   * Override per ecosystem where the default training length differs (e.g. video needs more steps,
+   * quickly-overtrained models need fewer).
+   */
+  readonly defaultSteps: number;
+  /**
+   * True when billing uses the per-step model. This is the default; the only exception is the legacy
+   * path where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps (existing consumers),
+   * which keeps the historical flat per-epoch price.
+   */
+  readonly usesStepPricing: boolean;
+  resolution?: number;
+  noHalfVae?: boolean;
+  /**
+   * Min-SNR gamma passed through to compatible training backends.
+   */
+  minSnrGamma?: null | number;
+  /**
+   * The primary checkpoint to train upon. The model ecosystem drives Comfy training behavior.
+   */
+  model?: string;
+  /**
+   * Split diffusion model used by native Comfy training nodes. When omitted, checkpoint-backed families load Civitai.Orchestration.Grains.Workflows.Steps.Training.Comfy.ComfyTrainingInput.Model.
+   */
+  diffusionModel?: null | string;
+  /**
+   * Split text encoder used by native Comfy training nodes.
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Split VAE used by native Comfy training nodes.
+   */
+  vaeModel?: null | string;
+  trainingDtype?: null | string;
+  loraDtype?: null | string;
+  quantizedBackward?: null | boolean;
+  bypassMode?: null | boolean;
+  gradAccumulationSteps?: null | number;
+  lossFunction?: null | string;
+  algorithm?: null | string;
+  checkpointDepth?: null | number;
+  offloading?: null | boolean;
+  clipType?: null | string;
+  unetWeightDtype?: null | string;
+  modelSamplingShift?: null | number;
+  datasetCaching?: null | boolean;
+  readonly maxBatchSize: number;
+  engine: 'comfy';
 };
 
 /**
@@ -3691,6 +3845,87 @@ export type HumanoidImageMaskOutput = {
   blob: Blob;
 };
 
+export type Hunyuan3dComfyPolyGenInput = Omit<ComfyPolyGenInput, 'engine' | 'model'> & {
+  operation: null | string;
+  modelVersion?: 'v2' | 'v2.1' | 'v2-mini';
+  modelAir?: null | string;
+  steps?: null | number;
+  cfgScale?: null | number;
+  sampler?:
+    | 'euler'
+    | 'euler_ancestral'
+    | 'heun'
+    | 'heunpp2'
+    | 'dpm_2'
+    | 'dpm_2_ancestral'
+    | 'lms'
+    | 'dpm_fast'
+    | 'dpm_adaptive'
+    | 'dpmpp_2s_ancestral'
+    | 'dpmpp_sde'
+    | 'dpmpp_2m'
+    | 'dpmpp_2m_sde'
+    | 'dpmpp_3m_sde'
+    | 'ddpm'
+    | 'lcm'
+    | 'uni_pc'
+    | 'uni_pc_bh2';
+  scheduler?:
+    | 'normal'
+    | 'karras'
+    | 'exponential'
+    | 'sgm_uniform'
+    | 'simple'
+    | 'ddim_uniform'
+    | 'beta';
+  resolution?: null | number;
+  vaeNumChunks?: number;
+  octreeResolution?: number;
+  meshThreshold?: number;
+  seed?: null | number;
+  shift?: number;
+  model: 'hunyuan3D';
+  engine: 'comfy';
+};
+
+export type Hunyuan3dImageTo3dComfyPolyGenInput = Omit<
+  Hunyuan3dComfyPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageUrl: string;
+  prompt?: null | string;
+  shouldTexture?: boolean;
+  shouldRemesh?: boolean;
+  enablePbr?: boolean;
+  operation: 'imageTo3D';
+  model: 'hunyuan3D';
+  engine: 'comfy';
+};
+
+export type Hunyuan3dShapeGenComfyPolyGenInput = Omit<
+  Hunyuan3dComfyPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageUrl: string;
+  prompt?: null | string;
+  operation: 'shapeGen';
+  model: 'hunyuan3D';
+  engine: 'comfy';
+};
+
+export type Hunyuan3dTexGenComfyPolyGenInput = Omit<
+  Hunyuan3dComfyPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageUrl: string;
+  mesh: string;
+  shouldRemesh?: boolean;
+  enablePbr?: boolean;
+  operation: 'texGen';
+  model: 'hunyuan3D';
+  engine: 'comfy';
+};
+
 export type HunyuanVdeoGenInput = Omit<VideoGenInput, 'engine'> & {
   cfgScale: number;
   frameRate?: number;
@@ -3830,6 +4065,10 @@ export type ImageJobControlNet = {
    * orchestrator processes it into a stored blob before the job is dispatched.
    */
   image?: null | string;
+  /**
+   * The inpaint mask image. Required when the preprocessor is Inpaint.
+   */
+  mask?: null | string;
 };
 
 export type ImageJobNetworkParams = {
@@ -3989,6 +4228,7 @@ export const ImageTransformer = {
   TILE: 'tile',
   GRAY: 'gray',
   REMBG: 'rembg',
+  INPAINT: 'inpaint',
 } as const;
 
 /**
@@ -4813,6 +5053,45 @@ export type Model3dBlob = Omit<Blob, 'type'> & {
    */
   format: string;
   type: 'model3d';
+};
+
+export type Model3dPreviewCameraPose = {
+  name?: null | string;
+  yaw?: number;
+  pitch?: number;
+  distance?: number;
+  fov?: number;
+};
+
+export type Model3dPreviewInput = {
+  model: string;
+  width?: number;
+  height?: number;
+  outputFormat?: ImageGenOutputFormat;
+  cameraPoses: Array<Model3dPreviewCameraPose>;
+  format?: null | string;
+  background?: string;
+};
+
+export type Model3dPreviewOutput = {
+  images: Array<ImageBlob>;
+};
+
+/**
+ * 3D model preview
+ */
+export type Model3dPreviewStep = Omit<WorkflowStep, '$type'> & {
+  input: Model3dPreviewInput;
+  output?: Model3dPreviewOutput;
+  $type: 'model3DPreview';
+};
+
+/**
+ * 3D model preview
+ */
+export type Model3dPreviewStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: Model3dPreviewInput;
+  $type: 'model3DPreview';
 };
 
 /**
@@ -5955,7 +6234,7 @@ export type QwenImageBenchInput = {
    */
   model?: string;
   /**
-   * Maximum number of tokens to generate. The model card recommends 4096.
+   * Maximum number of tokens to generate.
    */
   maxTokens?: number;
   /**
@@ -6005,20 +6284,6 @@ export type QwenImageBenchItemResult = {
    */
   scores: Array<QwenImageBenchScoreNode>;
   /**
-   * Raw JSON object extracted from the model response.
-   */
-  rawScores?: null;
-  /**
-   * Raw assistant content from the chat completion response.
-   */
-  rawContent?: null | string;
-  /**
-   * Raw assistant content keyed by benchmark dimension.
-   */
-  rawOutputs: {
-    [key: string]: null | string;
-  };
-  /**
    * Parse errors keyed by benchmark dimension.
    */
   errors: {
@@ -6048,7 +6313,6 @@ export type QwenImageBenchOutput = {
 export type QwenImageBenchScoreNode = {
   name: string;
   score?: null | number;
-  rawScore?: null | string;
   children: Array<QwenImageBenchScoreNode>;
 };
 
@@ -6212,6 +6476,10 @@ export type ResourceInfo = {
    * If set to false, then this resource is not eligible for compenstation or tips
    */
   payoutEnabled?: null | boolean;
+  /**
+   * The full licensing-fee breakdown; each entry settles to its own recipient
+   */
+  fees?: null | Array<ResourceFee>;
 };
 
 /**
@@ -6487,6 +6755,7 @@ export const SeedreamVersion = {
   V4: 'v4',
   V4_5: 'v4.5',
   V5_0_LITE: 'v5.0-lite',
+  V5_0_PRO: 'v5.0-pro',
 } as const;
 
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
@@ -6742,6 +7011,14 @@ export type TrainingInput = {
   engine: string;
   trainingData: TrainingData;
   samples?: TrainingInputSamples;
+  /**
+   * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
+   */
+  readonly usesStepPricing: boolean;
+  /**
+   * Whether age classification should run on this training type's dataset.
+   */
+  readonly requiresAgeClassification: boolean;
 };
 
 /**
@@ -6968,6 +7245,24 @@ export type TranscriptionTimeStamp = {
   text: string;
   startTime: number;
   endTime: number;
+};
+
+export type TripoFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
+  imageUrl: string;
+  texture?: 'no' | 'standard' | 'HD';
+  pbr?: boolean;
+  faceLimit?: null | number;
+  autoSize?: boolean;
+  /**
+   * Quad topology. Forces the mesh output to FBX instead of GLB.
+   */
+  quad?: boolean;
+  textureAlignment?: 'original_image' | 'geometry';
+  orientation?: 'default' | 'align_image';
+  seed?: null | number;
+  textureSeed?: null | number;
+  model: 'tripo';
+  engine: 'fal';
 };
 
 export type TryOnUInput = {
@@ -8129,6 +8424,14 @@ export type WorkflowCost = {
   };
   tips: WorkflowCostTips;
   /**
+   * Per-resource licensing fees for this request, keyed by resource AIR. The
+   * user is charged the sum of the values; each entry is settled to its
+   * resource's recipient (see `EmitFeeCompensationsAsync`).
+   */
+  fees?: null | {
+    [key: string]: number;
+  };
+  /**
    * The total cost of this request, including tips
    */
   readonly total: number;
@@ -8816,7 +9119,7 @@ export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeD
 /**
  * Base input for AI Toolkit training across all ecosystems
  */
-export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable, 'engine'> & {
+export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem: string;
   /**
    * Number of training epochs — the number of saved checkpoints produced (each epoch
@@ -9030,6 +9333,136 @@ export type ChromaAiToolkitTrainingInputWritable = Omit<
    * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
+};
+
+/**
+ * Input for model-family-driven Comfy-backed LoRA training.
+ */
+export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
+  ecosystem?: string;
+  /**
+   * Number of training epochs — the number of saved checkpoints produced (each epoch
+   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
+   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
+   */
+  epochs?: null | number;
+  /**
+   * Total number of training steps. This is the primary control over training length and
+   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
+   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
+   */
+  steps?: null | number;
+  /**
+   * Training batch size. Defaults to 1; raise it up to 4 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+  /**
+   * Sets the learning rate for the model. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting).
+   */
+  lr?: number;
+  /**
+   * Sets the learning rate for the text encoder. Only used when TrainTextEncoder is true. For models with multiple text encoders, this applies to all of them.
+   */
+  textEncoderLr?: null | number;
+  /**
+   * Whether to train the text encoder(s) alongside the model. Enabling this can improve prompt understanding but increases training time and memory usage.
+   */
+  trainTextEncoder?: null | boolean;
+  /**
+   * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+   */
+  lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
+  /**
+   * The optimizer determines how to update the neural net weights during training.
+   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
+   */
+  optimizerType?:
+    | 'adamw'
+    | 'adamw8bit'
+    | 'adam8bit'
+    | 'lion'
+    | 'lion8bit'
+    | 'adafactor'
+    | 'adagrad'
+    | 'prodigy'
+    | 'prodigy8bit'
+    | 'automagic';
+  /**
+   * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
+   */
+  networkDim?: null | number;
+  /**
+   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
+   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
+   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
+   *
+   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   */
+  networkAlpha?: null | number;
+  /**
+   * Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.
+   */
+  noiseOffset?: null | number;
+  /**
+   * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
+   */
+  flipAugmentation?: boolean;
+  /**
+   * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
+   */
+  shuffleTokens?: boolean;
+  /**
+   * If your training images have tags, you can randomly shuffle them.
+   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
+   * This option does nothing if the Shuffle Tokens option is off.
+   */
+  keepTokens?: number;
+  /**
+   * A trigger word that activates the trained LoRA when used in prompts.
+   * Only applicable to certain ecosystems (sd1, sdxl, flux1, chroma, zimagebase, zimageturbo, flux2klein).
+   */
+  triggerWord?: null | string;
+  /**
+   * Optional previously-trained LoRA to continue training from ("train further"). When set, the first
+   * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
+   */
+  continueFrom?: null | string;
+  resolution?: number;
+  noHalfVae?: boolean;
+  /**
+   * Min-SNR gamma passed through to compatible training backends.
+   */
+  minSnrGamma?: null | number;
+  /**
+   * The primary checkpoint to train upon. The model ecosystem drives Comfy training behavior.
+   */
+  model?: string;
+  /**
+   * Split diffusion model used by native Comfy training nodes. When omitted, checkpoint-backed families load Civitai.Orchestration.Grains.Workflows.Steps.Training.Comfy.ComfyTrainingInput.Model.
+   */
+  diffusionModel?: null | string;
+  /**
+   * Split text encoder used by native Comfy training nodes.
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Split VAE used by native Comfy training nodes.
+   */
+  vaeModel?: null | string;
+  trainingDtype?: null | string;
+  loraDtype?: null | string;
+  quantizedBackward?: null | boolean;
+  bypassMode?: null | boolean;
+  gradAccumulationSteps?: null | number;
+  lossFunction?: null | string;
+  algorithm?: null | string;
+  checkpointDepth?: null | number;
+  offloading?: null | boolean;
+  clipType?: null | string;
+  unetWeightDtype?: null | string;
+  modelSamplingShift?: null | number;
+  datasetCaching?: null | boolean;
+  engine: 'comfy';
 };
 
 export type CursedArrayOfTelemetryCursorAndWorkflowWritable = {
@@ -9754,6 +10187,32 @@ export type SdxlAiToolkitTrainingInputWritable = Omit<
 };
 
 /**
+ * Input for a training step.
+ */
+export type TrainingInputWritable = {
+  engine: string;
+  trainingData: TrainingData;
+  samples?: TrainingInputSamples;
+};
+
+/**
+ * Training
+ */
+export type TrainingStepWritable = Omit<WorkflowStepWritable, '$type'> & {
+  input: TrainingInputWritable;
+  output?: TrainingOutput;
+  $type: 'training';
+};
+
+/**
+ * Training
+ */
+export type TrainingStepTemplateWritable = Omit<WorkflowStepTemplateWritable, '$type'> & {
+  input: TrainingInputWritable;
+  $type: 'training';
+};
+
+/**
  * A user message that can contain text and/or images.
  */
 export type UserMessageWritable = Omit<ChatCompletionMessageWritable, 'role'> & {
@@ -9870,6 +10329,14 @@ export type WorkflowCostWritable = {
     [key: string]: number;
   };
   tips: WorkflowCostTips;
+  /**
+   * Per-resource licensing fees for this request, keyed by resource AIR. The
+   * user is charged the sum of the values; each entry is settled to its
+   * resource's recipient (see `EmitFeeCompensationsAsync`).
+   */
+  fees?: null | {
+    [key: string]: number;
+  };
 };
 
 /**
@@ -10011,10 +10478,18 @@ export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
 /**
  * Input for a training step.
  */
-export type TrainingInputWritable = {
+export type TrainingInputWritable2 = {
   engine: string;
   trainingData: TrainingData;
   samples?: TrainingInputSamples;
+  /**
+   * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
+   */
+  readonly usesStepPricing: boolean;
+  /**
+   * Whether age classification should run on this training type's dataset.
+   */
+  readonly requiresAgeClassification: boolean;
 };
 
 export type ImageGenInputWritable = {
@@ -11252,6 +11727,42 @@ export type InvokeMediaRatingStepTemplateResponses = {
 export type InvokeMediaRatingStepTemplateResponse =
   InvokeMediaRatingStepTemplateResponses[keyof InvokeMediaRatingStepTemplateResponses];
 
+export type InvokeModel3dPreviewStepTemplateData = {
+  body?: Model3dPreviewInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/model3DPreview';
+};
+
+export type InvokeModel3dPreviewStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeModel3dPreviewStepTemplateError =
+  InvokeModel3dPreviewStepTemplateErrors[keyof InvokeModel3dPreviewStepTemplateErrors];
+
+export type InvokeModel3dPreviewStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: Model3dPreviewOutput;
+};
+
+export type InvokeModel3dPreviewStepTemplateResponse =
+  InvokeModel3dPreviewStepTemplateResponses[keyof InvokeModel3dPreviewStepTemplateResponses];
+
 export type InvokeModelClamScanStepTemplateData = {
   body?: ModelClamScanInput;
   path?: never;
@@ -11649,7 +12160,7 @@ export type InvokeTextToSpeechStepTemplateResponse =
   InvokeTextToSpeechStepTemplateResponses[keyof InvokeTextToSpeechStepTemplateResponses];
 
 export type InvokeTrainingStepTemplateData = {
-  body?: TrainingInput;
+  body?: TrainingInputWritable;
   path?: never;
   query?: {
     experimental?: boolean;
