@@ -168,6 +168,8 @@ export {
   type ComfyBooguBaseImageGenInput,
   type ComfyBooguEditImageGenInput,
   type ComfyBooguEditImageInput,
+  type ComfyBooguEditTurboImageGenInput,
+  type ComfyBooguEditTurboImageInput,
   type ComfyBooguImageGenInput,
   type ComfyBooguTurboCreateImageGenInput,
   type ComfyBooguTurboImageGenInput,

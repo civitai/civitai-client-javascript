@@ -1381,6 +1381,41 @@ export type ComfyBooguEditImageInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyBooguEditTurboImageGenInput = Omit<
+  ComfyBooguImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: 'editTurbo';
+  ecosystem: 'boogu';
+  engine: 'comfy';
+};
+
+export type ComfyBooguEditTurboImageInput = Omit<
+  ComfyBooguEditTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  images?: Array<string>;
+  operation: 'editImage';
+  model: 'editTurbo';
+  ecosystem: 'boogu';
+  engine: 'comfy';
+};
+
 export type ComfyBooguImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
   ecosystem: 'boogu';
