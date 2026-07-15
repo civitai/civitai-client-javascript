@@ -9,11 +9,12 @@ export type ClientOptions = {
  */
 export type AiRecognitionResult = {
   /**
-   * Classification label: "ai" or "real".
+   * Classification label, taken from the model's own id2label — AIorNot-SigLIP2 emits
+   * "AI"/"Real". Casing varies per model, so compare case-insensitively.
    */
   label: string;
   /**
-   * Confidence score for the classification (0.0 to 1.0).
+   * Confidence in the classification given by Label (0.0 to 1.0) — not the probability of being AI.
    */
   confidence: number;
 };
@@ -1735,6 +1736,11 @@ export type ComfyIdeogram4ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'e
 };
 
 export type ComfyImageGenInput = Omit<ImageGenInput, 'engine'> & {
+  ecosystem: string;
+  engine: 'comfy';
+};
+
+export type ComfyImageToSvgInput = Omit<ImageToSvgInput, 'engine'> & {
   ecosystem: string;
   engine: 'comfy';
 };
@@ -4217,6 +4223,35 @@ export type ImageResourceTrainingStepTemplate = Omit<WorkflowStepTemplate, '$typ
   $type: 'imageResourceTraining';
 };
 
+export type ImageToSvgInput = {
+  engine: string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+};
+
+export type ImageToSvgOutput = {
+  svg: Blob;
+};
+
+/**
+ * Converts a raster image to an SVG using a local StarVector or OmniSVG model.
+ */
+export type ImageToSvgStep = Omit<WorkflowStep, '$type'> & {
+  input: ImageToSvgInput;
+  output?: ImageToSvgOutput;
+  $type: 'imageToSvg';
+};
+
+/**
+ * Converts a raster image to an SVG using a local StarVector or OmniSVG model.
+ */
+export type ImageToSvgStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ImageToSvgInput;
+  $type: 'imageToSvg';
+};
+
 /**
  * Base class for image transforms that can be applied during image conversion.
  */
@@ -5467,6 +5502,18 @@ export type NanoBananaProImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'm
   engine: 'google';
 };
 
+export type OmniSvgImageToSvgInput = Omit<ComfyImageToSvgInput, 'engine' | 'ecosystem'> & {
+  model?: 'omnisvg-4b' | 'omnisvg-8b';
+  maxLength?: number;
+  seed?: null | number;
+  topP?: number;
+  topK?: number;
+  temperature?: number;
+  repetitionPenalty?: number;
+  ecosystem: 'omnisvg';
+  engine: 'comfy';
+};
+
 export type OmniVoiceTextToSpeechInput = Omit<VllmOmniTextToSpeechInput, 'engine' | 'ecosystem'> & {
   /**
    * Reference audio AIR URN or external URL for voice cloning.
@@ -6517,6 +6564,55 @@ export type ResourceInfo = {
   fees?: null | Array<ResourceFee>;
 };
 
+export type ReveCreateFalImageGenInput = Omit<
+  ReveFalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'reve';
+  engine: 'fal';
+};
+
+export type ReveEditFalImageGenInput = Omit<
+  ReveFalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  /**
+   * Address these from the prompt as <frame>N</frame>, 0-based.
+   */
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'reve';
+  engine: 'fal';
+};
+
+export type ReveFalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  aspectRatio?:
+    | 'auto'
+    | '4:1'
+    | '3:1'
+    | '21:9'
+    | '2:1'
+    | '17:9'
+    | '16:9'
+    | '3:2'
+    | '4:3'
+    | '5:4'
+    | '1:1'
+    | '4:5'
+    | '3:4'
+    | '2:3'
+    | '9:16'
+    | '1:2'
+    | '1:3'
+    | '1:4';
+  quantity?: number;
+  model: 'reve';
+  engine: 'fal';
+};
+
 /**
  * AI Toolkit training for Stable Diffusion 1.5 models
  */
@@ -6835,6 +6931,14 @@ export type SoraVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   aspectRatio?: 'auto' | '16:9' | '9:16';
   usePro?: boolean;
   engine: 'sora';
+};
+
+export type StarVectorImageToSvgInput = Omit<ComfyImageToSvgInput, 'engine' | 'ecosystem'> & {
+  model?: 'starvector-1b' | 'starvector-8b';
+  precision?: 'fp16' | 'bf16';
+  maxLength?: number;
+  ecosystem: 'starvector';
+  engine: 'comfy';
 };
 
 /**
@@ -8398,6 +8502,12 @@ export type Workflow = {
    * checked, 0 = checked and intact. A value > 0 also prevents re-charging on recovery.
    */
   lostBlobsRefund?: null | number;
+  /**
+   * When the consumer deleted this workflow. Soft delete: the telemetry document is kept
+   * (until its natural TTL) so operators can still inspect it in the dashboard, but
+   * consumer reads and queries treat the workflow as gone.
+   */
+  deletedAt?: null | string;
 };
 
 /**
@@ -10344,6 +10454,12 @@ export type WorkflowWritable = {
    * checked, 0 = checked and intact. A value > 0 also prevents re-charging on recovery.
    */
   lostBlobsRefund?: null | number;
+  /**
+   * When the consumer deleted this workflow. Soft delete: the telemetry document is kept
+   * (until its natural TTL) so operators can still inspect it in the dashboard, but
+   * consumer reads and queries treat the workflow as gone.
+   */
+  deletedAt?: null | string;
 };
 
 export type WorkflowCostWritable = {
@@ -11581,6 +11697,42 @@ export type InvokeImageResourceTrainingStepTemplateResponses = {
 
 export type InvokeImageResourceTrainingStepTemplateResponse =
   InvokeImageResourceTrainingStepTemplateResponses[keyof InvokeImageResourceTrainingStepTemplateResponses];
+
+export type InvokeImageToSvgStepTemplateData = {
+  body?: ImageToSvgInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/imageToSvg';
+};
+
+export type InvokeImageToSvgStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeImageToSvgStepTemplateError =
+  InvokeImageToSvgStepTemplateErrors[keyof InvokeImageToSvgStepTemplateErrors];
+
+export type InvokeImageToSvgStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ImageToSvgOutput;
+};
+
+export type InvokeImageToSvgStepTemplateResponse =
+  InvokeImageToSvgStepTemplateResponses[keyof InvokeImageToSvgStepTemplateResponses];
 
 export type InvokeImageUploadStepTemplateData = {
   body?: string;

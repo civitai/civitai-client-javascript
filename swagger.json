@@ -1969,6 +1969,96 @@
         }
       }
     },
+    "/v2/consumer/recipes/imageToSvg": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Converts a raster image to an SVG using a local StarVector or OmniSVG model.",
+        "operationId": "InvokeImageToSvgStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageToSvgInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageToSvgInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageToSvgInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageToSvgOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/imageUpload": {
       "post": {
         "tags": [
@@ -6226,11 +6316,11 @@
         "properties": {
           "label": {
             "type": "string",
-            "description": "Classification label: \"ai\" or \"real\"."
+            "description": "Classification label, taken from the model's own id2label — AIorNot-SigLIP2 emits\n\"AI\"/\"Real\". Casing varies per model, so compare case-insensitively."
           },
           "confidence": {
             "type": "number",
-            "description": "Confidence score for the classification (0.0 to 1.0).",
+            "description": "Confidence in the classification given by Label (0.0 to 1.0) — not the probability of being AI.",
             "format": "double"
           }
         },
@@ -11316,6 +11406,39 @@
           }
         ]
       },
+      "ComfyImageToSvgInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageToSvgInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "ecosystem",
+              "mapping": {
+                "starvector": "#/components/schemas/StarVectorImageToSvgInput",
+                "omnisvg": "#/components/schemas/OmniSvgImageToSvgInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyInput": {
         "required": [
           "comfyWorkflow"
@@ -14959,7 +15082,8 @@
               "mapping": {
                 "qwen2": "#/components/schemas/Qwen2FalImageGenInput",
                 "krea2": "#/components/schemas/Krea2FalImageGenInput",
-                "maiImage": "#/components/schemas/MaiImageFalImageGenInput"
+                "maiImage": "#/components/schemas/MaiImageFalImageGenInput",
+                "reve": "#/components/schemas/ReveFalImageGenInput"
               }
             }
           }
@@ -19336,6 +19460,98 @@
         ],
         "description": "LORA Training"
       },
+      "ImageToSvgInput": {
+        "required": [
+          "engine",
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "engine": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "description": "Either A URL, A DataURL or a Base64 string"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "engine",
+          "mapping": {
+            "comfy": "#/components/schemas/ComfyImageToSvgInput"
+          }
+        }
+      },
+      "ImageToSvgOutput": {
+        "required": [
+          "svg"
+        ],
+        "type": "object",
+        "properties": {
+          "svg": {
+            "$ref": "#/components/schemas/Blob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageToSvgStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageToSvgInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ImageToSvgOutput"
+              },
+              "$type": {
+                "enum": [
+                  "imageToSvg"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Converts a raster image to an SVG using a local StarVector or OmniSVG model."
+      },
+      "ImageToSvgStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageToSvgInput"
+              },
+              "$type": {
+                "enum": [
+                  "imageToSvg"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Converts a raster image to an SVG using a local StarVector or OmniSVG model."
+      },
       "ImageTransform": {
         "required": [
           "type"
@@ -22568,6 +22784,87 @@
               "engine": {
                 "enum": [
                   "google"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OmniSvgImageToSvgInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageToSvgInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "enum": [
+                  "omnisvg-4b",
+                  "omnisvg-8b"
+                ],
+                "type": "string",
+                "default": "omnisvg-4b"
+              },
+              "maxLength": {
+                "maximum": 2048,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1536
+              },
+              "seed": {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "topP": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.9
+              },
+              "topK": {
+                "maximum": 1000,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 50
+              },
+              "temperature": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.3
+              },
+              "repetitionPenalty": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1.05
+              },
+              "ecosystem": {
+                "enum": [
+                  "omnisvg"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
                 ],
                 "type": "string"
               }
@@ -26435,6 +26732,166 @@
         "additionalProperties": false,
         "description": "Details for a specific resource."
       },
+      "ReveCreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReveFalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "reve"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ReveEditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReveFalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 8,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                },
+                "description": "Address these from the prompt as <frame>N</frame>, 0-based."
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "reve"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ReveFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "4:1",
+                  "3:1",
+                  "21:9",
+                  "2:1",
+                  "17:9",
+                  "16:9",
+                  "3:2",
+                  "4:3",
+                  "5:4",
+                  "1:1",
+                  "4:5",
+                  "3:4",
+                  "2:3",
+                  "9:16",
+                  "1:2",
+                  "1:3",
+                  "1:4"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "model": {
+                "enum": [
+                  "reve"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ReveCreateFalImageGenInput",
+                "editImage": "#/components/schemas/ReveEditFalImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "SD1AIToolkitTrainingInput": {
         "allOf": [
           {
@@ -27481,6 +27938,58 @@
           }
         ],
         "description": "Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)\nSince FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.\nDiscriminator: operation (text-to-video or image-to-video)"
+      },
+      "StarVectorImageToSvgInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageToSvgInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "enum": [
+                  "starvector-1b",
+                  "starvector-8b"
+                ],
+                "type": "string",
+                "default": "starvector-1b"
+              },
+              "precision": {
+                "enum": [
+                  "fp16",
+                  "bf16"
+                ],
+                "type": "string",
+                "default": "fp16"
+              },
+              "maxLength": {
+                "maximum": 16000,
+                "minimum": 100,
+                "type": "integer",
+                "format": "int32",
+                "default": 4000
+              },
+              "ecosystem": {
+                "enum": [
+                  "starvector"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "SystemMessage": {
         "allOf": [
@@ -32554,6 +33063,14 @@
             ],
             "description": "Net buzz refunded because deliverable blobs were lost in the 2026-06-12 storage\nincident (v2.20.1 wrote Default-tier blobs to the wrong store). Null = not yet\nchecked, 0 = checked and intact. A value > 0 also prevents re-charging on recovery.",
             "format": "int32"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the consumer deleted this workflow. Soft delete: the telemetry document is kept\n(until its natural TTL) so operators can still inspect it in the dashboard, but\nconsumer reads and queries treat the workflow as gone.",
+            "format": "date-time"
           }
         },
         "additionalProperties": false,
@@ -32955,6 +33472,7 @@
             "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStep",
             "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
+            "imageToSvg": "#/components/schemas/ImageToSvgStep",
             "imageUpload": "#/components/schemas/ImageUploadStep",
             "imageUpscaler": "#/components/schemas/ImageUpscalerStep",
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStep",
@@ -33282,6 +33800,7 @@
             "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStepTemplate",
             "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
+            "imageToSvg": "#/components/schemas/ImageToSvgStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
             "imageUpscaler": "#/components/schemas/ImageUpscalerStepTemplate",
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStepTemplate",

@@ -91,6 +91,9 @@ import type {
   InvokeImageResourceTrainingStepTemplateData,
   InvokeImageResourceTrainingStepTemplateErrors,
   InvokeImageResourceTrainingStepTemplateResponses,
+  InvokeImageToSvgStepTemplateData,
+  InvokeImageToSvgStepTemplateErrors,
+  InvokeImageToSvgStepTemplateResponses,
   InvokeImageUploadStepTemplateData,
   InvokeImageUploadStepTemplateErrors,
   InvokeImageUploadStepTemplateResponses,
@@ -661,6 +664,25 @@ export const invokeImageResourceTrainingStepTemplate = <ThrowOnError extends boo
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/imageResourceTraining',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Converts a raster image to an SVG using a local StarVector or OmniSVG model.
+ */
+export const invokeImageToSvgStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeImageToSvgStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeImageToSvgStepTemplateResponses,
+    InvokeImageToSvgStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/imageToSvg',
     ...options,
     headers: {
       'Content-Type': 'application/json',
