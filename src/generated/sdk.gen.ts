@@ -25,6 +25,9 @@ import type {
   GetResourceData,
   GetResourceErrors,
   GetResourceResponses,
+  GetServiceData,
+  GetServiceErrors,
+  GetServiceResponses,
   GetStreamingBlobData,
   GetStreamingBlobErrors,
   GetStreamingBlobResponses,
@@ -157,6 +160,9 @@ import type {
   InvokeTryOnUStepTemplateData,
   InvokeTryOnUStepTemplateErrors,
   InvokeTryOnUStepTemplateResponses,
+  InvokeVideoBackgroundRemovalStepTemplateData,
+  InvokeVideoBackgroundRemovalStepTemplateErrors,
+  InvokeVideoBackgroundRemovalStepTemplateResponses,
   InvokeVideoEnhancementStepTemplateData,
   InvokeVideoEnhancementStepTemplateErrors,
   InvokeVideoEnhancementStepTemplateResponses,
@@ -181,6 +187,9 @@ import type {
   InvokeXGuardModerationStepTemplateData,
   InvokeXGuardModerationStepTemplateErrors,
   InvokeXGuardModerationStepTemplateResponses,
+  ListServicesData,
+  ListServicesErrors,
+  ListServicesResponses,
   PatchWorkflowData,
   PatchWorkflowErrors,
   PatchWorkflowResponses,
@@ -1116,6 +1125,25 @@ export const invokeTryOnUStepTemplate = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Tracks a prompted foreground object across a video and returns a lossless animated WebP with transparency.
+ */
+export const invokeVideoBackgroundRemovalStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeVideoBackgroundRemovalStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeVideoBackgroundRemovalStepTemplateResponses,
+    InvokeVideoBackgroundRemovalStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/videoBackgroundRemoval',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
  * Upscale videos and/or interpolate frames
  */
 export const invokeVideoEnhancementStepTemplate = <ThrowOnError extends boolean = false>(
@@ -1285,6 +1313,29 @@ export const getResource = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).get<GetResourceResponses, GetResourceErrors, ThrowOnError>({
     url: '/v2/resources/{air}',
+    ...options,
+  });
+
+/**
+ * List services, optionally filtered.
+ */
+export const listServices = <ThrowOnError extends boolean = false>(
+  options?: Options<ListServicesData, ThrowOnError>
+) =>
+  (options?.client ?? client).get<ListServicesResponses, ListServicesErrors, ThrowOnError>({
+    url: '/v2/services',
+    ...options,
+  });
+
+/**
+ * Get a single service by id, e.g. "image/flux2/klein/createImage/9b", with its bucketed
+ * history over the window.
+ */
+export const getService = <ThrowOnError extends boolean = false>(
+  options: Options<GetServiceData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetServiceResponses, GetServiceErrors, ThrowOnError>({
+    url: '/v2/services/{serviceId}',
     ...options,
   });
 

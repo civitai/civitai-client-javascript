@@ -235,7 +235,8 @@
               }
             }
           }
-        }
+        },
+        "security": []
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -293,7 +294,8 @@
           "500": {
             "description": "Internal Server Error"
           }
-        }
+        },
+        "security": []
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -335,7 +337,8 @@
               }
             }
           }
-        }
+        },
+        "security": []
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -380,7 +383,8 @@
               }
             }
           }
-        }
+        },
+        "security": []
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -3962,6 +3966,96 @@
         }
       }
     },
+    "/v2/consumer/recipes/videoBackgroundRemoval": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Tracks a prompted foreground object across a video and returns a lossless animated WebP with transparency.",
+        "operationId": "InvokeVideoBackgroundRemovalStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoBackgroundRemovalInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoBackgroundRemovalInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoBackgroundRemovalInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoBackgroundRemovalOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/videoEnhancement": {
       "post": {
         "tags": [
@@ -4739,6 +4833,181 @@
         }
       }
     },
+    "/v2/services": {
+      "get": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "List services, optionally filtered.",
+        "operationId": "ListServices",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Restrict to a category (image, video, chat, audio, text, 3d, model, utility).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefix",
+            "in": "query",
+            "description": "Restrict to a subtree of the id, e.g. \"image/flux2\".",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Only services carrying all of these tags.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Free-text over id, name, description and tags.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Only services currently in this state.",
+            "schema": {
+              "$ref": "#/components/schemas/ServiceStatus"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "description": "Window the metrics and status are computed over: 1h, 24h or 7d.",
+            "schema": {
+              "type": "string",
+              "default": "24h"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponseOfServiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v2/services/{serviceId}": {
+      "get": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "Get a single service by id, e.g. \"image/flux2/klein/createImage/9b\", with its bucketed\nhistory over the window.",
+        "operationId": "GetService",
+        "parameters": [
+          {
+            "name": "serviceId",
+            "in": "path",
+            "description": "The service id.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "description": "Window the summary metrics and history cover: 1h, 24h or 7d.",
+            "schema": {
+              "type": "string",
+              "default": "24h"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "description": "History bucket size: 5m, 1h or 1d.",
+            "schema": {
+              "type": "string",
+              "default": "1h"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
     "/v2/consumer/streaming-blobs/{blobKey}": {
       "get": {
         "tags": [
@@ -4779,7 +5048,8 @@
               }
             }
           }
-        }
+        },
+        "security": []
       }
     },
     "/v2/consumer/workflows": {
@@ -6547,7 +6817,8 @@
                 "hidream-o1": "#/components/schemas/HiDreamO1AIToolkitTrainingInput",
                 "anima": "#/components/schemas/AnimaAIToolkitTrainingInput",
                 "boogu": "#/components/schemas/BooguAIToolkitTrainingInput",
-                "krea2": "#/components/schemas/Krea2AIToolkitTrainingInput"
+                "krea2": "#/components/schemas/Krea2AIToolkitTrainingInput",
+                "mageflow": "#/components/schemas/MageFlowAIToolkitTrainingInput"
               }
             }
           }
@@ -7212,6 +7483,36 @@
               "$ref": "#/components/schemas/AgeDetection"
             },
             "description": "Array of detected people with age classifications."
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ran": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "detector": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "minorDetected": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false,
@@ -7957,6 +8258,37 @@
         ],
         "description": "An audio mixdown produced when the composition has no video."
       },
+      "BackgroundRemovalTransformer": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MediaTransformer"
+          },
+          {
+            "required": [
+              "type"
+            ],
+            "type": "object",
+            "properties": {
+              "shadowRemoval": {
+                "$ref": "#/components/schemas/ShadowRemoval"
+              },
+              "fromCenter": {
+                "type": "boolean",
+                "description": "Also seed the fill from the frame centre, for artwork with an enclosed background-coloured\nhole (e.g. avatar frames).",
+                "default": false
+              },
+              "type": {
+                "enum": [
+                  "backgroundRemoval"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Removes the element's background per frame via a deterministic edge-connected flood fill\n(unlike the AI-matting `imageBackgroundRemoval` step): the background colour is estimated\nfrom the frame border and every border-connected pixel within tolerance becomes transparent,\nso background-coloured pixels enclosed inside the artwork are kept. Video elements only. Pair\nwith an alpha-capable output container (webp) and a transparent canvas background to carry the\ntransparency into the output."
+      },
       "BasicAnimationsBlobs": {
         "type": "object",
         "properties": {
@@ -8394,6 +8726,47 @@
         },
         "additionalProperties": false,
         "description": "Represents a bounding box with coordinates."
+      },
+      "BucketResponse": {
+        "required": [
+          "at",
+          "canceledRate",
+          "requests",
+          "userErrorRate"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requests": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "successRate": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "canceledRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "userErrorRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "costBuzz": {
+            "$ref": "#/components/schemas/PercentilesResponse"
+          },
+          "latencySeconds": {
+            "$ref": "#/components/schemas/PercentilesResponse"
+          }
+        },
+        "additionalProperties": false
       },
       "BuzzClientAccount": {
         "enum": [
@@ -9178,6 +9551,10 @@
                 "items": {
                   "$ref": "#/components/schemas/ImageJobControlNet"
                 }
+              },
+              "vaeModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
               },
               "ecosystem": {
                 "enum": [
@@ -11400,7 +11777,8 @@
                 "lens": "#/components/schemas/ComfyLensImageGenInput",
                 "ideogram4": "#/components/schemas/ComfyIdeogram4ImageGenInput",
                 "boogu": "#/components/schemas/ComfyBooguImageGenInput",
-                "krea2": "#/components/schemas/ComfyKrea2ImageGenInput"
+                "krea2": "#/components/schemas/ComfyKrea2ImageGenInput",
+                "mageflow": "#/components/schemas/ComfyMageFlowImageGenInput"
               }
             }
           }
@@ -12938,6 +13316,636 @@
           }
         ],
         "description": "LTX Video v2 generation via ComfyUI backend"
+      },
+      "ComfyMageFlow4bCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlow4bImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "4b"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyMageFlow4bEditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlowImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 30
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 5
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "model": {
+                "enum": [
+                  "4b-edit"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "editImage": "#/components/schemas/ComfyMageFlow4bEditImageInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyMageFlow4bEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlow4bEditImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "images": {
+                "maxItems": 16,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "4b-edit"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyMageFlow4bEditTurboImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlowImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 4
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "model": {
+                "enum": [
+                  "4b-edit-turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "editImage": "#/components/schemas/ComfyMageFlow4bEditTurboImageInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyMageFlow4bEditTurboImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlow4bEditTurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "images": {
+                "maxItems": 16,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "4b-edit-turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyMageFlow4bImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlowImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 5
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "model": {
+                "enum": [
+                  "4b"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyMageFlow4bCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyMageFlow4bTurboCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlow4bTurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "4b-turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyMageFlow4bTurboImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMageFlowImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 4
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "model": {
+                "enum": [
+                  "4b-turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyMageFlow4bTurboCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyMageFlowImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "cfgScale",
+              "ecosystem",
+              "engine",
+              "model",
+              "prompt",
+              "quantity",
+              "steps"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "steps": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "type": "number",
+                "format": "double"
+              },
+              "quantity": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "4b": "#/components/schemas/ComfyMageFlow4bImageGenInput",
+                "4b-turbo": "#/components/schemas/ComfyMageFlow4bTurboImageGenInput",
+                "4b-edit": "#/components/schemas/ComfyMageFlow4bEditImageGenInput",
+                "4b-edit-turbo": "#/components/schemas/ComfyMageFlow4bEditTurboImageGenInput"
+              }
+            }
+          }
+        ]
       },
       "ComfyNode": {
         "required": [
@@ -18452,6 +19460,38 @@
         ],
         "description": "AI Toolkit training for HiDream O1 Image models."
       },
+      "HumanRecognitionResult": {
+        "required": [
+          "confidence",
+          "humanScore",
+          "label",
+          "noHumanScore"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Classification label: \"human\" or \"no_human\"."
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Confidence score for the selected classification (0.0 to 1.0).",
+            "format": "double"
+          },
+          "humanScore": {
+            "type": "number",
+            "description": "Aggregated probability that the image contains a human.",
+            "format": "double"
+          },
+          "noHumanScore": {
+            "type": "number",
+            "description": "Aggregated probability that the image does not contain a human.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents human vs non-human image recognition results."
+      },
       "HumanoidImageMaskCategory": {
         "enum": [
           "dresses",
@@ -20850,6 +21890,52 @@
         ],
         "description": "AI Toolkit training for LTX2 video models"
       },
+      "MageFlowAIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "mageflow"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for the Mage-Flow Base model."
+      },
       "MaiImageCreateFalImageGenInput": {
         "allOf": [
           {
@@ -21027,7 +22113,7 @@
           },
           "background": {
             "type": "string",
-            "description": "Hex background colour (e.g. `\"#000000\"`) painted where no element covers the canvas.",
+            "description": "Hex background colour (e.g. `\"#000000\"`) painted where no element covers the canvas.\nAn 8-digit `\"#RRGGBBAA\"` value sets the background alpha; anything below fully opaque\nrequires an alpha-capable output container (webp).",
             "default": "#000000"
           }
         },
@@ -21145,7 +22231,8 @@
           "mp4",
           "webm",
           "ogg",
-          "mp3"
+          "mp3",
+          "webp"
         ],
         "type": "string",
         "description": "Output container for a composition."
@@ -21310,7 +22397,8 @@
           "includeAgeClassification",
           "includeAIRecognition",
           "includeAnimeRecognition",
-          "includeFaceRecognition"
+          "includeFaceRecognition",
+          "includeHumanRecognition"
         ],
         "type": "object",
         "properties": {
@@ -21323,7 +22411,7 @@
           },
           "includeAgeClassification": {
             "type": "boolean",
-            "description": "Include age classification analysis in the results"
+            "description": "Include conditional age-classification details for R-or-higher content in the results.\nThe top-level CSAM signal is evaluated regardless of this setting."
           },
           "includeFaceRecognition": {
             "type": "boolean",
@@ -21336,6 +22424,10 @@
           "includeAnimeRecognition": {
             "type": "boolean",
             "description": "Include anime vs real image detection in the results"
+          },
+          "includeHumanRecognition": {
+            "type": "boolean",
+            "description": "Include human vs non-human detection in the results"
           }
         },
         "additionalProperties": false,
@@ -21384,6 +22476,16 @@
           },
           "animeRecognition": {
             "$ref": "#/components/schemas/AnimeRecognitionResult"
+          },
+          "csam": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Potential CSAM signal from conditional age classification on R-or-higher content.\nNull means the image was below R or age classification failed."
+          },
+          "humanRecognition": {
+            "$ref": "#/components/schemas/HumanRecognitionResult"
           }
         },
         "additionalProperties": false,
@@ -21463,7 +22565,8 @@
           "mapping": {
             "fadeIn": "#/components/schemas/FadeInTransformer",
             "fadeOut": "#/components/schemas/FadeOutTransformer",
-            "volume": "#/components/schemas/VolumeTransformer"
+            "volume": "#/components/schemas/VolumeTransformer",
+            "backgroundRemoval": "#/components/schemas/BackgroundRemovalTransformer"
           }
         }
       },
@@ -21668,6 +22771,57 @@
         ],
         "type": "string"
       },
+      "MetricsResponse": {
+        "required": [
+          "asOf",
+          "canceledRate",
+          "requests",
+          "userErrorRate",
+          "window"
+        ],
+        "type": "object",
+        "properties": {
+          "window": {
+            "type": "string",
+            "description": "The window these cover: 1h, 24h or 7d."
+          },
+          "asOf": {
+            "type": "string",
+            "description": "When this was computed. Served stale while a refresh runs.",
+            "format": "date-time"
+          },
+          "requests": {
+            "type": "integer",
+            "description": "Requests that reached a final state in the window, cancellations included.",
+            "format": "int64"
+          },
+          "successRate": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "Succeeded over non-canceled requests, 0..1. Null when everything in the window was\ncanceled — which is not the same as a success rate of zero.",
+            "format": "double"
+          },
+          "canceledRate": {
+            "type": "number",
+            "description": "Fraction canceled by callers. Reported apart from success: cancelling is not a failure.",
+            "format": "double"
+          },
+          "userErrorRate": {
+            "type": "number",
+            "description": "Fraction that failed on the user's input rather than the service — most often a provider\ncontent-policy rejection (e.g. asking a provider that forbids it for mature content). Kept\nout of the success rate so a service isn't marked unhealthy for refusing disallowed requests.",
+            "format": "double"
+          },
+          "costBuzz": {
+            "$ref": "#/components/schemas/PercentilesResponse"
+          },
+          "latencySeconds": {
+            "$ref": "#/components/schemas/PercentilesResponse"
+          }
+        },
+        "additionalProperties": false
+      },
       "MiniMaxVideoGenInput": {
         "allOf": [
           {
@@ -21742,6 +22896,28 @@
             "additionalProperties": false
           }
         ]
+      },
+      "ModalitiesResponse": {
+        "required": [
+          "input",
+          "output"
+        ],
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "output": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
       },
       "Model3DBlob": {
         "allOf": [
@@ -22856,6 +24032,14 @@
                 "format": "double",
                 "default": 1.05
               },
+              "prompt": {
+                "maxLength": 1000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
               "ecosystem": {
                 "enum": [
                   "omnisvg"
@@ -23778,6 +24962,59 @@
           "webP"
         ],
         "type": "string"
+      },
+      "PaginatedResponseOfServiceResponse": {
+        "required": [
+          "items",
+          "limit",
+          "offset",
+          "totalCount"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceResponse"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PercentilesResponse": {
+        "required": [
+          "p50",
+          "p80",
+          "p95"
+        ],
+        "type": "object",
+        "properties": {
+          "p50": {
+            "type": "number",
+            "format": "double"
+          },
+          "p80": {
+            "type": "number",
+            "format": "double"
+          },
+          "p95": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
       },
       "PngOutputFormat": {
         "allOf": [
@@ -26727,6 +27964,14 @@
               "$ref": "#/components/schemas/ResourceFee"
             },
             "description": "The full licensing-fee breakdown; each entry settles to its own recipient"
+          },
+          "userId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "The owner of this resource, stamped onto compensation records at flush time so\nattribution follows ownership transfers instead of being resolved retroactively.",
+            "format": "int32"
           }
         },
         "additionalProperties": false,
@@ -27792,12 +29037,150 @@
         ],
         "type": "string"
       },
+      "ServiceHistory": {
+        "required": [
+          "buckets",
+          "interval"
+        ],
+        "type": "object",
+        "properties": {
+          "interval": {
+            "type": "string",
+            "description": "The bucket size the series is grouped by: 5m, 1h or 1d."
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BucketResponse"
+            },
+            "description": "Newest bucket first. Each spans one Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceHistory.Interval."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServiceResponse": {
+        "required": [
+          "category",
+          "id",
+          "parameters",
+          "status",
+          "tags"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Variable-depth path, e.g. \"image/flux2/klein/createImage/9b\". Opaque: read\nCivitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceResponse.Parameters rather than splitting this on \"/\", as the depth and the meaning of\neach segment differ per engine."
+          },
+          "category": {
+            "type": "string",
+            "description": "The id's first segment."
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The id decomposed, e.g. { engine: flux2, model: klein, operation: createImage }."
+          },
+          "step": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The workflow step $type this service is reached through."
+          },
+          "submit": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Where to submit this service."
+          },
+          "estimate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Returns the exact cost of a given input without running it."
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "strengths": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weaknesses": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "releasedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "modalities": {
+            "$ref": "#/components/schemas/ModalitiesResponse"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ServiceStatus"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/MetricsResponse"
+          },
+          "history": {
+            "$ref": "#/components/schemas/ServiceHistory"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A service we offer."
+      },
+      "ServiceStatus": {
+        "enum": [
+          "unknown",
+          "available",
+          "degraded",
+          "unavailable"
+        ],
+        "type": "string"
+      },
       "SettlementCurrency": {
         "enum": [
           "buzz",
           "cash"
         ],
         "type": "string"
+      },
+      "ShadowRemoval": {
+        "enum": [
+          "off",
+          "gentle",
+          "aggressive"
+        ],
+        "type": "string",
+        "description": "How aggressively background removal also strips soft drop shadows the strict color match misses."
       },
       "Sora2ImageToVideoInput": {
         "allOf": [
@@ -29356,6 +30739,139 @@
             "additionalProperties": false
           }
         ]
+      },
+      "VideoBackgroundRemovalInput": {
+        "required": [
+          "video"
+        ],
+        "type": "object",
+        "properties": {
+          "video": {
+            "type": "string",
+            "format": "uri"
+          },
+          "foregroundPoints": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/VideoBackgroundRemovalPoint"
+            }
+          },
+          "backgroundPoints": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/VideoBackgroundRemovalPoint"
+            }
+          },
+          "maskExpansion": {
+            "maximum": 32,
+            "minimum": -32,
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "maskFeather": {
+            "maximum": 32,
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "default": 2
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoBackgroundRemovalOutput": {
+        "type": "object",
+        "properties": {
+          "video": {
+            "$ref": "#/components/schemas/VideoBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoBackgroundRemovalPoint": {
+        "required": [
+          "x",
+          "y"
+        ],
+        "type": "object",
+        "properties": {
+          "x": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VideoBackgroundRemovalStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoBackgroundRemovalInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/VideoBackgroundRemovalOutput"
+              },
+              "$type": {
+                "enum": [
+                  "videoBackgroundRemoval"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Tracks a prompted foreground object across a video and returns a lossless animated WebP with transparency."
+      },
+      "VideoBackgroundRemovalStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/VideoBackgroundRemovalInput"
+              },
+              "$type": {
+                "enum": [
+                  "videoBackgroundRemoval"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Tracks a prompted foreground object across a video and returns a lossless animated WebP with transparency."
       },
       "VideoBlob": {
         "allOf": [
@@ -33492,6 +35008,7 @@
             "training": "#/components/schemas/TrainingStep",
             "transcode": "#/components/schemas/TranscodeStep",
             "transcription": "#/components/schemas/TranscriptionStep",
+            "videoBackgroundRemoval": "#/components/schemas/VideoBackgroundRemovalStep",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStep",
             "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStep",
             "videoGen": "#/components/schemas/VideoGenStep",
@@ -33820,6 +35337,7 @@
             "training": "#/components/schemas/TrainingStepTemplate",
             "transcode": "#/components/schemas/TranscodeStepTemplate",
             "transcription": "#/components/schemas/TranscriptionStepTemplate",
+            "videoBackgroundRemoval": "#/components/schemas/VideoBackgroundRemovalStepTemplate",
             "videoEnhancement": "#/components/schemas/VideoEnhancementStepTemplate",
             "videoFrameExtraction": "#/components/schemas/VideoFrameExtractionStepTemplate",
             "videoGen": "#/components/schemas/VideoGenStepTemplate",
@@ -34980,6 +36498,9 @@
     },
     {
       "name": "Resources"
+    },
+    {
+      "name": "Services"
     },
     {
       "name": "StreamingBlobs"

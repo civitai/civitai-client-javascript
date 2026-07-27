@@ -462,6 +462,11 @@ export type AgeClassificationResult = {
    * Array of detected people with age classifications.
    */
   detections: Array<AgeDetection>;
+  status?: null | string;
+  ran?: null | boolean;
+  detector?: null | string;
+  minorDetected?: null | boolean;
+  error?: null | string;
 };
 
 /**
@@ -728,6 +733,24 @@ export type AudioComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
   type: 'audio';
 };
 
+/**
+ * Removes the element's background per frame via a deterministic edge-connected flood fill
+ * (unlike the AI-matting `imageBackgroundRemoval` step): the background colour is estimated
+ * from the frame border and every border-connected pixel within tolerance becomes transparent,
+ * so background-coloured pixels enclosed inside the artwork are kept. Video elements only. Pair
+ * with an alpha-capable output container (webp) and a transparent canvas background to carry the
+ * transparency into the output.
+ */
+export type BackgroundRemovalTransformer = Omit<MediaTransformer, 'type'> & {
+  shadowRemoval?: ShadowRemoval;
+  /**
+   * Also seed the fill from the frame centre, for artwork with an enclosed background-coloured
+   * hole (e.g. avatar frames).
+   */
+  fromCenter?: boolean;
+  type: 'backgroundRemoval';
+};
+
 export type BasicAnimationsBlobs = {
   walkingModel?: Model3dBlob;
   walkingFbxModel?: Model3dBlob;
@@ -923,6 +946,16 @@ export type BoundingBox = {
   y1: number;
   x2: number;
   y2: number;
+};
+
+export type BucketResponse = {
+  at: string;
+  requests: number;
+  successRate?: null | number;
+  canceledRate: number;
+  userErrorRate: number;
+  costBuzz?: PercentilesResponse;
+  latencySeconds?: PercentilesResponse;
 };
 
 export const BuzzClientAccount = {
@@ -1293,6 +1326,7 @@ export type ComfyAnimaImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosy
   };
   diffuserModel?: string;
   controlNets?: Array<ImageJobControlNet>;
+  vaeModel?: string;
   ecosystem: 'anima';
   engine: 'comfy';
 };
@@ -2118,6 +2152,128 @@ export type ComfyLtx2VideoGenInput = Omit<VideoGenInput, 'engine'> & {
     [key: string]: number;
   };
   engine: 'ltx2';
+};
+
+export type ComfyMageFlow4bCreateImageGenInput = Omit<
+  ComfyMageFlow4bImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: '4b';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlow4bEditImageGenInput = Omit<
+  ComfyMageFlowImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  steps?: number;
+  cfgScale?: number;
+  quantity?: number;
+  images: Array<string>;
+  model: '4b-edit';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlow4bEditImageInput = Omit<
+  ComfyMageFlow4bEditImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  images: Array<string>;
+  operation: 'editImage';
+  model: '4b-edit';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlow4bEditTurboImageGenInput = Omit<
+  ComfyMageFlowImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  steps?: number;
+  cfgScale?: number;
+  quantity?: number;
+  images: Array<string>;
+  model: '4b-edit-turbo';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlow4bEditTurboImageInput = Omit<
+  ComfyMageFlow4bEditTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  images: Array<string>;
+  operation: 'editImage';
+  model: '4b-edit-turbo';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlow4bImageGenInput = Omit<
+  ComfyMageFlowImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  steps?: number;
+  cfgScale?: number;
+  quantity?: number;
+  model: '4b';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlow4bTurboCreateImageGenInput = Omit<
+  ComfyMageFlow4bTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: '4b-turbo';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlow4bTurboImageGenInput = Omit<
+  ComfyMageFlowImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  steps?: number;
+  cfgScale?: number;
+  quantity?: number;
+  model: '4b-turbo';
+  ecosystem: 'mageflow';
+  engine: 'comfy';
+};
+
+export type ComfyMageFlowImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  seed?: null | number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  steps: number;
+  cfgScale: number;
+  quantity: number;
+  ecosystem: 'mageflow';
+  engine: 'comfy';
 };
 
 export type ComfyNode = {
@@ -3868,6 +4024,28 @@ export type HiDreamO1AiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
+/**
+ * Represents human vs non-human image recognition results.
+ */
+export type HumanRecognitionResult = {
+  /**
+   * Classification label: "human" or "no_human".
+   */
+  label: string;
+  /**
+   * Confidence score for the selected classification (0.0 to 1.0).
+   */
+  confidence: number;
+  /**
+   * Aggregated probability that the image contains a human.
+   */
+  humanScore: number;
+  /**
+   * Aggregated probability that the image does not contain a human.
+   */
+  noHumanScore: number;
+};
+
 export const HumanoidImageMaskCategory = {
   DRESSES: 'dresses',
   UPPER_BODY: 'upperBody',
@@ -4744,6 +4922,22 @@ export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   batchSize?: null | number;
 };
 
+/**
+ * AI Toolkit training for the Mage-Flow Base model.
+ */
+export type MageFlowAiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  readonly defaultSteps: number;
+  ecosystem: 'mageflow';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type MaiImageCreateFalImageGenInput = Omit<
   MaiImageFalImageGenInput,
   'engine' | 'model' | 'operation'
@@ -4802,6 +4996,8 @@ export type MediaCanvas = {
   fps?: number;
   /**
    * Hex background colour (e.g. `"#000000"`) painted where no element covers the canvas.
+   * An 8-digit `"#RRGGBBAA"` value sets the background alpha; anything below fully opaque
+   * requires an alpha-capable output container (webp).
    */
   background?: string;
 };
@@ -4865,6 +5061,7 @@ export const MediaContainer = {
   WEBM: 'webm',
   OGG: 'ogg',
   MP3: 'mp3',
+  WEBP: 'webp',
 } as const;
 
 /**
@@ -4985,7 +5182,8 @@ export type MediaRatingInput = {
    */
   image?: null | string;
   /**
-   * Include age classification analysis in the results
+   * Include conditional age-classification details for R-or-higher content in the results.
+   * The top-level CSAM signal is evaluated regardless of this setting.
    */
   includeAgeClassification: boolean;
   /**
@@ -5000,6 +5198,10 @@ export type MediaRatingInput = {
    * Include anime vs real image detection in the results
    */
   includeAnimeRecognition: boolean;
+  /**
+   * Include human vs non-human detection in the results
+   */
+  includeHumanRecognition: boolean;
 };
 
 /**
@@ -5023,6 +5225,12 @@ export type MediaRatingOutput = {
   faceRecognition?: FaceRecognitionResult;
   aiRecognition?: AiRecognitionResult;
   animeRecognition?: AnimeRecognitionResult;
+  /**
+   * Potential CSAM signal from conditional age classification on R-or-higher content.
+   * Null means the image was below R or age classification failed.
+   */
+  csam?: null | boolean;
+  humanRecognition?: HumanRecognitionResult;
 };
 
 /**
@@ -5097,6 +5305,38 @@ export const Metric3dBackbone = {
 
 export type Metric3dBackbone = (typeof Metric3dBackbone)[keyof typeof Metric3dBackbone];
 
+export type MetricsResponse = {
+  /**
+   * The window these cover: 1h, 24h or 7d.
+   */
+  window: string;
+  /**
+   * When this was computed. Served stale while a refresh runs.
+   */
+  asOf: string;
+  /**
+   * Requests that reached a final state in the window, cancellations included.
+   */
+  requests: number;
+  /**
+   * Succeeded over non-canceled requests, 0..1. Null when everything in the window was
+   * canceled — which is not the same as a success rate of zero.
+   */
+  successRate?: null | number;
+  /**
+   * Fraction canceled by callers. Reported apart from success: cancelling is not a failure.
+   */
+  canceledRate: number;
+  /**
+   * Fraction that failed on the user's input rather than the service — most often a provider
+   * content-policy rejection (e.g. asking a provider that forbids it for mature content). Kept
+   * out of the success rate so a service isn't marked unhealthy for refusing disallowed requests.
+   */
+  userErrorRate: number;
+  costBuzz?: PercentilesResponse;
+  latencySeconds?: PercentilesResponse;
+};
+
 export type MiniMaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   model?: MiniMaxVideoGenModel;
   enablePromptEnhancer?: boolean;
@@ -5115,6 +5355,11 @@ export type MochiVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed: number;
   enablePromptEnhancer?: boolean;
   engine: 'mochi';
+};
+
+export type ModalitiesResponse = {
+  input: Array<string>;
+  output: Array<string>;
 };
 
 export type Model3dBlob = Omit<Blob, 'type'> & {
@@ -5510,6 +5755,7 @@ export type OmniSvgImageToSvgInput = Omit<ComfyImageToSvgInput, 'engine' | 'ecos
   topK?: number;
   temperature?: number;
   repetitionPenalty?: number;
+  prompt?: null | string;
   ecosystem: 'omnisvg';
   engine: 'comfy';
 };
@@ -5718,6 +5964,19 @@ export const OutputFormat = {
 } as const;
 
 export type OutputFormat = (typeof OutputFormat)[keyof typeof OutputFormat];
+
+export type PaginatedResponseOfServiceResponse = {
+  items: Array<ServiceResponse>;
+  totalCount: number;
+  limit: number;
+  offset: number;
+};
+
+export type PercentilesResponse = {
+  p50: number;
+  p80: number;
+  p95: number;
+};
 
 /**
  * PNG output format configuration.
@@ -6562,6 +6821,11 @@ export type ResourceInfo = {
    * The full licensing-fee breakdown; each entry settles to its own recipient
    */
   fees?: null | Array<ResourceFee>;
+  /**
+   * The owner of this resource, stamped onto compensation records at flush time so
+   * attribution follows ownership transfers instead of being resolved retroactively.
+   */
+  userId?: null | number;
 };
 
 export type ReveCreateFalImageGenInput = Omit<
@@ -6891,9 +7155,87 @@ export const SeedreamVersion = {
 
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
 
+export type ServiceHistory = {
+  /**
+   * The bucket size the series is grouped by: 5m, 1h or 1d.
+   */
+  interval: string;
+  /**
+   * Newest bucket first. Each spans one Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceHistory.Interval.
+   */
+  buckets: Array<BucketResponse>;
+};
+
+/**
+ * A service we offer.
+ */
+export type ServiceResponse = {
+  /**
+   * Variable-depth path, e.g. "image/flux2/klein/createImage/9b". Opaque: read
+   * Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceResponse.Parameters rather than splitting this on "/", as the depth and the meaning of
+   * each segment differ per engine.
+   */
+  id: string;
+  /**
+   * The id's first segment.
+   */
+  category: string;
+  /**
+   * The id decomposed, e.g. { engine: flux2, model: klein, operation: createImage }.
+   */
+  parameters: {
+    [key: string]: string;
+  };
+  /**
+   * The workflow step $type this service is reached through.
+   */
+  step?: null | string;
+  /**
+   * Where to submit this service.
+   */
+  submit?: null | string;
+  /**
+   * Returns the exact cost of a given input without running it.
+   */
+  estimate?: null | string;
+  name?: null | string;
+  description?: null | string;
+  tags: Array<string>;
+  strengths?: null | string;
+  weaknesses?: null | string;
+  releasedAt?: null | string;
+  modalities?: ModalitiesResponse;
+  status: ServiceStatus;
+  metrics?: MetricsResponse;
+  history?: ServiceHistory;
+};
+
+export const ServiceStatus = {
+  UNKNOWN: 'unknown',
+  AVAILABLE: 'available',
+  DEGRADED: 'degraded',
+  UNAVAILABLE: 'unavailable',
+} as const;
+
+export type ServiceStatus = (typeof ServiceStatus)[keyof typeof ServiceStatus];
+
 export const SettlementCurrency = { BUZZ: 'buzz', CASH: 'cash' } as const;
 
 export type SettlementCurrency = (typeof SettlementCurrency)[keyof typeof SettlementCurrency];
+
+/**
+ * How aggressively background removal also strips soft drop shadows the strict color match misses.
+ */
+export const ShadowRemoval = {
+  OFF: 'off',
+  GENTLE: 'gentle',
+  AGGRESSIVE: 'aggressive',
+} as const;
+
+/**
+ * How aggressively background removal also strips soft drop shadows the strict color match misses.
+ */
+export type ShadowRemoval = (typeof ShadowRemoval)[keyof typeof ShadowRemoval];
 
 /**
  * Sora 2 Image-to-Video
@@ -7528,6 +7870,40 @@ export type Veo3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version?: Veo3Version;
   mode?: Veo3GenerationMode;
   engine: 'veo3';
+};
+
+export type VideoBackgroundRemovalInput = {
+  video: string;
+  foregroundPoints?: null | Array<VideoBackgroundRemovalPoint>;
+  backgroundPoints?: null | Array<VideoBackgroundRemovalPoint>;
+  maskExpansion?: number;
+  maskFeather?: number;
+};
+
+export type VideoBackgroundRemovalOutput = {
+  video?: VideoBlob;
+};
+
+export type VideoBackgroundRemovalPoint = {
+  x: number;
+  y: number;
+};
+
+/**
+ * Tracks a prompted foreground object across a video and returns a lossless animated WebP with transparency.
+ */
+export type VideoBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
+  input: VideoBackgroundRemovalInput;
+  output?: VideoBackgroundRemovalOutput;
+  $type: 'videoBackgroundRemoval';
+};
+
+/**
+ * Tracks a prompted foreground object across a video and returns a lossless animated WebP with transparency.
+ */
+export type VideoBackgroundRemovalStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: VideoBackgroundRemovalInput;
+  $type: 'videoBackgroundRemoval';
 };
 
 export type VideoBlob = Omit<Blob, 'type'> & {
@@ -9902,6 +10278,21 @@ export type Ltx2AiToolkitTrainingInputWritable = Omit<
   'engine' | 'ecosystem'
 > & {
   ecosystem: 'ltx2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for the Mage-Flow Base model.
+ */
+export type MageFlowAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'mageflow';
   engine: 'ai-toolkit';
   /**
    * Training batch size. Fixed at 1 for this ecosystem.
@@ -12490,6 +12881,42 @@ export type InvokeTryOnUStepTemplateResponses = {
 export type InvokeTryOnUStepTemplateResponse =
   InvokeTryOnUStepTemplateResponses[keyof InvokeTryOnUStepTemplateResponses];
 
+export type InvokeVideoBackgroundRemovalStepTemplateData = {
+  body?: VideoBackgroundRemovalInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/videoBackgroundRemoval';
+};
+
+export type InvokeVideoBackgroundRemovalStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeVideoBackgroundRemovalStepTemplateError =
+  InvokeVideoBackgroundRemovalStepTemplateErrors[keyof InvokeVideoBackgroundRemovalStepTemplateErrors];
+
+export type InvokeVideoBackgroundRemovalStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: VideoBackgroundRemovalOutput;
+};
+
+export type InvokeVideoBackgroundRemovalStepTemplateResponse =
+  InvokeVideoBackgroundRemovalStepTemplateResponses[keyof InvokeVideoBackgroundRemovalStepTemplateResponses];
+
 export type InvokeVideoEnhancementStepTemplateData = {
   body?: VideoEnhancementInput;
   path?: never;
@@ -12811,6 +13238,101 @@ export type GetResourceResponses = {
 };
 
 export type GetResourceResponse = GetResourceResponses[keyof GetResourceResponses];
+
+export type ListServicesData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Restrict to a category (image, video, chat, audio, text, 3d, model, utility).
+     */
+    category?: string;
+    /**
+     * Restrict to a subtree of the id, e.g. "image/flux2".
+     */
+    prefix?: string;
+    /**
+     * Only services carrying all of these tags.
+     */
+    tags?: Array<string>;
+    /**
+     * Free-text over id, name, description and tags.
+     */
+    query?: string;
+    /**
+     * Only services currently in this state.
+     */
+    status?: ServiceStatus;
+    /**
+     * Window the metrics and status are computed over: 1h, 24h or 7d.
+     */
+    window?: string;
+    limit?: number;
+    offset?: number;
+  };
+  url: '/v2/services';
+};
+
+export type ListServicesErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+};
+
+export type ListServicesError = ListServicesErrors[keyof ListServicesErrors];
+
+export type ListServicesResponses = {
+  /**
+   * OK
+   */
+  200: PaginatedResponseOfServiceResponse;
+};
+
+export type ListServicesResponse = ListServicesResponses[keyof ListServicesResponses];
+
+export type GetServiceData = {
+  body?: never;
+  path: {
+    /**
+     * The service id.
+     */
+    serviceId: string;
+  };
+  query?: {
+    /**
+     * Window the summary metrics and history cover: 1h, 24h or 7d.
+     */
+    window?: string;
+    /**
+     * History bucket size: 5m, 1h or 1d.
+     */
+    interval?: string;
+  };
+  url: '/v2/services/{serviceId}';
+};
+
+export type GetServiceErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetServiceError = GetServiceErrors[keyof GetServiceErrors];
+
+export type GetServiceResponses = {
+  /**
+   * OK
+   */
+  200: ServiceResponse;
+};
+
+export type GetServiceResponse = GetServiceResponses[keyof GetServiceResponses];
 
 export type GetStreamingBlobData = {
   body?: never;
