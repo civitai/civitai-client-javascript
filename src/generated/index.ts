@@ -782,6 +782,7 @@ export {
   type MeshyTextTo3dFalPolyGenInput,
   Metric3dBackbone,
   type MetricsResponse,
+  type MiniMaxH3VideoGenInput,
   type MiniMaxVideoGenInput,
   MiniMaxVideoGenModel,
   type MochiVideoGenInput,

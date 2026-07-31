@@ -5337,6 +5337,25 @@ export type MetricsResponse = {
   latencySeconds?: PercentilesResponse;
 };
 
+export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  aspectRatio: 'adaptive' | '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  duration: number;
+  resolution: '2K';
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  firstFrameImage?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  lastFrameImage?: null | string;
+  referenceImages?: Array<string>;
+  referenceVideos?: Array<string>;
+  referenceAudios?: Array<string>;
+  watermark?: boolean;
+  engine: 'minimax-h3';
+};
+
 export type MiniMaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   model?: MiniMaxVideoGenModel;
   enablePromptEnhancer?: boolean;

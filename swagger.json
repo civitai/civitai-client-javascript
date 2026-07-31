@@ -22822,6 +22822,94 @@
         },
         "additionalProperties": false
       },
+      "MiniMaxH3VideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "aspectRatio",
+              "duration",
+              "engine",
+              "resolution"
+            ],
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "adaptive",
+                  "21:9",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string"
+              },
+              "duration": {
+                "maximum": 15,
+                "minimum": 5,
+                "type": "integer",
+                "format": "int32"
+              },
+              "resolution": {
+                "enum": [
+                  "2K"
+                ],
+                "type": "string"
+              },
+              "firstFrameImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "lastFrameImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "referenceImages": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "referenceVideos": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "referenceAudios": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "watermark": {
+                "type": "boolean",
+                "default": false
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "MiniMaxVideoGenInput": {
         "allOf": [
           {
@@ -31214,7 +31302,8 @@
             "kling-v3": "#/components/schemas/KlingV3VideoGenInput",
             "grok": "#/components/schemas/GrokVideoGenInput",
             "seedance": "#/components/schemas/SeedanceVideoGenInput",
-            "happyHorse": "#/components/schemas/HappyHorseVideoGenInput"
+            "happyHorse": "#/components/schemas/HappyHorseVideoGenInput",
+            "minimax-h3": "#/components/schemas/MiniMaxH3VideoGenInput"
           }
         }
       },
