@@ -3776,10 +3776,11 @@ export type GrokEditImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operatio
  * Input video is resized to max 854x480 and truncated to 8 seconds.
  * Uses FFProbe to analyze input video duration for accurate costing.
  */
-export type GrokEditVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operation'> & {
+export type GrokEditVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' | 'operation'> & {
   videoUrl: string;
   analyzedDuration?: null | number;
   operation: 'edit-video';
+  version: 'v1.0';
   engine: 'grok';
 };
 
@@ -3794,10 +3795,14 @@ export type GrokImageGenInput = Omit<ImageGenInput, 'engine'> & {
  * Grok Image-to-Video
  * FAL Endpoint: xai/grok-imagine-video/image-to-video
  */
-export type GrokImageToVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operation'> & {
+export type GrokImageToVideoInput = Omit<
+  GrokV1VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
   aspectRatio?: 'auto' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
   images?: [string];
   operation: 'image-to-video';
+  version: 'v1.0';
   engine: 'grok';
 };
 
@@ -3805,20 +3810,96 @@ export type GrokImageToVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operatio
  * Grok Text-to-Video
  * FAL Endpoint: xai/grok-imagine-video/text-to-video
  */
-export type GrokTextToVideoInput = Omit<GrokVideoGenInput, 'engine' | 'operation'> & {
+export type GrokTextToVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' | 'operation'> & {
   aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
   operation: 'text-to-video';
+  version: 'v1.0';
   engine: 'grok';
 };
 
 /**
- * Base class for Grok video generation (xAI's Grok-Imagine-Video model via FAL).
+ * Version-level base for Grok v1.0.
  * Discriminator: operation (text-to-video, image-to-video, edit-video)
  */
-export type GrokVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+export type GrokV1VideoGenInput = Omit<GrokVideoGenInput, 'engine' | 'version'> & {
   operation: null | string;
   duration?: number;
   resolution?: '480p' | '720p';
+  version: 'v1.0';
+  engine: 'grok';
+};
+
+/**
+ * Grok v1.5 Image-to-Video. Animates a single source image; the aspect ratio follows the image.
+ * FAL Endpoint: xai/grok-imagine-video/v1.5/image-to-video
+ */
+export type GrokV15ImageToVideoInput = Omit<
+  GrokV15VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  duration?: number;
+  resolution?: '480p' | '720p' | '1080p';
+  images?: [string];
+  operation: 'imageToVideo';
+  version: 'v1.5';
+  engine: 'grok';
+};
+
+/**
+ * Grok v1.5 Reference-to-Video. Generates a video guided by 1–7 reference images;
+ * reference them in the prompt as <IMAGE_0> through <IMAGE_6>.
+ * FAL Endpoint: xai/grok-imagine-video/v1.5/reference-to-video
+ */
+export type GrokV15ReferenceToVideoInput = Omit<
+  GrokV15VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  duration?: number;
+  resolution?: '480p' | '720p';
+  aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
+  /**
+   * 1–7 reference images guiding style and content; tag them in the prompt as <IMAGE_0>, <IMAGE_1>, etc.
+   */
+  images: Array<string>;
+  operation: 'referenceToVideo';
+  version: 'v1.5';
+  engine: 'grok';
+};
+
+/**
+ * Grok v1.5 Text-to-Video
+ * FAL Endpoint: xai/grok-imagine-video/v1.5/text-to-video
+ */
+export type GrokV15TextToVideoInput = Omit<
+  GrokV15VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  duration?: number;
+  resolution?: '480p' | '720p' | '1080p';
+  aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
+  operation: 'textToVideo';
+  version: 'v1.5';
+  engine: 'grok';
+};
+
+/**
+ * Version-level base for Grok v1.5 (Grok Imagine 1.5).
+ * Discriminator: operation (textToVideo, imageToVideo, referenceToVideo)
+ * FAL Endpoints: xai/grok-imagine-video/v1.5/{operation}
+ */
+export type GrokV15VideoGenInput = Omit<GrokVideoGenInput, 'engine' | 'version'> & {
+  operation: null | string;
+  version: 'v1.5';
+  engine: 'grok';
+};
+
+/**
+ * Engine-level base for Grok video generation (xAI's Grok-Imagine-Video model via FAL).
+ * The version derived type carries the operation-level discriminator.
+ * Payloads without a version deserialize as v1.0.
+ */
+export type GrokVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  version: null | string;
   engine: 'grok';
 };
 
@@ -5353,6 +5434,12 @@ export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   referenceVideos?: Array<string>;
   referenceAudios?: Array<string>;
   watermark?: boolean;
+  /**
+   * Measured total duration of Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.MiniMaxH3VideoGenInput.ReferenceVideos, filled in during initialization.
+   * MiniMax bills uploaded reference video at the same per-second rate as output, so this has to
+   * be known before the estimate is charged.
+   */
+  referenceVideoSeconds?: number;
   engine: 'minimax-h3';
 };
 
@@ -9446,6 +9533,12 @@ export type XGuardModerationInput = {
    * Leaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.
    */
   storeFullResponse: boolean;
+  /**
+   * When true, the model generates an explanation after its verdict token, populating
+   * XGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget and a
+   * distinct blob-cache key, so results never reuse cached verdict-only blobs.
+   */
+  includeReasoning: boolean;
 };
 
 export type XGuardModerationOutput = {

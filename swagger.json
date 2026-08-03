@@ -18531,12 +18531,13 @@
       "GrokEditVideoInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/GrokVideoGenInput"
+            "$ref": "#/components/schemas/GrokV1VideoGenInput"
           },
           {
             "required": [
               "engine",
               "operation",
+              "version",
               "videoUrl"
             ],
             "type": "object",
@@ -18555,6 +18556,12 @@
               "operation": {
                 "enum": [
                   "edit-video"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
                 ],
                 "type": "string"
               },
@@ -18617,12 +18624,13 @@
       "GrokImageToVideoInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/GrokVideoGenInput"
+            "$ref": "#/components/schemas/GrokV1VideoGenInput"
           },
           {
             "required": [
               "engine",
-              "operation"
+              "operation",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -18655,6 +18663,12 @@
                 ],
                 "type": "string"
               },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
               "engine": {
                 "enum": [
                   "grok"
@@ -18670,12 +18684,13 @@
       "GrokTextToVideoInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/GrokVideoGenInput"
+            "$ref": "#/components/schemas/GrokV1VideoGenInput"
           },
           {
             "required": [
               "engine",
-              "operation"
+              "operation",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -18698,6 +18713,12 @@
                 ],
                 "type": "string"
               },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
               "engine": {
                 "enum": [
                   "grok"
@@ -18710,15 +18731,16 @@
         ],
         "description": "Grok Text-to-Video\nFAL Endpoint: xai/grok-imagine-video/text-to-video"
       },
-      "GrokVideoGenInput": {
+      "GrokV1VideoGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/VideoGenInput"
+            "$ref": "#/components/schemas/GrokVideoGenInput"
           },
           {
             "required": [
               "engine",
-              "operation"
+              "operation",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -18744,6 +18766,12 @@
                 "type": "string",
                 "default": "720p"
               },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
               "engine": {
                 "enum": [
                   "grok"
@@ -18762,7 +18790,293 @@
             }
           }
         ],
-        "description": "Base class for Grok video generation (xAI's Grok-Imagine-Video model via FAL).\nDiscriminator: operation (text-to-video, image-to-video, edit-video)"
+        "description": "Version-level base for Grok v1.0.\nDiscriminator: operation (text-to-video, image-to-video, edit-video)"
+      },
+      "GrokV1_5ImageToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokV1_5VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 15,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 6
+              },
+              "resolution": {
+                "enum": [
+                  "480p",
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "images": {
+                "maxItems": 1,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "imageToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.5"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Grok v1.5 Image-to-Video. Animates a single source image; the aspect ratio follows the image.\nFAL Endpoint: xai/grok-imagine-video/v1.5/image-to-video"
+      },
+      "GrokV1_5ReferenceToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokV1_5VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 15,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 8
+              },
+              "resolution": {
+                "enum": [
+                  "480p",
+                  "720p"
+                ],
+                "type": "string",
+                "default": "480p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "4:3",
+                  "3:2",
+                  "1:1",
+                  "2:3",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                },
+                "description": "1–7 reference images guiding style and content; tag them in the prompt as <IMAGE_0>, <IMAGE_1>, etc."
+              },
+              "operation": {
+                "enum": [
+                  "referenceToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.5"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Grok v1.5 Reference-to-Video. Generates a video guided by 1–7 reference images;\nreference them in the prompt as <IMAGE_0> through <IMAGE_6>.\nFAL Endpoint: xai/grok-imagine-video/v1.5/reference-to-video"
+      },
+      "GrokV1_5TextToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokV1_5VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 15,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 6
+              },
+              "resolution": {
+                "enum": [
+                  "480p",
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "16:9",
+                  "4:3",
+                  "3:2",
+                  "1:1",
+                  "2:3",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "operation": {
+                "enum": [
+                  "textToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.5"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Grok v1.5 Text-to-Video\nFAL Endpoint: xai/grok-imagine-video/v1.5/text-to-video"
+      },
+      "GrokV1_5VideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "textToVideo"
+              },
+              "version": {
+                "enum": [
+                  "v1.5"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textToVideo": "#/components/schemas/GrokV1_5TextToVideoInput",
+                "imageToVideo": "#/components/schemas/GrokV1_5ImageToVideoInput",
+                "referenceToVideo": "#/components/schemas/GrokV1_5ReferenceToVideoInput"
+              }
+            }
+          }
+        ],
+        "description": "Version-level base for Grok v1.5 (Grok Imagine 1.5).\nDiscriminator: operation (textToVideo, imageToVideo, referenceToVideo)\nFAL Endpoints: xai/grok-imagine-video/v1.5/{operation}"
+      },
+      "GrokVideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "v1.0"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "version",
+              "mapping": {
+                "v1.0": "#/components/schemas/GrokV1VideoGenInput",
+                "v1.5": "#/components/schemas/GrokV1_5VideoGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Engine-level base for Grok video generation (xAI's Grok-Imagine-Video model via FAL).\nThe version derived type carries the operation-level discriminator.\nPayloads without a version deserialize as v1.0."
       },
       "HaiperVideoGenAspectRatio": {
         "enum": [
@@ -22898,6 +23212,11 @@
               "watermark": {
                 "type": "boolean",
                 "default": false
+              },
+              "referenceVideoSeconds": {
+                "type": "integer",
+                "description": "Measured total duration of Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.MiniMaxH3VideoGenInput.ReferenceVideos, filled in during initialization.\nMiniMax bills uploaded reference video at the same per-second rate as output, so this has to\nbe known before the estimate is charged.",
+                "format": "int32"
               },
               "engine": {
                 "enum": [
@@ -35759,6 +36078,7 @@
       },
       "XGuardModerationInput": {
         "required": [
+          "includeReasoning",
           "mode",
           "storeFullResponse"
         ],
@@ -35790,6 +36110,10 @@
           "storeFullResponse": {
             "type": "boolean",
             "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic."
+          },
+          "includeReasoning": {
+            "type": "boolean",
+            "description": "When true, the model generates an explanation after its verdict token, populating\nXGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget and a\ndistinct blob-cache key, so results never reuse cached verdict-only blobs."
           }
         },
         "additionalProperties": false,
