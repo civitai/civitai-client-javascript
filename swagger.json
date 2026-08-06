@@ -6818,7 +6818,8 @@
                 "anima": "#/components/schemas/AnimaAIToolkitTrainingInput",
                 "boogu": "#/components/schemas/BooguAIToolkitTrainingInput",
                 "krea2": "#/components/schemas/Krea2AIToolkitTrainingInput",
-                "mageflow": "#/components/schemas/MageFlowAIToolkitTrainingInput"
+                "mageflow": "#/components/schemas/MageFlowAIToolkitTrainingInput",
+                "minimaxh3": "#/components/schemas/MiniMaxH3AIToolkitTrainingInput"
               }
             }
           }
@@ -8651,6 +8652,138 @@
           }
         ],
         "description": "Applies a Gaussian blur with optional region-based masking."
+      },
+      "BodyAgeClassificationResult": {
+        "required": [
+          "detections"
+        ],
+        "type": "object",
+        "properties": {
+          "detections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BodyAgeDetection"
+            }
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ran": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "childDetected": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "minorDetected": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "oodDetected": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents body-only apparent-age and child-risk results for media content.\nThe model is an additional risk signal, not a verified chronological-age claim."
+      },
+      "BodyAgeDetection": {
+        "required": [
+          "ageBand",
+          "apparentAge",
+          "boundingBox",
+          "headGeometrySource",
+          "isChild",
+          "isMinor",
+          "isOod",
+          "oodProbability",
+          "personDetected",
+          "personDetectionConfidence",
+          "under13Probability",
+          "under13ViewProbabilities",
+          "under18Probability"
+        ],
+        "type": "object",
+        "properties": {
+          "boundingBox": {
+            "$ref": "#/components/schemas/BoundingBox"
+          },
+          "personDetected": {
+            "type": "boolean"
+          },
+          "personDetectionConfidence": {
+            "type": "number",
+            "format": "double"
+          },
+          "faceBoundingBox": {
+            "$ref": "#/components/schemas/BoundingBox"
+          },
+          "faceDetectionConfidence": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "headGeometrySource": {
+            "type": "string"
+          },
+          "apparentAge": {
+            "type": "number",
+            "format": "double"
+          },
+          "ageBand": {
+            "type": "string"
+          },
+          "under13Probability": {
+            "type": "number",
+            "format": "double"
+          },
+          "under18Probability": {
+            "type": "number",
+            "format": "double"
+          },
+          "oodProbability": {
+            "type": "number",
+            "format": "double"
+          },
+          "under13ViewProbabilities": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "isChild": {
+            "type": "boolean"
+          },
+          "isMinor": {
+            "type": "boolean"
+          },
+          "isOod": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents one body-only age estimate for a detected person."
       },
       "BooguAIToolkitTrainingInput": {
         "allOf": [
@@ -11811,7 +11944,8 @@
               "propertyName": "ecosystem",
               "mapping": {
                 "starvector": "#/components/schemas/StarVectorImageToSvgInput",
-                "omnisvg": "#/components/schemas/OmniSvgImageToSvgInput"
+                "omnisvg": "#/components/schemas/OmniSvgImageToSvgInput",
+                "vtracer": "#/components/schemas/VTracerImageToSvgInput"
               }
             }
           }
@@ -11855,6 +11989,181 @@
         },
         "additionalProperties": false
       },
+      "ComfyKrea2EditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyKrea2ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 10
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "model": {
+                "enum": [
+                  "edit"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "krea2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "editImage": "#/components/schemas/ComfyKrea2EditImageInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyKrea2EditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyKrea2EditImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "images": {
+                "maxItems": 2,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "edit"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "krea2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "ComfyKrea2ImageGenInput": {
         "allOf": [
           {
@@ -11889,7 +12198,8 @@
               "propertyName": "model",
               "mapping": {
                 "raw": "#/components/schemas/ComfyKrea2RawImageGenInput",
-                "turbo": "#/components/schemas/ComfyKrea2TurboImageGenInput"
+                "turbo": "#/components/schemas/ComfyKrea2TurboImageGenInput",
+                "edit": "#/components/schemas/ComfyKrea2EditImageGenInput"
               }
             }
           }
@@ -13946,6 +14256,168 @@
             }
           }
         ]
+      },
+      "ComfyMiniMaxH3ImageToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMiniMaxH3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "firstFrame": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "lastFrame": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "operation": {
+                "enum": [
+                  "imageToVideo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Text-to-video or first/last-frame video using the FL2VA weights."
+      },
+      "ComfyMiniMaxH3ReferenceToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMiniMaxH3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 9,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "referenceToVideo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Reference-image-to-video using the REF2VA weights."
+      },
+      "ComfyMiniMaxH3VideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "imageToVideo"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "duration": {
+                "maximum": 15,
+                "minimum": 5,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              },
+              "width": {
+                "maximum": 1344,
+                "minimum": 32,
+                "type": "integer",
+                "format": "int32",
+                "default": 864
+              },
+              "height": {
+                "maximum": 1344,
+                "minimum": 32,
+                "type": "integer",
+                "format": "int32",
+                "default": 480
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "fast": {
+                "type": "boolean",
+                "description": "Enables EasyCache with its default configuration.",
+                "default": false
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "imageToVideo": "#/components/schemas/ComfyMiniMaxH3ImageToVideoInput",
+                "referenceToVideo": "#/components/schemas/ComfyMiniMaxH3ReferenceToVideoInput"
+              }
+            }
+          }
+        ],
+        "description": "MiniMax H3 generation through the local ComfyUI backend."
       },
       "ComfyNode": {
         "required": [
@@ -18182,6 +18654,580 @@
             }
           }
         ]
+      },
+      "Flux3Keyframe": {
+        "required": [
+          "frameIndex",
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "Either A URL, A DataURL or a Base64 string"
+          },
+          "frameIndex": {
+            "maximum": 480,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Frame position of this keyframe in the generated 24 fps video. Must be unique across the\nkeyframes and no greater than the duration in seconds × 24.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "An image pinned to a frame position in the generated video."
+      },
+      "Flux3V3DraftEnhanceInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3V3VideoGenInput"
+          },
+          {
+            "required": [
+              "draftCache",
+              "duration",
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "draftCache": {
+                "type": "string",
+                "description": "URL of the draft cache produced by a draft generation — pass the draftCache url from that\nstep's output. Read the workflow again to mint a fresh url if it has expired.",
+                "format": "uri"
+              },
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Duration in seconds of the draft being enhanced. The enhanced render bills per second at that length.",
+                "format": "int32"
+              },
+              "operation": {
+                "enum": [
+                  "draftEnhance"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Re-render a previously generated draft at full-quality 1080p with audio."
+      },
+      "Flux3V3ExtendVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3V3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "sourceVideo",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Duration of the generated video in seconds.",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "description": "Aspect ratio of the generated video. \"auto\" lets the model choose.",
+                "default": "auto"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "description": "Whether to generate a synchronized audio track for the video.",
+                "default": true
+              },
+              "draft": {
+                "type": "boolean",
+                "description": "Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally\ncarry a draft cache that a later draftEnhance operation re-renders at full quality.",
+                "default": false
+              },
+              "sourceVideo": {
+                "type": "string",
+                "description": "URL of the source video to continue from. MP4, under 50 MB and under 15 seconds.",
+                "format": "uri"
+              },
+              "operation": {
+                "enum": [
+                  "extendVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Continue an existing video from its final frames."
+      },
+      "Flux3V3FirstLastFrameToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3V3VideoGenInput"
+          },
+          {
+            "required": [
+              "endImage",
+              "engine",
+              "operation",
+              "startImage",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Duration of the generated video in seconds.",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "description": "Aspect ratio of the generated video. \"auto\" lets the model choose.",
+                "default": "auto"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "description": "Whether to generate a synchronized audio track for the video.",
+                "default": true
+              },
+              "draft": {
+                "type": "boolean",
+                "description": "Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally\ncarry a draft cache that a later draftEnhance operation re-renders at full quality.",
+                "default": false
+              },
+              "startImage": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "endImage": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "operation": {
+                "enum": [
+                  "firstLastFrameToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a video that starts on one image and ends on another."
+      },
+      "Flux3V3ImageToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3V3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "image",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Duration of the generated video in seconds.",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "description": "Aspect ratio of the generated video. \"auto\" lets the model choose.",
+                "default": "auto"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "description": "Whether to generate a synchronized audio track for the video.",
+                "default": true
+              },
+              "draft": {
+                "type": "boolean",
+                "description": "Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally\ncarry a draft cache that a later draftEnhance operation re-renders at full quality.",
+                "default": false
+              },
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string"
+              },
+              "operation": {
+                "enum": [
+                  "imageToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Animate a single source image (used as the first frame) into a video."
+      },
+      "Flux3V3KeyframesToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3V3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "keyframes",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Duration of the generated video in seconds.",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "description": "Aspect ratio of the generated video. \"auto\" lets the model choose.",
+                "default": "auto"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "description": "Whether to generate a synchronized audio track for the video.",
+                "default": true
+              },
+              "draft": {
+                "type": "boolean",
+                "description": "Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally\ncarry a draft cache that a later draftEnhance operation re-renders at full quality.",
+                "default": false
+              },
+              "keyframes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Flux3Keyframe"
+                },
+                "description": "Up to 10 keyframes with unique frame positions."
+              },
+              "operation": {
+                "enum": [
+                  "keyframesToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a video that passes through a set of images pinned to specific frame positions."
+      },
+      "Flux3V3TextToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3V3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Duration of the generated video in seconds.",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "description": "Aspect ratio of the generated video. \"auto\" lets the model choose.",
+                "default": "auto"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "description": "Whether to generate a synchronized audio track for the video.",
+                "default": true
+              },
+              "draft": {
+                "type": "boolean",
+                "description": "Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally\ncarry a draft cache that a later draftEnhance operation re-renders at full quality.",
+                "default": false
+              },
+              "operation": {
+                "enum": [
+                  "textToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a video from a text prompt only."
+      },
+      "Flux3V3VideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textToVideo": "#/components/schemas/Flux3V3TextToVideoInput",
+                "imageToVideo": "#/components/schemas/Flux3V3ImageToVideoInput",
+                "firstLastFrameToVideo": "#/components/schemas/Flux3V3FirstLastFrameToVideoInput",
+                "keyframesToVideo": "#/components/schemas/Flux3V3KeyframesToVideoInput",
+                "extendVideo": "#/components/schemas/Flux3V3ExtendVideoInput",
+                "draftEnhance": "#/components/schemas/Flux3V3DraftEnhanceInput"
+              }
+            }
+          }
+        ],
+        "description": "Version-level base for FLUX-3. Carries the operation discriminator and the shared pricing table."
+      },
+      "Flux3VideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "v3.0"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "version",
+              "mapping": {
+                "v3.0": "#/components/schemas/Flux3V3VideoGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Engine-level base for Black Forest Labs FLUX-3 video generation (FAL).\nThe version derived type carries the operation-level discriminator."
       },
       "FluxDevFastImageResourceTrainingInput": {
         "allOf": [
@@ -22659,7 +23705,8 @@
       },
       "MediaHashType": {
         "enum": [
-          "perceptual"
+          "perceptual",
+          "perceptualDct"
         ],
         "type": "string",
         "description": "Represents the type of hash algorithm to use for media content."
@@ -22711,6 +23758,7 @@
           "includeAgeClassification",
           "includeAIRecognition",
           "includeAnimeRecognition",
+          "includeBodyAgeClassification",
           "includeFaceRecognition",
           "includeHumanRecognition"
         ],
@@ -22742,6 +23790,10 @@
           "includeHumanRecognition": {
             "type": "boolean",
             "description": "Include human vs non-human detection in the results"
+          },
+          "includeBodyAgeClassification": {
+            "type": "boolean",
+            "description": "Include body-only apparent-age and child-risk classification in the results."
           }
         },
         "additionalProperties": false,
@@ -22800,6 +23852,9 @@
           },
           "humanRecognition": {
             "$ref": "#/components/schemas/HumanRecognitionResult"
+          },
+          "bodyAgeClassification": {
+            "$ref": "#/components/schemas/BodyAgeClassificationResult"
           }
         },
         "additionalProperties": false,
@@ -23135,6 +24190,58 @@
           }
         },
         "additionalProperties": false
+      },
+      "MiniMaxH3AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine",
+              "storageBuzzPerEpoch"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "storageBuzzPerEpoch": {
+                "type": "number",
+                "format": "double",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "minimaxh3"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for the MiniMax H3 base (FL2VA) model."
       },
       "MiniMaxH3VideoGenInput": {
         "allOf": [
@@ -30994,6 +32101,108 @@
         ],
         "description": "A user message that can contain text and/or images."
       },
+      "VTracerImageToSvgInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageToSvgInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "hierarchical": {
+                "enum": [
+                  "stacked",
+                  "cutout"
+                ],
+                "type": "string",
+                "default": "stacked"
+              },
+              "mode": {
+                "enum": [
+                  "spline",
+                  "polygon",
+                  "none"
+                ],
+                "type": "string",
+                "default": "spline"
+              },
+              "filterSpeckle": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 8
+              },
+              "colorPrecision": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 6
+              },
+              "layerDifference": {
+                "maximum": 256,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 24
+              },
+              "cornerThreshold": {
+                "maximum": 180,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 65
+              },
+              "lengthThreshold": {
+                "maximum": 10,
+                "minimum": 3.5,
+                "type": "number",
+                "format": "double",
+                "default": 5
+              },
+              "maxIterations": {
+                "maximum": 70,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 10
+              },
+              "spliceThreshold": {
+                "maximum": 180,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 50
+              },
+              "pathPrecision": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 2
+              },
+              "ecosystem": {
+                "enum": [
+                  "vtracer"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "ValidationProblemDetails": {
         "required": [
           "errors"
@@ -31622,7 +32831,9 @@
             "grok": "#/components/schemas/GrokVideoGenInput",
             "seedance": "#/components/schemas/SeedanceVideoGenInput",
             "happyHorse": "#/components/schemas/HappyHorseVideoGenInput",
-            "minimax-h3": "#/components/schemas/MiniMaxH3VideoGenInput"
+            "minimax-h3": "#/components/schemas/MiniMaxH3VideoGenInput",
+            "minimax-h3-comfy": "#/components/schemas/ComfyMiniMaxH3VideoGenInput",
+            "flux": "#/components/schemas/Flux3VideoGenInput"
           }
         }
       },
@@ -31659,6 +32870,9 @@
               "$ref": "#/components/schemas/VideoBlob"
             },
             "description": "Extra videos produced by the step when Quantity > 1. Always null/empty for single-output\nengines; populated alongside Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.VideoGenOutput.Video (the primary slot) by engines that batch\nmultiple videos in a single job (e.g. LTX 2.3)."
+          },
+          "draftCache": {
+            "$ref": "#/components/schemas/Blob"
           }
         },
         "additionalProperties": false
@@ -36109,11 +37323,11 @@
           },
           "storeFullResponse": {
             "type": "boolean",
-            "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic."
+            "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.\nThis is NOT the reasoning switch — use IncludeReasoning for ModelReason. On its own it\nmerely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets\n~600 chars of explanation slip out before a finishReason=length cutoff."
           },
           "includeReasoning": {
             "type": "boolean",
-            "description": "When true, the model generates an explanation after its verdict token, populating\nXGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget and a\ndistinct blob-cache key, so results never reuse cached verdict-only blobs."
+            "description": "When true, the model generates an explanation after its verdict token, populating\nXGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 —\nlong explanations can still end at finishReason=length) and a distinct blob-cache\nkey, so results never reuse cached verdict-only blobs."
           }
         },
         "additionalProperties": false,

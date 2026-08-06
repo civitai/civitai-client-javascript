@@ -926,6 +926,41 @@ export type BlurTransform = Omit<ImageTransform, 'type'> & {
 };
 
 /**
+ * Represents body-only apparent-age and child-risk results for media content.
+ * The model is an additional risk signal, not a verified chronological-age claim.
+ */
+export type BodyAgeClassificationResult = {
+  detections: Array<BodyAgeDetection>;
+  status?: null | string;
+  ran?: null | boolean;
+  childDetected?: null | boolean;
+  minorDetected?: null | boolean;
+  oodDetected?: null | boolean;
+  error?: null | string;
+};
+
+/**
+ * Represents one body-only age estimate for a detected person.
+ */
+export type BodyAgeDetection = {
+  boundingBox: BoundingBox;
+  personDetected: boolean;
+  personDetectionConfidence: number;
+  faceBoundingBox?: BoundingBox;
+  faceDetectionConfidence?: null | number;
+  headGeometrySource: string;
+  apparentAge: number;
+  ageBand: string;
+  under13Probability: number;
+  under18Probability: number;
+  oodProbability: number;
+  under13ViewProbabilities: Array<number>;
+  isChild: boolean;
+  isMinor: boolean;
+  isOod: boolean;
+};
+
+/**
  * AI Toolkit training for Boogu Image models.
  */
 export type BooguAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
@@ -1800,6 +1835,41 @@ export type ComfyInput = {
   useSpineComfy?: null | boolean;
 };
 
+export type ComfyKrea2EditImageGenInput = Omit<
+  ComfyKrea2ImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: 'edit';
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
+export type ComfyKrea2EditImageInput = Omit<
+  ComfyKrea2EditImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'edit';
+  ecosystem: 'krea2';
+  engine: 'comfy';
+};
+
 export type ComfyKrea2ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
   ecosystem: 'krea2';
@@ -2274,6 +2344,54 @@ export type ComfyMageFlowImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ec
   quantity: number;
   ecosystem: 'mageflow';
   engine: 'comfy';
+};
+
+/**
+ * Text-to-video or first/last-frame video using the FL2VA weights.
+ */
+export type ComfyMiniMaxH3ImageToVideoInput = Omit<
+  ComfyMiniMaxH3VideoGenInput,
+  'engine' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  firstFrame?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  lastFrame?: null | string;
+  operation: 'imageToVideo';
+  engine: 'minimax-h3-comfy';
+};
+
+/**
+ * Reference-image-to-video using the REF2VA weights.
+ */
+export type ComfyMiniMaxH3ReferenceToVideoInput = Omit<
+  ComfyMiniMaxH3VideoGenInput,
+  'engine' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'referenceToVideo';
+  engine: 'minimax-h3-comfy';
+};
+
+/**
+ * MiniMax H3 generation through the local ComfyUI backend.
+ */
+export type ComfyMiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation: null | string;
+  seed?: null | number;
+  duration?: number;
+  width?: number;
+  height?: number;
+  steps?: number;
+  /**
+   * Enables EasyCache with its default configuration.
+   */
+  fast?: boolean;
+  engine: 'minimax-h3-comfy';
 };
 
 export type ComfyNode = {
@@ -3686,6 +3804,230 @@ export type Flux2ProImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'>
   operation: string;
   model: 'pro';
   engine: 'flux2';
+};
+
+/**
+ * An image pinned to a frame position in the generated video.
+ */
+export type Flux3Keyframe = {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  /**
+   * Frame position of this keyframe in the generated 24 fps video. Must be unique across the
+   * keyframes and no greater than the duration in seconds × 24.
+   */
+  frameIndex: number;
+};
+
+/**
+ * Re-render a previously generated draft at full-quality 1080p with audio.
+ */
+export type Flux3V3DraftEnhanceInput = Omit<
+  Flux3V3VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * URL of the draft cache produced by a draft generation — pass the draftCache url from that
+   * step's output. Read the workflow again to mint a fresh url if it has expired.
+   */
+  draftCache: string;
+  /**
+   * Duration in seconds of the draft being enhanced. The enhanced render bills per second at that length.
+   */
+  duration: number;
+  operation: 'draftEnhance';
+  version: 'v3.0';
+  engine: 'flux';
+};
+
+/**
+ * Continue an existing video from its final frames.
+ */
+export type Flux3V3ExtendVideoInput = Omit<
+  Flux3V3VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Duration of the generated video in seconds.
+   */
+  duration?: number;
+  resolution?: '720p' | '1080p';
+  /**
+   * Aspect ratio of the generated video. "auto" lets the model choose.
+   */
+  aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  /**
+   * Whether to generate a synchronized audio track for the video.
+   */
+  generateAudio?: boolean;
+  /**
+   * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
+   * carry a draft cache that a later draftEnhance operation re-renders at full quality.
+   */
+  draft?: boolean;
+  /**
+   * URL of the source video to continue from. MP4, under 50 MB and under 15 seconds.
+   */
+  sourceVideo: string;
+  operation: 'extendVideo';
+  version: 'v3.0';
+  engine: 'flux';
+};
+
+/**
+ * Generate a video that starts on one image and ends on another.
+ */
+export type Flux3V3FirstLastFrameToVideoInput = Omit<
+  Flux3V3VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Duration of the generated video in seconds.
+   */
+  duration?: number;
+  resolution?: '720p' | '1080p';
+  /**
+   * Aspect ratio of the generated video. "auto" lets the model choose.
+   */
+  aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  /**
+   * Whether to generate a synchronized audio track for the video.
+   */
+  generateAudio?: boolean;
+  /**
+   * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
+   * carry a draft cache that a later draftEnhance operation re-renders at full quality.
+   */
+  draft?: boolean;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  startImage: string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  endImage: string;
+  operation: 'firstLastFrameToVideo';
+  version: 'v3.0';
+  engine: 'flux';
+};
+
+/**
+ * Animate a single source image (used as the first frame) into a video.
+ */
+export type Flux3V3ImageToVideoInput = Omit<
+  Flux3V3VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Duration of the generated video in seconds.
+   */
+  duration?: number;
+  resolution?: '720p' | '1080p';
+  /**
+   * Aspect ratio of the generated video. "auto" lets the model choose.
+   */
+  aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  /**
+   * Whether to generate a synchronized audio track for the video.
+   */
+  generateAudio?: boolean;
+  /**
+   * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
+   * carry a draft cache that a later draftEnhance operation re-renders at full quality.
+   */
+  draft?: boolean;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  operation: 'imageToVideo';
+  version: 'v3.0';
+  engine: 'flux';
+};
+
+/**
+ * Generate a video that passes through a set of images pinned to specific frame positions.
+ */
+export type Flux3V3KeyframesToVideoInput = Omit<
+  Flux3V3VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Duration of the generated video in seconds.
+   */
+  duration?: number;
+  resolution?: '720p' | '1080p';
+  /**
+   * Aspect ratio of the generated video. "auto" lets the model choose.
+   */
+  aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  /**
+   * Whether to generate a synchronized audio track for the video.
+   */
+  generateAudio?: boolean;
+  /**
+   * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
+   * carry a draft cache that a later draftEnhance operation re-renders at full quality.
+   */
+  draft?: boolean;
+  /**
+   * Up to 10 keyframes with unique frame positions.
+   */
+  keyframes: Array<Flux3Keyframe>;
+  operation: 'keyframesToVideo';
+  version: 'v3.0';
+  engine: 'flux';
+};
+
+/**
+ * Generate a video from a text prompt only.
+ */
+export type Flux3V3TextToVideoInput = Omit<
+  Flux3V3VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Duration of the generated video in seconds.
+   */
+  duration?: number;
+  resolution?: '720p' | '1080p';
+  /**
+   * Aspect ratio of the generated video. "auto" lets the model choose.
+   */
+  aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  /**
+   * Whether to generate a synchronized audio track for the video.
+   */
+  generateAudio?: boolean;
+  /**
+   * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
+   * carry a draft cache that a later draftEnhance operation re-renders at full quality.
+   */
+  draft?: boolean;
+  operation: 'textToVideo';
+  version: 'v3.0';
+  engine: 'flux';
+};
+
+/**
+ * Version-level base for FLUX-3. Carries the operation discriminator and the shared pricing table.
+ */
+export type Flux3V3VideoGenInput = Omit<Flux3VideoGenInput, 'engine' | 'version'> & {
+  operation: string;
+  version: 'v3.0';
+  engine: 'flux';
+};
+
+/**
+ * Engine-level base for Black Forest Labs FLUX-3 video generation (FAL).
+ * The version derived type carries the operation-level discriminator.
+ */
+export type Flux3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  version: null | string;
+  engine: 'flux';
 };
 
 export type FluxDevFastImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
@@ -5210,7 +5552,7 @@ export type MediaHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 /**
  * Represents the type of hash algorithm to use for media content.
  */
-export const MediaHashType = { PERCEPTUAL: 'perceptual' } as const;
+export const MediaHashType = { PERCEPTUAL: 'perceptual', PERCEPTUAL_DCT: 'perceptualDct' } as const;
 
 /**
  * Represents the type of hash algorithm to use for media content.
@@ -5283,6 +5625,10 @@ export type MediaRatingInput = {
    * Include human vs non-human detection in the results
    */
   includeHumanRecognition: boolean;
+  /**
+   * Include body-only apparent-age and child-risk classification in the results.
+   */
+  includeBodyAgeClassification: boolean;
 };
 
 /**
@@ -5312,6 +5658,7 @@ export type MediaRatingOutput = {
    */
   csam?: null | boolean;
   humanRecognition?: HumanRecognitionResult;
+  bodyAgeClassification?: BodyAgeClassificationResult;
 };
 
 /**
@@ -5416,6 +5763,23 @@ export type MetricsResponse = {
   userErrorRate: number;
   costBuzz?: PercentilesResponse;
   latencySeconds?: PercentilesResponse;
+};
+
+/**
+ * AI Toolkit training for the MiniMax H3 base (FL2VA) model.
+ */
+export type MiniMaxH3AiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  readonly defaultSteps: number;
+  readonly storageBuzzPerEpoch: number;
+  ecosystem: 'minimaxh3';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
@@ -7924,6 +8288,21 @@ export type UserMessage = Omit<ChatCompletionMessage, 'role'> & {
   role: 'user';
 };
 
+export type VTracerImageToSvgInput = Omit<ComfyImageToSvgInput, 'engine' | 'ecosystem'> & {
+  hierarchical?: 'stacked' | 'cutout';
+  mode?: 'spline' | 'polygon' | 'none';
+  filterSpeckle?: number;
+  colorPrecision?: number;
+  layerDifference?: number;
+  cornerThreshold?: number;
+  lengthThreshold?: number;
+  maxIterations?: number;
+  spliceThreshold?: number;
+  pathPrecision?: number;
+  ecosystem: 'vtracer';
+  engine: 'comfy';
+};
+
 export type ValidationProblemDetails = {
   type?: null | string;
   title?: null | string;
@@ -8143,6 +8522,7 @@ export type VideoGenOutput = {
    * multiple videos in a single job (e.g. LTX 2.3).
    */
   additionalVideos?: null | Array<VideoBlob>;
+  draftCache?: Blob;
 };
 
 /**
@@ -9531,12 +9911,16 @@ export type XGuardModerationInput = {
    * the trimmed version. Intended for one-off debugging of classification decisions
    * where the full logprobs distribution or generated token stream needs inspection.
    * Leaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.
+   * This is NOT the reasoning switch — use IncludeReasoning for ModelReason. On its own it
+   * merely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets
+   * ~600 chars of explanation slip out before a finishReason=length cutoff.
    */
   storeFullResponse: boolean;
   /**
    * When true, the model generates an explanation after its verdict token, populating
-   * XGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget and a
-   * distinct blob-cache key, so results never reuse cached verdict-only blobs.
+   * XGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 —
+   * long explanations can still end at finishReason=length) and a distinct blob-cache
+   * key, so results never reuse cached verdict-only blobs.
    */
   includeReasoning: boolean;
 };
@@ -10405,6 +10789,21 @@ export type MageFlowAiToolkitTrainingInputWritable = Omit<
   'engine' | 'ecosystem'
 > & {
   ecosystem: 'mageflow';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for the MiniMax H3 base (FL2VA) model.
+ */
+export type MiniMaxH3AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'minimaxh3';
   engine: 'ai-toolkit';
   /**
    * Training batch size. Fixed at 1 for this ecosystem.
