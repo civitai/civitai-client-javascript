@@ -7032,6 +7032,39 @@ export type QwenAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   batchSize?: null | number;
 };
 
+export type QwenApiCreateImageGenInput = Omit<QwenApiImageGenInput, 'engine' | 'operation'> & {
+  model?: '3.0-pro' | '2.0-pro' | '2.0' | 'max' | 'plus';
+  operation: 'createImage';
+  engine: 'qwen';
+};
+
+export type QwenApiEditImageGenInput = Omit<QwenApiImageGenInput, 'engine' | 'operation'> & {
+  model?: '3.0-pro' | '2.0-pro' | '2.0' | 'edit-max' | 'edit-plus' | 'edit';
+  /**
+   * Reference images. DashScope numbers them by input order — prompts refer to them as "Image 1", "Image 2", "Image 3".
+   */
+  images: Array<string>;
+  operation: 'editImage';
+  engine: 'qwen';
+};
+
+/**
+ * Qwen image models hosted by Alibaba Model Studio (DashScope). Distinct from the `sdcpp`/`qwen`
+ * ecosystem, which runs Qwen-Image 20B on our own workers.
+ */
+export type QwenApiImageGenInput = Omit<ImageGenInput, 'engine'> & {
+  operation: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  quantity?: number;
+  width: number;
+  height: number;
+  seed?: null | number;
+  promptExtend?: boolean;
+  watermark?: boolean;
+  engine: 'qwen';
+};
+
 /**
  * Input for evaluating generated images with Qwen-Image-Bench.
  */
@@ -7585,6 +7618,7 @@ export const SeedanceModel = {
   V2: 'v2',
   V2_FAST: 'v2-fast',
   V2_MINI: 'v2-mini',
+  V2_5: 'v2.5',
 } as const;
 
 export type SeedanceModel = (typeof SeedanceModel)[keyof typeof SeedanceModel];
@@ -7592,7 +7626,34 @@ export type SeedanceModel = (typeof SeedanceModel)[keyof typeof SeedanceModel];
 export type SeedanceVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   model?: SeedanceModel;
   aspectRatio: '16:9' | '9:16' | '1:1' | '4:3' | '3:4' | '21:9' | 'adaptive';
-  duration: 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+  duration:
+    | 4
+    | 5
+    | 6
+    | 7
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15
+    | 16
+    | 17
+    | 18
+    | 19
+    | 20
+    | 21
+    | 22
+    | 23
+    | 24
+    | 25
+    | 26
+    | 27
+    | 28
+    | 29
+    | 30;
   generateAudio?: boolean;
   seed?: null | number;
   resolution: '480p' | '720p' | '1080p';

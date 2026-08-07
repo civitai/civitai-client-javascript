@@ -236,7 +236,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -295,7 +295,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -338,7 +338,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -384,7 +384,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -4934,7 +4934,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/services/{serviceId}": {
@@ -5005,7 +5005,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -5049,7 +5049,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/workflows": {
@@ -5114,7 +5114,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -5142,7 +5142,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -5170,7 +5170,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -5186,7 +5186,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -5298,7 +5298,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -5325,7 +5325,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -5353,7 +5353,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -5381,7 +5381,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -5397,7 +5397,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -5509,7 +5509,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -5536,7 +5536,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -5564,7 +5564,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -5592,7 +5592,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -5608,7 +5608,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -5720,7 +5720,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -9225,7 +9225,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Extra kwargs passed to the chat template (for example custom policy inputs for vLLM chat templates)."
           },
           "tools": {
@@ -9279,7 +9279,7 @@
               "string"
             ]
           },
-          "schema": {},
+          "schema": { },
           "strict": {
             "type": [
               "null",
@@ -21465,7 +21465,8 @@
             "comfy": "#/components/schemas/ComfyImageGenInput",
             "seedream": "#/components/schemas/SeedreamImageGenInput",
             "grok": "#/components/schemas/GrokImageGenInput",
-            "fal": "#/components/schemas/FalImageGenInput"
+            "fal": "#/components/schemas/FalImageGenInput",
+            "qwen": "#/components/schemas/QwenApiImageGenInput"
           }
         }
       },
@@ -27940,7 +27941,7 @@
             ]
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "PromptEnhancementInput": {
         "required": [
@@ -28945,6 +28946,186 @@
           }
         ],
         "description": "AI Toolkit training for Qwen Image models"
+      },
+      "QwenApiCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/QwenApiImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "enum": [
+                  "3.0-pro",
+                  "2.0-pro",
+                  "2.0",
+                  "max",
+                  "plus"
+                ],
+                "type": "string",
+                "default": "2.0"
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "QwenApiEditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/QwenApiImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "enum": [
+                  "3.0-pro",
+                  "2.0-pro",
+                  "2.0",
+                  "edit-max",
+                  "edit-plus",
+                  "edit"
+                ],
+                "type": "string",
+                "default": "edit-plus"
+              },
+              "images": {
+                "maxItems": 3,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                },
+                "description": "Reference images. DashScope numbers them by input order — prompts refer to them as \"Image 1\", \"Image 2\", \"Image 3\"."
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "QwenApiImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "height",
+              "operation",
+              "prompt",
+              "width"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
+              },
+              "prompt": {
+                "maxLength": 5000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 500,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "quantity": {
+                "maximum": 6,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "promptExtend": {
+                "type": "boolean",
+                "default": true
+              },
+              "watermark": {
+                "type": "boolean",
+                "default": false
+              },
+              "engine": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/QwenApiCreateImageGenInput",
+                "editImage": "#/components/schemas/QwenApiEditImageGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Qwen image models hosted by Alibaba Model Studio (DashScope). Distinct from the `sdcpp`/`qwen`\necosystem, which runs Qwen-Image 20B on our own workers."
       },
       "QwenImageBenchInput": {
         "required": [
@@ -30362,7 +30543,8 @@
         "enum": [
           "v2",
           "v2-fast",
-          "v2-mini"
+          "v2-mini",
+          "v2.5"
         ],
         "type": "string"
       },
@@ -30408,7 +30590,22 @@
                   12,
                   13,
                   14,
-                  15
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28,
+                  29,
+                  30
                 ],
                 "type": "integer",
                 "format": "int32"
@@ -32018,7 +32215,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -32057,7 +32254,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -32250,7 +32447,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -36095,7 +36292,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -36126,7 +36323,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -36579,7 +36776,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -36916,7 +37113,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -36983,7 +37180,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -37024,7 +37221,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -38111,7 +38308,7 @@
     }
   },
   "security": [
-    {}
+    { }
   ],
   "tags": [
     {
