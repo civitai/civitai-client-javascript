@@ -734,6 +734,15 @@ export type AudioComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
 };
 
 /**
+ * At least one worker has it cached. Civitai.Orchestration.Grains.Resources.AvailableResourceAvailability.Workers carries the depth — one worker out of
+ * hundreds is still available, but says nothing about how fast a job will find it.
+ */
+export type AvailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
+  workers: number;
+  status: 'available';
+};
+
+/**
  * Removes the element's background per frame via a deterministic edge-connected flood fill
  * (unlike the AI-matting `imageBackgroundRemoval` step): the background colour is estimated
  * from the frame border and every border-connected pixel within tolerance becomes transparent,
@@ -5318,6 +5327,29 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
 };
 
 /**
+ * Being downloaded right now.
+ */
+export type LoadingResourceAvailability = Omit<ResourceAvailability, 'status'> & {
+  /**
+   * Progress of the furthest-along worker, 0..1.
+   */
+  progress: number;
+  /**
+   * Workers currently downloading it.
+   */
+  workers: number;
+  startedAt?: null | string;
+  /**
+   * When progress last moved. Reported instead of a "stalled" flag so callers can pick their own
+   * threshold — the worker's report cadence is configuration, and any constant chosen here would
+   * silently become wrong when it changes.
+   */
+  lastProgressAt?: null | string;
+  etaSeconds?: null | number;
+  status: 'loading';
+};
+
+/**
  * AI Toolkit training for LTX 2.3 video models
  */
 export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
@@ -7227,6 +7259,15 @@ export type ResizeTransform = Omit<ImageTransform, 'type'> & {
   type: 'resize';
 };
 
+/**
+ * Whether a resource can be generated with right now, reduced across every provider to the single
+ * best answer. Discriminated on `status` rather than `$type` because the values read as
+ * adjectives describing the resource, not as type names.
+ */
+export type ResourceAvailability = {
+  status: string;
+};
+
 export type ResourceFee = {
   amount: number;
   type: ResourceFeeType;
@@ -7329,6 +7370,7 @@ export type ResourceInfo = {
    * attribution follows ownership transfers instead of being resolved retroactively.
    */
   userId?: null | number;
+  availability?: ResourceAvailability;
 };
 
 export type ReveCreateFalImageGenInput = Omit<
@@ -7767,6 +7809,89 @@ export const ShadowRemoval = {
  * How aggressively background removal also strips soft drop shadows the strict color match misses.
  */
 export type ShadowRemoval = (typeof ShadowRemoval)[keyof typeof ShadowRemoval];
+
+export type ShieldstralModerationInput = {
+  mode: string;
+  /**
+   * Optional policy filter. When omitted, every configured policy for the selected mode is evaluated.
+   */
+  policies?: null | Array<string>;
+  /**
+   * Per-request policy overrides. Existing policies are merged by name and new names create custom policies.
+   * Policy is free-form natural language; Query, when supplied, must be a single yes/no question.
+   */
+  policyOverrides?: null | Array<ShieldstralPolicyConfiguration>;
+};
+
+export type ShieldstralModerationOutput = {
+  results: Array<ShieldstralPolicyResult>;
+  blocked: boolean;
+  triggeredPolicies: Array<string>;
+};
+
+/**
+ * ShieldstralModeration
+ */
+export type ShieldstralModerationStep = Omit<WorkflowStep, '$type'> & {
+  input: ShieldstralModerationInput;
+  output?: ShieldstralModerationOutput;
+  $type: 'shieldstralModeration';
+};
+
+/**
+ * ShieldstralModeration
+ */
+export type ShieldstralModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ShieldstralModerationInput;
+  $type: 'shieldstralModeration';
+};
+
+/**
+ * A per-request policy override. For a custom policy, Name and Policy are required; Action defaults to
+ * Scan/Review by mode, Threshold defaults to 0.5, and Query defaults to a mode-appropriate yes/no question.
+ */
+export type ShieldstralPolicyConfiguration = {
+  name: string;
+  action?: null | string;
+  threshold?: null | number;
+  policy?: null | string;
+  query?: null | string;
+  instruction?: null | string;
+};
+
+export type ShieldstralPolicyResult = {
+  policy: string;
+  action: string;
+  threshold: number;
+  score: number;
+  triggered: boolean;
+  topToken: string;
+  finishReason?: null | string;
+  responseId?: null | string;
+  error?: null | string;
+  policyHash?: null | string;
+};
+
+/**
+ * Input for evaluating an image-generation prompt with Shieldstral.
+ */
+export type ShieldstralPromptModerationInput = Omit<ShieldstralModerationInput, 'mode'> & {
+  positivePrompt: string;
+  negativePrompt?: null | string;
+  /**
+   * Optional product-specific context included in the document being moderated.
+   */
+  context?: null | string;
+  mode: 'prompt';
+};
+
+/**
+ * Input for evaluating arbitrary site text with Shieldstral.
+ */
+export type ShieldstralTextModerationInput = Omit<ShieldstralModerationInput, 'mode'> & {
+  text: string;
+  mode: 'text';
+};
 
 /**
  * Sora 2 Image-to-Video
@@ -8291,6 +8416,22 @@ export type TryOnUInput = {
 
 export type TryOnUOutput = {
   blob: Blob;
+};
+
+/**
+ * Workers could hold it; none have it and none are fetching it.
+ */
+export type UnavailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
+  status: 'unavailable';
+};
+
+/**
+ * No worker can hold this resource at all — wrong ecosystem, or a type nobody fetches on demand.
+ * Distinct from Civitai.Orchestration.Grains.Resources.UnavailableResourceAvailability: this one will never become
+ * available, so offering to load it would be offering something that cannot happen.
+ */
+export type UnsupportedResourceAvailability = Omit<ResourceAvailability, 'status'> & {
+  status: 'unsupported';
 };
 
 /**
@@ -13236,6 +13377,42 @@ export type InvokeRepeatStepTemplateResponses = {
 
 export type InvokeRepeatStepTemplateResponse =
   InvokeRepeatStepTemplateResponses[keyof InvokeRepeatStepTemplateResponses];
+
+export type InvokeShieldstralModerationStepTemplateData = {
+  body?: ShieldstralModerationInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/shieldstralModeration';
+};
+
+export type InvokeShieldstralModerationStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeShieldstralModerationStepTemplateError =
+  InvokeShieldstralModerationStepTemplateErrors[keyof InvokeShieldstralModerationStepTemplateErrors];
+
+export type InvokeShieldstralModerationStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ShieldstralModerationOutput;
+};
+
+export type InvokeShieldstralModerationStepTemplateResponse =
+  InvokeShieldstralModerationStepTemplateResponses[keyof InvokeShieldstralModerationStepTemplateResponses];
 
 export type InvokeTextToImageStepTemplateData = {
   body?: TextToImageInput;

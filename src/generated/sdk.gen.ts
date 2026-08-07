@@ -142,6 +142,9 @@ import type {
   InvokeRepeatStepTemplateData,
   InvokeRepeatStepTemplateErrors,
   InvokeRepeatStepTemplateResponses,
+  InvokeShieldstralModerationStepTemplateData,
+  InvokeShieldstralModerationStepTemplateErrors,
+  InvokeShieldstralModerationStepTemplateResponses,
   InvokeTextToImageStepTemplateData,
   InvokeTextToImageStepTemplateErrors,
   InvokeTextToImageStepTemplateResponses,
@@ -996,6 +999,28 @@ export const invokeRepeatStepTemplate = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/repeat',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * ShieldstralModeration
+ *
+ * Evaluate text or generation prompts against configurable natural-language Shieldstral policies.
+ * /// Generates one single-token yes/no ChatCompletion job per policy and returns normalized policy scores.
+ */
+export const invokeShieldstralModerationStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeShieldstralModerationStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeShieldstralModerationStepTemplateResponses,
+    InvokeShieldstralModerationStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/shieldstralModeration',
     ...options,
     headers: {
       'Content-Type': 'application/json',
