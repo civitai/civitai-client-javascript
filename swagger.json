@@ -8375,8 +8375,7 @@
             },
             "additionalProperties": false
           }
-        ],
-        "description": "At least one worker has it cached. Civitai.Orchestration.Grains.Resources.AvailableResourceAvailability.Workers carries the depth — one worker out of\nhundreds is still available, but says nothing about how fast a job will find it."
+        ]
       },
       "BackgroundRemovalTransformer": {
         "allOf": [
@@ -14517,6 +14516,25 @@
               "fast": {
                 "type": "boolean",
                 "description": "Enables EasyCache with its default configuration.",
+                "default": false
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "turbo": {
+                "type": "boolean",
+                "description": "Applies the MiniMax H3 turbo LoRA, which converges in fewer steps.",
                 "default": false
               },
               "engine": {
@@ -23281,12 +23299,10 @@
             "properties": {
               "progress": {
                 "type": "number",
-                "description": "Progress of the furthest-along worker, 0..1.",
                 "format": "double"
               },
               "workers": {
                 "type": "integer",
-                "description": "Workers currently downloading it.",
                 "format": "int32"
               },
               "startedAt": {
@@ -23301,7 +23317,6 @@
                   "null",
                   "string"
                 ],
-                "description": "When progress last moved. Reported instead of a \"stalled\" flag so callers can pick their own\nthreshold — the worker's report cadence is configuration, and any constant chosen here would\nsilently become wrong when it changes.",
                 "format": "date-time"
               },
               "etaSeconds": {
@@ -23320,8 +23335,7 @@
             },
             "additionalProperties": false
           }
-        ],
-        "description": "Being downloaded right now."
+        ]
       },
       "Ltx23AIToolkitTrainingInput": {
         "allOf": [
@@ -29667,7 +29681,6 @@
           }
         },
         "additionalProperties": false,
-        "description": "Whether a resource can be generated with right now, reduced across every provider to the single\nbest answer. Discriminated on `status` rather than `$type` because the values read as\nadjectives describing the resource, not as type names.",
         "discriminator": {
           "propertyName": "status",
           "mapping": {
@@ -32716,8 +32729,7 @@
             },
             "additionalProperties": false
           }
-        ],
-        "description": "Workers could hold it; none have it and none are fetching it."
+        ]
       },
       "UnsupportedResourceAvailability": {
         "allOf": [
@@ -32739,8 +32751,7 @@
             },
             "additionalProperties": false
           }
-        ],
-        "description": "No worker can hold this resource at all — wrong ecosystem, or a type nobody fetches on demand.\nDistinct from Civitai.Orchestration.Grains.Resources.UnavailableResourceAvailability: this one will never become\navailable, so offering to load it would be offering something that cannot happen."
+        ]
       },
       "UpdateWorkflowRequest": {
         "type": "object",

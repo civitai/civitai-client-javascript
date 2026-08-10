@@ -733,10 +733,6 @@ export type AudioComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
   type: 'audio';
 };
 
-/**
- * At least one worker has it cached. Civitai.Orchestration.Grains.Resources.AvailableResourceAvailability.Workers carries the depth — one worker out of
- * hundreds is still available, but says nothing about how fast a job will find it.
- */
 export type AvailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
   workers: number;
   status: 'available';
@@ -2400,6 +2396,14 @@ export type ComfyMiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    * Enables EasyCache with its default configuration.
    */
   fast?: boolean;
+  diffusionModel?: null | string;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Applies the MiniMax H3 turbo LoRA, which converges in fewer steps.
+   */
+  turbo?: boolean;
   engine: 'minimax-h3-comfy';
 };
 
@@ -5326,24 +5330,10 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
-/**
- * Being downloaded right now.
- */
 export type LoadingResourceAvailability = Omit<ResourceAvailability, 'status'> & {
-  /**
-   * Progress of the furthest-along worker, 0..1.
-   */
   progress: number;
-  /**
-   * Workers currently downloading it.
-   */
   workers: number;
   startedAt?: null | string;
-  /**
-   * When progress last moved. Reported instead of a "stalled" flag so callers can pick their own
-   * threshold — the worker's report cadence is configuration, and any constant chosen here would
-   * silently become wrong when it changes.
-   */
   lastProgressAt?: null | string;
   etaSeconds?: null | number;
   status: 'loading';
@@ -7259,11 +7249,6 @@ export type ResizeTransform = Omit<ImageTransform, 'type'> & {
   type: 'resize';
 };
 
-/**
- * Whether a resource can be generated with right now, reduced across every provider to the single
- * best answer. Discriminated on `status` rather than `$type` because the values read as
- * adjectives describing the resource, not as type names.
- */
 export type ResourceAvailability = {
   status: string;
 };
@@ -8418,18 +8403,10 @@ export type TryOnUOutput = {
   blob: Blob;
 };
 
-/**
- * Workers could hold it; none have it and none are fetching it.
- */
 export type UnavailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
   status: 'unavailable';
 };
 
-/**
- * No worker can hold this resource at all — wrong ecosystem, or a type nobody fetches on demand.
- * Distinct from Civitai.Orchestration.Grains.Resources.UnavailableResourceAvailability: this one will never become
- * available, so offering to load it would be offering something that cannot happen.
- */
 export type UnsupportedResourceAvailability = Omit<ResourceAvailability, 'status'> & {
   status: 'unsupported';
 };
