@@ -2149,6 +2149,129 @@ export type ComfyLtx23VideoToVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine'
 };
 
 /**
+ * Generate video driven by a reference audio track, optionally anchored to a reference image (ComfyUI backend)
+ */
+export type ComfyLtx25AudioToVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  /**
+   * Optional reference image (e.g. talking-head subject). When provided, the video is anchored to this image.
+   */
+  referenceImage?: null | string;
+  sourceAudio: string;
+  /**
+   * Strength of the image guide conditioning (0.0 to 1.0). Only used when ReferenceImage is provided.
+   * Stage 1 strength; stage 2 is fixed at 0.5.
+   */
+  imageGuideStrength?: number;
+  /**
+   * Audio-to-video cross-attention boost applied via LTX2AttentionTunerPatch.
+   * Higher values make audio drive the video more strongly.
+   */
+  audioToVideoAttentionScale?: number;
+  operation: 'audioToVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Create video from text prompt, optionally with a source image (ComfyUI backend)
+ */
+export type ComfyLtx25CreateVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  /**
+   * Optional source image for image-to-video generation
+   */
+  images?: Array<string>;
+  operation: 'createVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Edit/transform an existing video using prompt and source-video guidance (ComfyUI backend)
+ */
+export type ComfyLtx25EditVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  sourceVideo: string;
+  guideStrength?: number;
+  operation: 'editVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Extend an existing video with new content (ComfyUI backend)
+ */
+export type ComfyLtx25ExtendVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  sourceVideo: string;
+  numFrames?: number;
+  operation: 'extendVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Generate video guided by first and/or last frame images using LTXVAddGuide conditioning (ComfyUI backend)
+ */
+export type ComfyLtx25FirstLastFrameToVideoInput = Omit<
+  ComfyLtx25VideoGenInput,
+  'engine' | 'operation'
+> & {
+  /**
+   * First frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  firstFrame?: null | string;
+  /**
+   * Last frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  lastFrame?: null | string;
+  /**
+   * Strength of the frame guide conditioning (0.0 to 1.0).
+   */
+  frameGuideStrength?: number;
+  operation: 'firstLastFrameToVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * LTX Video v2.5 generation via ComfyUI backend
+ */
+export type ComfyLtx25VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation: null | string;
+  negativePrompt?: null | string;
+  seed?: null | number;
+  /**
+   * Duration in seconds (3 through 20)
+   */
+  duration?: number;
+  width?: number;
+  height?: number;
+  fps?: number;
+  generateAudio?: boolean;
+  guidanceScale?: number;
+  steps?: number;
+  model?: '22b-dev' | '22b-distilled';
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Optional override for the LTX 2.5 diffusion-model checkpoint. When set, replaces the
+   * transformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx25VideoGenInput.Model while leaving the text encoder, VAEs, and
+   * upscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base).
+   */
+  diffusionModel?: null | string;
+  /**
+   * Number of videos to generate in this single job. Each video uses a distinct seed
+   * (Seed + slotIndex) and is produced by re-running the Comfy workflow.
+   */
+  quantity?: number;
+  engine: 'ltx2.5';
+};
+
+/**
+ * Style-transfer an existing video using prompt guidance (ComfyUI backend)
+ */
+export type ComfyLtx25VideoToVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  sourceVideo: string;
+  guideStrength?: number;
+  operation: 'videoToVideo';
+  engine: 'ltx2.5';
+};
+
+/**
  * Create video from text prompt, optionally with a source image (ComfyUI backend)
  */
 export type ComfyLtx2CreateVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 'operation'> & {
@@ -2400,9 +2523,6 @@ export type ComfyMiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   loras?: {
     [key: string]: number;
   };
-  /**
-   * Applies the MiniMax H3 turbo LoRA, which converges in fewer steps.
-   */
   turbo?: boolean;
   engine: 'minimax-h3-comfy';
 };
