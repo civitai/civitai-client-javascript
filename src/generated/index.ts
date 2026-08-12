@@ -787,6 +787,8 @@ export {
   type LoadingResourceAvailability,
   type Ltx23AiToolkitTrainingInput,
   type Ltx23AiToolkitTrainingInputWritable,
+  type Ltx25AiToolkitTrainingInput,
+  type Ltx25AiToolkitTrainingInputWritable,
   type Ltx2AiToolkitTrainingInput,
   type Ltx2AiToolkitTrainingInputWritable,
   type MageFlowAiToolkitTrainingInput,

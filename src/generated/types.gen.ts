@@ -5474,6 +5474,20 @@ export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
 };
 
 /**
+ * AI Toolkit training for LTX 2.5 video models.
+ */
+export type Ltx25AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  readonly storageBuzzPerEpoch: number;
+  ecosystem: 'ltx25';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * AI Toolkit training for LTX2 video models
  */
 export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
@@ -11058,6 +11072,21 @@ export type Ltx23AiToolkitTrainingInputWritable = Omit<
   'engine' | 'ecosystem'
 > & {
   ecosystem: 'ltx23';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for LTX 2.5 video models.
+ */
+export type Ltx25AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ltx25';
   engine: 'ai-toolkit';
   /**
    * Training batch size. Fixed at 1 for this ecosystem.
