@@ -20030,12 +20030,13 @@
       "GrokCreateImageGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/GrokImageGenInput"
+            "$ref": "#/components/schemas/GrokV1ImageGenInput"
           },
           {
             "required": [
               "engine",
-              "operation"
+              "operation",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -20065,6 +20066,12 @@
                 ],
                 "type": "string"
               },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
               "engine": {
                 "enum": [
                   "grok"
@@ -20079,13 +20086,14 @@
       "GrokEditImageGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/GrokImageGenInput"
+            "$ref": "#/components/schemas/GrokV1ImageGenInput"
           },
           {
             "required": [
               "engine",
               "images",
-              "operation"
+              "operation",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -20101,6 +20109,12 @@
               "operation": {
                 "enum": [
                   "editImage"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
                 ],
                 "type": "string"
               },
@@ -20172,13 +20186,17 @@
           {
             "required": [
               "engine",
-              "operation",
-              "prompt"
+              "prompt",
+              "version"
             ],
             "type": "object",
             "properties": {
-              "operation": {
-                "type": "string"
+              "version": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "v1.0"
               },
               "prompt": {
                 "type": "string"
@@ -20199,14 +20217,15 @@
             },
             "additionalProperties": false,
             "discriminator": {
-              "propertyName": "operation",
+              "propertyName": "version",
               "mapping": {
-                "createImage": "#/components/schemas/GrokCreateImageGenInput",
-                "editImage": "#/components/schemas/GrokEditImageGenInput"
+                "v1.0": "#/components/schemas/GrokV1ImageGenInput",
+                "v2.0": "#/components/schemas/GrokV2ImageGenInput"
               }
             }
           }
-        ]
+        ],
+        "description": "Engine-level base for Grok image generation (xAI's Grok-Imagine model via FAL).\nThe version derived type carries the operation-level discriminator.\nPayloads without a version deserialize as v1.0."
       },
       "GrokImageToVideoInput": {
         "allOf": [
@@ -20317,6 +20336,47 @@
           }
         ],
         "description": "Grok Text-to-Video\nFAL Endpoint: xai/grok-imagine-video/text-to-video"
+      },
+      "GrokV1ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v1.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/GrokCreateImageGenInput",
+                "editImage": "#/components/schemas/GrokEditImageGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Version-level base for Grok v1.0.\nDiscriminator: operation (createImage, editImage)\nFAL Endpoints: xai/grok-imagine-image[/edit]"
       },
       "GrokV1VideoGenInput": {
         "allOf": [
@@ -20626,6 +20686,191 @@
           }
         ],
         "description": "Version-level base for Grok v1.5 (Grok Imagine 1.5).\nDiscriminator: operation (textToVideo, imageToVideo, referenceToVideo)\nFAL Endpoints: xai/grok-imagine-video/v1.5/{operation}"
+      },
+      "GrokV2CreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokV2ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "2:1",
+                  "20:9",
+                  "19.5:9",
+                  "16:9",
+                  "4:3",
+                  "3:2",
+                  "1:1",
+                  "2:3",
+                  "3:4",
+                  "9:16",
+                  "9:19.5",
+                  "9:20",
+                  "1:2"
+                ],
+                "type": "string",
+                "description": "Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2",
+                "default": "1:1"
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v2.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Grok v2.0 Create Image\nFAL Endpoint: xai/grok-imagine-image/v2.0/text-to-image"
+      },
+      "GrokV2EditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokV2ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "2:1",
+                  "20:9",
+                  "19.5:9",
+                  "16:9",
+                  "4:3",
+                  "3:2",
+                  "1:1",
+                  "2:3",
+                  "3:4",
+                  "9:16",
+                  "9:19.5",
+                  "9:20",
+                  "1:2"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "images": {
+                "maxItems": 3,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v2.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Grok v2.0 Edit Image. Edits 1–3 source images; \"auto\" keeps the source aspect ratio.\nFAL Endpoint: xai/grok-imagine-image/v2.0/edit"
+      },
+      "GrokV2ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrokImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
+              },
+              "resolution": {
+                "enum": [
+                  "1k",
+                  "2k"
+                ],
+                "type": "string",
+                "default": "2k"
+              },
+              "quality": {
+                "enum": [
+                  "low",
+                  "medium"
+                ],
+                "type": "string",
+                "default": "medium"
+              },
+              "version": {
+                "enum": [
+                  "v2.0"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "grok"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/GrokV2CreateImageGenInput",
+                "editImage": "#/components/schemas/GrokV2EditImageGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Version-level base for Grok v2.0 (Grok Imagine Image 2.0).\nDiscriminator: operation (createImage, editImage)\nFAL Endpoints: xai/grok-imagine-image/v2.0/{text-to-image,edit}"
       },
       "GrokVideoGenInput": {
         "allOf": [

@@ -4217,7 +4217,10 @@ export type GoogleImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'google';
 };
 
-export type GrokCreateImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operation'> & {
+export type GrokCreateImageGenInput = Omit<
+  GrokV1ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
   /**
    * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
    */
@@ -4236,12 +4239,17 @@ export type GrokCreateImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operat
     | '9:20'
     | '1:2';
   operation: 'createImage';
+  version: 'v1.0';
   engine: 'grok';
 };
 
-export type GrokEditImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operation'> & {
+export type GrokEditImageGenInput = Omit<
+  GrokV1ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
   images: Array<string>;
   operation: 'editImage';
+  version: 'v1.0';
   engine: 'grok';
 };
 
@@ -4259,8 +4267,13 @@ export type GrokEditVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' 
   engine: 'grok';
 };
 
+/**
+ * Engine-level base for Grok image generation (xAI's Grok-Imagine model via FAL).
+ * The version derived type carries the operation-level discriminator.
+ * Payloads without a version deserialize as v1.0.
+ */
 export type GrokImageGenInput = Omit<ImageGenInput, 'engine'> & {
-  operation: string;
+  version: null | string;
   prompt: string;
   quantity?: number;
   engine: 'grok';
@@ -4288,6 +4301,17 @@ export type GrokImageToVideoInput = Omit<
 export type GrokTextToVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' | 'operation'> & {
   aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
   operation: 'text-to-video';
+  version: 'v1.0';
+  engine: 'grok';
+};
+
+/**
+ * Version-level base for Grok v1.0.
+ * Discriminator: operation (createImage, editImage)
+ * FAL Endpoints: xai/grok-imagine-image[/edit]
+ */
+export type GrokV1ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> & {
+  operation: string;
   version: 'v1.0';
   engine: 'grok';
 };
@@ -4365,6 +4389,78 @@ export type GrokV15TextToVideoInput = Omit<
 export type GrokV15VideoGenInput = Omit<GrokVideoGenInput, 'engine' | 'version'> & {
   operation: null | string;
   version: 'v1.5';
+  engine: 'grok';
+};
+
+/**
+ * Grok v2.0 Create Image
+ * FAL Endpoint: xai/grok-imagine-image/v2.0/text-to-image
+ */
+export type GrokV2CreateImageGenInput = Omit<
+  GrokV2ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
+   */
+  aspectRatio?:
+    | '2:1'
+    | '20:9'
+    | '19.5:9'
+    | '16:9'
+    | '4:3'
+    | '3:2'
+    | '1:1'
+    | '2:3'
+    | '3:4'
+    | '9:16'
+    | '9:19.5'
+    | '9:20'
+    | '1:2';
+  operation: 'createImage';
+  version: 'v2.0';
+  engine: 'grok';
+};
+
+/**
+ * Grok v2.0 Edit Image. Edits 1–3 source images; "auto" keeps the source aspect ratio.
+ * FAL Endpoint: xai/grok-imagine-image/v2.0/edit
+ */
+export type GrokV2EditImageGenInput = Omit<
+  GrokV2ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  aspectRatio?:
+    | 'auto'
+    | '2:1'
+    | '20:9'
+    | '19.5:9'
+    | '16:9'
+    | '4:3'
+    | '3:2'
+    | '1:1'
+    | '2:3'
+    | '3:4'
+    | '9:16'
+    | '9:19.5'
+    | '9:20'
+    | '1:2';
+  images: Array<string>;
+  operation: 'editImage';
+  version: 'v2.0';
+  engine: 'grok';
+};
+
+/**
+ * Version-level base for Grok v2.0 (Grok Imagine Image 2.0).
+ * Discriminator: operation (createImage, editImage)
+ * FAL Endpoints: xai/grok-imagine-image/v2.0/{text-to-image,edit}
+ */
+export type GrokV2ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> & {
+  operation: null | string;
+  resolution?: '1k' | '2k';
+  quality?: 'low' | 'medium';
+  version: 'v2.0';
   engine: 'grok';
 };
 
