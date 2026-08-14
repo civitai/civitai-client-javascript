@@ -2111,9 +2111,9 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
   seed?: null | number;
   /**
-   * Duration in seconds (3 or 5)
+   * Duration in seconds (3 through 20)
    */
-  duration?: 3 | 20;
+  duration?: number;
   width?: number;
   height?: number;
   fps?: number;
@@ -5939,8 +5939,13 @@ export type MediaTransformer = {
   type: string;
 };
 
+/**
+ * Model-level base for Meshy 3D generation (via FAL).
+ * The version derived type carries the operation-level discriminator.
+ * Payloads without a version deserialize as v6.
+ */
 export type MeshyFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
-  operation: string;
+  version: null | string;
   targetPolycount?: number;
   topology?: 'quad' | 'triangle';
   symmetryMode?: 'off' | 'auto' | 'on';
@@ -5949,30 +5954,107 @@ export type MeshyFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
   texturePrompt?: null | string;
   enableRigging?: boolean;
   enableAnimation?: boolean;
-  seed?: null | number;
   model: 'meshy';
   engine: 'fal';
 };
 
 export type MeshyImageTo3dFalPolyGenInput = Omit<
-  MeshyFalPolyGenInput,
-  'engine' | 'model' | 'operation'
+  MeshyV6FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
 > & {
   imageUrl: string;
   shouldTexture?: boolean;
   operation: 'imageTo3D';
+  version: 'v6';
   model: 'meshy';
   engine: 'fal';
 };
 
 export type MeshyTextTo3dFalPolyGenInput = Omit<
-  MeshyFalPolyGenInput,
-  'engine' | 'model' | 'operation'
+  MeshyV6FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
 > & {
   prompt: string;
   mode?: 'preview' | 'full';
   enablePromptExpansion?: boolean;
   operation: 'textTo3D';
+  version: 'v6';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+/**
+ * Version-level base for Meshy v6.
+ * Discriminator: operation (textTo3D, imageTo3D)
+ * FAL Endpoints: fal-ai/meshy/v6/{text-to-3d,image-to-3d}
+ */
+export type MeshyV6FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'model' | 'version'> & {
+  operation: string;
+  seed?: null | number;
+  version: 'v6';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+/**
+ * Version-level base for Meshy v7.
+ * Discriminator: operation (imageTo3D, multiImageTo3D)
+ * FAL Endpoints: meshy/v7/{image-to-3d,multi-image-to-3d}
+ */
+export type MeshyV7FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'model' | 'version'> & {
+  operation: string;
+  shouldTexture?: boolean;
+  /**
+   * Pose to generate the character in. "none" lets Meshy pick.
+   */
+  poseMode?: 'none' | 'a-pose' | 't-pose';
+  /**
+   * 2D image guiding the texturing process.
+   */
+  textureImageUrl?: null | string;
+  /**
+   * Approximate character height in meters. Only used when enableRigging is set.
+   */
+  riggingHeightMeters?: number;
+  /**
+   * Animation preset from Meshy's library (0 is "Idle"); see https://docs.meshy.ai/en/api/animation-library.
+   * Only used when Civitai.Orchestration.Grains.Workflows.Steps.PolyGen.Fal.MeshyFalPolyGenInput.EnableAnimation is set.
+   */
+  animationActionId?: number;
+  version: 'v7';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV7ImageTo3dFalPolyGenInput = Omit<
+  MeshyV7FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  imageUrl: string;
+  /**
+   * Higher-fidelity geometry with finer surface detail.
+   */
+  ultraMode?: boolean;
+  /**
+   * "lowpoly" makes Meshy ignore the remesh controls (topology, targetPolycount, shouldRemesh).
+   */
+  modelType?: 'standard' | 'lowpoly';
+  operation: 'imageTo3D';
+  version: 'v7';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV7MultiImageTo3dFalPolyGenInput = Omit<
+  MeshyV7FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  /**
+   * 1–4 views of the same object. Meshy has no ultra or lowpoly mode on this operation.
+   */
+  imageUrls: Array<string>;
+  operation: 'multiImageTo3D';
+  version: 'v7';
   model: 'meshy';
   engine: 'fal';
 };
@@ -6057,6 +6139,85 @@ export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    */
   referenceVideoSeconds?: number;
   engine: 'minimax-h3';
+};
+
+/**
+ * Input parameters for MiniMax Music 3 text-to-music generation.
+ */
+export type MiniMaxMusic3Input = {
+  /**
+   * Structured music description. For best results use Global Metadata, Vocal Details,
+   * and Arrangement sections.
+   */
+  caption: string;
+  /**
+   * Lyrics with section markers such as [Intro], [Verse], [Chorus], and [Outro].
+   */
+  lyrics: string;
+  /**
+   * Random seed for reproducible generation.
+   */
+  seed: number;
+  /**
+   * Maximum generated song duration in seconds. The model may end the song earlier when
+   * the requested lyric structure is complete.
+   */
+  maxDuration?: number;
+  /**
+   * Number of diffusion sampling steps.
+   */
+  steps?: number;
+  /**
+   * Classifier-free guidance scale used by both text encoding and sampling.
+   */
+  cfg?: number;
+  /**
+   * Top-k sampling limit used by the MiniMax music text encoder.
+   */
+  topK?: number;
+  /**
+   * Optional diffusion model override.
+   */
+  diffusionModel?: null | string;
+  /**
+   * Optional MiniMax text encoder override.
+   */
+  textEncoder?: null | string;
+  /**
+   * Optional audio VAE override.
+   */
+  vae?: null | string;
+  /**
+   * Optional LoRAs to apply to both the diffusion model and MiniMax text encoder.
+   * Compatibility with the selected base resources is the caller's responsibility.
+   */
+  loras?: {
+    [key: string]: number;
+  };
+};
+
+/**
+ * Output from MiniMax Music 3 generation.
+ */
+export type MiniMaxMusic3Output = {
+  blob: AudioBlob;
+};
+
+/**
+ * Generate a complete song from a structured caption and lyrics with MiniMax Music 3.
+ */
+export type MiniMaxMusic3Step = Omit<WorkflowStep, '$type'> & {
+  input: MiniMaxMusic3Input;
+  output?: MiniMaxMusic3Output;
+  $type: 'miniMaxMusic3';
+};
+
+/**
+ * Generate a complete song from a structured caption and lyrics with MiniMax Music 3.
+ */
+export type MiniMaxMusic3StepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: MiniMaxMusic3Input;
+  $type: 'miniMaxMusic3';
 };
 
 export type MiniMaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
@@ -13239,6 +13400,42 @@ export type InvokeMediaRatingStepTemplateResponses = {
 
 export type InvokeMediaRatingStepTemplateResponse =
   InvokeMediaRatingStepTemplateResponses[keyof InvokeMediaRatingStepTemplateResponses];
+
+export type InvokeMiniMaxMusic3StepTemplateData = {
+  body?: MiniMaxMusic3Input;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/miniMaxMusic3';
+};
+
+export type InvokeMiniMaxMusic3StepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeMiniMaxMusic3StepTemplateError =
+  InvokeMiniMaxMusic3StepTemplateErrors[keyof InvokeMiniMaxMusic3StepTemplateErrors];
+
+export type InvokeMiniMaxMusic3StepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: MiniMaxMusic3Output;
+};
+
+export type InvokeMiniMaxMusic3StepTemplateResponse =
+  InvokeMiniMaxMusic3StepTemplateResponses[keyof InvokeMiniMaxMusic3StepTemplateResponses];
 
 export type InvokeModel3dPreviewStepTemplateData = {
   body?: Model3dPreviewInput;

@@ -2516,6 +2516,96 @@
         }
       }
     },
+    "/v2/consumer/recipes/miniMaxMusic3": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Generate a complete song from a structured caption and lyrics with MiniMax Music 3.",
+        "operationId": "InvokeMiniMaxMusic3StepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiniMaxMusic3Input"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiniMaxMusic3Input"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiniMaxMusic3Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiniMaxMusic3Output"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/model3DPreview": {
       "post": {
         "tags": [
@@ -13304,12 +13394,10 @@
                 "format": "int32"
               },
               "duration": {
-                "enum": [
-                  3,
-                  20
-                ],
+                "maximum": 20,
+                "minimum": 3,
                 "type": "integer",
-                "description": "Duration in seconds (3 or 5)",
+                "description": "Duration in seconds (3 through 20)",
                 "format": "int32",
                 "default": 5
               },
@@ -24840,12 +24928,16 @@
             "required": [
               "engine",
               "model",
-              "operation"
+              "version"
             ],
             "type": "object",
             "properties": {
-              "operation": {
-                "type": "string"
+              "version": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "v6"
               },
               "targetPolycount": {
                 "maximum": 300000,
@@ -24894,13 +24986,6 @@
                 "type": "boolean",
                 "default": false
               },
-              "seed": {
-                "type": [
-                  "null",
-                  "integer"
-                ],
-                "format": "int32"
-              },
               "model": {
                 "enum": [
                   "meshy"
@@ -24916,26 +25001,28 @@
             },
             "additionalProperties": false,
             "discriminator": {
-              "propertyName": "operation",
+              "propertyName": "version",
               "mapping": {
-                "textTo3D": "#/components/schemas/MeshyTextTo3DFalPolyGenInput",
-                "imageTo3D": "#/components/schemas/MeshyImageTo3DFalPolyGenInput"
+                "v6": "#/components/schemas/MeshyV6FalPolyGenInput",
+                "v7": "#/components/schemas/MeshyV7FalPolyGenInput"
               }
             }
           }
-        ]
+        ],
+        "description": "Model-level base for Meshy 3D generation (via FAL).\nThe version derived type carries the operation-level discriminator.\nPayloads without a version deserialize as v6."
       },
       "MeshyImageTo3DFalPolyGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
+            "$ref": "#/components/schemas/MeshyV6FalPolyGenInput"
           },
           {
             "required": [
               "engine",
               "imageUrl",
               "model",
-              "operation"
+              "operation",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -24950,6 +25037,12 @@
               "operation": {
                 "enum": [
                   "imageTo3D"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v6"
                 ],
                 "type": "string"
               },
@@ -24973,14 +25066,15 @@
       "MeshyTextTo3DFalPolyGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
+            "$ref": "#/components/schemas/MeshyV6FalPolyGenInput"
           },
           {
             "required": [
               "engine",
               "model",
               "operation",
-              "prompt"
+              "prompt",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -25004,6 +25098,267 @@
               "operation": {
                 "enum": [
                   "textTo3D"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v6"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "meshy"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MeshyV6FalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "version": {
+                "enum": [
+                  "v6"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "meshy"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textTo3D": "#/components/schemas/MeshyTextTo3DFalPolyGenInput",
+                "imageTo3D": "#/components/schemas/MeshyImageTo3DFalPolyGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Version-level base for Meshy v6.\nDiscriminator: operation (textTo3D, imageTo3D)\nFAL Endpoints: fal-ai/meshy/v6/{text-to-3d,image-to-3d}"
+      },
+      "MeshyV7FalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "shouldTexture": {
+                "type": "boolean",
+                "default": true
+              },
+              "poseMode": {
+                "enum": [
+                  "none",
+                  "a-pose",
+                  "t-pose"
+                ],
+                "type": "string",
+                "description": "Pose to generate the character in. \"none\" lets Meshy pick.",
+                "default": "none"
+              },
+              "textureImageUrl": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "2D image guiding the texturing process."
+              },
+              "riggingHeightMeters": {
+                "maximum": 100,
+                "minimum": 0.01,
+                "type": "number",
+                "description": "Approximate character height in meters. Only used when enableRigging is set.",
+                "format": "double",
+                "default": 1.7
+              },
+              "animationActionId": {
+                "maximum": 696,
+                "minimum": 0,
+                "type": "integer",
+                "description": "Animation preset from Meshy's library (0 is \"Idle\"); see https://docs.meshy.ai/en/api/animation-library.\nOnly used when Civitai.Orchestration.Grains.Workflows.Steps.PolyGen.Fal.MeshyFalPolyGenInput.EnableAnimation is set.",
+                "format": "int32",
+                "default": 92
+              },
+              "version": {
+                "enum": [
+                  "v7"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "meshy"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "imageTo3D": "#/components/schemas/MeshyV7ImageTo3DFalPolyGenInput",
+                "multiImageTo3D": "#/components/schemas/MeshyV7MultiImageTo3DFalPolyGenInput"
+              }
+            }
+          }
+        ],
+        "description": "Version-level base for Meshy v7.\nDiscriminator: operation (imageTo3D, multiImageTo3D)\nFAL Endpoints: meshy/v7/{image-to-3d,multi-image-to-3d}"
+      },
+      "MeshyV7ImageTo3DFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeshyV7FalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrl",
+              "model",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "ultraMode": {
+                "type": "boolean",
+                "description": "Higher-fidelity geometry with finer surface detail.",
+                "default": false
+              },
+              "modelType": {
+                "enum": [
+                  "standard",
+                  "lowpoly"
+                ],
+                "type": "string",
+                "description": "\"lowpoly\" makes Meshy ignore the remesh controls (topology, targetPolycount, shouldRemesh).",
+                "default": "standard"
+              },
+              "operation": {
+                "enum": [
+                  "imageTo3D"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v7"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "meshy"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MeshyV7MultiImageTo3DFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MeshyV7FalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrls",
+              "model",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrls": {
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "1–4 views of the same object. Meshy has no ultra or lowpoly mode on this operation."
+              },
+              "operation": {
+                "enum": [
+                  "multiImageTo3D"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v7"
                 ],
                 "type": "string"
               },
@@ -25227,6 +25582,165 @@
             "additionalProperties": false
           }
         ]
+      },
+      "MiniMaxMusic3Input": {
+        "required": [
+          "caption",
+          "lyrics",
+          "seed"
+        ],
+        "type": "object",
+        "properties": {
+          "caption": {
+            "type": "string",
+            "description": "Structured music description. For best results use Global Metadata, Vocal Details,\nand Arrangement sections."
+          },
+          "lyrics": {
+            "type": "string",
+            "description": "Lyrics with section markers such as [Intro], [Verse], [Chorus], and [Outro]."
+          },
+          "seed": {
+            "type": "integer",
+            "description": "Random seed for reproducible generation.",
+            "format": "int32"
+          },
+          "maxDuration": {
+            "maximum": 360,
+            "minimum": 0.03999999910593033,
+            "type": "number",
+            "description": "Maximum generated song duration in seconds. The model may end the song earlier when\nthe requested lyric structure is complete.",
+            "format": "float",
+            "default": 120
+          },
+          "steps": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of diffusion sampling steps.",
+            "format": "int32",
+            "default": 30
+          },
+          "cfg": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "description": "Classifier-free guidance scale used by both text encoding and sampling.",
+            "format": "float",
+            "default": 1.7
+          },
+          "topK": {
+            "maximum": 16384,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Top-k sampling limit used by the MiniMax music text encoder.",
+            "format": "int32",
+            "default": 50
+          },
+          "diffusionModel": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional diffusion model override."
+          },
+          "textEncoder": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional MiniMax text encoder override."
+          },
+          "vae": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional audio VAE override."
+          },
+          "loras": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Optional LoRAs to apply to both the diffusion model and MiniMax text encoder.\nCompatibility with the selected base resources is the caller's responsibility."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input parameters for MiniMax Music 3 text-to-music generation."
+      },
+      "MiniMaxMusic3Output": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/AudioBlob"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from MiniMax Music 3 generation."
+      },
+      "MiniMaxMusic3Step": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MiniMaxMusic3Input"
+              },
+              "output": {
+                "$ref": "#/components/schemas/MiniMaxMusic3Output"
+              },
+              "$type": {
+                "enum": [
+                  "miniMaxMusic3"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a complete song from a structured caption and lyrics with MiniMax Music 3."
+      },
+      "MiniMaxMusic3StepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MiniMaxMusic3Input"
+              },
+              "$type": {
+                "enum": [
+                  "miniMaxMusic3"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a complete song from a structured caption and lyrics with MiniMax Music 3."
       },
       "MiniMaxVideoGenInput": {
         "allOf": [
@@ -38064,6 +38578,7 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStep",
             "mediaHash": "#/components/schemas/MediaHashStep",
             "mediaRating": "#/components/schemas/MediaRatingStep",
+            "miniMaxMusic3": "#/components/schemas/MiniMaxMusic3Step",
             "model3DPreview": "#/components/schemas/Model3DPreviewStep",
             "modelClamScan": "#/components/schemas/ModelClamScanStep",
             "modelHash": "#/components/schemas/ModelHashStep",
@@ -38394,6 +38909,7 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStepTemplate",
             "mediaHash": "#/components/schemas/MediaHashStepTemplate",
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
+            "miniMaxMusic3": "#/components/schemas/MiniMaxMusic3StepTemplate",
             "model3DPreview": "#/components/schemas/Model3DPreviewStepTemplate",
             "modelClamScan": "#/components/schemas/ModelClamScanStepTemplate",
             "modelHash": "#/components/schemas/ModelHashStepTemplate",

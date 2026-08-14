@@ -112,6 +112,9 @@ import type {
   InvokeMediaRatingStepTemplateData,
   InvokeMediaRatingStepTemplateErrors,
   InvokeMediaRatingStepTemplateResponses,
+  InvokeMiniMaxMusic3StepTemplateData,
+  InvokeMiniMaxMusic3StepTemplateErrors,
+  InvokeMiniMaxMusic3StepTemplateResponses,
   InvokeModel3dPreviewStepTemplateData,
   InvokeModel3dPreviewStepTemplateErrors,
   InvokeModel3dPreviewStepTemplateResponses,
@@ -795,6 +798,25 @@ export const invokeMediaRatingStepTemplate = <ThrowOnError extends boolean = fal
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/mediaRating',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Generate a complete song from a structured caption and lyrics with MiniMax Music 3.
+ */
+export const invokeMiniMaxMusic3StepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeMiniMaxMusic3StepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeMiniMaxMusic3StepTemplateResponses,
+    InvokeMiniMaxMusic3StepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/miniMaxMusic3',
     ...options,
     headers: {
       'Content-Type': 'application/json',
