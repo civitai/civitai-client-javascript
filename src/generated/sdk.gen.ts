@@ -133,6 +133,9 @@ import type {
   InvokePolyGenStepTemplateData,
   InvokePolyGenStepTemplateErrors,
   InvokePolyGenStepTemplateResponses,
+  InvokePrepareResourceStepTemplateData,
+  InvokePrepareResourceStepTemplateErrors,
+  InvokePrepareResourceStepTemplateResponses,
   InvokePreprocessImageStepTemplateData,
   InvokePreprocessImageStepTemplateErrors,
   InvokePreprocessImageStepTemplateResponses,
@@ -202,6 +205,9 @@ import type {
   PatchWorkflowStepData,
   PatchWorkflowStepErrors,
   PatchWorkflowStepResponses,
+  QueryResourcesData,
+  QueryResourcesErrors,
+  QueryResourcesResponses,
   QueryWorkflowsData,
   QueryWorkflowsErrors,
   QueryWorkflowsResponses,
@@ -950,6 +956,27 @@ export const invokePolyGenStepTemplate = <ThrowOnError extends boolean = false>(
     },
   });
 
+/**
+ * Prepare Resource
+ *
+ * Loads a resource into a provider so later work needing it does not pay the cold-start download. Succeeds immediately when the resource is already available on the fleet.
+ */
+export const invokePrepareResourceStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokePrepareResourceStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokePrepareResourceStepTemplateResponses,
+    InvokePrepareResourceStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/prepareResource',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
 export const invokePreprocessImageStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokePreprocessImageStepTemplateData, ThrowOnError>
 ) =>
@@ -1350,6 +1377,14 @@ export const invokeXGuardModerationStepTemplate = <ThrowOnError extends boolean 
       'Content-Type': 'application/json',
       ...options?.headers,
     },
+  });
+
+export const queryResources = <ThrowOnError extends boolean = false>(
+  options: Options<QueryResourcesData, ThrowOnError>
+) =>
+  (options.client ?? client).get<QueryResourcesResponses, QueryResourcesErrors, ThrowOnError>({
+    url: '/v2/resources',
+    ...options,
   });
 
 /**

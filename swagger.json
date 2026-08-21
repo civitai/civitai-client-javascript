@@ -3152,6 +3152,97 @@
         }
       }
     },
+    "/v2/consumer/recipes/prepareResource": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Prepare Resource",
+        "description": "Loads a resource into a provider so later work needing it does not pay the cold-start download. Succeeds immediately when the resource is already available on the fleet.",
+        "operationId": "InvokePrepareResourceStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareResourceInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareResourceInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareResourceInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrepareResourceOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/preprocessImage": {
       "post": {
         "tags": [
@@ -4944,6 +5035,63 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/XGuardModerationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/resources": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "operationId": "QueryResources",
+        "parameters": [
+          {
+            "name": "view",
+            "in": "query",
+            "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ResourceView"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CursedArrayOfStringAndResourceInfo"
                 }
               }
             }
@@ -7000,6 +7148,7 @@
                 "anima": "#/components/schemas/AnimaAIToolkitTrainingInput",
                 "boogu": "#/components/schemas/BooguAIToolkitTrainingInput",
                 "krea2": "#/components/schemas/Krea2AIToolkitTrainingInput",
+                "ideogram4": "#/components/schemas/Ideogram4AIToolkitTrainingInput",
                 "mageflow": "#/components/schemas/MageFlowAIToolkitTrainingInput",
                 "minimaxh3": "#/components/schemas/MiniMaxH3AIToolkitTrainingInput"
               }
@@ -8628,6 +8777,13 @@
               "string"
             ],
             "description": "Get an optional reason for why the blob was blocked. This is only set if the blob was blocked."
+          },
+          "tier": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Get the storage tier holding this blob, when it is not the default one. Null means the default\ntier, which is what every blob produced before the managed tier existed deserializes as.\nCarried so a downstream step or consumer resolves the right grain directly rather than\nprobing each tier for the key."
           }
         },
         "additionalProperties": false,
@@ -14980,7 +15136,7 @@
               },
               "duration": {
                 "maximum": 15,
-                "minimum": 5,
+                "minimum": 4,
                 "type": "integer",
                 "format": "int32",
                 "default": 5
@@ -15000,7 +15156,7 @@
                 "default": 480
               },
               "steps": {
-                "maximum": 50,
+                "maximum": 60,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
@@ -16487,6 +16643,28 @@
           }
         ],
         "description": "A workflow step that converts images to different formats and applies optional transforms."
+      },
+      "CursedArrayOfStringAndResourceInfo": {
+        "required": [
+          "items",
+          "next"
+        ],
+        "type": "object",
+        "properties": {
+          "next": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceInfo"
+            }
+          }
+        },
+        "additionalProperties": false
       },
       "CursedArrayOfTelemetryCursorAndWorkflow": {
         "required": [
@@ -22162,6 +22340,52 @@
           }
         ]
       },
+      "Ideogram4AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "ideogram4"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit training for Ideogram 4 models."
+      },
       "ImageBackgroundRemovalFormat": {
         "enum": [
           "png",
@@ -24466,6 +24690,15 @@
         ],
         "type": "object",
         "properties": {
+          "model": {
+            "enum": [
+              "joy-caption",
+              "ideogram4"
+            ],
+            "type": "string",
+            "description": "Captioning model and output contract. Use `ideogram4` for structured\nIdeogram 4 JSON captions with normalized bounding boxes.",
+            "default": "joy-caption"
+          },
           "mediaUrl": {
             "type": "string",
             "description": "The URL of the media to caption (single image or video).",
@@ -24473,13 +24706,13 @@
           },
           "temperature": {
             "type": "number",
-            "description": "Sampling temperature for caption generation.",
+            "description": "Sampling temperature for caption generation. Ideogram 4 uses the Qwen model's\nfixed sampling defaults to match AI Toolkit.",
             "format": "double",
             "default": 0.5
           },
           "maxNewTokens": {
             "type": "integer",
-            "description": "Maximum number of tokens to generate.",
+            "description": "Maximum number of tokens to generate. Ideogram 4 enforces a 3072-token floor.",
             "format": "int32",
             "default": 300
           },
@@ -24686,7 +24919,8 @@
       "MediaHashType": {
         "enum": [
           "perceptual",
-          "perceptualDct"
+          "perceptualDct",
+          "perceptualDct256"
         ],
         "type": "string",
         "description": "Represents the type of hash algorithm to use for media content."
@@ -28068,6 +28302,51 @@
         ],
         "description": "3D model generation"
       },
+      "PrepareResourceInput": {
+        "required": [
+          "resource"
+        ],
+        "type": "object",
+        "properties": {
+          "resource": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The AIR of the resource to make available."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the PrepareResource workflow step."
+      },
+      "PrepareResourceOutput": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The resource that was prepared."
+          },
+          "preparedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the resource became available. Null while the step has not completed.",
+            "format": "date-time"
+          },
+          "provider": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The provider the resource was prepared on."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The result of a PrepareResource workflow step."
+      },
       "PreprocessImageAnimalPoseInput": {
         "allOf": [
           {
@@ -31101,6 +31380,13 @@
         "additionalProperties": false,
         "description": "Details for a specific resource."
       },
+      "ResourceView": {
+        "enum": [
+          "queue"
+        ],
+        "type": "string",
+        "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them."
+      },
       "ReveCreateFalImageGenInput": {
         "allOf": [
           {
@@ -33935,6 +34221,13 @@
             ],
             "type": "object",
             "properties": {
+              "queuePosition": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
               "status": {
                 "enum": [
                   "unavailable"
@@ -38551,6 +38844,9 @@
             ],
             "description": "An estimation on the current progression of this step, or null if there is no estimation.\nComputed by the step's handler (see `WorkflowStepHandler.GetEstimatedProgressRate`)\nand refreshed by `WorkflowStepManager` on each job event. Cleared to null once the\nstep reaches a final status.",
             "format": "double"
+          },
+          "preparation": {
+            "$ref": "#/components/schemas/WorkflowStepPreparation"
           }
         },
         "additionalProperties": false,
@@ -38632,6 +38928,9 @@
           },
           "details": {
             "$ref": "#/components/schemas/WorkflowStepEventDetails"
+          },
+          "preparation": {
+            "$ref": "#/components/schemas/WorkflowStepPreparation"
           }
         },
         "additionalProperties": false,
@@ -38689,6 +38988,9 @@
           "output": {
             "type": "null",
             "description": "The output result from the step"
+          },
+          "preparation": {
+            "$ref": "#/components/schemas/WorkflowStepPreparation"
           }
         },
         "additionalProperties": false,
@@ -38839,6 +39141,43 @@
         },
         "additionalProperties": false,
         "description": "Details of the workflow step job's queue position."
+      },
+      "WorkflowStepPreparation": {
+        "required": [
+          "queuePosition",
+          "resource"
+        ],
+        "type": "object",
+        "properties": {
+          "resource": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The resource currently holding the step back."
+          },
+          "queuePosition": {
+            "type": "integer",
+            "description": "Downloads ahead of this one. Zero means it is transferring now.",
+            "format": "int32"
+          },
+          "progress": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "Download completion, 0.0 to 1.0. Null while the download is still queued.",
+            "format": "double"
+          },
+          "etaSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Estimated seconds until the download completes. Null when there is not enough progress to extrapolate.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "The resource download a step is waiting on while its status is preparing."
       },
       "WorkflowStepTemplate": {
         "required": [

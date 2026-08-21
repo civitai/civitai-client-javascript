@@ -809,6 +809,13 @@ export type Blob = {
    * Get an optional reason for why the blob was blocked. This is only set if the blob was blocked.
    */
   blockedReason?: null | string;
+  /**
+   * Get the storage tier holding this blob, when it is not the default one. Null means the default
+   * tier, which is what every blob produced before the managed tier existed deserializes as.
+   * Carried so a downstream step or consumer resolves the right grain directly rather than
+   * probing each tier for the key.
+   */
+  tier?: null | string;
 };
 
 /**
@@ -3083,6 +3090,11 @@ export type ConvertImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'convertImage';
 };
 
+export type CursedArrayOfStringAndResourceInfo = {
+  next: null | string;
+  items: Array<ResourceInfo>;
+};
+
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
   next: string;
   items: Array<Workflow>;
@@ -4810,6 +4822,22 @@ export type HunyuanVdeoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'hunyuan';
 };
 
+/**
+ * AI Toolkit training for Ideogram 4 models.
+ */
+export type Ideogram4AiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  readonly defaultSteps: number;
+  ecosystem: 'ideogram4';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export const ImageBackgroundRemovalFormat = { PNG: 'png', WEBP: 'webp' } as const;
 
 export type ImageBackgroundRemovalFormat =
@@ -5682,15 +5710,21 @@ export type MediaCanvas = {
  */
 export type MediaCaptioningInput = {
   /**
+   * Captioning model and output contract. Use `ideogram4` for structured
+   * Ideogram 4 JSON captions with normalized bounding boxes.
+   */
+  model?: 'joy-caption' | 'ideogram4';
+  /**
    * The URL of the media to caption (single image or video).
    */
   mediaUrl: string;
   /**
-   * Sampling temperature for caption generation.
+   * Sampling temperature for caption generation. Ideogram 4 uses the Qwen model's
+   * fixed sampling defaults to match AI Toolkit.
    */
   temperature?: number;
   /**
-   * Maximum number of tokens to generate.
+   * Maximum number of tokens to generate. Ideogram 4 enforces a 3072-token floor.
    */
   maxNewTokens?: number;
   /**
@@ -5804,7 +5838,11 @@ export type MediaHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 /**
  * Represents the type of hash algorithm to use for media content.
  */
-export const MediaHashType = { PERCEPTUAL: 'perceptual', PERCEPTUAL_DCT: 'perceptualDct' } as const;
+export const MediaHashType = {
+  PERCEPTUAL: 'perceptual',
+  PERCEPTUAL_DCT: 'perceptualDct',
+  PERCEPTUAL_DCT256: 'perceptualDct256',
+} as const;
 
 /**
  * Represents the type of hash algorithm to use for media content.
@@ -6900,6 +6938,34 @@ export type PolyGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'polyGen';
 };
 
+/**
+ * Represents the input information needed for the PrepareResource workflow step.
+ */
+export type PrepareResourceInput = {
+  /**
+   * The AIR of the resource to make available.
+   */
+  resource: string;
+};
+
+/**
+ * The result of a PrepareResource workflow step.
+ */
+export type PrepareResourceOutput = {
+  /**
+   * The resource that was prepared.
+   */
+  resource?: null | string;
+  /**
+   * When the resource became available. Null while the step has not completed.
+   */
+  preparedAt?: null | string;
+  /**
+   * The provider the resource was prepared on.
+   */
+  provider?: null | string;
+};
+
 export type PreprocessImageAnimalPoseInput = Omit<PreprocessImageInput, 'kind'> & {
   bboxDetector?: AnimalPoseBboxDetector;
   poseEstimator?: AnimalPoseEstimator;
@@ -7748,6 +7814,18 @@ export type ResourceInfo = {
   userId?: null | number;
   availability?: ResourceAvailability;
 };
+
+/**
+ * A projection of the resource collection. There is no view that lists every known resource — resources
+ * are addressed by AIR and only materialise once something asks for them.
+ */
+export const ResourceView = { QUEUE: 'queue' } as const;
+
+/**
+ * A projection of the resource collection. There is no view that lists every known resource — resources
+ * are addressed by AIR and only materialise once something asks for them.
+ */
+export type ResourceView = (typeof ResourceView)[keyof typeof ResourceView];
 
 export type ReveCreateFalImageGenInput = Omit<
   ReveFalImageGenInput,
@@ -8795,6 +8873,7 @@ export type TryOnUOutput = {
 };
 
 export type UnavailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
+  queuePosition?: null | number;
   status: 'unavailable';
 };
 
@@ -10179,6 +10258,7 @@ export type WorkflowStep = {
    * step reaches a final status.
    */
   estimatedProgressRate?: null | number;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -10196,6 +10276,7 @@ export type WorkflowStepEvent = {
   status: WorkflowStatus;
   readonly $type: string;
   details?: WorkflowStepEventDetails;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -10232,6 +10313,7 @@ export type WorkflowStepEventDetails = {
    * The output result from the step
    */
   output?: null;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -10303,6 +10385,28 @@ export type WorkflowStepJobQueuePosition = {
    * An estimated date / time for when the job will complete.
    */
   completeAt?: null | string;
+};
+
+/**
+ * The resource download a step is waiting on while its status is preparing.
+ */
+export type WorkflowStepPreparation = {
+  /**
+   * The resource currently holding the step back.
+   */
+  resource: string;
+  /**
+   * Downloads ahead of this one. Zero means it is transferring now.
+   */
+  queuePosition: number;
+  /**
+   * Download completion, 0.0 to 1.0. Null while the download is still queued.
+   */
+  progress?: null | number;
+  /**
+   * Estimated seconds until the download completes. Null when there is not enough progress to extrapolate.
+   */
+  etaSeconds?: null | number;
 };
 
 /**
@@ -11214,6 +11318,21 @@ export type HiDreamO1AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
+/**
+ * AI Toolkit training for Ideogram 4 models.
+ */
+export type Ideogram4AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ideogram4';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type KohyaImageResourceTrainingInputWritable = Omit<
   ImageResourceTrainingInputWritable,
   'engine'
@@ -12007,6 +12126,7 @@ export type WorkflowStepEventWritable = {
   name: string;
   status: WorkflowStatus;
   details?: WorkflowStepEventDetails;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -12228,6 +12348,7 @@ export type WorkflowStepWritable = {
    * step reaches a final status.
    */
   estimatedProgressRate?: null | number;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -13653,6 +13774,42 @@ export type InvokePolyGenStepTemplateResponses = {
 export type InvokePolyGenStepTemplateResponse =
   InvokePolyGenStepTemplateResponses[keyof InvokePolyGenStepTemplateResponses];
 
+export type InvokePrepareResourceStepTemplateData = {
+  body?: PrepareResourceInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/prepareResource';
+};
+
+export type InvokePrepareResourceStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokePrepareResourceStepTemplateError =
+  InvokePrepareResourceStepTemplateErrors[keyof InvokePrepareResourceStepTemplateErrors];
+
+export type InvokePrepareResourceStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: PrepareResourceOutput;
+};
+
+export type InvokePrepareResourceStepTemplateResponse =
+  InvokePrepareResourceStepTemplateResponses[keyof InvokePrepareResourceStepTemplateResponses];
+
 export type InvokePreprocessImageStepTemplateData = {
   body?: PreprocessImageInputWritable;
   path?: never;
@@ -14372,6 +14529,39 @@ export type InvokeXGuardModerationStepTemplateResponses = {
 
 export type InvokeXGuardModerationStepTemplateResponse =
   InvokeXGuardModerationStepTemplateResponses[keyof InvokeXGuardModerationStepTemplateResponses];
+
+export type QueryResourcesData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * A projection of the resource collection. There is no view that lists every known resource — resources
+     * are addressed by AIR and only materialise once something asks for them.
+     */
+    view: ResourceView;
+    cursor?: string;
+    take?: number;
+  };
+  url: '/v2/resources';
+};
+
+export type QueryResourcesErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+};
+
+export type QueryResourcesError = QueryResourcesErrors[keyof QueryResourcesErrors];
+
+export type QueryResourcesResponses = {
+  /**
+   * OK
+   */
+  200: CursedArrayOfStringAndResourceInfo;
+};
+
+export type QueryResourcesResponse = QueryResourcesResponses[keyof QueryResourcesResponses];
 
 export type GetResourceData = {
   body?: never;
