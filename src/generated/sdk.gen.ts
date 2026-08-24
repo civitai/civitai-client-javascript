@@ -112,9 +112,6 @@ import type {
   InvokeMediaRatingStepTemplateData,
   InvokeMediaRatingStepTemplateErrors,
   InvokeMediaRatingStepTemplateResponses,
-  InvokeMiniMaxMusic3StepTemplateData,
-  InvokeMiniMaxMusic3StepTemplateErrors,
-  InvokeMiniMaxMusic3StepTemplateResponses,
   InvokeModel3dPreviewStepTemplateData,
   InvokeModel3dPreviewStepTemplateErrors,
   InvokeModel3dPreviewStepTemplateResponses,
@@ -133,9 +130,6 @@ import type {
   InvokePolyGenStepTemplateData,
   InvokePolyGenStepTemplateErrors,
   InvokePolyGenStepTemplateResponses,
-  InvokePrepareResourceStepTemplateData,
-  InvokePrepareResourceStepTemplateErrors,
-  InvokePrepareResourceStepTemplateResponses,
   InvokePreprocessImageStepTemplateData,
   InvokePreprocessImageStepTemplateErrors,
   InvokePreprocessImageStepTemplateResponses,
@@ -205,9 +199,6 @@ import type {
   PatchWorkflowStepData,
   PatchWorkflowStepErrors,
   PatchWorkflowStepResponses,
-  QueryResourcesData,
-  QueryResourcesErrors,
-  QueryResourcesResponses,
   QueryWorkflowsData,
   QueryWorkflowsErrors,
   QueryWorkflowsResponses,
@@ -812,25 +803,6 @@ export const invokeMediaRatingStepTemplate = <ThrowOnError extends boolean = fal
   });
 
 /**
- * Generate a complete song from a structured caption and lyrics with MiniMax Music 3.
- */
-export const invokeMiniMaxMusic3StepTemplate = <ThrowOnError extends boolean = false>(
-  options?: Options<InvokeMiniMaxMusic3StepTemplateData, ThrowOnError>
-) =>
-  (options?.client ?? client).post<
-    InvokeMiniMaxMusic3StepTemplateResponses,
-    InvokeMiniMaxMusic3StepTemplateErrors,
-    ThrowOnError
-  >({
-    url: '/v2/consumer/recipes/miniMaxMusic3',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-
-/**
  * 3D model preview
  *
  * Renders screenshots of a 3D model from predefined or supplied camera poses.
@@ -949,27 +921,6 @@ export const invokePolyGenStepTemplate = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/polyGen',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-
-/**
- * Prepare Resource
- *
- * Loads a resource into a provider so later work needing it does not pay the cold-start download. Succeeds immediately when the resource is already available on the fleet.
- */
-export const invokePrepareResourceStepTemplate = <ThrowOnError extends boolean = false>(
-  options?: Options<InvokePrepareResourceStepTemplateData, ThrowOnError>
-) =>
-  (options?.client ?? client).post<
-    InvokePrepareResourceStepTemplateResponses,
-    InvokePrepareResourceStepTemplateErrors,
-    ThrowOnError
-  >({
-    url: '/v2/consumer/recipes/prepareResource',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1377,14 +1328,6 @@ export const invokeXGuardModerationStepTemplate = <ThrowOnError extends boolean 
       'Content-Type': 'application/json',
       ...options?.headers,
     },
-  });
-
-export const queryResources = <ThrowOnError extends boolean = false>(
-  options: Options<QueryResourcesData, ThrowOnError>
-) =>
-  (options.client ?? client).get<QueryResourcesResponses, QueryResourcesErrors, ThrowOnError>({
-    url: '/v2/resources',
-    ...options,
   });
 
 /**

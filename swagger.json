@@ -2516,96 +2516,6 @@
         }
       }
     },
-    "/v2/consumer/recipes/miniMaxMusic3": {
-      "post": {
-        "tags": [
-          "Recipes"
-        ],
-        "summary": "Generate a complete song from a structured caption and lyrics with MiniMax Music 3.",
-        "operationId": "InvokeMiniMaxMusic3StepTemplate",
-        "parameters": [
-          {
-            "name": "experimental",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "allowMatureContent",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "whatif",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "ephemeral",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MiniMaxMusic3Input"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MiniMaxMusic3Input"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/MiniMaxMusic3Input"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MiniMaxMusic3Output"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v2/consumer/recipes/model3DPreview": {
       "post": {
         "tags": [
@@ -3135,97 +3045,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PolyGenOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/consumer/recipes/prepareResource": {
-      "post": {
-        "tags": [
-          "Recipes"
-        ],
-        "summary": "Prepare Resource",
-        "description": "Loads a resource into a provider so later work needing it does not pay the cold-start download. Succeeds immediately when the resource is already available on the fleet.",
-        "operationId": "InvokePrepareResourceStepTemplate",
-        "parameters": [
-          {
-            "name": "experimental",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "allowMatureContent",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "whatif",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "ephemeral",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PrepareResourceInput"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PrepareResourceInput"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PrepareResourceInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PrepareResourceOutput"
                 }
               }
             }
@@ -5035,63 +4854,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/XGuardModerationOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/resources": {
-      "get": {
-        "tags": [
-          "Resources"
-        ],
-        "operationId": "QueryResources",
-        "parameters": [
-          {
-            "name": "view",
-            "in": "query",
-            "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them.",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/ResourceView"
-            }
-          },
-          {
-            "name": "cursor",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "take",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 100
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CursedArrayOfStringAndResourceInfo"
                 }
               }
             }
@@ -7141,14 +6903,12 @@
                 "flux2klein": "#/components/schemas/Flux2KleinAIToolkitTrainingInput",
                 "ltx2": "#/components/schemas/Ltx2AIToolkitTrainingInput",
                 "ltx23": "#/components/schemas/Ltx23AIToolkitTrainingInput",
-                "ltx25": "#/components/schemas/Ltx25AIToolkitTrainingInput",
                 "ace_step_15": "#/components/schemas/AceStep15AIToolkitTrainingInput",
                 "ace_step_15_xl": "#/components/schemas/AceStep15XlAIToolkitTrainingInput",
                 "hidream-o1": "#/components/schemas/HiDreamO1AIToolkitTrainingInput",
                 "anima": "#/components/schemas/AnimaAIToolkitTrainingInput",
                 "boogu": "#/components/schemas/BooguAIToolkitTrainingInput",
                 "krea2": "#/components/schemas/Krea2AIToolkitTrainingInput",
-                "ideogram4": "#/components/schemas/Ideogram4AIToolkitTrainingInput",
                 "mageflow": "#/components/schemas/MageFlowAIToolkitTrainingInput",
                 "minimaxh3": "#/components/schemas/MiniMaxH3AIToolkitTrainingInput"
               }
@@ -8615,7 +8375,8 @@
             },
             "additionalProperties": false
           }
-        ]
+        ],
+        "description": "At least one worker has it cached. Civitai.Orchestration.Grains.Resources.AvailableResourceAvailability.Workers carries the depth — one worker out of\nhundreds is still available, but says nothing about how fast a job will find it."
       },
       "BackgroundRemovalTransformer": {
         "allOf": [
@@ -8777,13 +8538,6 @@
               "string"
             ],
             "description": "Get an optional reason for why the blob was blocked. This is only set if the blob was blocked."
-          },
-          "tier": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "Get the storage tier holding this blob, when it is not the default one. Null means the default\ntier, which is what every blob produced before the managed tier existed deserializes as.\nCarried so a downstream step or consumer resolves the right grain directly rather than\nprobing each tier for the key."
           }
         },
         "additionalProperties": false,
@@ -13550,10 +13304,12 @@
                 "format": "int32"
               },
               "duration": {
-                "maximum": 20,
-                "minimum": 3,
+                "enum": [
+                  3,
+                  20
+                ],
                 "type": "integer",
-                "description": "Duration in seconds (3 through 20)",
+                "description": "Duration in seconds (3 or 5)",
                 "format": "int32",
                 "default": 5
               },
@@ -13679,410 +13435,6 @@
               "engine": {
                 "enum": [
                   "ltx2.3"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Style-transfer an existing video using prompt guidance (ComfyUI backend)"
-      },
-      "ComfyLtx25AudioToVideoInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ComfyLtx25VideoGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "sourceAudio"
-            ],
-            "type": "object",
-            "properties": {
-              "referenceImage": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "description": "Optional reference image (e.g. talking-head subject). When provided, the video is anchored to this image."
-              },
-              "sourceAudio": {
-                "type": "string",
-                "format": "uri"
-              },
-              "imageGuideStrength": {
-                "maximum": 1,
-                "minimum": 0,
-                "type": "number",
-                "description": "Strength of the image guide conditioning (0.0 to 1.0). Only used when ReferenceImage is provided.\nStage 1 strength; stage 2 is fixed at 0.5.",
-                "format": "float",
-                "default": 0.7
-              },
-              "audioToVideoAttentionScale": {
-                "maximum": 10,
-                "minimum": 0,
-                "type": "number",
-                "description": "Audio-to-video cross-attention boost applied via LTX2AttentionTunerPatch.\nHigher values make audio drive the video more strongly.",
-                "format": "float",
-                "default": 2
-              },
-              "operation": {
-                "enum": [
-                  "audioToVideo"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Generate video driven by a reference audio track, optionally anchored to a reference image (ComfyUI backend)"
-      },
-      "ComfyLtx25CreateVideoInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ComfyLtx25VideoGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation"
-            ],
-            "type": "object",
-            "properties": {
-              "images": {
-                "maxItems": 1,
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "description": "Either A URL, A DataURL or a Base64 string"
-                },
-                "description": "Optional source image for image-to-video generation"
-              },
-              "operation": {
-                "enum": [
-                  "createVideo"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Create video from text prompt, optionally with a source image (ComfyUI backend)"
-      },
-      "ComfyLtx25EditVideoInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ComfyLtx25VideoGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "sourceVideo"
-            ],
-            "type": "object",
-            "properties": {
-              "sourceVideo": {
-                "type": "string",
-                "format": "uri"
-              },
-              "guideStrength": {
-                "maximum": 1,
-                "minimum": 0,
-                "type": "number",
-                "format": "float",
-                "default": 1
-              },
-              "operation": {
-                "enum": [
-                  "editVideo"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Edit/transform an existing video using prompt and source-video guidance (ComfyUI backend)"
-      },
-      "ComfyLtx25ExtendVideoInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ComfyLtx25VideoGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "sourceVideo"
-            ],
-            "type": "object",
-            "properties": {
-              "sourceVideo": {
-                "type": "string",
-                "format": "uri"
-              },
-              "numFrames": {
-                "maximum": 481,
-                "minimum": 9,
-                "type": "integer",
-                "format": "int32",
-                "default": 121
-              },
-              "operation": {
-                "enum": [
-                  "extendVideo"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Extend an existing video with new content (ComfyUI backend)"
-      },
-      "ComfyLtx25FirstLastFrameToVideoInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ComfyLtx25VideoGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation"
-            ],
-            "type": "object",
-            "properties": {
-              "firstFrame": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "description": "First frame guide image. At least one of FirstFrame or LastFrame must be provided."
-              },
-              "lastFrame": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "description": "Last frame guide image. At least one of FirstFrame or LastFrame must be provided."
-              },
-              "frameGuideStrength": {
-                "maximum": 1,
-                "minimum": 0,
-                "type": "number",
-                "description": "Strength of the frame guide conditioning (0.0 to 1.0).",
-                "format": "float",
-                "default": 0.7
-              },
-              "operation": {
-                "enum": [
-                  "firstLastFrameToVideo"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Generate video guided by first and/or last frame images using LTXVAddGuide conditioning (ComfyUI backend)"
-      },
-      "ComfyLtx25VideoGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/VideoGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation"
-            ],
-            "type": "object",
-            "properties": {
-              "operation": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "default": "createVideo"
-              },
-              "negativePrompt": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              },
-              "seed": {
-                "type": [
-                  "null",
-                  "integer"
-                ],
-                "format": "int32"
-              },
-              "duration": {
-                "maximum": 20,
-                "minimum": 3,
-                "type": "integer",
-                "description": "Duration in seconds (3 through 20)",
-                "format": "int32",
-                "default": 5
-              },
-              "width": {
-                "type": "integer",
-                "format": "int32",
-                "default": 1280
-              },
-              "height": {
-                "type": "integer",
-                "format": "int32",
-                "default": 720
-              },
-              "fps": {
-                "maximum": 60,
-                "minimum": 1,
-                "type": "number",
-                "format": "float",
-                "default": 24
-              },
-              "generateAudio": {
-                "type": "boolean",
-                "default": true
-              },
-              "guidanceScale": {
-                "maximum": 10,
-                "minimum": 1,
-                "type": "number",
-                "format": "float",
-                "default": 4
-              },
-              "steps": {
-                "maximum": 50,
-                "minimum": 8,
-                "type": "integer",
-                "format": "int32",
-                "default": 20
-              },
-              "model": {
-                "enum": [
-                  "22b-dev",
-                  "22b-distilled"
-                ],
-                "type": "string",
-                "default": "22b-dev"
-              },
-              "loras": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "number",
-                  "format": "double"
-                }
-              },
-              "diffusionModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "description": "Optional override for the LTX 2.5 diffusion-model checkpoint. When set, replaces the\ntransformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx25VideoGenInput.Model while leaving the text encoder, VAEs, and\nupscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base)."
-              },
-              "quantity": {
-                "maximum": 10,
-                "minimum": 1,
-                "type": "integer",
-                "description": "Number of videos to generate in this single job. Each video uses a distinct seed\n(Seed + slotIndex) and is produced by re-running the Comfy workflow.",
-                "format": "int32",
-                "default": 1
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "operation",
-              "mapping": {
-                "createVideo": "#/components/schemas/ComfyLtx25CreateVideoInput",
-                "extendVideo": "#/components/schemas/ComfyLtx25ExtendVideoInput",
-                "editVideo": "#/components/schemas/ComfyLtx25EditVideoInput",
-                "firstLastFrameToVideo": "#/components/schemas/ComfyLtx25FirstLastFrameToVideoInput",
-                "videoToVideo": "#/components/schemas/ComfyLtx25VideoToVideoInput",
-                "audioToVideo": "#/components/schemas/ComfyLtx25AudioToVideoInput"
-              }
-            }
-          }
-        ],
-        "description": "LTX Video v2.5 generation via ComfyUI backend"
-      },
-      "ComfyLtx25VideoToVideoInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ComfyLtx25VideoGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "sourceVideo"
-            ],
-            "type": "object",
-            "properties": {
-              "sourceVideo": {
-                "type": "string",
-                "format": "uri"
-              },
-              "guideStrength": {
-                "maximum": 1,
-                "minimum": 0,
-                "type": "number",
-                "format": "float",
-                "default": 0.2
-              },
-              "operation": {
-                "enum": [
-                  "videoToVideo"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
                 ],
                 "type": "string"
               }
@@ -15136,7 +14488,7 @@
               },
               "duration": {
                 "maximum": 15,
-                "minimum": 4,
+                "minimum": 5,
                 "type": "integer",
                 "format": "int32",
                 "default": 5
@@ -15156,7 +14508,7 @@
                 "default": 480
               },
               "steps": {
-                "maximum": 60,
+                "maximum": 50,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
@@ -15165,24 +14517,6 @@
               "fast": {
                 "type": "boolean",
                 "description": "Enables EasyCache with its default configuration.",
-                "default": false
-              },
-              "diffusionModel": {
-                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": [
-                  "null",
-                  "string"
-                ]
-              },
-              "loras": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "number",
-                  "format": "double"
-                }
-              },
-              "turbo": {
-                "type": "boolean",
                 "default": false
               },
               "engine": {
@@ -16643,28 +15977,6 @@
           }
         ],
         "description": "A workflow step that converts images to different formats and applies optional transforms."
-      },
-      "CursedArrayOfStringAndResourceInfo": {
-        "required": [
-          "items",
-          "next"
-        ],
-        "type": "object",
-        "properties": {
-          "next": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ResourceInfo"
-            }
-          }
-        },
-        "additionalProperties": false
       },
       "CursedArrayOfTelemetryCursorAndWorkflow": {
         "required": [
@@ -20296,13 +19608,12 @@
       "GrokCreateImageGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/GrokV1ImageGenInput"
+            "$ref": "#/components/schemas/GrokImageGenInput"
           },
           {
             "required": [
               "engine",
-              "operation",
-              "version"
+              "operation"
             ],
             "type": "object",
             "properties": {
@@ -20332,12 +19643,6 @@
                 ],
                 "type": "string"
               },
-              "version": {
-                "enum": [
-                  "v1.0"
-                ],
-                "type": "string"
-              },
               "engine": {
                 "enum": [
                   "grok"
@@ -20352,14 +19657,13 @@
       "GrokEditImageGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/GrokV1ImageGenInput"
+            "$ref": "#/components/schemas/GrokImageGenInput"
           },
           {
             "required": [
               "engine",
               "images",
-              "operation",
-              "version"
+              "operation"
             ],
             "type": "object",
             "properties": {
@@ -20375,12 +19679,6 @@
               "operation": {
                 "enum": [
                   "editImage"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v1.0"
                 ],
                 "type": "string"
               },
@@ -20452,17 +19750,13 @@
           {
             "required": [
               "engine",
-              "prompt",
-              "version"
+              "operation",
+              "prompt"
             ],
             "type": "object",
             "properties": {
-              "version": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "default": "v1.0"
+              "operation": {
+                "type": "string"
               },
               "prompt": {
                 "type": "string"
@@ -20483,15 +19777,14 @@
             },
             "additionalProperties": false,
             "discriminator": {
-              "propertyName": "version",
+              "propertyName": "operation",
               "mapping": {
-                "v1.0": "#/components/schemas/GrokV1ImageGenInput",
-                "v2.0": "#/components/schemas/GrokV2ImageGenInput"
+                "createImage": "#/components/schemas/GrokCreateImageGenInput",
+                "editImage": "#/components/schemas/GrokEditImageGenInput"
               }
             }
           }
-        ],
-        "description": "Engine-level base for Grok image generation (xAI's Grok-Imagine model via FAL).\nThe version derived type carries the operation-level discriminator.\nPayloads without a version deserialize as v1.0."
+        ]
       },
       "GrokImageToVideoInput": {
         "allOf": [
@@ -20602,47 +19895,6 @@
           }
         ],
         "description": "Grok Text-to-Video\nFAL Endpoint: xai/grok-imagine-video/text-to-video"
-      },
-      "GrokV1ImageGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GrokImageGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "operation": {
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v1.0"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "grok"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "operation",
-              "mapping": {
-                "createImage": "#/components/schemas/GrokCreateImageGenInput",
-                "editImage": "#/components/schemas/GrokEditImageGenInput"
-              }
-            }
-          }
-        ],
-        "description": "Version-level base for Grok v1.0.\nDiscriminator: operation (createImage, editImage)\nFAL Endpoints: xai/grok-imagine-image[/edit]"
       },
       "GrokV1VideoGenInput": {
         "allOf": [
@@ -20952,191 +20204,6 @@
           }
         ],
         "description": "Version-level base for Grok v1.5 (Grok Imagine 1.5).\nDiscriminator: operation (textToVideo, imageToVideo, referenceToVideo)\nFAL Endpoints: xai/grok-imagine-video/v1.5/{operation}"
-      },
-      "GrokV2CreateImageGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GrokV2ImageGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "aspectRatio": {
-                "enum": [
-                  "2:1",
-                  "20:9",
-                  "19.5:9",
-                  "16:9",
-                  "4:3",
-                  "3:2",
-                  "1:1",
-                  "2:3",
-                  "3:4",
-                  "9:16",
-                  "9:19.5",
-                  "9:20",
-                  "1:2"
-                ],
-                "type": "string",
-                "description": "Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2",
-                "default": "1:1"
-              },
-              "operation": {
-                "enum": [
-                  "createImage"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v2.0"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "grok"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Grok v2.0 Create Image\nFAL Endpoint: xai/grok-imagine-image/v2.0/text-to-image"
-      },
-      "GrokV2EditImageGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GrokV2ImageGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "images",
-              "operation",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "aspectRatio": {
-                "enum": [
-                  "auto",
-                  "2:1",
-                  "20:9",
-                  "19.5:9",
-                  "16:9",
-                  "4:3",
-                  "3:2",
-                  "1:1",
-                  "2:3",
-                  "3:4",
-                  "9:16",
-                  "9:19.5",
-                  "9:20",
-                  "1:2"
-                ],
-                "type": "string",
-                "default": "auto"
-              },
-              "images": {
-                "maxItems": 3,
-                "minItems": 1,
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "description": "Either A URL, A DataURL or a Base64 string"
-                }
-              },
-              "operation": {
-                "enum": [
-                  "editImage"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v2.0"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "grok"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Grok v2.0 Edit Image. Edits 1–3 source images; \"auto\" keeps the source aspect ratio.\nFAL Endpoint: xai/grok-imagine-image/v2.0/edit"
-      },
-      "GrokV2ImageGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GrokImageGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "operation",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "operation": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "default": "createImage"
-              },
-              "resolution": {
-                "enum": [
-                  "1k",
-                  "2k"
-                ],
-                "type": "string",
-                "default": "2k"
-              },
-              "quality": {
-                "enum": [
-                  "low",
-                  "medium"
-                ],
-                "type": "string",
-                "default": "medium"
-              },
-              "version": {
-                "enum": [
-                  "v2.0"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "grok"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "operation",
-              "mapping": {
-                "createImage": "#/components/schemas/GrokV2CreateImageGenInput",
-                "editImage": "#/components/schemas/GrokV2EditImageGenInput"
-              }
-            }
-          }
-        ],
-        "description": "Version-level base for Grok v2.0 (Grok Imagine Image 2.0).\nDiscriminator: operation (createImage, editImage)\nFAL Endpoints: xai/grok-imagine-image/v2.0/{text-to-image,edit}"
       },
       "GrokVideoGenInput": {
         "allOf": [
@@ -22339,52 +21406,6 @@
             "additionalProperties": false
           }
         ]
-      },
-      "Ideogram4AIToolkitTrainingInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AIToolkitTrainingInput"
-          },
-          {
-            "required": [
-              "defaultSteps",
-              "ecosystem",
-              "engine"
-            ],
-            "type": "object",
-            "properties": {
-              "defaultSteps": {
-                "type": "integer",
-                "format": "int32",
-                "readOnly": true
-              },
-              "ecosystem": {
-                "enum": [
-                  "ideogram4"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ai-toolkit"
-                ],
-                "type": "string"
-              },
-              "batchSize": {
-                "maximum": 1,
-                "minimum": 1,
-                "type": [
-                  "null",
-                  "integer"
-                ],
-                "description": "Training batch size. Fixed at 1 for this ecosystem.",
-                "default": 1
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "AI Toolkit training for Ideogram 4 models."
       },
       "ImageBackgroundRemovalFormat": {
         "enum": [
@@ -24260,10 +23281,12 @@
             "properties": {
               "progress": {
                 "type": "number",
+                "description": "Progress of the furthest-along worker, 0..1.",
                 "format": "double"
               },
               "workers": {
                 "type": "integer",
+                "description": "Workers currently downloading it.",
                 "format": "int32"
               },
               "startedAt": {
@@ -24278,6 +23301,7 @@
                   "null",
                   "string"
                 ],
+                "description": "When progress last moved. Reported instead of a \"stalled\" flag so callers can pick their own\nthreshold — the worker's report cadence is configuration, and any constant chosen here would\nsilently become wrong when it changes.",
                 "format": "date-time"
               },
               "etaSeconds": {
@@ -24296,7 +23320,8 @@
             },
             "additionalProperties": false
           }
-        ]
+        ],
+        "description": "Being downloaded right now."
       },
       "Ltx23AIToolkitTrainingInput": {
         "allOf": [
@@ -24349,58 +23374,6 @@
           }
         ],
         "description": "AI Toolkit training for LTX 2.3 video models"
-      },
-      "Ltx25AIToolkitTrainingInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AIToolkitTrainingInput"
-          },
-          {
-            "required": [
-              "defaultSteps",
-              "ecosystem",
-              "engine",
-              "storageBuzzPerEpoch"
-            ],
-            "type": "object",
-            "properties": {
-              "defaultSteps": {
-                "type": "integer",
-                "format": "int32",
-                "readOnly": true
-              },
-              "storageBuzzPerEpoch": {
-                "type": "number",
-                "format": "double",
-                "readOnly": true
-              },
-              "ecosystem": {
-                "enum": [
-                  "ltx25"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ai-toolkit"
-                ],
-                "type": "string"
-              },
-              "batchSize": {
-                "maximum": 1,
-                "minimum": 1,
-                "type": [
-                  "null",
-                  "integer"
-                ],
-                "description": "Training batch size. Fixed at 1 for this ecosystem.",
-                "default": 1
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "AI Toolkit training for LTX 2.5 video models."
       },
       "Ltx2AIToolkitTrainingInput": {
         "allOf": [
@@ -24690,15 +23663,6 @@
         ],
         "type": "object",
         "properties": {
-          "model": {
-            "enum": [
-              "joy-caption",
-              "ideogram4"
-            ],
-            "type": "string",
-            "description": "Captioning model and output contract. Use `ideogram4` for structured\nIdeogram 4 JSON captions with normalized bounding boxes.",
-            "default": "joy-caption"
-          },
           "mediaUrl": {
             "type": "string",
             "description": "The URL of the media to caption (single image or video).",
@@ -24706,13 +23670,13 @@
           },
           "temperature": {
             "type": "number",
-            "description": "Sampling temperature for caption generation. Ideogram 4 uses the Qwen model's\nfixed sampling defaults to match AI Toolkit.",
+            "description": "Sampling temperature for caption generation.",
             "format": "double",
             "default": 0.5
           },
           "maxNewTokens": {
             "type": "integer",
-            "description": "Maximum number of tokens to generate. Ideogram 4 enforces a 3072-token floor.",
+            "description": "Maximum number of tokens to generate.",
             "format": "int32",
             "default": 300
           },
@@ -24919,8 +23883,7 @@
       "MediaHashType": {
         "enum": [
           "perceptual",
-          "perceptualDct",
-          "perceptualDct256"
+          "perceptualDct"
         ],
         "type": "string",
         "description": "Represents the type of hash algorithm to use for media content."
@@ -25162,16 +24125,12 @@
             "required": [
               "engine",
               "model",
-              "version"
+              "operation"
             ],
             "type": "object",
             "properties": {
-              "version": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "default": "v6"
+              "operation": {
+                "type": "string"
               },
               "targetPolycount": {
                 "maximum": 300000,
@@ -25220,173 +24179,12 @@
                 "type": "boolean",
                 "default": false
               },
-              "model": {
-                "enum": [
-                  "meshy"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "version",
-              "mapping": {
-                "v6": "#/components/schemas/MeshyV6FalPolyGenInput",
-                "v7": "#/components/schemas/MeshyV7FalPolyGenInput"
-              }
-            }
-          }
-        ],
-        "description": "Model-level base for Meshy 3D generation (via FAL).\nThe version derived type carries the operation-level discriminator.\nPayloads without a version deserialize as v6."
-      },
-      "MeshyImageTo3DFalPolyGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MeshyV6FalPolyGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "imageUrl",
-              "model",
-              "operation",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "imageUrl": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "shouldTexture": {
-                "type": "boolean",
-                "default": true
-              },
-              "operation": {
-                "enum": [
-                  "imageTo3D"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v6"
-                ],
-                "type": "string"
-              },
-              "model": {
-                "enum": [
-                  "meshy"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
-      },
-      "MeshyTextTo3DFalPolyGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MeshyV6FalPolyGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "model",
-              "operation",
-              "prompt",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "prompt": {
-                "maxLength": 600,
-                "minLength": 1,
-                "type": "string"
-              },
-              "mode": {
-                "enum": [
-                  "preview",
-                  "full"
-                ],
-                "type": "string",
-                "default": "full"
-              },
-              "enablePromptExpansion": {
-                "type": "boolean",
-                "default": false
-              },
-              "operation": {
-                "enum": [
-                  "textTo3D"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v6"
-                ],
-                "type": "string"
-              },
-              "model": {
-                "enum": [
-                  "meshy"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
-      },
-      "MeshyV6FalPolyGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
-          },
-          {
-            "required": [
-              "engine",
-              "model",
-              "operation",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "operation": {
-                "type": "string"
-              },
               "seed": {
                 "type": [
                   "null",
                   "integer"
                 ],
                 "format": "int32"
-              },
-              "version": {
-                "enum": [
-                  "v6"
-                ],
-                "type": "string"
               },
               "model": {
                 "enum": [
@@ -25410,10 +24208,9 @@
               }
             }
           }
-        ],
-        "description": "Version-level base for Meshy v6.\nDiscriminator: operation (textTo3D, imageTo3D)\nFAL Endpoints: fal-ai/meshy/v6/{text-to-3d,image-to-3d}"
+        ]
       },
-      "MeshyV7FalPolyGenInput": {
+      "MeshyImageTo3DFalPolyGenInput": {
         "allOf": [
           {
             "$ref": "#/components/schemas/MeshyFalPolyGenInput"
@@ -25421,95 +24218,9 @@
           {
             "required": [
               "engine",
-              "model",
-              "operation",
-              "version"
-            ],
-            "type": "object",
-            "properties": {
-              "operation": {
-                "type": "string"
-              },
-              "shouldTexture": {
-                "type": "boolean",
-                "default": true
-              },
-              "poseMode": {
-                "enum": [
-                  "none",
-                  "a-pose",
-                  "t-pose"
-                ],
-                "type": "string",
-                "description": "Pose to generate the character in. \"none\" lets Meshy pick.",
-                "default": "none"
-              },
-              "textureImageUrl": {
-                "type": [
-                  "null",
-                  "string"
-                ],
-                "description": "2D image guiding the texturing process."
-              },
-              "riggingHeightMeters": {
-                "maximum": 100,
-                "minimum": 0.01,
-                "type": "number",
-                "description": "Approximate character height in meters. Only used when enableRigging is set.",
-                "format": "double",
-                "default": 1.7
-              },
-              "animationActionId": {
-                "maximum": 696,
-                "minimum": 0,
-                "type": "integer",
-                "description": "Animation preset from Meshy's library (0 is \"Idle\"); see https://docs.meshy.ai/en/api/animation-library.\nOnly used when Civitai.Orchestration.Grains.Workflows.Steps.PolyGen.Fal.MeshyFalPolyGenInput.EnableAnimation is set.",
-                "format": "int32",
-                "default": 92
-              },
-              "version": {
-                "enum": [
-                  "v7"
-                ],
-                "type": "string"
-              },
-              "model": {
-                "enum": [
-                  "meshy"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false,
-            "discriminator": {
-              "propertyName": "operation",
-              "mapping": {
-                "imageTo3D": "#/components/schemas/MeshyV7ImageTo3DFalPolyGenInput",
-                "multiImageTo3D": "#/components/schemas/MeshyV7MultiImageTo3DFalPolyGenInput"
-              }
-            }
-          }
-        ],
-        "description": "Version-level base for Meshy v7.\nDiscriminator: operation (imageTo3D, multiImageTo3D)\nFAL Endpoints: meshy/v7/{image-to-3d,multi-image-to-3d}"
-      },
-      "MeshyV7ImageTo3DFalPolyGenInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/MeshyV7FalPolyGenInput"
-          },
-          {
-            "required": [
-              "engine",
               "imageUrl",
               "model",
-              "operation",
-              "version"
+              "operation"
             ],
             "type": "object",
             "properties": {
@@ -25517,29 +24228,13 @@
                 "minLength": 1,
                 "type": "string"
               },
-              "ultraMode": {
+              "shouldTexture": {
                 "type": "boolean",
-                "description": "Higher-fidelity geometry with finer surface detail.",
-                "default": false
-              },
-              "modelType": {
-                "enum": [
-                  "standard",
-                  "lowpoly"
-                ],
-                "type": "string",
-                "description": "\"lowpoly\" makes Meshy ignore the remesh controls (topology, targetPolycount, shouldRemesh).",
-                "default": "standard"
+                "default": true
               },
               "operation": {
                 "enum": [
                   "imageTo3D"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v7"
                 ],
                 "type": "string"
               },
@@ -25560,39 +24255,40 @@
           }
         ]
       },
-      "MeshyV7MultiImageTo3DFalPolyGenInput": {
+      "MeshyTextTo3DFalPolyGenInput": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/MeshyV7FalPolyGenInput"
+            "$ref": "#/components/schemas/MeshyFalPolyGenInput"
           },
           {
             "required": [
               "engine",
-              "imageUrls",
               "model",
               "operation",
-              "version"
+              "prompt"
             ],
             "type": "object",
             "properties": {
-              "imageUrls": {
-                "maxItems": 4,
-                "minItems": 1,
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "1–4 views of the same object. Meshy has no ultra or lowpoly mode on this operation."
+              "prompt": {
+                "maxLength": 600,
+                "minLength": 1,
+                "type": "string"
+              },
+              "mode": {
+                "enum": [
+                  "preview",
+                  "full"
+                ],
+                "type": "string",
+                "default": "full"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": false
               },
               "operation": {
                 "enum": [
-                  "multiImageTo3D"
-                ],
-                "type": "string"
-              },
-              "version": {
-                "enum": [
-                  "v7"
+                  "textTo3D"
                 ],
                 "type": "string"
               },
@@ -25816,165 +24512,6 @@
             "additionalProperties": false
           }
         ]
-      },
-      "MiniMaxMusic3Input": {
-        "required": [
-          "caption",
-          "lyrics",
-          "seed"
-        ],
-        "type": "object",
-        "properties": {
-          "caption": {
-            "type": "string",
-            "description": "Structured music description. For best results use Global Metadata, Vocal Details,\nand Arrangement sections."
-          },
-          "lyrics": {
-            "type": "string",
-            "description": "Lyrics with section markers such as [Intro], [Verse], [Chorus], and [Outro]."
-          },
-          "seed": {
-            "type": "integer",
-            "description": "Random seed for reproducible generation.",
-            "format": "int32"
-          },
-          "maxDuration": {
-            "maximum": 360,
-            "minimum": 0.03999999910593033,
-            "type": "number",
-            "description": "Maximum generated song duration in seconds. The model may end the song earlier when\nthe requested lyric structure is complete.",
-            "format": "float",
-            "default": 120
-          },
-          "steps": {
-            "maximum": 100,
-            "minimum": 1,
-            "type": "integer",
-            "description": "Number of diffusion sampling steps.",
-            "format": "int32",
-            "default": 30
-          },
-          "cfg": {
-            "maximum": 100,
-            "minimum": 0,
-            "type": "number",
-            "description": "Classifier-free guidance scale used by both text encoding and sampling.",
-            "format": "float",
-            "default": 1.7
-          },
-          "topK": {
-            "maximum": 16384,
-            "minimum": 1,
-            "type": "integer",
-            "description": "Top-k sampling limit used by the MiniMax music text encoder.",
-            "format": "int32",
-            "default": 50
-          },
-          "diffusionModel": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "Optional diffusion model override."
-          },
-          "textEncoder": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "Optional MiniMax text encoder override."
-          },
-          "vae": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "Optional audio VAE override."
-          },
-          "loras": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "number",
-              "format": "double"
-            },
-            "description": "Optional LoRAs to apply to both the diffusion model and MiniMax text encoder.\nCompatibility with the selected base resources is the caller's responsibility."
-          }
-        },
-        "additionalProperties": false,
-        "description": "Input parameters for MiniMax Music 3 text-to-music generation."
-      },
-      "MiniMaxMusic3Output": {
-        "required": [
-          "blob"
-        ],
-        "type": "object",
-        "properties": {
-          "blob": {
-            "$ref": "#/components/schemas/AudioBlob"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Output from MiniMax Music 3 generation."
-      },
-      "MiniMaxMusic3Step": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WorkflowStep"
-          },
-          {
-            "required": [
-              "$type",
-              "input"
-            ],
-            "type": "object",
-            "properties": {
-              "input": {
-                "$ref": "#/components/schemas/MiniMaxMusic3Input"
-              },
-              "output": {
-                "$ref": "#/components/schemas/MiniMaxMusic3Output"
-              },
-              "$type": {
-                "enum": [
-                  "miniMaxMusic3"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Generate a complete song from a structured caption and lyrics with MiniMax Music 3."
-      },
-      "MiniMaxMusic3StepTemplate": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/WorkflowStepTemplate"
-          },
-          {
-            "required": [
-              "$type",
-              "input"
-            ],
-            "type": "object",
-            "properties": {
-              "input": {
-                "$ref": "#/components/schemas/MiniMaxMusic3Input"
-              },
-              "$type": {
-                "enum": [
-                  "miniMaxMusic3"
-                ],
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "Generate a complete song from a structured caption and lyrics with MiniMax Music 3."
       },
       "MiniMaxVideoGenInput": {
         "allOf": [
@@ -28301,51 +26838,6 @@
           }
         ],
         "description": "3D model generation"
-      },
-      "PrepareResourceInput": {
-        "required": [
-          "resource"
-        ],
-        "type": "object",
-        "properties": {
-          "resource": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string",
-            "description": "The AIR of the resource to make available."
-          }
-        },
-        "additionalProperties": false,
-        "description": "Represents the input information needed for the PrepareResource workflow step."
-      },
-      "PrepareResourceOutput": {
-        "type": "object",
-        "properties": {
-          "resource": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "The resource that was prepared."
-          },
-          "preparedAt": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "When the resource became available. Null while the step has not completed.",
-            "format": "date-time"
-          },
-          "provider": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "description": "The provider the resource was prepared on."
-          }
-        },
-        "additionalProperties": false,
-        "description": "The result of a PrepareResource workflow step."
       },
       "PreprocessImageAnimalPoseInput": {
         "allOf": [
@@ -31175,6 +29667,7 @@
           }
         },
         "additionalProperties": false,
+        "description": "Whether a resource can be generated with right now, reduced across every provider to the single\nbest answer. Discriminated on `status` rather than `$type` because the values read as\nadjectives describing the resource, not as type names.",
         "discriminator": {
           "propertyName": "status",
           "mapping": {
@@ -31379,13 +29872,6 @@
         },
         "additionalProperties": false,
         "description": "Details for a specific resource."
-      },
-      "ResourceView": {
-        "enum": [
-          "queue"
-        ],
-        "type": "string",
-        "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them."
       },
       "ReveCreateFalImageGenInput": {
         "allOf": [
@@ -34221,13 +32707,6 @@
             ],
             "type": "object",
             "properties": {
-              "queuePosition": {
-                "type": [
-                  "null",
-                  "integer"
-                ],
-                "format": "int32"
-              },
               "status": {
                 "enum": [
                   "unavailable"
@@ -34237,7 +32716,8 @@
             },
             "additionalProperties": false
           }
-        ]
+        ],
+        "description": "Workers could hold it; none have it and none are fetching it."
       },
       "UnsupportedResourceAvailability": {
         "allOf": [
@@ -34259,7 +32739,8 @@
             },
             "additionalProperties": false
           }
-        ]
+        ],
+        "description": "No worker can hold this resource at all — wrong ecosystem, or a type nobody fetches on demand.\nDistinct from Civitai.Orchestration.Grains.Resources.UnavailableResourceAvailability: this one will never become\navailable, so offering to load it would be offering something that cannot happen."
       },
       "UpdateWorkflowRequest": {
         "type": "object",
@@ -35075,7 +33556,6 @@
             "lightricks": "#/components/schemas/LightricksVideoGenInput",
             "ltx2": "#/components/schemas/ComfyLtx2VideoGenInput",
             "ltx2.3": "#/components/schemas/ComfyLtx23VideoGenInput",
-            "ltx2.5": "#/components/schemas/ComfyLtx25VideoGenInput",
             "hunyuan": "#/components/schemas/HunyuanVdeoGenInput",
             "wan": "#/components/schemas/WanVideoGenInput",
             "vidu": "#/components/schemas/ViduVideoGenInput",
@@ -38844,9 +37324,6 @@
             ],
             "description": "An estimation on the current progression of this step, or null if there is no estimation.\nComputed by the step's handler (see `WorkflowStepHandler.GetEstimatedProgressRate`)\nand refreshed by `WorkflowStepManager` on each job event. Cleared to null once the\nstep reaches a final status.",
             "format": "double"
-          },
-          "preparation": {
-            "$ref": "#/components/schemas/WorkflowStepPreparation"
           }
         },
         "additionalProperties": false,
@@ -38874,7 +37351,6 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStep",
             "mediaHash": "#/components/schemas/MediaHashStep",
             "mediaRating": "#/components/schemas/MediaRatingStep",
-            "miniMaxMusic3": "#/components/schemas/MiniMaxMusic3Step",
             "model3DPreview": "#/components/schemas/Model3DPreviewStep",
             "modelClamScan": "#/components/schemas/ModelClamScanStep",
             "modelHash": "#/components/schemas/ModelHashStep",
@@ -38928,9 +37404,6 @@
           },
           "details": {
             "$ref": "#/components/schemas/WorkflowStepEventDetails"
-          },
-          "preparation": {
-            "$ref": "#/components/schemas/WorkflowStepPreparation"
           }
         },
         "additionalProperties": false,
@@ -38988,9 +37461,6 @@
           "output": {
             "type": "null",
             "description": "The output result from the step"
-          },
-          "preparation": {
-            "$ref": "#/components/schemas/WorkflowStepPreparation"
           }
         },
         "additionalProperties": false,
@@ -39142,43 +37612,6 @@
         "additionalProperties": false,
         "description": "Details of the workflow step job's queue position."
       },
-      "WorkflowStepPreparation": {
-        "required": [
-          "queuePosition",
-          "resource"
-        ],
-        "type": "object",
-        "properties": {
-          "resource": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string",
-            "description": "The resource currently holding the step back."
-          },
-          "queuePosition": {
-            "type": "integer",
-            "description": "Downloads ahead of this one. Zero means it is transferring now.",
-            "format": "int32"
-          },
-          "progress": {
-            "type": [
-              "null",
-              "number"
-            ],
-            "description": "Download completion, 0.0 to 1.0. Null while the download is still queued.",
-            "format": "double"
-          },
-          "etaSeconds": {
-            "type": [
-              "null",
-              "integer"
-            ],
-            "description": "Estimated seconds until the download completes. Null when there is not enough progress to extrapolate.",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false,
-        "description": "The resource download a step is waiting on while its status is preparing."
-      },
       "WorkflowStepTemplate": {
         "required": [
           "$type"
@@ -39248,7 +37681,6 @@
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStepTemplate",
             "mediaHash": "#/components/schemas/MediaHashStepTemplate",
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
-            "miniMaxMusic3": "#/components/schemas/MiniMaxMusic3StepTemplate",
             "model3DPreview": "#/components/schemas/Model3DPreviewStepTemplate",
             "modelClamScan": "#/components/schemas/ModelClamScanStepTemplate",
             "modelHash": "#/components/schemas/ModelHashStepTemplate",
