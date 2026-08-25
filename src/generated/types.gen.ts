@@ -665,6 +665,10 @@ export type AssistantMessage = Omit<ChatCompletionMessage, 'role'> & {
    * included "image" in its modalities. Each entry is a base64 data URI.
    */
   images?: null | Array<ChatCompletionGeneratedImage>;
+  /**
+   * Model reasoning separated from the answer by the host's reasoning parser (vLLM convention).
+   */
+  reasoning_content?: null | string;
   role: 'assistant';
 };
 
@@ -733,10 +737,6 @@ export type AudioComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
   type: 'audio';
 };
 
-/**
- * At least one worker has it cached. Civitai.Orchestration.Grains.Resources.AvailableResourceAvailability.Workers carries the depth — one worker out of
- * hundreds is still available, but says nothing about how fast a job will find it.
- */
 export type AvailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
   workers: number;
   status: 'available';
@@ -813,6 +813,13 @@ export type Blob = {
    * Get an optional reason for why the blob was blocked. This is only set if the blob was blocked.
    */
   blockedReason?: null | string;
+  /**
+   * Get the storage tier holding this blob, when it is not the default one. Null means the default
+   * tier, which is what every blob produced before the managed tier existed deserializes as.
+   * Carried so a downstream step or consumer resolves the right grain directly rather than
+   * probing each tier for the key.
+   */
+  tier?: null | string;
 };
 
 /**
@@ -884,6 +891,33 @@ export type BlobArchiveStep = Omit<WorkflowStep, '$type'> & {
 export type BlobArchiveStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: BlobArchiveInput;
   $type: 'blobArchive';
+};
+
+/**
+ * A single training item: a consumer-uploaded blob plus an optional caption.
+ */
+export type BlobTrainingDataItem = {
+  /**
+   * The blob reference. Accepts an AIR urn (urn:air:other:other:orchestrator:blob@{blobKey}),
+   * a /v2/consumer/blobs/{blobKey} URL, or a bare blob key; normalized to the AIR urn form at submission.
+   */
+  air: string;
+  /**
+   * Optional caption for this item, written as the trainer's sidecar caption file.
+   */
+  caption?: null | string;
+};
+
+/**
+ * Training data supplied as individually uploaded blobs (via POST /v2/consumer/blobs),
+ * so each item passed through per-asset moderation on upload.
+ */
+export type BlobsTrainingData = Omit<TrainingData, 'type'> & {
+  /**
+   * The training items, in dataset order. Each references a consumer-uploaded blob.
+   */
+  items: Array<BlobTrainingDataItem>;
+  type: 'blobs';
 };
 
 /**
@@ -2115,9 +2149,9 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
   seed?: null | number;
   /**
-   * Duration in seconds (3 or 5)
+   * Duration in seconds (3 through 20)
    */
-  duration?: 3 | 20;
+  duration?: number;
   width?: number;
   height?: number;
   fps?: number;
@@ -2150,6 +2184,129 @@ export type ComfyLtx23VideoToVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine'
   guideStrength?: number;
   operation: 'videoToVideo';
   engine: 'ltx2.3';
+};
+
+/**
+ * Generate video driven by a reference audio track, optionally anchored to a reference image (ComfyUI backend)
+ */
+export type ComfyLtx25AudioToVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  /**
+   * Optional reference image (e.g. talking-head subject). When provided, the video is anchored to this image.
+   */
+  referenceImage?: null | string;
+  sourceAudio: string;
+  /**
+   * Strength of the image guide conditioning (0.0 to 1.0). Only used when ReferenceImage is provided.
+   * Stage 1 strength; stage 2 is fixed at 0.5.
+   */
+  imageGuideStrength?: number;
+  /**
+   * Audio-to-video cross-attention boost applied via LTX2AttentionTunerPatch.
+   * Higher values make audio drive the video more strongly.
+   */
+  audioToVideoAttentionScale?: number;
+  operation: 'audioToVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Create video from text prompt, optionally with a source image (ComfyUI backend)
+ */
+export type ComfyLtx25CreateVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  /**
+   * Optional source image for image-to-video generation
+   */
+  images?: Array<string>;
+  operation: 'createVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Edit/transform an existing video using prompt and source-video guidance (ComfyUI backend)
+ */
+export type ComfyLtx25EditVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  sourceVideo: string;
+  guideStrength?: number;
+  operation: 'editVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Extend an existing video with new content (ComfyUI backend)
+ */
+export type ComfyLtx25ExtendVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  sourceVideo: string;
+  numFrames?: number;
+  operation: 'extendVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * Generate video guided by first and/or last frame images using LTXVAddGuide conditioning (ComfyUI backend)
+ */
+export type ComfyLtx25FirstLastFrameToVideoInput = Omit<
+  ComfyLtx25VideoGenInput,
+  'engine' | 'operation'
+> & {
+  /**
+   * First frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  firstFrame?: null | string;
+  /**
+   * Last frame guide image. At least one of FirstFrame or LastFrame must be provided.
+   */
+  lastFrame?: null | string;
+  /**
+   * Strength of the frame guide conditioning (0.0 to 1.0).
+   */
+  frameGuideStrength?: number;
+  operation: 'firstLastFrameToVideo';
+  engine: 'ltx2.5';
+};
+
+/**
+ * LTX Video v2.5 generation via ComfyUI backend
+ */
+export type ComfyLtx25VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation: null | string;
+  negativePrompt?: null | string;
+  seed?: null | number;
+  /**
+   * Duration in seconds (3 through 20)
+   */
+  duration?: number;
+  width?: number;
+  height?: number;
+  fps?: number;
+  generateAudio?: boolean;
+  guidanceScale?: number;
+  steps?: number;
+  model?: '22b-dev' | '22b-distilled';
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Optional override for the LTX 2.5 diffusion-model checkpoint. When set, replaces the
+   * transformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx25VideoGenInput.Model while leaving the text encoder, VAEs, and
+   * upscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base).
+   */
+  diffusionModel?: null | string;
+  /**
+   * Number of videos to generate in this single job. Each video uses a distinct seed
+   * (Seed + slotIndex) and is produced by re-running the Comfy workflow.
+   */
+  quantity?: number;
+  engine: 'ltx2.5';
+};
+
+/**
+ * Style-transfer an existing video using prompt guidance (ComfyUI backend)
+ */
+export type ComfyLtx25VideoToVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
+  sourceVideo: string;
+  guideStrength?: number;
+  operation: 'videoToVideo';
+  engine: 'ltx2.5';
 };
 
 /**
@@ -2400,6 +2557,11 @@ export type ComfyMiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    * Enables EasyCache with its default configuration.
    */
   fast?: boolean;
+  diffusionModel?: null | string;
+  loras?: {
+    [key: string]: number;
+  };
+  turbo?: boolean;
   engine: 'minimax-h3-comfy';
 };
 
@@ -2933,6 +3095,14 @@ export type ConvertImageInput = {
    */
   transforms?: Array<ImageTransform>;
   output: ImageOutputFormat;
+  /**
+   * Stores the result in a bucket that serves it directly, so the returned url is stable and
+   * unsigned rather than presigned — a CDN can cache it, and reading it never touches the
+   * orchestrator. Restricted to privileged callers: nothing gates a read of that url, so no NSFW
+   * level, blocked reason or mature-content restriction applies to it, and a block decided after
+   * the fact cannot take it back.
+   */
+  public?: null | boolean;
 };
 
 /**
@@ -2957,6 +3127,11 @@ export type ConvertImageStep = Omit<WorkflowStep, '$type'> & {
 export type ConvertImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ConvertImageInput;
   $type: 'convertImage';
+};
+
+export type CursedArrayOfStringAndResourceInfo = {
+  next: null | string;
+  items: Array<ResourceInfo>;
 };
 
 export type CursedArrayOfTelemetryCursorAndWorkflow = {
@@ -4093,7 +4268,10 @@ export type GoogleImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'google';
 };
 
-export type GrokCreateImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operation'> & {
+export type GrokCreateImageGenInput = Omit<
+  GrokV1ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
   /**
    * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
    */
@@ -4112,12 +4290,17 @@ export type GrokCreateImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operat
     | '9:20'
     | '1:2';
   operation: 'createImage';
+  version: 'v1.0';
   engine: 'grok';
 };
 
-export type GrokEditImageGenInput = Omit<GrokImageGenInput, 'engine' | 'operation'> & {
+export type GrokEditImageGenInput = Omit<
+  GrokV1ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
   images: Array<string>;
   operation: 'editImage';
+  version: 'v1.0';
   engine: 'grok';
 };
 
@@ -4135,8 +4318,13 @@ export type GrokEditVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' 
   engine: 'grok';
 };
 
+/**
+ * Engine-level base for Grok image generation (xAI's Grok-Imagine model via FAL).
+ * The version derived type carries the operation-level discriminator.
+ * Payloads without a version deserialize as v1.0.
+ */
 export type GrokImageGenInput = Omit<ImageGenInput, 'engine'> & {
-  operation: string;
+  version: null | string;
   prompt: string;
   quantity?: number;
   engine: 'grok';
@@ -4164,6 +4352,17 @@ export type GrokImageToVideoInput = Omit<
 export type GrokTextToVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' | 'operation'> & {
   aspectRatio?: '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16';
   operation: 'text-to-video';
+  version: 'v1.0';
+  engine: 'grok';
+};
+
+/**
+ * Version-level base for Grok v1.0.
+ * Discriminator: operation (createImage, editImage)
+ * FAL Endpoints: xai/grok-imagine-image[/edit]
+ */
+export type GrokV1ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> & {
+  operation: string;
   version: 'v1.0';
   engine: 'grok';
 };
@@ -4241,6 +4440,78 @@ export type GrokV15TextToVideoInput = Omit<
 export type GrokV15VideoGenInput = Omit<GrokVideoGenInput, 'engine' | 'version'> & {
   operation: null | string;
   version: 'v1.5';
+  engine: 'grok';
+};
+
+/**
+ * Grok v2.0 Create Image
+ * FAL Endpoint: xai/grok-imagine-image/v2.0/text-to-image
+ */
+export type GrokV2CreateImageGenInput = Omit<
+  GrokV2ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
+   */
+  aspectRatio?:
+    | '2:1'
+    | '20:9'
+    | '19.5:9'
+    | '16:9'
+    | '4:3'
+    | '3:2'
+    | '1:1'
+    | '2:3'
+    | '3:4'
+    | '9:16'
+    | '9:19.5'
+    | '9:20'
+    | '1:2';
+  operation: 'createImage';
+  version: 'v2.0';
+  engine: 'grok';
+};
+
+/**
+ * Grok v2.0 Edit Image. Edits 1–3 source images; "auto" keeps the source aspect ratio.
+ * FAL Endpoint: xai/grok-imagine-image/v2.0/edit
+ */
+export type GrokV2EditImageGenInput = Omit<
+  GrokV2ImageGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  aspectRatio?:
+    | 'auto'
+    | '2:1'
+    | '20:9'
+    | '19.5:9'
+    | '16:9'
+    | '4:3'
+    | '3:2'
+    | '1:1'
+    | '2:3'
+    | '3:4'
+    | '9:16'
+    | '9:19.5'
+    | '9:20'
+    | '1:2';
+  images: Array<string>;
+  operation: 'editImage';
+  version: 'v2.0';
+  engine: 'grok';
+};
+
+/**
+ * Version-level base for Grok v2.0 (Grok Imagine Image 2.0).
+ * Discriminator: operation (createImage, editImage)
+ * FAL Endpoints: xai/grok-imagine-image/v2.0/{text-to-image,edit}
+ */
+export type GrokV2ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> & {
+  operation: null | string;
+  resolution?: '1k' | '2k';
+  quality?: 'low' | 'medium';
+  version: 'v2.0';
   engine: 'grok';
 };
 
@@ -4588,6 +4859,22 @@ export type HunyuanVdeoGenInput = Omit<VideoGenInput, 'engine'> & {
   loras?: Array<VideoGenInputLora>;
   model?: null | string;
   engine: 'hunyuan';
+};
+
+/**
+ * AI Toolkit training for Ideogram 4 models.
+ */
+export type Ideogram4AiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  readonly defaultSteps: number;
+  ecosystem: 'ideogram4';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export const ImageBackgroundRemovalFormat = { PNG: 'png', WEBP: 'webp' } as const;
@@ -4998,6 +5285,44 @@ export const JobSupport = {
 export type JobSupport = (typeof JobSupport)[keyof typeof JobSupport];
 
 /**
+ * Represents joint face-and-body apparent-age results for photo and anime content.
+ */
+export type JointAgeClassificationResult = {
+  detections: Array<JointAgeDetection>;
+  status?: null | string;
+  ran?: null | boolean;
+  childDetected?: null | boolean;
+  minorDetected?: null | boolean;
+  oodDetected?: null | boolean;
+  error?: null | string;
+};
+
+/**
+ * Represents one photo-or-anime age estimate for a detected person.
+ */
+export type JointAgeDetection = {
+  boundingBox: BoundingBox;
+  personDetected: boolean;
+  personDetectionConfidence: number;
+  faceBoundingBox?: BoundingBox;
+  faceDetectionConfidence?: null | number;
+  domain: string;
+  animeProbability: number;
+  apparentAge: number;
+  ageBand: string;
+  under13Probability: number;
+  under18Probability: number;
+  oodProbability: number;
+  ordinalCutpointProbabilities: {
+    [key: string]: number;
+  };
+  isChild: boolean;
+  isMinor: boolean;
+  isOod: boolean;
+  warning?: null | string;
+};
+
+/**
  * JPEG output format configuration.
  */
 export type JpegOutputFormat = Omit<ImageOutputFormat, 'format'> & {
@@ -5295,6 +5620,53 @@ export type Krea2StyleReference = {
   strength?: number;
 };
 
+/**
+ * Text-to-image, or image-to-image when Civitai.Orchestration.Grains.Workflows.Steps.ImageGen.Krea.KreaCreateImageGenInput.Image is supplied.
+ */
+export type KreaCreateImageGenInput = Omit<KreaImageGenInput, 'engine' | 'operation'> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image?: null | string;
+  /**
+   * Denoising strength for image-to-image; ignored without Civitai.Orchestration.Grains.Workflows.Steps.ImageGen.Krea.KreaCreateImageGenInput.Image.
+   */
+  strength?: number;
+  operation: 'createImage';
+  engine: 'krea';
+};
+
+/**
+ * Krea 2 served by Krea's own API. Distinct from `fal`/`krea2` (the same models via FAL) and
+ * from the `comfy`/`krea2` ecosystem, which runs the open weights on our own workers.
+ */
+export type KreaImageGenInput = Omit<ImageGenInput, 'engine'> & {
+  operation: null | string;
+  prompt: string;
+  model?: 'krea2-medium' | 'krea2-large' | 'krea2-medium-turbo';
+  aspectRatio?: '1:1' | '4:3' | '3:2' | '16:9' | '2.35:1' | '4:5' | '2:3' | '9:16';
+  /**
+   * How much Krea expands the prompt: `raw` renders only what was written.
+   */
+  creativity?: 'raw' | 'low' | 'medium' | 'high';
+  quantity?: number;
+  seed?: null | number;
+  /**
+   * K2 intensity slider.
+   */
+  intensity?: number;
+  /**
+   * K2 complexity slider.
+   */
+  complexity?: number;
+  /**
+   * K2 movement slider.
+   */
+  movement?: number;
+  imageStyleReferences: Array<Krea2StyleReference>;
+  engine: 'krea';
+};
+
 export const LeresBoost = { DISABLE: 'disable', ENABLE: 'enable' } as const;
 
 export type LeresBoost = (typeof LeresBoost)[keyof typeof LeresBoost];
@@ -5326,24 +5698,10 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
-/**
- * Being downloaded right now.
- */
 export type LoadingResourceAvailability = Omit<ResourceAvailability, 'status'> & {
-  /**
-   * Progress of the furthest-along worker, 0..1.
-   */
   progress: number;
-  /**
-   * Workers currently downloading it.
-   */
   workers: number;
   startedAt?: null | string;
-  /**
-   * When progress last moved. Reported instead of a "stalled" flag so callers can pick their own
-   * threshold — the worker's report cadence is configuration, and any constant chosen here would
-   * silently become wrong when it changes.
-   */
   lastProgressAt?: null | string;
   etaSeconds?: null | number;
   status: 'loading';
@@ -5356,6 +5714,20 @@ export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
   readonly defaultSteps: number;
   readonly storageBuzzPerEpoch: number;
   ecosystem: 'ltx23';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for LTX 2.5 video models.
+ */
+export type Ltx25AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  readonly storageBuzzPerEpoch: number;
+  ecosystem: 'ltx25';
   engine: 'ai-toolkit';
   /**
    * Training batch size. Fixed at 1 for this ecosystem.
@@ -5462,15 +5834,21 @@ export type MediaCanvas = {
  */
 export type MediaCaptioningInput = {
   /**
+   * Captioning model and output contract. Use `ideogram4` for structured
+   * Ideogram 4 JSON captions with normalized bounding boxes.
+   */
+  model?: 'joy-caption' | 'ideogram4';
+  /**
    * The URL of the media to caption (single image or video).
    */
   mediaUrl: string;
   /**
-   * Sampling temperature for caption generation.
+   * Sampling temperature for caption generation. Ideogram 4 uses the Qwen model's
+   * fixed sampling defaults to match AI Toolkit.
    */
   temperature?: number;
   /**
-   * Maximum number of tokens to generate.
+   * Maximum number of tokens to generate. Ideogram 4 enforces a 3072-token floor.
    */
   maxNewTokens?: number;
   /**
@@ -5584,7 +5962,11 @@ export type MediaHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 /**
  * Represents the type of hash algorithm to use for media content.
  */
-export const MediaHashType = { PERCEPTUAL: 'perceptual', PERCEPTUAL_DCT: 'perceptualDct' } as const;
+export const MediaHashType = {
+  PERCEPTUAL: 'perceptual',
+  PERCEPTUAL_DCT: 'perceptualDct',
+  PERCEPTUAL_DCT256: 'perceptualDct256',
+} as const;
 
 /**
  * Represents the type of hash algorithm to use for media content.
@@ -5661,6 +6043,10 @@ export type MediaRatingInput = {
    * Include body-only apparent-age and child-risk classification in the results.
    */
   includeBodyAgeClassification: boolean;
+  /**
+   * Include joint face-and-body apparent-age classification for photo and anime content.
+   */
+  includeJointAgeClassification: boolean;
 };
 
 /**
@@ -5691,6 +6077,7 @@ export type MediaRatingOutput = {
   csam?: null | boolean;
   humanRecognition?: HumanRecognitionResult;
   bodyAgeClassification?: BodyAgeClassificationResult;
+  jointAgeClassification?: JointAgeClassificationResult;
 };
 
 /**
@@ -5719,8 +6106,13 @@ export type MediaTransformer = {
   type: string;
 };
 
+/**
+ * Model-level base for Meshy 3D generation (via FAL).
+ * The version derived type carries the operation-level discriminator.
+ * Payloads without a version deserialize as v6.
+ */
 export type MeshyFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
-  operation: string;
+  version: null | string;
   targetPolycount?: number;
   topology?: 'quad' | 'triangle';
   symmetryMode?: 'off' | 'auto' | 'on';
@@ -5729,30 +6121,107 @@ export type MeshyFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
   texturePrompt?: null | string;
   enableRigging?: boolean;
   enableAnimation?: boolean;
-  seed?: null | number;
   model: 'meshy';
   engine: 'fal';
 };
 
 export type MeshyImageTo3dFalPolyGenInput = Omit<
-  MeshyFalPolyGenInput,
-  'engine' | 'model' | 'operation'
+  MeshyV6FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
 > & {
   imageUrl: string;
   shouldTexture?: boolean;
   operation: 'imageTo3D';
+  version: 'v6';
   model: 'meshy';
   engine: 'fal';
 };
 
 export type MeshyTextTo3dFalPolyGenInput = Omit<
-  MeshyFalPolyGenInput,
-  'engine' | 'model' | 'operation'
+  MeshyV6FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
 > & {
   prompt: string;
   mode?: 'preview' | 'full';
   enablePromptExpansion?: boolean;
   operation: 'textTo3D';
+  version: 'v6';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+/**
+ * Version-level base for Meshy v6.
+ * Discriminator: operation (textTo3D, imageTo3D)
+ * FAL Endpoints: fal-ai/meshy/v6/{text-to-3d,image-to-3d}
+ */
+export type MeshyV6FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'model' | 'version'> & {
+  operation: string;
+  seed?: null | number;
+  version: 'v6';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+/**
+ * Version-level base for Meshy v7.
+ * Discriminator: operation (imageTo3D, multiImageTo3D)
+ * FAL Endpoints: meshy/v7/{image-to-3d,multi-image-to-3d}
+ */
+export type MeshyV7FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'model' | 'version'> & {
+  operation: string;
+  shouldTexture?: boolean;
+  /**
+   * Pose to generate the character in. "none" lets Meshy pick.
+   */
+  poseMode?: 'none' | 'a-pose' | 't-pose';
+  /**
+   * 2D image guiding the texturing process.
+   */
+  textureImageUrl?: null | string;
+  /**
+   * Approximate character height in meters. Only used when enableRigging is set.
+   */
+  riggingHeightMeters?: number;
+  /**
+   * Animation preset from Meshy's library (0 is "Idle"); see https://docs.meshy.ai/en/api/animation-library.
+   * Only used when Civitai.Orchestration.Grains.Workflows.Steps.PolyGen.Fal.MeshyFalPolyGenInput.EnableAnimation is set.
+   */
+  animationActionId?: number;
+  version: 'v7';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV7ImageTo3dFalPolyGenInput = Omit<
+  MeshyV7FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  imageUrl: string;
+  /**
+   * Higher-fidelity geometry with finer surface detail.
+   */
+  ultraMode?: boolean;
+  /**
+   * "lowpoly" makes Meshy ignore the remesh controls (topology, targetPolycount, shouldRemesh).
+   */
+  modelType?: 'standard' | 'lowpoly';
+  operation: 'imageTo3D';
+  version: 'v7';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV7MultiImageTo3dFalPolyGenInput = Omit<
+  MeshyV7FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  /**
+   * 1–4 views of the same object. Meshy has no ultra or lowpoly mode on this operation.
+   */
+  imageUrls: Array<string>;
+  operation: 'multiImageTo3D';
+  version: 'v7';
   model: 'meshy';
   engine: 'fal';
 };
@@ -5837,6 +6306,85 @@ export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    */
   referenceVideoSeconds?: number;
   engine: 'minimax-h3';
+};
+
+/**
+ * Input parameters for MiniMax Music 3 text-to-music generation.
+ */
+export type MiniMaxMusic3Input = {
+  /**
+   * Structured music description. For best results use Global Metadata, Vocal Details,
+   * and Arrangement sections.
+   */
+  caption: string;
+  /**
+   * Lyrics with section markers such as [Intro], [Verse], [Chorus], and [Outro].
+   */
+  lyrics: string;
+  /**
+   * Random seed for reproducible generation.
+   */
+  seed: number;
+  /**
+   * Maximum generated song duration in seconds. The model may end the song earlier when
+   * the requested lyric structure is complete.
+   */
+  maxDuration?: number;
+  /**
+   * Number of diffusion sampling steps.
+   */
+  steps?: number;
+  /**
+   * Classifier-free guidance scale used by both text encoding and sampling.
+   */
+  cfg?: number;
+  /**
+   * Top-k sampling limit used by the MiniMax music text encoder.
+   */
+  topK?: number;
+  /**
+   * Optional diffusion model override.
+   */
+  diffusionModel?: null | string;
+  /**
+   * Optional MiniMax text encoder override.
+   */
+  textEncoder?: null | string;
+  /**
+   * Optional audio VAE override.
+   */
+  vae?: null | string;
+  /**
+   * Optional LoRAs to apply to both the diffusion model and MiniMax text encoder.
+   * Compatibility with the selected base resources is the caller's responsibility.
+   */
+  loras?: {
+    [key: string]: number;
+  };
+};
+
+/**
+ * Output from MiniMax Music 3 generation.
+ */
+export type MiniMaxMusic3Output = {
+  blob: AudioBlob;
+};
+
+/**
+ * Generate a complete song from a structured caption and lyrics with MiniMax Music 3.
+ */
+export type MiniMaxMusic3Step = Omit<WorkflowStep, '$type'> & {
+  input: MiniMaxMusic3Input;
+  output?: MiniMaxMusic3Output;
+  $type: 'miniMaxMusic3';
+};
+
+/**
+ * Generate a complete song from a structured caption and lyrics with MiniMax Music 3.
+ */
+export type MiniMaxMusic3StepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: MiniMaxMusic3Input;
+  $type: 'miniMaxMusic3';
 };
 
 export type MiniMaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
@@ -6517,6 +7065,34 @@ export type PolyGenStep = Omit<WorkflowStep, '$type'> & {
 export type PolyGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: PolyGenInput;
   $type: 'polyGen';
+};
+
+/**
+ * Represents the input information needed for the PrepareResource workflow step.
+ */
+export type PrepareResourceInput = {
+  /**
+   * The AIR of the resource to make available.
+   */
+  resource: string;
+};
+
+/**
+ * The result of a PrepareResource workflow step.
+ */
+export type PrepareResourceOutput = {
+  /**
+   * The resource that was prepared.
+   */
+  resource?: null | string;
+  /**
+   * When the resource became available. Null while the step has not completed.
+   */
+  preparedAt?: null | string;
+  /**
+   * The provider the resource was prepared on.
+   */
+  provider?: null | string;
 };
 
 export type PreprocessImageAnimalPoseInput = Omit<PreprocessImageInput, 'kind'> & {
@@ -7259,11 +7835,6 @@ export type ResizeTransform = Omit<ImageTransform, 'type'> & {
   type: 'resize';
 };
 
-/**
- * Whether a resource can be generated with right now, reduced across every provider to the single
- * best answer. Discriminated on `status` rather than `$type` because the values read as
- * adjectives describing the resource, not as type names.
- */
 export type ResourceAvailability = {
   status: string;
 };
@@ -7372,6 +7943,18 @@ export type ResourceInfo = {
   userId?: null | number;
   availability?: ResourceAvailability;
 };
+
+/**
+ * A projection of the resource collection. There is no view that lists every known resource — resources
+ * are addressed by AIR and only materialise once something asks for them.
+ */
+export const ResourceView = { QUEUE: 'queue' } as const;
+
+/**
+ * A projection of the resource collection. There is no view that lists every known resource — resources
+ * are addressed by AIR and only materialise once something asks for them.
+ */
+export type ResourceView = (typeof ResourceView)[keyof typeof ResourceView];
 
 export type ReveCreateFalImageGenInput = Omit<
   ReveFalImageGenInput,
@@ -8384,6 +8967,60 @@ export type TranscriptionTimeStamp = {
   endTime: number;
 };
 
+export type Trellis2ComfyPolyGenInput = Omit<ComfyPolyGenInput, 'engine' | 'model'> & {
+  operation: null | string;
+  modelVersion?: 'pixal3D' | 'trellis2';
+  modelAir?: null | string;
+  structureSteps?: number;
+  shapeSteps?: number;
+  upsampleSteps?: number;
+  textureSteps?: number;
+  structureCfg?: number;
+  shapeCfg?: number;
+  textureCfg?: number;
+  targetResolution?: 1024 | 1152 | 1280 | 1408 | 1536 | 1664 | 1792 | 1920 | 2048;
+  shouldRemesh?: boolean;
+  remeshResolution?: number;
+  targetFaceCount?: number;
+  textureResolution?: number;
+  seed?: null | number;
+  model: 'trellis2';
+  engine: 'comfy';
+};
+
+export type Trellis2ImageTo3dComfyPolyGenInput = Omit<
+  Trellis2ComfyPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageUrl: string;
+  shouldTexture?: boolean;
+  enablePbr?: boolean;
+  operation: 'imageTo3D';
+  model: 'trellis2';
+  engine: 'comfy';
+};
+
+export type Trellis2ShapeGenComfyPolyGenInput = Omit<
+  Trellis2ComfyPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageUrl: string;
+  operation: 'shapeGen';
+  model: 'trellis2';
+  engine: 'comfy';
+};
+
+export type Trellis2TexGenComfyPolyGenInput = Omit<
+  Trellis2ComfyPolyGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageUrl: string;
+  enablePbr?: boolean;
+  operation: 'texGen';
+  model: 'trellis2';
+  engine: 'comfy';
+};
+
 export type TripoFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
   imageUrl: string;
   texture?: 'no' | 'standard' | 'HD';
@@ -8418,18 +9055,11 @@ export type TryOnUOutput = {
   blob: Blob;
 };
 
-/**
- * Workers could hold it; none have it and none are fetching it.
- */
 export type UnavailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
+  queuePosition?: null | number;
   status: 'unavailable';
 };
 
-/**
- * No worker can hold this resource at all — wrong ecosystem, or a type nobody fetches on demand.
- * Distinct from Civitai.Orchestration.Grains.Resources.UnavailableResourceAvailability: this one will never become
- * available, so offering to load it would be offering something that cannot happen.
- */
 export type UnsupportedResourceAvailability = Omit<ResourceAvailability, 'status'> & {
   status: 'unsupported';
 };
@@ -9435,6 +10065,47 @@ export type Wan27VideoGenInput = Omit<WanVideoGenInput, 'engine' | 'version'> & 
   engine: 'wan';
 };
 
+export type Wan30ImageToVideoInput = Omit<
+  Wan30VideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  startImage?: null | string;
+  /**
+   * Constrains the last frame, for loops and transitions.
+   */
+  endImage?: null | string;
+  operation: 'image-to-video';
+  version: 'v3.0';
+  engine: 'wan';
+};
+
+export type Wan30TextToVideoInput = Omit<Wan30VideoGenInput, 'engine' | 'version' | 'operation'> & {
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
+  operation: 'text-to-video';
+  version: 'v3.0';
+  engine: 'wan';
+};
+
+export type Wan30VideoGenInput = Omit<WanVideoGenInput, 'engine' | 'version'> & {
+  operation: null | string;
+  resolution?: '480p' | '720p' | '1080p';
+  negativePrompt?: null | string;
+  /**
+   * Prompt rewriting. Disabling saves 20-60s of latency but may reduce generation quality —
+   * follow Alibaba's prompting guide when turning it off.
+   */
+  enablePromptExpansion?: boolean;
+  /**
+   * Run on wan3.0-video-prime: same output quality, lower latency, higher price.
+   */
+  usePrime?: boolean;
+  version: 'v3.0';
+  engine: 'wan';
+};
+
 export type WanImageGenInput = Omit<ImageGenInput, 'engine'> & {
   version: null | string;
   prompt: string;
@@ -9811,6 +10482,7 @@ export type WorkflowStep = {
    * step reaches a final status.
    */
   estimatedProgressRate?: null | number;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -9828,6 +10500,7 @@ export type WorkflowStepEvent = {
   status: WorkflowStatus;
   readonly $type: string;
   details?: WorkflowStepEventDetails;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -9864,6 +10537,7 @@ export type WorkflowStepEventDetails = {
    * The output result from the step
    */
   output?: null;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -9935,6 +10609,28 @@ export type WorkflowStepJobQueuePosition = {
    * An estimated date / time for when the job will complete.
    */
   completeAt?: null | string;
+};
+
+/**
+ * The resource download a step is waiting on while its status is preparing.
+ */
+export type WorkflowStepPreparation = {
+  /**
+   * The resource currently holding the step back.
+   */
+  resource: string;
+  /**
+   * Downloads ahead of this one. Zero means it is transferring now.
+   */
+  queuePosition: number;
+  /**
+   * Download completion, 0.0 to 1.0. Null while the download is still queued.
+   */
+  progress?: null | number;
+  /**
+   * Estimated seconds until the download completes. Null when there is not enough progress to extrapolate.
+   */
+  etaSeconds?: null | number;
 };
 
 /**
@@ -10167,8 +10863,23 @@ export type XGuardPromptModerationInput = Omit<XGuardModerationInput, 'mode'> & 
    * Additional instructions or context for the moderation evaluation.
    */
   instructions?: null | string;
+  scope: XGuardPromptScope;
   mode: 'prompt';
 };
+
+/**
+ * Which generation-prompt field(s) the model is asked to evaluate in Prompt mode.
+ */
+export const XGuardPromptScope = {
+  COMBINED: 'combined',
+  POSITIVE: 'positive',
+  NEGATIVE: 'negative',
+} as const;
+
+/**
+ * Which generation-prompt field(s) the model is asked to evaluate in Prompt mode.
+ */
+export type XGuardPromptScope = (typeof XGuardPromptScope)[keyof typeof XGuardPromptScope];
 
 export type XGuardSignalMetadata = {
   positiveAgeDownSignals: {
@@ -10846,6 +11557,21 @@ export type HiDreamO1AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
+/**
+ * AI Toolkit training for Ideogram 4 models.
+ */
+export type Ideogram4AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ideogram4';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type KohyaImageResourceTrainingInputWritable = Omit<
   ImageResourceTrainingInputWritable,
   'engine'
@@ -10961,6 +11687,21 @@ export type Ltx23AiToolkitTrainingInputWritable = Omit<
   'engine' | 'ecosystem'
 > & {
   ecosystem: 'ltx23';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
+ * AI Toolkit training for LTX 2.5 video models.
+ */
+export type Ltx25AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ltx25';
   engine: 'ai-toolkit';
   /**
    * Training batch size. Fixed at 1 for this ecosystem.
@@ -11624,6 +12365,7 @@ export type WorkflowStepEventWritable = {
   name: string;
   status: WorkflowStatus;
   details?: WorkflowStepEventDetails;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -11845,6 +12587,7 @@ export type WorkflowStepWritable = {
    * step reaches a final status.
    */
   estimatedProgressRate?: null | number;
+  preparation?: WorkflowStepPreparation;
 };
 
 /**
@@ -13018,6 +13761,42 @@ export type InvokeMediaRatingStepTemplateResponses = {
 export type InvokeMediaRatingStepTemplateResponse =
   InvokeMediaRatingStepTemplateResponses[keyof InvokeMediaRatingStepTemplateResponses];
 
+export type InvokeMiniMaxMusic3StepTemplateData = {
+  body?: MiniMaxMusic3Input;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/miniMaxMusic3';
+};
+
+export type InvokeMiniMaxMusic3StepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeMiniMaxMusic3StepTemplateError =
+  InvokeMiniMaxMusic3StepTemplateErrors[keyof InvokeMiniMaxMusic3StepTemplateErrors];
+
+export type InvokeMiniMaxMusic3StepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: MiniMaxMusic3Output;
+};
+
+export type InvokeMiniMaxMusic3StepTemplateResponse =
+  InvokeMiniMaxMusic3StepTemplateResponses[keyof InvokeMiniMaxMusic3StepTemplateResponses];
+
 export type InvokeModel3dPreviewStepTemplateData = {
   body?: Model3dPreviewInput;
   path?: never;
@@ -13233,6 +14012,42 @@ export type InvokePolyGenStepTemplateResponses = {
 
 export type InvokePolyGenStepTemplateResponse =
   InvokePolyGenStepTemplateResponses[keyof InvokePolyGenStepTemplateResponses];
+
+export type InvokePrepareResourceStepTemplateData = {
+  body?: PrepareResourceInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/prepareResource';
+};
+
+export type InvokePrepareResourceStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokePrepareResourceStepTemplateError =
+  InvokePrepareResourceStepTemplateErrors[keyof InvokePrepareResourceStepTemplateErrors];
+
+export type InvokePrepareResourceStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: PrepareResourceOutput;
+};
+
+export type InvokePrepareResourceStepTemplateResponse =
+  InvokePrepareResourceStepTemplateResponses[keyof InvokePrepareResourceStepTemplateResponses];
 
 export type InvokePreprocessImageStepTemplateData = {
   body?: PreprocessImageInputWritable;
@@ -13953,6 +14768,39 @@ export type InvokeXGuardModerationStepTemplateResponses = {
 
 export type InvokeXGuardModerationStepTemplateResponse =
   InvokeXGuardModerationStepTemplateResponses[keyof InvokeXGuardModerationStepTemplateResponses];
+
+export type QueryResourcesData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * A projection of the resource collection. There is no view that lists every known resource — resources
+     * are addressed by AIR and only materialise once something asks for them.
+     */
+    view: ResourceView;
+    cursor?: string;
+    take?: number;
+  };
+  url: '/v2/resources';
+};
+
+export type QueryResourcesErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+};
+
+export type QueryResourcesError = QueryResourcesErrors[keyof QueryResourcesErrors];
+
+export type QueryResourcesResponses = {
+  /**
+   * OK
+   */
+  200: CursedArrayOfStringAndResourceInfo;
+};
+
+export type QueryResourcesResponse = QueryResourcesResponses[keyof QueryResourcesResponses];
 
 export type GetResourceData = {
   body?: never;
