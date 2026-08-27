@@ -113,6 +113,7 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
    * top of the per-step training cost — so raising the epoch count raises the price by this much each.
@@ -2913,6 +2914,7 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
    * top of the per-step training cost — so raising the epoch count raises the price by this much each.
@@ -8794,6 +8796,14 @@ export type TrainingOutput = {
    * The trained model artifacts for each epoch
    */
   epochs: Array<TrainingOutputEpochResult>;
+  /**
+   * Live trace of the whole training, only when the input requested `trace`: plain text for
+   * Civitai.Orchestration.Grains.Workflows.Steps.Training.TrainingTraceMode.Logs, NDJSON events for Civitai.Orchestration.Grains.Workflows.Steps.Training.TrainingTraceMode.Events. Every epoch
+   * job appends to this one stream, which stays open (chunked) until the step reaches a final status and
+   * answers 404 until the first worker has written to it.
+   */
+  traceUrl?: null | string;
+  progress?: TrainingProgress;
 };
 
 /**
@@ -8812,6 +8822,48 @@ export type TrainingOutputEpochResult = {
 };
 
 /**
+ * Coarse training progress as last reported by the worker
+ */
+export type TrainingProgress = {
+  /**
+   * The epoch (1-based) currently being trained
+   */
+  epochNumber: number;
+  /**
+   * What the worker is doing, e.g. `loading_base_model`, `creating_session`, `running`, `uploading`
+   */
+  phase?: null | string;
+  /**
+   * Steps completed over the whole training (all epochs)
+   */
+  completedSteps: number;
+  /**
+   * Total steps over the whole training (all epochs)
+   */
+  totalSteps: number;
+  /**
+   * Steps still to train before the current epoch's checkpoint is saved
+   */
+  epochStepsRemaining: number;
+  /**
+   * Recent average seconds per training step; null until the worker has measured a few steps
+   */
+  secondsPerStep?: null | number;
+  /**
+   * Estimated time the current epoch finishes training (checkpoint save and upload follow)
+   */
+  estimatedEpochReadyAt?: null | string;
+  /**
+   * Estimated time the last epoch finishes training
+   */
+  estimatedCompletionAt?: null | string;
+  /**
+   * When the worker reported this
+   */
+  updatedAt: string;
+};
+
+/**
  * Training
  */
 export type TrainingStep = Omit<WorkflowStep, '$type'> & {
@@ -8827,6 +8879,22 @@ export type TrainingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: TrainingInput;
   $type: 'training';
 };
+
+/**
+ * What a training records to its live trace stream (`output.traceUrl`), which every epoch job of
+ * the training appends to and which the consumer can tail while the step runs.
+ */
+export const TrainingTraceMode = {
+  NONE: 'none',
+  LOGS: 'logs',
+  EVENTS: 'events',
+} as const;
+
+/**
+ * What a training records to its live trace stream (`output.traceUrl`), which every epoch job of
+ * the training appends to and which the consumer can tail while the step runs.
+ */
+export type TrainingTraceMode = (typeof TrainingTraceMode)[keyof typeof TrainingTraceMode];
 
 /**
  * Transaction information.
@@ -9171,8 +9239,14 @@ export const Veo3GenerationMode = {
 
 export type Veo3GenerationMode = (typeof Veo3GenerationMode)[keyof typeof Veo3GenerationMode];
 
+/**
+ * Google retired the Veo 3.0 endpoints on 2026-08-28; requests with `3.0` are rejected with 400. Use `3.1`.
+ */
 export const Veo3Version = { '3_0': '3.0', '3_1': '3.1' } as const;
 
+/**
+ * Google retired the Veo 3.0 endpoints on 2026-08-28; requests with `3.0` are rejected with 400. Use `3.1`.
+ */
 export type Veo3Version = (typeof Veo3Version)[keyof typeof Veo3Version];
 
 export type Veo3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
@@ -11140,6 +11214,7 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   engine: 'ai-toolkit';
 };
 
@@ -11357,6 +11432,7 @@ export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   resolution?: number;
   noHalfVae?: boolean;
   /**
