@@ -113,7 +113,6 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
-  trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
    * top of the per-step training cost — so raising the epoch count raises the price by this much each.
@@ -607,6 +606,28 @@ export const AnimalPoseEstimator = {
 } as const;
 
 export type AnimalPoseEstimator = (typeof AnimalPoseEstimator)[keyof typeof AnimalPoseEstimator];
+
+/**
+ * Represents anime apparent-age and child-risk results for a complete image.
+ * The model is an additional risk signal, not a verified chronological-age claim.
+ */
+export type AnimeBodyAgeClassificationResult = {
+  apparentAge: number;
+  ageBand: string;
+  under13Probability: number;
+  under18Probability: number;
+  oodProbability: number;
+  ordinalCutpointProbabilities: {
+    [key: string]: number;
+  };
+  childDetected: boolean;
+  minorDetected: boolean;
+  oodDetected: boolean;
+  status?: null | string;
+  ran?: null | boolean;
+  warning?: null | string;
+  error?: null | string;
+};
 
 /**
  * Represents anime vs real image recognition results.
@@ -2914,7 +2935,6 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
-  trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
    * top of the per-step training cost — so raising the epoch count raises the price by this much each.
@@ -3174,15 +3194,6 @@ export type CustomComfyInput = {
    * comfy image. Null = worker default.
    */
   comfyImage?: null | string;
-  /**
-   * Optional Civitai API token belonging to the session owner. When set,
-   * the worker exposes it to the ComfyUI container as the
-   * `CIVITAI_API_TOKEN` environment variable, so custom-pack recipe
-   * nodes (e.g. civitai-comfy-nodes) can call the orchestrator and bill the
-   * user. Sensitive: persisted on the workflow/job and forwarded to the
-   * claiming worker — never log it. Null = no token exposed.
-   */
-  sessionOwnerApiToken?: null | string;
   /**
    * Optional minimum GPU VRAM (in GB) the claiming worker must have. The
    * scheduler only offers the job to workers whose reported host VRAM
@@ -4250,6 +4261,28 @@ export type GeminiImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   prompt: string;
   engine: 'gemini';
+};
+
+export const GeminiOmniModel = { '1_1_FLASH': '1.1-flash' } as const;
+
+export type GeminiOmniModel = (typeof GeminiOmniModel)[keyof typeof GeminiOmniModel];
+
+export const GeminiOmniResolution = {
+  '360P': '360p',
+  '720P': '720p',
+  '1080P': '1080p',
+  '4K': '4k',
+} as const;
+
+export type GeminiOmniResolution = (typeof GeminiOmniResolution)[keyof typeof GeminiOmniResolution];
+
+export type GeminiOmniVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  model?: GeminiOmniModel;
+  aspectRatio?: '16:9' | '9:16';
+  resolution?: GeminiOmniResolution;
+  images?: Array<string>;
+  readonly maxBillableSeconds: number;
+  engine: 'gemini-omni';
 };
 
 /**
@@ -6046,6 +6079,10 @@ export type MediaRatingInput = {
    */
   includeBodyAgeClassification: boolean;
   /**
+   * Include anime apparent-age and child-risk classification in the results.
+   */
+  includeAnimeBodyAgeClassification: boolean;
+  /**
    * Include joint face-and-body apparent-age classification for photo and anime content.
    */
   includeJointAgeClassification: boolean;
@@ -6079,6 +6116,7 @@ export type MediaRatingOutput = {
   csam?: null | boolean;
   humanRecognition?: HumanRecognitionResult;
   bodyAgeClassification?: BodyAgeClassificationResult;
+  animeBodyAgeClassification?: AnimeBodyAgeClassificationResult;
   jointAgeClassification?: JointAgeClassificationResult;
 };
 
@@ -8796,14 +8834,6 @@ export type TrainingOutput = {
    * The trained model artifacts for each epoch
    */
   epochs: Array<TrainingOutputEpochResult>;
-  /**
-   * Live trace of the whole training, only when the input requested `trace`: plain text for
-   * Civitai.Orchestration.Grains.Workflows.Steps.Training.TrainingTraceMode.Logs, NDJSON events for Civitai.Orchestration.Grains.Workflows.Steps.Training.TrainingTraceMode.Events. Every epoch
-   * job appends to this one stream, which stays open (chunked) until the step reaches a final status and
-   * answers 404 until the first worker has written to it.
-   */
-  traceUrl?: null | string;
-  progress?: TrainingProgress;
 };
 
 /**
@@ -8822,48 +8852,6 @@ export type TrainingOutputEpochResult = {
 };
 
 /**
- * Coarse training progress as last reported by the worker
- */
-export type TrainingProgress = {
-  /**
-   * The epoch (1-based) currently being trained
-   */
-  epochNumber: number;
-  /**
-   * What the worker is doing, e.g. `loading_base_model`, `creating_session`, `running`, `uploading`
-   */
-  phase?: null | string;
-  /**
-   * Steps completed over the whole training (all epochs)
-   */
-  completedSteps: number;
-  /**
-   * Total steps over the whole training (all epochs)
-   */
-  totalSteps: number;
-  /**
-   * Steps still to train before the current epoch's checkpoint is saved
-   */
-  epochStepsRemaining: number;
-  /**
-   * Recent average seconds per training step; null until the worker has measured a few steps
-   */
-  secondsPerStep?: null | number;
-  /**
-   * Estimated time the current epoch finishes training (checkpoint save and upload follow)
-   */
-  estimatedEpochReadyAt?: null | string;
-  /**
-   * Estimated time the last epoch finishes training
-   */
-  estimatedCompletionAt?: null | string;
-  /**
-   * When the worker reported this
-   */
-  updatedAt: string;
-};
-
-/**
  * Training
  */
 export type TrainingStep = Omit<WorkflowStep, '$type'> & {
@@ -8879,22 +8867,6 @@ export type TrainingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: TrainingInput;
   $type: 'training';
 };
-
-/**
- * What a training records to its live trace stream (`output.traceUrl`), which every epoch job of
- * the training appends to and which the consumer can tail while the step runs.
- */
-export const TrainingTraceMode = {
-  NONE: 'none',
-  LOGS: 'logs',
-  EVENTS: 'events',
-} as const;
-
-/**
- * What a training records to its live trace stream (`output.traceUrl`), which every epoch job of
- * the training appends to and which the consumer can tail while the step runs.
- */
-export type TrainingTraceMode = (typeof TrainingTraceMode)[keyof typeof TrainingTraceMode];
 
 /**
  * Transaction information.
@@ -8932,6 +8904,11 @@ export type TranscodeInput = {
   containerFormat?: ContainerFormat;
   width: number;
   destinationUrl?: null | string;
+  /**
+   * Serves the result at a stable unsigned url. Privileged callers only: nothing gates a read of
+   * it, so a block decided after the fact cannot take it back.
+   */
+  public?: null | boolean;
 };
 
 export type TranscodeOutput = {
@@ -8955,6 +8932,10 @@ export type TranscodeOutput = {
    * Get the id of the job that is associated with this media.
    */
   jobId: string;
+  /**
+   * Storage tier holding the blob; null means the default tier.
+   */
+  tier?: null | string;
 };
 
 /**
@@ -9377,6 +9358,11 @@ export type VideoFrameExtractionInput = {
    * Default is 0 (start of video).
    */
   startTime?: number;
+  /**
+   * Serves the frames at stable unsigned urls. Privileged callers only: nothing gates a read of
+   * one, so a block decided after the fact cannot take it back.
+   */
+  public?: null | boolean;
 };
 
 /**
@@ -10557,6 +10543,7 @@ export type WorkflowStep = {
    */
   estimatedProgressRate?: null | number;
   preparation?: WorkflowStepPreparation;
+  queuePosition?: WorkflowStepQueuePosition;
 };
 
 /**
@@ -10705,6 +10692,25 @@ export type WorkflowStepPreparation = {
    * Estimated seconds until the download completes. Null when there is not enough progress to extrapolate.
    */
   etaSeconds?: null | number;
+};
+
+/**
+ * Details of a workflow step's position in the queue.
+ */
+export type WorkflowStepQueuePosition = {
+  support: JobSupport;
+  /**
+   * The number of preceding jobs in the queue.
+   */
+  precedingJobs?: null | number;
+  /**
+   * An estimated date / time for when the step will start.
+   */
+  estimatedStartAt?: null | string;
+  /**
+   * An estimated date / time for when the step will complete.
+   */
+  estimatedCompleteAt?: null | string;
 };
 
 /**
@@ -11214,7 +11220,6 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
-  trace: TrainingTraceMode;
   engine: 'ai-toolkit';
 };
 
@@ -11432,7 +11437,6 @@ export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
-  trace: TrainingTraceMode;
   resolution?: number;
   noHalfVae?: boolean;
   /**
@@ -11616,6 +11620,14 @@ export type Flux2KleinAiToolkitTrainingInputWritable = Omit<
   isEditTraining?: boolean;
   ecosystem: 'flux2klein';
   engine: 'ai-toolkit';
+};
+
+export type GeminiOmniVideoGenInputWritable = Omit<VideoGenInputWritable, 'engine'> & {
+  model?: GeminiOmniModel;
+  aspectRatio?: '16:9' | '9:16';
+  resolution?: GeminiOmniResolution;
+  images?: Array<string>;
+  engine: 'gemini-omni';
 };
 
 /**
@@ -12574,6 +12586,11 @@ export type ImageGenInputWritable = {
   imageMetadata?: null | string;
 };
 
+export type VideoGenInputWritable = {
+  engine: string;
+  prompt: string;
+};
+
 /**
  * Input for an image resource training step.
  */
@@ -12664,6 +12681,7 @@ export type WorkflowStepWritable = {
    */
   estimatedProgressRate?: null | number;
   preparation?: WorkflowStepPreparation;
+  queuePosition?: WorkflowStepQueuePosition;
 };
 
 /**
@@ -12810,7 +12828,12 @@ export type GetConsumerBlobUploadUrlResponse =
 export type UploadConsumerBlobData = {
   body?: never;
   path?: never;
-  query?: never;
+  query?: {
+    /**
+     * Store the blob in the public tier and return a durable, unsigned URL for it. Privileged callers only: nothing gates a read of that URL, so a block decided after the fact cannot take it back.
+     */
+    public?: boolean;
+  };
   url: '/v2/consumer/blobs';
 };
 

@@ -1239,8 +1239,7 @@ export const invokeVideoEnhancementStepTemplate = <ThrowOnError extends boolean 
 /**
  * Video Frame Extraction
  *
- * Extracts unique frames from a video at a specified rate using perceptual hashing to filter out duplicate/similar frames.
- * /// Useful for generating video previews, storyboards, or analyzing video content.
+ * Extracts unique frames from a video at a specified rate, filtering near-duplicates by perceptual hash.
  */
 export const invokeVideoFrameExtractionStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeVideoFrameExtractionStepTemplateData, ThrowOnError>
