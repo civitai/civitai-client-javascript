@@ -6745,6 +6745,34 @@ export type ModelPickleScanStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
   $type: 'modelPickleScan';
 };
 
+export type MuseImageCreateFalImageGenInput = Omit<
+  MuseImageFalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'museImage';
+  engine: 'fal';
+};
+
+export type MuseImageEditFalImageGenInput = Omit<
+  MuseImageFalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'museImage';
+  engine: 'fal';
+};
+
+export type MuseImageFalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  aspectRatio?: 'auto' | '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+  quantity?: number;
+  model: 'museImage';
+  engine: 'fal';
+};
+
 export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
   /**
    * Number of training epochs. An epoch is one complete pass through the training dataset.
@@ -9602,7 +9630,7 @@ export type VolumeTransformer = Omit<MediaTransformer, 'type'> & {
  */
 export type WdTaggingInput = {
   /**
-   * The model to use for tagging (e.g., "wd14-vit.v1").
+   * The model to use for tagging. Defaults to "wd14-vit.v1" and also supports "cl-tagger.v2".
    */
   model?: null | string;
   /**
@@ -10501,6 +10529,12 @@ export type WorkflowCost = {
   fees?: null | {
     [key: string]: number;
   };
+  /**
+   * When true, this price is a cap that may settle lower: at least one step is
+   * post-billed and charged up front at its maximum, with the difference
+   * refunded once the provider reports the actual work delivered.
+   */
+  variable?: null | boolean;
   /**
    * The total cost of this request, including tips
    */
@@ -12551,6 +12585,12 @@ export type WorkflowCostWritable = {
   fees?: null | {
     [key: string]: number;
   };
+  /**
+   * When true, this price is a cap that may settle lower: at least one step is
+   * post-billed and charged up front at its maximum, with the difference
+   * refunded once the provider reports the actual work delivered.
+   */
+  variable?: null | boolean;
 };
 
 /**

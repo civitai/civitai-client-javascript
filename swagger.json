@@ -17731,7 +17731,8 @@
                 "qwen2": "#/components/schemas/Qwen2FalImageGenInput",
                 "krea2": "#/components/schemas/Krea2FalImageGenInput",
                 "maiImage": "#/components/schemas/MaiImageFalImageGenInput",
-                "reve": "#/components/schemas/ReveFalImageGenInput"
+                "reve": "#/components/schemas/ReveFalImageGenInput",
+                "museImage": "#/components/schemas/MuseImageFalImageGenInput"
               }
             }
           }
@@ -27566,6 +27567,158 @@
         ],
         "description": "ModelPickleScan"
       },
+      "MuseImageCreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MuseImageFalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "museImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MuseImageEditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MuseImageFalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "museImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MuseImageFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "16:9",
+                  "4:3",
+                  "3:2",
+                  "1:1",
+                  "2:3",
+                  "3:4",
+                  "9:16",
+                  "9:21"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "model": {
+                "enum": [
+                  "museImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/MuseImageCreateFalImageGenInput",
+                "editImage": "#/components/schemas/MuseImageEditFalImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "MusubiImageResourceTrainingInput": {
         "allOf": [
           {
@@ -36879,7 +37032,7 @@
               "null",
               "string"
             ],
-            "description": "The model to use for tagging (e.g., \"wd14-vit.v1\")."
+            "description": "The model to use for tagging. Defaults to \"wd14-vit.v1\" and also supports \"cl-tagger.v2\"."
           },
           "mediaUrl": {
             "type": "string",
@@ -40176,6 +40329,13 @@
               "format": "double"
             },
             "description": "Per-resource licensing fees for this request, keyed by resource AIR. The\nuser is charged the sum of the values; each entry is settled to its\nresource's recipient (see `EmitFeeCompensationsAsync`)."
+          },
+          "variable": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "When true, this price is a cap that may settle lower: at least one step is\npost-billed and charged up front at its maximum, with the difference\nrefunded once the provider reports the actual work delivered."
           },
           "total": {
             "type": "integer",
