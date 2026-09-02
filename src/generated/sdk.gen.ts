@@ -193,6 +193,12 @@ import type {
   InvokeWdTaggingStepTemplateData,
   InvokeWdTaggingStepTemplateErrors,
   InvokeWdTaggingStepTemplateResponses,
+  InvokeWebScrapeStepTemplateData,
+  InvokeWebScrapeStepTemplateErrors,
+  InvokeWebScrapeStepTemplateResponses,
+  InvokeWebSearchStepTemplateData,
+  InvokeWebSearchStepTemplateErrors,
+  InvokeWebSearchStepTemplateResponses,
   InvokeXGuardModerationStepTemplateData,
   InvokeXGuardModerationStepTemplateErrors,
   InvokeXGuardModerationStepTemplateResponses,
@@ -1349,6 +1355,48 @@ export const invokeWdTaggingStepTemplate = <ThrowOnError extends boolean = false
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/wdTagging',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * WebScrape
+ *
+ * Fetches and renders a single web page, returning its content as markdown and/or HTML.
+ */
+export const invokeWebScrapeStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeWebScrapeStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeWebScrapeStepTemplateResponses,
+    InvokeWebScrapeStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/webScrape',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * WebSearch
+ *
+ * Searches the web, returning result titles, URLs and descriptions, optionally with the scraped content of each result page.
+ */
+export const invokeWebSearchStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeWebSearchStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeWebSearchStepTemplateResponses,
+    InvokeWebSearchStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/webSearch',
     ...options,
     headers: {
       'Content-Type': 'application/json',

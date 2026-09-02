@@ -10196,6 +10196,136 @@ export type WanVideoGenInput = Omit<VideoGenInput, 'engine'> & {
 };
 
 /**
+ * Represents the input information needed for the WebScrape workflow step.
+ */
+export type WebScrapeInput = {
+  /**
+   * The URL of the page to scrape.
+   */
+  url: string;
+  /**
+   * The formats to return the page content in (e.g. "markdown", "html", "links").
+   */
+  formats: Array<string>;
+};
+
+/**
+ * Represents the output information returned from the WebScrape workflow step.
+ */
+export type WebScrapeOutput = {
+  /**
+   * The page content as markdown, when requested.
+   */
+  markdown?: null | string;
+  /**
+   * The page content as HTML, when requested.
+   */
+  html?: null | string;
+  /**
+   * The links found on the page, when requested.
+   */
+  links?: null | Array<string>;
+  /**
+   * The title of the page.
+   */
+  title?: null | string;
+  /**
+   * The description of the page.
+   */
+  description?: null | string;
+  /**
+   * The HTTP status code returned by the page.
+   */
+  statusCode?: null | number;
+};
+
+/**
+ * WebScrape
+ */
+export type WebScrapeStep = Omit<WorkflowStep, '$type'> & {
+  input: WebScrapeInput;
+  output?: WebScrapeOutput;
+  $type: 'webScrape';
+};
+
+/**
+ * WebScrape
+ */
+export type WebScrapeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: WebScrapeInput;
+  $type: 'webScrape';
+};
+
+/**
+ * Represents the input information needed for the WebSearch workflow step.
+ */
+export type WebSearchInput = {
+  /**
+   * The search query.
+   */
+  query: string;
+  /**
+   * The maximum number of results to return (1-10).
+   */
+  limit: number;
+  /**
+   * Optional formats to scrape each result page in (e.g. ["markdown"]). When omitted,
+   * only titles, URLs and descriptions are returned.
+   */
+  scrapeFormats?: null | Array<string>;
+};
+
+/**
+ * Represents the output information returned from the WebSearch workflow step.
+ */
+export type WebSearchOutput = {
+  /**
+   * The search results, in relevance order.
+   */
+  results: Array<WebSearchResult>;
+};
+
+/**
+ * A single web search result.
+ */
+export type WebSearchResult = {
+  /**
+   * The URL of the result page.
+   */
+  url: string;
+  /**
+   * The title of the result page.
+   */
+  title?: null | string;
+  /**
+   * The search engine's snippet/description for the result.
+   */
+  description?: null | string;
+  /**
+   * The result page content as markdown. Only present when the step input requested
+   * scraping via Civitai.Orchestration.Grains.Workflows.Steps.WebSearch.WebSearchInput.ScrapeFormats.
+   */
+  markdown?: null | string;
+};
+
+/**
+ * WebSearch
+ */
+export type WebSearchStep = Omit<WorkflowStep, '$type'> & {
+  input: WebSearchInput;
+  output?: WebSearchOutput;
+  $type: 'webSearch';
+};
+
+/**
+ * WebSearch
+ */
+export type WebSearchStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: WebSearchInput;
+  $type: 'webSearch';
+};
+
+/**
  * WebP output format configuration.
  */
 export type WebpOutputFormat = Omit<ImageOutputFormat, 'format'> & {
@@ -14831,6 +14961,78 @@ export type InvokeWdTaggingStepTemplateResponses = {
 
 export type InvokeWdTaggingStepTemplateResponse =
   InvokeWdTaggingStepTemplateResponses[keyof InvokeWdTaggingStepTemplateResponses];
+
+export type InvokeWebScrapeStepTemplateData = {
+  body?: WebScrapeInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/webScrape';
+};
+
+export type InvokeWebScrapeStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeWebScrapeStepTemplateError =
+  InvokeWebScrapeStepTemplateErrors[keyof InvokeWebScrapeStepTemplateErrors];
+
+export type InvokeWebScrapeStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: WebScrapeOutput;
+};
+
+export type InvokeWebScrapeStepTemplateResponse =
+  InvokeWebScrapeStepTemplateResponses[keyof InvokeWebScrapeStepTemplateResponses];
+
+export type InvokeWebSearchStepTemplateData = {
+  body?: WebSearchInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/webSearch';
+};
+
+export type InvokeWebSearchStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeWebSearchStepTemplateError =
+  InvokeWebSearchStepTemplateErrors[keyof InvokeWebSearchStepTemplateErrors];
+
+export type InvokeWebSearchStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: WebSearchOutput;
+};
+
+export type InvokeWebSearchStepTemplateResponse =
+  InvokeWebSearchStepTemplateResponses[keyof InvokeWebSearchStepTemplateResponses];
 
 export type InvokeXGuardModerationStepTemplateData = {
   body?: XGuardModerationInput;

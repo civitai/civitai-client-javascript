@@ -246,7 +246,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -305,7 +305,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -348,7 +348,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -394,7 +394,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -4971,6 +4971,188 @@
         }
       }
     },
+    "/v2/consumer/recipes/webScrape": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "WebScrape",
+        "description": "Fetches and renders a single web page, returning its content as markdown and/or HTML.",
+        "operationId": "InvokeWebScrapeStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebScrapeInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebScrapeInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebScrapeInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebScrapeOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/webSearch": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "WebSearch",
+        "description": "Searches the web, returning result titles, URLs and descriptions, optionally with the scraped content of each result page.",
+        "operationId": "InvokeWebSearchStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebSearchInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebSearchInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebSearchInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebSearchOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/xGuardModeration": {
       "post": {
         "tags": [
@@ -5273,7 +5455,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/services/{serviceId}": {
@@ -5344,7 +5526,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -5388,7 +5570,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/workflows": {
@@ -5453,7 +5635,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -5481,7 +5663,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -5509,7 +5691,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -5525,7 +5707,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -5637,7 +5819,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -5664,7 +5846,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -5692,7 +5874,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -5720,7 +5902,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -5736,7 +5918,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -5848,7 +6030,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -5875,7 +6057,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -5903,7 +6085,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -5931,7 +6113,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -5947,7 +6129,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -6059,7 +6241,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -9739,7 +9921,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Extra kwargs passed to the chat template (for example custom policy inputs for vLLM chat templates)."
           },
           "tools": {
@@ -9793,7 +9975,7 @@
               "string"
             ]
           },
-          "schema": { },
+          "schema": {},
           "strict": {
             "type": [
               "null",
@@ -30256,7 +30438,7 @@
             ]
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "PromptEnhancementInput": {
         "required": [
@@ -35227,7 +35409,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -35266,7 +35448,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -35459,7 +35641,7 @@
             }
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -39423,6 +39605,278 @@
           }
         ]
       },
+      "WebScrapeInput": {
+        "required": [
+          "formats",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The URL of the page to scrape.",
+            "format": "uri"
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The formats to return the page content in (e.g. \"markdown\", \"html\", \"links\")."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the WebScrape workflow step."
+      },
+      "WebScrapeOutput": {
+        "type": "object",
+        "properties": {
+          "markdown": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The page content as markdown, when requested."
+          },
+          "html": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The page content as HTML, when requested."
+          },
+          "links": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "The links found on the page, when requested."
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The title of the page."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The description of the page."
+          },
+          "statusCode": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "The HTTP status code returned by the page.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the WebScrape workflow step."
+      },
+      "WebScrapeStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/WebScrapeInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/WebScrapeOutput"
+              },
+              "$type": {
+                "enum": [
+                  "webScrape"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "WebScrape"
+      },
+      "WebScrapeStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/WebScrapeInput"
+              },
+              "$type": {
+                "enum": [
+                  "webScrape"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "WebScrape"
+      },
+      "WebSearchInput": {
+        "required": [
+          "limit",
+          "query"
+        ],
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The search query."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "The maximum number of results to return (1-10).",
+            "format": "int32"
+          },
+          "scrapeFormats": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional formats to scrape each result page in (e.g. [\"markdown\"]). When omitted,\nonly titles, URLs and descriptions are returned."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the input information needed for the WebSearch workflow step."
+      },
+      "WebSearchOutput": {
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebSearchResult"
+            },
+            "description": "The search results, in relevance order."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the output information returned from the WebSearch workflow step."
+      },
+      "WebSearchResult": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The URL of the result page."
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The title of the result page."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The search engine's snippet/description for the result."
+          },
+          "markdown": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The result page content as markdown. Only present when the step input requested\nscraping via Civitai.Orchestration.Grains.Workflows.Steps.WebSearch.WebSearchInput.ScrapeFormats."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A single web search result."
+      },
+      "WebSearchStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/WebSearchInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/WebSearchOutput"
+              },
+              "$type": {
+                "enum": [
+                  "webSearch"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "WebSearch"
+      },
+      "WebSearchStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/WebSearchInput"
+              },
+              "$type": {
+                "enum": [
+                  "webSearch"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "WebSearch"
+      },
       "WebpOutputFormat": {
         "allOf": [
           {
@@ -39501,7 +39955,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -39532,7 +39986,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -39985,7 +40439,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -40052,6 +40506,8 @@
             "videoMetadata": "#/components/schemas/VideoMetadataStep",
             "videoUpscaler": "#/components/schemas/VideoUpscalerStep",
             "wdTagging": "#/components/schemas/WDTaggingStep",
+            "webScrape": "#/components/schemas/WebScrapeStep",
+            "webSearch": "#/components/schemas/WebSearchStep",
             "xGuardModeration": "#/components/schemas/XGuardModerationStep"
           }
         }
@@ -40410,7 +40866,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -40463,6 +40919,8 @@
             "videoMetadata": "#/components/schemas/VideoMetadataStepTemplate",
             "videoUpscaler": "#/components/schemas/VideoUpscalerStepTemplate",
             "wdTagging": "#/components/schemas/WDTaggingStepTemplate",
+            "webScrape": "#/components/schemas/WebScrapeStepTemplate",
+            "webSearch": "#/components/schemas/WebSearchStepTemplate",
             "xGuardModeration": "#/components/schemas/XGuardModerationStepTemplate"
           }
         }
@@ -40479,7 +40937,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -40520,7 +40978,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -41620,7 +42078,7 @@
     }
   },
   "security": [
-    { }
+    {}
   ],
   "tags": [
     {
