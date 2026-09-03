@@ -3342,6 +3342,95 @@
         }
       }
     },
+    "/v2/consumer/recipes/preprocessVideo": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "operationId": "InvokePreprocessVideoStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreprocessVideoInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreprocessVideoInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreprocessVideoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreprocessVideoOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/promptEnhancement": {
       "post": {
         "tags": [
@@ -7130,6 +7219,7 @@
               "engine",
               "maxBatchSize",
               "storageBuzzPerEpoch",
+              "trace",
               "usesStepPricing"
             ],
             "type": "object",
@@ -7287,6 +7377,9 @@
                   "string"
                 ],
                 "description": "Optional previously-trained LoRA to continue training from (\"train further\"). When set, the first\nepoch resumes from this model instead of the base model, and the new epochs build on top of it."
+              },
+              "trace": {
+                "$ref": "#/components/schemas/TrainingTraceMode"
               },
               "storageBuzzPerEpoch": {
                 "type": "number",
@@ -15378,6 +15471,62 @@
           }
         ]
       },
+      "ComfyMiniMaxH3ControlVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMiniMaxH3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "video"
+            ],
+            "type": "object",
+            "properties": {
+              "video": {
+                "type": "string",
+                "format": "uri"
+              },
+              "strength": {
+                "maximum": 10,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "startPercent": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0
+              },
+              "endPercent": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "operation": {
+                "enum": [
+                  "controlVideo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Video-to-video structure control using a preprocessed map and the MiniMax H3 Fun ControlNet Union model patch."
+      },
       "ComfyMiniMaxH3ImageToVideoInput": {
         "allOf": [
           {
@@ -15554,7 +15703,8 @@
               "propertyName": "operation",
               "mapping": {
                 "imageToVideo": "#/components/schemas/ComfyMiniMaxH3ImageToVideoInput",
-                "referenceToVideo": "#/components/schemas/ComfyMiniMaxH3ReferenceToVideoInput"
+                "referenceToVideo": "#/components/schemas/ComfyMiniMaxH3ReferenceToVideoInput",
+                "controlVideo": "#/components/schemas/ComfyMiniMaxH3ControlVideoInput"
               }
             }
           }
@@ -16377,6 +16527,7 @@
               "engine",
               "maxBatchSize",
               "storageBuzzPerEpoch",
+              "trace",
               "usesStepPricing"
             ],
             "type": "object",
@@ -16534,6 +16685,9 @@
                   "string"
                 ],
                 "description": "Optional previously-trained LoRA to continue training from (\"train further\"). When set, the first\nepoch resumes from this model instead of the base model, and the new epochs build on top of it."
+              },
+              "trace": {
+                "$ref": "#/components/schemas/TrainingTraceMode"
               },
               "storageBuzzPerEpoch": {
                 "type": "number",
@@ -30547,6 +30701,275 @@
           }
         ]
       },
+      "PreprocessVideoCannyInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "lowThreshold": {
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 100
+              },
+              "highThreshold": {
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 200
+              },
+              "kind": {
+                "enum": [
+                  "canny"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PreprocessVideoDepthAnythingV2Input": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "checkpoint": {
+                "$ref": "#/components/schemas/DepthAnythingV2Checkpoint"
+              },
+              "kind": {
+                "enum": [
+                  "depth-anything-v2"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PreprocessVideoDwPoseInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "detectHand": {
+                "type": "boolean",
+                "default": true
+              },
+              "detectBody": {
+                "type": "boolean",
+                "default": true
+              },
+              "detectFace": {
+                "type": "boolean",
+                "default": true
+              },
+              "bboxDetector": {
+                "$ref": "#/components/schemas/DwPoseBboxDetector"
+              },
+              "poseEstimator": {
+                "$ref": "#/components/schemas/DwPoseEstimator"
+              },
+              "kind": {
+                "enum": [
+                  "dwpose"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PreprocessVideoHedInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "safe": {
+                "$ref": "#/components/schemas/SafeMode"
+              },
+              "kind": {
+                "enum": [
+                  "hed"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PreprocessVideoInput": {
+        "required": [
+          "kind",
+          "preprocessorType",
+          "video"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "video": {
+            "type": "string",
+            "format": "uri"
+          },
+          "resolution": {
+            "maximum": 4096,
+            "minimum": 64,
+            "type": "integer",
+            "description": "The target resolution of the video's shorter edge.",
+            "format": "int32",
+            "default": 512
+          },
+          "preprocessorType": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "canny": "#/components/schemas/PreprocessVideoCannyInput",
+            "mlsd": "#/components/schemas/PreprocessVideoMlsdInput",
+            "depth-anything-v2": "#/components/schemas/PreprocessVideoDepthAnythingV2Input",
+            "hed": "#/components/schemas/PreprocessVideoHedInput",
+            "dwpose": "#/components/schemas/PreprocessVideoDwPoseInput"
+          }
+        }
+      },
+      "PreprocessVideoMlsdInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "scoreThreshold": {
+                "maximum": 2,
+                "minimum": 0.01,
+                "type": "number",
+                "format": "double",
+                "default": 0.1
+              },
+              "distanceThreshold": {
+                "maximum": 20,
+                "minimum": 0.01,
+                "type": "number",
+                "format": "double",
+                "default": 0.1
+              },
+              "kind": {
+                "enum": [
+                  "mlsd"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PreprocessVideoOutput": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/VideoBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PreprocessVideoStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/PreprocessVideoInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/PreprocessVideoOutput"
+              },
+              "$type": {
+                "enum": [
+                  "preprocessVideo"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PreprocessVideoStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/PreprocessVideoInput"
+              },
+              "$type": {
+                "enum": [
+                  "preprocessVideo"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "Priority": {
         "enum": [
           "high",
@@ -34608,7 +35031,7 @@
             "items": {
               "$ref": "#/components/schemas/TrainingOutputEpochResult"
             },
-            "description": "The trained model artifacts for each epoch"
+            "description": "Every epoch of the run in epoch order, from the start of the step. Epochs that are still pending or\ntraining carry a model with `available: false` and no samples yet."
           }
         },
         "additionalProperties": false,
@@ -34636,6 +35059,14 @@
               "$ref": "#/components/schemas/Blob"
             },
             "description": "Sample outputs (images/videos/audio) generated with this epoch's model"
+          },
+          "traceUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Tail-able live trace of this epoch's job, only when the input requested `trace`: plain text console\noutput for `logs`, or NDJSON for `events` where each line carries a unix-millisecond `t`,\na `type` and the `epoch`. Responds 404 until the worker has written its first line and stays\nopen (chunked) while the epoch job runs. Null for epochs served from an existing checkpoint.",
+            "format": "uri"
           }
         },
         "additionalProperties": false,
@@ -34697,6 +35128,15 @@
           }
         ],
         "description": "Training"
+      },
+      "TrainingTraceMode": {
+        "enum": [
+          "none",
+          "logs",
+          "events"
+        ],
+        "type": "string",
+        "description": "What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail\nwhile the job runs."
       },
       "TransactionInfo": {
         "required": [
@@ -36059,6 +36499,14 @@
                   "integer"
                 ],
                 "format": "int32"
+              },
+              "duration": {
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "In seconds",
+                "format": "float"
               },
               "type": {
                 "enum": [
@@ -40650,6 +41098,7 @@
             "modelPickleScan": "#/components/schemas/ModelPickleScanStep",
             "polyGen": "#/components/schemas/PolyGenStep",
             "preprocessImage": "#/components/schemas/PreprocessImageStep",
+            "preprocessVideo": "#/components/schemas/PreprocessVideoStep",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStep",
             "qwenImageBench": "#/components/schemas/QwenImageBenchStep",
             "shieldstralModeration": "#/components/schemas/ShieldstralModerationStep",
@@ -41063,6 +41512,7 @@
             "modelPickleScan": "#/components/schemas/ModelPickleScanStepTemplate",
             "polyGen": "#/components/schemas/PolyGenStepTemplate",
             "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
+            "preprocessVideo": "#/components/schemas/PreprocessVideoStepTemplate",
             "promptEnhancement": "#/components/schemas/PromptEnhancementStepTemplate",
             "qwenImageBench": "#/components/schemas/QwenImageBenchStepTemplate",
             "shieldstralModeration": "#/components/schemas/ShieldstralModerationStepTemplate",

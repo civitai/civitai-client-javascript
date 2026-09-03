@@ -139,6 +139,9 @@ import type {
   InvokePreprocessImageStepTemplateData,
   InvokePreprocessImageStepTemplateErrors,
   InvokePreprocessImageStepTemplateResponses,
+  InvokePreprocessVideoStepTemplateData,
+  InvokePreprocessVideoStepTemplateErrors,
+  InvokePreprocessVideoStepTemplateResponses,
   InvokePromptEnhancementStepTemplateData,
   InvokePromptEnhancementStepTemplateErrors,
   InvokePromptEnhancementStepTemplateResponses,
@@ -992,6 +995,22 @@ export const invokePreprocessImageStepTemplate = <ThrowOnError extends boolean =
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/preprocessImage',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+export const invokePreprocessVideoStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokePreprocessVideoStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokePreprocessVideoStepTemplateResponses,
+    InvokePreprocessVideoStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/preprocessVideo',
     ...options,
     headers: {
       'Content-Type': 'application/json',

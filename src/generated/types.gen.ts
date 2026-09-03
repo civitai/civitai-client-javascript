@@ -113,6 +113,7 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
    * top of the per-step training cost — so raising the epoch count raises the price by this much each.
@@ -2535,6 +2536,21 @@ export type ComfyMageFlowImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ec
 };
 
 /**
+ * Video-to-video structure control using a preprocessed map and the MiniMax H3 Fun ControlNet Union model patch.
+ */
+export type ComfyMiniMaxH3ControlVideoInput = Omit<
+  ComfyMiniMaxH3VideoGenInput,
+  'engine' | 'operation'
+> & {
+  video: string;
+  strength?: number;
+  startPercent?: number;
+  endPercent?: number;
+  operation: 'controlVideo';
+  engine: 'minimax-h3-comfy';
+};
+
+/**
  * Text-to-video or first/last-frame video using the FL2VA weights.
  */
 export type ComfyMiniMaxH3ImageToVideoInput = Omit<
@@ -2935,6 +2951,7 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
    * top of the per-step training cost — so raising the epoch count raises the price by this much each.
@@ -7393,6 +7410,62 @@ export type PreprocessImageZoeDepthInput = Omit<PreprocessImageInput, 'kind'> & 
   kind: 'zoe-depth';
 };
 
+export type PreprocessVideoCannyInput = Omit<PreprocessVideoInput, 'kind'> & {
+  lowThreshold?: number;
+  highThreshold?: number;
+  kind: 'canny';
+};
+
+export type PreprocessVideoDepthAnythingV2Input = Omit<PreprocessVideoInput, 'kind'> & {
+  checkpoint?: DepthAnythingV2Checkpoint;
+  kind: 'depth-anything-v2';
+};
+
+export type PreprocessVideoDwPoseInput = Omit<PreprocessVideoInput, 'kind'> & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  bboxDetector?: DwPoseBboxDetector;
+  poseEstimator?: DwPoseEstimator;
+  kind: 'dwpose';
+};
+
+export type PreprocessVideoHedInput = Omit<PreprocessVideoInput, 'kind'> & {
+  safe?: SafeMode;
+  kind: 'hed';
+};
+
+export type PreprocessVideoInput = {
+  kind: string;
+  video: string;
+  /**
+   * The target resolution of the video's shorter edge.
+   */
+  resolution?: number;
+  readonly preprocessorType: string;
+};
+
+export type PreprocessVideoMlsdInput = Omit<PreprocessVideoInput, 'kind'> & {
+  scoreThreshold?: number;
+  distanceThreshold?: number;
+  kind: 'mlsd';
+};
+
+export type PreprocessVideoOutput = {
+  blob: VideoBlob;
+};
+
+export type PreprocessVideoStep = Omit<WorkflowStep, '$type'> & {
+  input: PreprocessVideoInput;
+  output?: PreprocessVideoOutput;
+  $type: 'preprocessVideo';
+};
+
+export type PreprocessVideoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: PreprocessVideoInput;
+  $type: 'preprocessVideo';
+};
+
 /**
  * Available options for priority.
  */
@@ -8859,7 +8932,8 @@ export type TrainingModerationStatus =
 export type TrainingOutput = {
   moderationStatus: TrainingModerationStatus;
   /**
-   * The trained model artifacts for each epoch
+   * Every epoch of the run in epoch order, from the start of the step. Epochs that are still pending or
+   * training carry a model with `available: false` and no samples yet.
    */
   epochs: Array<TrainingOutputEpochResult>;
 };
@@ -8877,6 +8951,13 @@ export type TrainingOutputEpochResult = {
    * Sample outputs (images/videos/audio) generated with this epoch's model
    */
   samples: Array<Blob>;
+  /**
+   * Tail-able live trace of this epoch's job, only when the input requested `trace`: plain text console
+   * output for `logs`, or NDJSON for `events` where each line carries a unix-millisecond `t`,
+   * a `type` and the `epoch`. Responds 404 until the worker has written its first line and stays
+   * open (chunked) while the epoch job runs. Null for epochs served from an existing checkpoint.
+   */
+  traceUrl?: null | string;
 };
 
 /**
@@ -8895,6 +8976,22 @@ export type TrainingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: TrainingInput;
   $type: 'training';
 };
+
+/**
+ * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
+ * while the job runs.
+ */
+export const TrainingTraceMode = {
+  NONE: 'none',
+  LOGS: 'logs',
+  EVENTS: 'events',
+} as const;
+
+/**
+ * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
+ * while the job runs.
+ */
+export type TrainingTraceMode = (typeof TrainingTraceMode)[keyof typeof TrainingTraceMode];
 
 /**
  * Transaction information.
@@ -9309,6 +9406,10 @@ export type VideoBackgroundRemovalStepTemplate = Omit<WorkflowStepTemplate, '$ty
 export type VideoBlob = Omit<Blob, 'type'> & {
   width?: null | number;
   height?: null | number;
+  /**
+   * In seconds
+   */
+  duration?: null | number;
   type: 'video';
 };
 
@@ -11384,6 +11485,7 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   engine: 'ai-toolkit';
 };
 
@@ -11601,6 +11703,7 @@ export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  trace: TrainingTraceMode;
   resolution?: number;
   noHalfVae?: boolean;
   /**
@@ -12328,6 +12431,60 @@ export type PreprocessImageZoeDepthInputWritable = Omit<PreprocessImageInputWrit
   kind: 'zoe-depth';
 };
 
+export type PreprocessVideoCannyInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  lowThreshold?: number;
+  highThreshold?: number;
+  kind: 'canny';
+};
+
+export type PreprocessVideoDepthAnythingV2InputWritable = Omit<
+  PreprocessVideoInputWritable2,
+  'kind'
+> & {
+  checkpoint?: DepthAnythingV2Checkpoint;
+  kind: 'depth-anything-v2';
+};
+
+export type PreprocessVideoDwPoseInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  bboxDetector?: DwPoseBboxDetector;
+  poseEstimator?: DwPoseEstimator;
+  kind: 'dwpose';
+};
+
+export type PreprocessVideoHedInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  safe?: SafeMode;
+  kind: 'hed';
+};
+
+export type PreprocessVideoInputWritable = {
+  kind: string;
+  video: string;
+  /**
+   * The target resolution of the video's shorter edge.
+   */
+  resolution?: number;
+};
+
+export type PreprocessVideoMlsdInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  scoreThreshold?: number;
+  distanceThreshold?: number;
+  kind: 'mlsd';
+};
+
+export type PreprocessVideoStepWritable = Omit<WorkflowStepWritable, '$type'> & {
+  input: PreprocessVideoInputWritable;
+  output?: PreprocessVideoOutput;
+  $type: 'preprocessVideo';
+};
+
+export type PreprocessVideoStepTemplateWritable = Omit<WorkflowStepTemplateWritable, '$type'> & {
+  input: PreprocessVideoInputWritable;
+  $type: 'preprocessVideo';
+};
+
 export type Qwen20bEditImageGenInputWritable = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
@@ -12878,6 +13035,16 @@ export type WorkflowStepTemplateWritable = {
   metadata?: null | {
     [key: string]: unknown;
   };
+};
+
+export type PreprocessVideoInputWritable2 = {
+  kind: string;
+  video: string;
+  /**
+   * The target resolution of the video's shorter edge.
+   */
+  resolution?: number;
+  readonly preprocessorType: string;
 };
 
 /**
@@ -14353,6 +14520,42 @@ export type InvokePreprocessImageStepTemplateResponses = {
 
 export type InvokePreprocessImageStepTemplateResponse =
   InvokePreprocessImageStepTemplateResponses[keyof InvokePreprocessImageStepTemplateResponses];
+
+export type InvokePreprocessVideoStepTemplateData = {
+  body?: PreprocessVideoInputWritable;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/preprocessVideo';
+};
+
+export type InvokePreprocessVideoStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokePreprocessVideoStepTemplateError =
+  InvokePreprocessVideoStepTemplateErrors[keyof InvokePreprocessVideoStepTemplateErrors];
+
+export type InvokePreprocessVideoStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: PreprocessVideoOutput;
+};
+
+export type InvokePreprocessVideoStepTemplateResponse =
+  InvokePreprocessVideoStepTemplateResponses[keyof InvokePreprocessVideoStepTemplateResponses];
 
 export type InvokePromptEnhancementStepTemplateData = {
   body?: PromptEnhancementInput;
