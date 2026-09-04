@@ -1,0 +1,84 @@
+name: Release
+
+# Publishes when a version bump lands on main. The registry check below is the
+# real guard -- the paths filter just avoids spinning up a runner for commits
+# that cannot possibly be a release.
+on:
+  push:
+    branches: [main]
+    paths: ['package.json']
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # only for pushing the version tag
+      id-token: write # required for npm trusted publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4 # reads the pinned version from packageManager
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0 # trusted publishing requires >= 22.14.0
+          cache: pnpm
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest # trusted publishing requires >= 11.5.1
+
+      - name: Resolve version and dist-tag
+        id: meta
+        run: |
+          version=$(node -p "require('./package.json').version")
+          name=$(node -p "require('./package.json').name")
+          # Prereleases (0.2.0-beta.99) go to the beta tag; plain versions to latest.
+          if [[ "$version" == *-* ]]; then tag=beta; else tag=latest; fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Resolved $name@$version -> dist-tag $tag"
+
+      - name: Skip if this version is already on the registry
+        id: check
+        run: |
+          # npm view exits 0 with EMPTY output when the package exists but the
+          # version does not, so test the output rather than the exit code.
+          found=$(npm view "${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }}" version 2>/dev/null || true)
+          if [ -n "$found" ]; then
+            echo "${{ steps.meta.outputs.version }} is already published; nothing to do."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        if: steps.check.outputs.publish == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        if: steps.check.outputs.publish == 'true'
+        run: pnpm test
+
+      - name: Build
+        if: steps.check.outputs.publish == 'true'
+        run: pnpm build
+
+      # --ignore-scripts because prepublishOnly would re-run the test and build
+      # steps above. No token or OTP here: OIDC authenticates the publish.
+      - name: Publish
+        if: steps.check.outputs.publish == 'true'
+        run: npm publish --tag ${{ steps.meta.outputs.tag }} --ignore-scripts
+
+      - name: Tag the release
+        if: steps.check.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
