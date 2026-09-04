@@ -34,6 +34,26 @@ jobs:
       - name: Upgrade npm
         run: npm install -g "npm@^11.5.1" # trusted publishing requires >= 11.5.1
 
+      # npm < 11.5.1 has no trusted-publishing support: it silently falls back
+      # to token auth and fails with a confusing 401 about Web Auth URLs, so
+      # confirm the upgrade above actually took effect on PATH.
+      #
+      # GITHUB_WORKFLOW_REF is precisely what npm matches against the trusted
+      # publisher entry -- compare it field by field with npmjs.com if auth fails.
+      - name: Verify toolchain and OIDC context
+        run: |
+          echo "node:     $(node -v)"
+          echo "npm:      $(npm -v)  ($(command -v npm))"
+          echo "OIDC url: ${ACTIONS_ID_TOKEN_REQUEST_URL:+present}"
+          echo "workflow: $GITHUB_WORKFLOW_REF"
+          case "$(npm -v)" in
+            1[1-9].* | [2-9][0-9].*) ;;
+            *)
+              echo "::error::npm $(npm -v) is too old for trusted publishing (need >= 11.5.1)"
+              exit 1
+              ;;
+          esac
+
       - name: Resolve version and dist-tag
         id: meta
         run: |
