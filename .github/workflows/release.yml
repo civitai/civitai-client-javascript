@@ -26,11 +26,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.14.0 # trusted publishing requires >= 22.14.0
+          node-version: '22' # latest 22 LTS; trusted publishing requires >= 22.14.0
           cache: pnpm
 
+      # Pinned to the 11.x line rather than @latest: npm 12 requires a newer
+      # node than this job runs, so @latest breaks the moment it moves on.
       - name: Upgrade npm
-        run: npm install -g npm@latest # trusted publishing requires >= 11.5.1
+        run: npm install -g "npm@^11.5.1" # trusted publishing requires >= 11.5.1
 
       - name: Resolve version and dist-tag
         id: meta
