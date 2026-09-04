@@ -95,7 +95,19 @@ jobs:
       # steps above. No token or OTP here: OIDC authenticates the publish.
       - name: Publish
         if: steps.check.outputs.publish == 'true'
-        run: npm publish --tag ${{ steps.meta.outputs.tag }} --ignore-scripts
+        run: npm publish --tag ${{ steps.meta.outputs.tag }} --ignore-scripts --loglevel verbose
+
+      # The OIDC token exchange happens before the PUT and is only visible at
+      # verbose level. This shows whether npm attempted the exchange at all and
+      # what the registry said -- the difference between a config mismatch and
+      # npm never trying trusted publishing in the first place.
+      - name: Dump npm debug log on failure
+        if: failure()
+        run: |
+          for f in /home/runner/.npm/_logs/*.log; do
+            echo "===== $f ====="
+            grep -viE "^[0-9]+ (notice|silly) " "$f" | tail -120
+          done
 
       - name: Tag the release
         if: steps.check.outputs.publish == 'true'
