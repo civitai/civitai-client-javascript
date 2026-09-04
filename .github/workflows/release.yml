@@ -93,8 +93,14 @@ jobs:
 
       # --ignore-scripts because prepublishOnly would re-run the test and build
       # steps above. No token or OTP here: OIDC authenticates the publish.
+      # fetch-retries=0 is deliberate. The OIDC credential is single use, so a
+      # retry after a registry 5xx goes out with a spent token and comes back
+      # 401 "token is invalid", hiding the real error. Failing on the first
+      # attempt surfaces the 5xx honestly; a re-run mints a fresh credential.
       - name: Publish
         if: steps.check.outputs.publish == 'true'
+        env:
+          npm_config_fetch_retries: '0'
         run: npm publish --tag ${{ steps.meta.outputs.tag }} --ignore-scripts --loglevel verbose
 
       # The OIDC token exchange happens before the PUT and is only visible at
