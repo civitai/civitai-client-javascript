@@ -29,6 +29,7 @@
     "build": "tsc && eslint --fix dist",
     "test": "jest",
     "prepublishOnly": "pnpm test && pnpm build",
+    "prepare": "tsc",
     "typecheck": "tsc --noEmit",
     "release": "pnpm typecheck && pnpm build && pnpm publish --tag beta"
   },
