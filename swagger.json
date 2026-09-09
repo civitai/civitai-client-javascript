@@ -29019,6 +29019,382 @@
           }
         ]
       },
+      "OpenAIGpt25FlareCreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt25FlareImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.5-flare"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt25FlareEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt25FlareImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "maskImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "width": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nBoth Width and Height must be set together, or both null.",
+                "format": "int32"
+              },
+              "height": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nBoth Width and Height must be set together, or both null.",
+                "format": "int32"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.5-flare"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt25FlareImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 32000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 3840,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 3840,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32",
+                "default": 1024
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "quality": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "high"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.5-flare"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIGpt25FlareCreateImageInput",
+                "editImage": "#/components/schemas/OpenAIGpt25FlareEditImageInput"
+              }
+            }
+          }
+        ],
+        "description": "GPT-Image-2.5 \"flare\": the faster of the two variants.\nFAL endpoints: openai/gpt-image-2.5/flare/text-to-image[/edit]"
+      },
+      "OpenAIGpt25SunburstCreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt25SunburstImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.5-sunburst"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt25SunburstEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt25SunburstImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "maskImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "width": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nBoth Width and Height must be set together, or both null.",
+                "format": "int32"
+              },
+              "height": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nBoth Width and Height must be set together, or both null.",
+                "format": "int32"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.5-sunburst"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt25SunburstImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 32000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 3840,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 3840,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32",
+                "default": 1024
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "quality": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "high"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.5-sunburst"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIGpt25SunburstCreateImageInput",
+                "editImage": "#/components/schemas/OpenAIGpt25SunburstEditImageInput"
+              }
+            }
+          }
+        ],
+        "description": "GPT-Image-2.5 \"sunburst\": higher fidelity on intricate detail, slower.\nFAL endpoints: openai/gpt-image-2.5/sunburst/text-to-image[/edit]"
+      },
       "OpenAIGpt2CreateImageInput": {
         "allOf": [
           {
@@ -29239,6 +29615,8 @@
                 "gpt-image-1": "#/components/schemas/OpenAIGpt1ImageGenInput",
                 "gpt-image-1.5": "#/components/schemas/OpenAIGpt15ImageGenInput",
                 "gpt-image-2": "#/components/schemas/OpenAIGpt2ImageGenInput",
+                "gpt-image-2.5-flare": "#/components/schemas/OpenAIGpt25FlareImageGenInput",
+                "gpt-image-2.5-sunburst": "#/components/schemas/OpenAIGpt25SunburstImageGenInput",
                 "dall-e-2": "#/components/schemas/OpenAIDallE2ImageGenInput",
                 "dall-e-3": "#/components/schemas/OpenAIDallE3ImageGenInput"
               }

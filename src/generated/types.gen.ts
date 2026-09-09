@@ -7048,6 +7048,102 @@ export type OpenAiGpt1ImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'mod
   engine: 'openai';
 };
 
+export type OpenAiGpt25FlareCreateImageInput = Omit<
+  OpenAiGpt25FlareImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'gpt-image-2.5-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt25FlareEditImageInput = Omit<
+  OpenAiGpt25FlareImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  maskImage?: null | string;
+  /**
+   * When null, fal infers output size from the input images (image_size: "auto").
+   * Both Width and Height must be set together, or both null.
+   */
+  width?: null | number;
+  /**
+   * When null, fal infers output size from the input images (image_size: "auto").
+   * Both Width and Height must be set together, or both null.
+   */
+  height?: null | number;
+  operation: 'editImage';
+  model: 'gpt-image-2.5-flare';
+  engine: 'openai';
+};
+
+/**
+ * GPT-Image-2.5 "flare": the faster of the two variants.
+ * FAL endpoints: openai/gpt-image-2.5/flare/text-to-image[/edit]
+ */
+export type OpenAiGpt25FlareImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  width?: null | number;
+  height?: null | number;
+  quantity?: number;
+  quality?: 'low' | 'medium' | 'high';
+  model: 'gpt-image-2.5-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt25SunburstCreateImageInput = Omit<
+  OpenAiGpt25SunburstImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'gpt-image-2.5-sunburst';
+  engine: 'openai';
+};
+
+export type OpenAiGpt25SunburstEditImageInput = Omit<
+  OpenAiGpt25SunburstImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  maskImage?: null | string;
+  /**
+   * When null, fal infers output size from the input images (image_size: "auto").
+   * Both Width and Height must be set together, or both null.
+   */
+  width?: null | number;
+  /**
+   * When null, fal infers output size from the input images (image_size: "auto").
+   * Both Width and Height must be set together, or both null.
+   */
+  height?: null | number;
+  operation: 'editImage';
+  model: 'gpt-image-2.5-sunburst';
+  engine: 'openai';
+};
+
+/**
+ * GPT-Image-2.5 "sunburst": higher fidelity on intricate detail, slower.
+ * FAL endpoints: openai/gpt-image-2.5/sunburst/text-to-image[/edit]
+ */
+export type OpenAiGpt25SunburstImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  width?: null | number;
+  height?: null | number;
+  quantity?: number;
+  quality?: 'low' | 'medium' | 'high';
+  model: 'gpt-image-2.5-sunburst';
+  engine: 'openai';
+};
+
 export type OpenAiGpt2CreateImageInput = Omit<
   OpenAiGpt2ImageGenInput,
   'engine' | 'model' | 'operation'
