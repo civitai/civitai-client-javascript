@@ -6623,6 +6623,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "description": "Whether to apply the update or return what it would cost.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "requestBody": {
@@ -6656,8 +6665,15 @@
               }
             }
           },
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workflow"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -26374,6 +26390,17 @@
                 ],
                 "format": "int32"
               },
+              "lane": {
+                "$ref": "#/components/schemas/Priority"
+              },
+              "bytesPerSecond": {
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "Inferred from reported progress over elapsed time; the worker's byte counters never leave it.",
+                "format": "double"
+              },
               "status": {
                 "enum": [
                   "loading"
@@ -26383,7 +26410,8 @@
             },
             "additionalProperties": false
           }
-        ]
+        ],
+        "description": "Transferring. No queue position — it is no longer waiting."
       },
       "Ltx23AIToolkitTrainingInput": {
         "allOf": [
@@ -32722,6 +32750,53 @@
         "additionalProperties": false,
         "description": "A detected issue with the user's prompt."
       },
+      "QueuedResourceAvailability": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResourceAvailability"
+          },
+          {
+            "required": [
+              "lane",
+              "queuePosition",
+              "status"
+            ],
+            "type": "object",
+            "properties": {
+              "queuePosition": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "lane": {
+                "$ref": "#/components/schemas/Priority"
+              },
+              "etaSeconds": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "boostedEtaSeconds": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "What Civitai.Orchestration.Grains.Resources.QueuedResourceAvailability.EtaSeconds would become in the High lane. Null when already High.",
+                "format": "int32"
+              },
+              "status": {
+                "enum": [
+                  "queued"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Waiting in a download lane. No progress or speed — nothing is transferring yet."
+      },
       "Qwen20bCreateImageGenInput": {
         "allOf": [
           {
@@ -34110,6 +34185,7 @@
           "mapping": {
             "unsupported": "#/components/schemas/UnsupportedResourceAvailability",
             "unavailable": "#/components/schemas/UnavailableResourceAvailability",
+            "queued": "#/components/schemas/QueuedResourceAvailability",
             "loading": "#/components/schemas/LoadingResourceAvailability",
             "available": "#/components/schemas/AvailableResourceAvailability"
           }
@@ -37485,13 +37561,6 @@
             ],
             "type": "object",
             "properties": {
-              "queuePosition": {
-                "type": [
-                  "null",
-                  "integer"
-                ],
-                "format": "int32"
-              },
               "status": {
                 "enum": [
                   "unavailable"
@@ -37501,7 +37570,8 @@
             },
             "additionalProperties": false
           }
-        ]
+        ],
+        "description": "Eligible, but nothing is pulling it. A resource waiting in a download lane reports\nCivitai.Orchestration.Grains.Resources.QueuedResourceAvailability instead."
       },
       "UnsupportedResourceAvailability": {
         "allOf": [
@@ -37555,6 +37625,9 @@
               "boolean"
             ],
             "description": "Set to true to remove the mature content restriction on the workflow."
+          },
+          "downloadPriority": {
+            "$ref": "#/components/schemas/Priority"
           }
         },
         "additionalProperties": false,
@@ -42204,6 +42277,9 @@
             ],
             "description": "When the consumer deleted this workflow. Soft delete: the telemetry document is kept\n(until its natural TTL) so operators can still inspect it in the dashboard, but\nconsumer reads and queries treat the workflow as gone.",
             "format": "date-time"
+          },
+          "downloadPriority": {
+            "$ref": "#/components/schemas/Priority"
           }
         },
         "additionalProperties": false,
@@ -42805,8 +42881,10 @@
       },
       "WorkflowStepPreparation": {
         "required": [
+          "lane",
           "queuePosition",
-          "resource"
+          "resource",
+          "resources"
         ],
         "type": "object",
         "properties": {
@@ -42833,12 +42911,88 @@
               "null",
               "integer"
             ],
-            "description": "Estimated seconds until the download completes. Null when there is not enough progress to extrapolate.",
+            "description": "Estimated seconds until the download completes.",
+            "format": "int32"
+          },
+          "lane": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "boostedEtaSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparation.EtaSeconds would become in the High lane. Null when already High.",
+            "format": "int32"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepPreparationResource"
+            },
+            "description": "Every resource this step is waiting on, gating resource first."
+          }
+        },
+        "additionalProperties": false,
+        "description": "The resource downloads a step is waiting on while its status is preparing. Absent rather than\npartially filled: without a resource and its place in the queue it says nothing the status doesn't."
+      },
+      "WorkflowStepPreparationResource": {
+        "required": [
+          "lane",
+          "resource",
+          "sizeBytes"
+        ],
+        "type": "object",
+        "properties": {
+          "resource": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lane": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "queuePosition": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "progress": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "bytesPerSecond": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "etaSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "boostedEtaSeconds": {
+            "type": [
+              "null",
+              "integer"
+            ],
             "format": "int32"
           }
         },
         "additionalProperties": false,
-        "description": "The resource download a step is waiting on while its status is preparing."
+        "description": "One resource a step is waiting on. A queued resource reports a position and no progress; one that\nis transferring reports the reverse."
       },
       "WorkflowStepQueuePosition": {
         "required": [
@@ -43035,6 +43189,9 @@
           },
           "nsfwLevel": {
             "$ref": "#/components/schemas/NSFWLevel"
+          },
+          "downloadPriority": {
+            "$ref": "#/components/schemas/Priority"
           },
           "experimental": {
             "type": [

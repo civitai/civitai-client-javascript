@@ -5995,12 +5995,20 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
+/**
+ * Transferring. No queue position — it is no longer waiting.
+ */
 export type LoadingResourceAvailability = Omit<ResourceAvailability, 'status'> & {
   progress: number;
   workers: number;
   startedAt?: null | string;
   lastProgressAt?: null | string;
   etaSeconds?: null | number;
+  lane?: Priority;
+  /**
+   * Inferred from reported progress over elapsed time; the worker's byte counters never leave it.
+   */
+  bytesPerSecond?: null | number;
   status: 'loading';
 };
 
@@ -7916,6 +7924,20 @@ export type PromptIssue = {
   severity?: null | string;
 };
 
+/**
+ * Waiting in a download lane. No progress or speed — nothing is transferring yet.
+ */
+export type QueuedResourceAvailability = Omit<ResourceAvailability, 'status'> & {
+  queuePosition: number;
+  lane: Priority;
+  etaSeconds?: null | number;
+  /**
+   * What Civitai.Orchestration.Grains.Resources.QueuedResourceAvailability.EtaSeconds would become in the High lane. Null when already High.
+   */
+  boostedEtaSeconds?: null | number;
+  status: 'queued';
+};
+
 export type Qwen20bCreateImageGenInput = Omit<
   Qwen20bImageGenInput,
   'engine' | 'ecosystem' | 'model' | 'operation'
@@ -9570,8 +9592,11 @@ export type TryOnUOutput = {
   blob: Blob;
 };
 
+/**
+ * Eligible, but nothing is pulling it. A resource waiting in a download lane reports
+ * Civitai.Orchestration.Grains.Resources.QueuedResourceAvailability instead.
+ */
 export type UnavailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
-  queuePosition?: null | number;
   status: 'unavailable';
 };
 
@@ -9598,6 +9623,7 @@ export type UpdateWorkflowRequest = {
    * Set to true to remove the mature content restriction on the workflow.
    */
   allowMatureContent?: null | boolean;
+  downloadPriority?: Priority;
 };
 
 /**
@@ -10903,6 +10929,7 @@ export type Workflow = {
    * consumer reads and queries treat the workflow as gone.
    */
   deletedAt?: null | string;
+  downloadPriority?: Priority;
 };
 
 /**
@@ -11234,7 +11261,8 @@ export type WorkflowStepJobEvent = {
 };
 
 /**
- * The resource download a step is waiting on while its status is preparing.
+ * The resource downloads a step is waiting on while its status is preparing. Absent rather than
+ * partially filled: without a resource and its place in the queue it says nothing the status doesn't.
  */
 export type WorkflowStepPreparation = {
   /**
@@ -11250,9 +11278,33 @@ export type WorkflowStepPreparation = {
    */
   progress?: null | number;
   /**
-   * Estimated seconds until the download completes. Null when there is not enough progress to extrapolate.
+   * Estimated seconds until the download completes.
    */
   etaSeconds?: null | number;
+  lane: Priority;
+  /**
+   * What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparation.EtaSeconds would become in the High lane. Null when already High.
+   */
+  boostedEtaSeconds?: null | number;
+  /**
+   * Every resource this step is waiting on, gating resource first.
+   */
+  resources: Array<WorkflowStepPreparationResource>;
+};
+
+/**
+ * One resource a step is waiting on. A queued resource reports a position and no progress; one that
+ * is transferring reports the reverse.
+ */
+export type WorkflowStepPreparationResource = {
+  resource: string;
+  sizeBytes: number;
+  lane: Priority;
+  queuePosition?: null | number;
+  progress?: null | number;
+  bytesPerSecond?: null | number;
+  etaSeconds?: null | number;
+  boostedEtaSeconds?: null | number;
 };
 
 /**
@@ -11332,6 +11384,7 @@ export type WorkflowTemplate = {
     [key: string]: unknown;
   };
   nsfwLevel?: NsfwLevel;
+  downloadPriority?: Priority;
   /**
    * Get or set whether this workflow is experimental
    */
@@ -13141,6 +13194,7 @@ export type WorkflowWritable = {
    * consumer reads and queries treat the workflow as gone.
    */
   deletedAt?: null | string;
+  downloadPriority?: Priority;
 };
 
 export type WorkflowCostWritable = {
@@ -16186,7 +16240,12 @@ export type UpdateWorkflowData = {
      */
     workflowId: string;
   };
-  query?: never;
+  query?: {
+    /**
+     * Whether to apply the update or return what it would cost.
+     */
+    whatif?: boolean;
+  };
   url: '/v2/consumer/workflows/{workflowId}';
 };
 
@@ -16209,9 +16268,9 @@ export type UpdateWorkflowError = UpdateWorkflowErrors[keyof UpdateWorkflowError
 
 export type UpdateWorkflowResponses = {
   /**
-   * No Content
+   * OK
    */
-  204: void;
+  200: Workflow;
 };
 
 export type UpdateWorkflowResponse = UpdateWorkflowResponses[keyof UpdateWorkflowResponses];
