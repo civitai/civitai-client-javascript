@@ -1421,7 +1421,7 @@ export type ComfyAnimaCreateImageGenInput = Omit<
 };
 
 export type ComfyAnimaImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
-  operation: string;
+  operation: null | string;
   prompt: string;
   negativePrompt?: null | string;
   sampler?: ComfySampler;
@@ -1685,8 +1685,28 @@ export type ComfyFlux1CreateImageGenInput = Omit<
   engine: 'comfy';
 };
 
+/**
+ * Compatibility route for sdcpp Flux 1 editing: ordinary image-to-image using only
+ * the first source image, or text-to-image when the image list is empty.
+ */
+export type ComfyFlux1EditImageGenInput = Omit<
+  ComfyFlux1ImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  steps?: number;
+  /**
+   * Uses only the first image for image-to-image at denoise strength 0.7. An empty list generates from text, matching sdcpp Flux 1 editImage.
+   */
+  images?: Array<string>;
+  operation: 'editImage';
+  ecosystem: 'flux1';
+  engine: 'comfy';
+};
+
 export type ComfyFlux1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
-  operation: string;
+  operation: null | string;
   prompt: string;
   sampler?: ComfySampler;
   scheduler?: ComfyScheduler;
@@ -1755,6 +1775,76 @@ export type ComfyFlux2DevImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ec
     [key: string]: number;
   };
   ecosystem: 'flux2Dev';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2DevVariantImageGenInput = Omit<
+  ComfyFlux2DevImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  strength?: number;
+  operation: 'createVariant';
+  ecosystem: 'flux2Dev';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2KleinCreateImageInput = Omit<
+  ComfyFlux2KleinImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  operation: 'createImage';
+  ecosystem: 'flux2Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2KleinEditImageInput = Omit<
+  ComfyFlux2KleinImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  images?: Array<string>;
+  operation: 'editImage';
+  ecosystem: 'flux2Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2KleinImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  cfgScale?: number;
+  steps?: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  negativePrompt?: null | string;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Klein model variant. Both 9b and 9b-kv always use the 9B KV checkpoint and reference-image caching. 4B and Base variants use their original checkpoints.
+   */
+  modelVersion?: '4b' | '4b-base' | '9b' | '9b-base' | '9b-kv';
+  ecosystem: 'flux2Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux2KleinVariantImageGenInput = Omit<
+  ComfyFlux2KleinImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  strength?: number;
+  operation: 'createVariant';
+  ecosystem: 'flux2Klein';
   engine: 'comfy';
 };
 
@@ -2707,6 +2797,78 @@ export type ComfyPolyGenInput = Omit<PolyGenInput, 'engine'> & {
   engine: 'comfy';
 };
 
+export type ComfyQwen20bCreateImageGenInput = Omit<
+  ComfyQwen20bImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  version?: 'latest' | '2509' | '2512';
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen20bEditImageGenInput = Omit<
+  ComfyQwen20bImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  version?: 'latest' | '2509' | '2511';
+  images: Array<string>;
+  readonly width: number;
+  readonly height: number;
+  operation: 'editImage';
+  model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen20bImageGenInput = Omit<
+  ComfyQwenImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen20bVariantImageGenInput = Omit<
+  ComfyQwen20bImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  version?: 'latest' | '2509' | '2512';
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  strength?: number;
+  readonly width: number;
+  readonly height: number;
+  operation: 'createVariant';
+  model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwenImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: null | string;
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
 export const ComfySampler = {
   EULER: 'euler',
   EULER_ANCESTRAL: 'euler_ancestral',
@@ -3014,6 +3176,81 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
   modelSamplingShift?: null | number;
   datasetCaching?: null | boolean;
   readonly maxBatchSize: number;
+  engine: 'comfy';
+};
+
+export type ComfyZImageBaseCreateImageGenInput = Omit<
+  ComfyZImageBaseImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'base';
+  ecosystem: 'zImage';
+  engine: 'comfy';
+};
+
+export type ComfyZImageBaseImageGenInput = Omit<
+  ComfyZImageImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  controlNets?: Array<ImageJobControlNet>;
+  model: 'base';
+  ecosystem: 'zImage';
+  engine: 'comfy';
+};
+
+export type ComfyZImageImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: null | string;
+  diffuserModel?: string;
+  ecosystem: 'zImage';
+  engine: 'comfy';
+};
+
+export type ComfyZImageTurboCreateImageGenInput = Omit<
+  ComfyZImageTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'turbo';
+  ecosystem: 'zImage';
+  engine: 'comfy';
+};
+
+export type ComfyZImageTurboImageGenInput = Omit<
+  ComfyZImageImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  controlNets?: Array<ImageJobControlNet>;
+  model: 'turbo';
+  ecosystem: 'zImage';
   engine: 'comfy';
 };
 
@@ -7091,7 +7328,7 @@ export type OpenAiGpt25FlareImageGenInput = Omit<OpenApiImageGenInput, 'engine' 
   width?: null | number;
   height?: null | number;
   quantity?: number;
-  quality?: 'low' | 'medium' | 'high';
+  quality?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
   model: 'gpt-image-2.5-flare';
   engine: 'openai';
 };
@@ -7139,7 +7376,7 @@ export type OpenAiGpt25SunburstImageGenInput = Omit<OpenApiImageGenInput, 'engin
   width?: null | number;
   height?: null | number;
   quantity?: number;
-  quality?: 'low' | 'medium' | 'high';
+  quality?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
   model: 'gpt-image-2.5-sunburst';
   engine: 'openai';
 };
@@ -11771,6 +12008,34 @@ export type ChromaAiToolkitTrainingInputWritable = Omit<
    * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
+};
+
+export type ComfyQwen20bEditImageGenInputWritable = Omit<
+  ComfyQwen20bImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  version?: 'latest' | '2509' | '2511';
+  images: Array<string>;
+  operation: 'ComfyQwen20bEditImageGenInputWritable';
+  model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen20bVariantImageGenInputWritable = Omit<
+  ComfyQwen20bImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  version?: 'latest' | '2509' | '2512';
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  strength?: number;
+  operation: 'ComfyQwen20bVariantImageGenInputWritable';
+  model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
 };
 
 /**

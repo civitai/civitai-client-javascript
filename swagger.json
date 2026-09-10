@@ -10426,7 +10426,11 @@
             "type": "object",
             "properties": {
               "operation": {
-                "type": "string"
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
               },
               "prompt": {
                 "maxLength": 10000,
@@ -11725,6 +11729,72 @@
           }
         ]
       },
+      "ComfyFlux1EditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux1ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "steps": {
+                "type": "integer",
+                "format": "int32",
+                "default": 28
+              },
+              "images": {
+                "maxItems": 2,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                },
+                "description": "Uses only the first image for image-to-image at denoise strength 0.7. An empty list generates from text, matching sdcpp Flux 1 editImage."
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux1"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Compatibility route for sdcpp Flux 1 editing: ordinary image-to-image using only\nthe first source image, or text-to-image when the image list is empty."
+      },
       "ComfyFlux1ImageGenInput": {
         "allOf": [
           {
@@ -11741,7 +11811,11 @@
             "type": "object",
             "properties": {
               "operation": {
-                "type": "string"
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
               },
               "prompt": {
                 "maxLength": 10000,
@@ -11824,7 +11898,8 @@
               "propertyName": "operation",
               "mapping": {
                 "createImage": "#/components/schemas/ComfyFlux1CreateImageGenInput",
-                "createVariant": "#/components/schemas/ComfyFlux1VariantImageGenInput"
+                "createVariant": "#/components/schemas/ComfyFlux1VariantImageGenInput",
+                "editImage": "#/components/schemas/ComfyFlux1EditImageGenInput"
               }
             }
           }
@@ -12075,9 +12150,309 @@
               "propertyName": "operation",
               "mapping": {
                 "createImage": "#/components/schemas/ComfyFlux2DevCreateImageInput",
-                "editImage": "#/components/schemas/ComfyFlux2DevEditImageInput"
+                "editImage": "#/components/schemas/ComfyFlux2DevEditImageInput",
+                "createVariant": "#/components/schemas/ComfyFlux2DevVariantImageGenInput"
               }
             }
+          }
+        ]
+      },
+      "ComfyFlux2DevVariantImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux2DevImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "image",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "strength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.7
+              },
+              "operation": {
+                "enum": [
+                  "createVariant"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Dev"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyFlux2KleinCreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux2KleinImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Klein"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyFlux2KleinEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux2KleinImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 2,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Klein"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyFlux2KleinImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 1000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 512,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "cfgScale": {
+                "maximum": 20,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 5
+              },
+              "steps": {
+                "maximum": 50,
+                "minimum": 4,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "negativePrompt": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "modelVersion": {
+                "enum": [
+                  "4b",
+                  "4b-base",
+                  "9b",
+                  "9b-base",
+                  "9b-kv"
+                ],
+                "type": "string",
+                "description": "Klein model variant. Both 9b and 9b-kv always use the 9B KV checkpoint and reference-image caching. 4B and Base variants use their original checkpoints.",
+                "default": "4b"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Klein"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyFlux2KleinCreateImageInput",
+                "editImage": "#/components/schemas/ComfyFlux2KleinEditImageInput",
+                "createVariant": "#/components/schemas/ComfyFlux2KleinVariantImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyFlux2KleinVariantImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFlux2KleinImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "image",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "strength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.7
+              },
+              "operation": {
+                "enum": [
+                  "createVariant"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux2Klein"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -12725,7 +13100,10 @@
                 "ideogram4": "#/components/schemas/ComfyIdeogram4ImageGenInput",
                 "boogu": "#/components/schemas/ComfyBooguImageGenInput",
                 "krea2": "#/components/schemas/ComfyKrea2ImageGenInput",
-                "mageflow": "#/components/schemas/ComfyMageFlowImageGenInput"
+                "mageflow": "#/components/schemas/ComfyMageFlowImageGenInput",
+                "flux2Klein": "#/components/schemas/ComfyFlux2KleinImageGenInput",
+                "qwen": "#/components/schemas/ComfyQwenImageGenInput",
+                "zImage": "#/components/schemas/ComfyZImageImageGenInput"
               }
             }
           }
@@ -15972,6 +16350,378 @@
           }
         ]
       },
+      "ComfyQwen20bCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwen20bImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "enum": [
+                  "latest",
+                  "2509",
+                  "2512"
+                ],
+                "type": "string",
+                "default": "latest"
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "20b"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyQwen20bEditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwen20bImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "height",
+              "images",
+              "model",
+              "operation",
+              "width"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "enum": [
+                  "latest",
+                  "2509",
+                  "2511"
+                ],
+                "type": "string",
+                "default": "latest"
+              },
+              "images": {
+                "maxItems": 3,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "20b"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyQwen20bImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwenImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 2.5
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "model": {
+                "enum": [
+                  "20b"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyQwen20bCreateImageGenInput",
+                "editImage": "#/components/schemas/ComfyQwen20bEditImageGenInput",
+                "createVariant": "#/components/schemas/ComfyQwen20bVariantImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyQwen20bVariantImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwen20bImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "height",
+              "image",
+              "model",
+              "operation",
+              "width"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "enum": [
+                  "latest",
+                  "2509",
+                  "2512"
+                ],
+                "type": "string",
+                "default": "latest"
+              },
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "strength": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 0.7
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "operation": {
+                "enum": [
+                  "createVariant"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "20b"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyQwenImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "20b"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "20b": "#/components/schemas/ComfyQwen20bImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfySampler": {
         "enum": [
           "euler",
@@ -16872,6 +17622,390 @@
           }
         ],
         "description": "Input for model-family-driven Comfy-backed LoRA training."
+      },
+      "ComfyZImageBaseCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyZImageBaseImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "base"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "zImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyZImageBaseImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyZImageImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 4
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
+                }
+              },
+              "model": {
+                "enum": [
+                  "base"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "zImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyZImageBaseCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyZImageImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "turbo"
+              },
+              "diffuserModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "zImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "turbo": "#/components/schemas/ComfyZImageTurboImageGenInput",
+                "base": "#/components/schemas/ComfyZImageBaseImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyZImageTurboCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyZImageTurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "zImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyZImageTurboImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyZImageImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 9
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "controlNets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageJobControlNet"
+                }
+              },
+              "model": {
+                "enum": [
+                  "turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "zImage"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyZImageTurboCreateImageGenInput"
+              }
+            }
+          }
+        ]
       },
       "ComposeMediaElementInput": {
         "type": "object",
@@ -29177,7 +30311,9 @@
                 "enum": [
                   "low",
                   "medium",
-                  "high"
+                  "high",
+                  "xhigh",
+                  "max"
                 ],
                 "type": "string",
                 "default": "high"
@@ -29365,7 +30501,9 @@
                 "enum": [
                   "low",
                   "medium",
-                  "high"
+                  "high",
+                  "xhigh",
+                  "max"
                 ],
                 "type": "string",
                 "default": "high"
