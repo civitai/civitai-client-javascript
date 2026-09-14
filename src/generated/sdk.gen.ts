@@ -94,6 +94,9 @@ import type {
   InvokeImageResourceTrainingStepTemplateData,
   InvokeImageResourceTrainingStepTemplateErrors,
   InvokeImageResourceTrainingStepTemplateResponses,
+  InvokeImageScanningStepTemplateData,
+  InvokeImageScanningStepTemplateErrors,
+  InvokeImageScanningStepTemplateResponses,
   InvokeImageToSvgStepTemplateData,
   InvokeImageToSvgStepTemplateErrors,
   InvokeImageToSvgStepTemplateResponses,
@@ -205,6 +208,9 @@ import type {
   InvokeXGuardModerationStepTemplateData,
   InvokeXGuardModerationStepTemplateErrors,
   InvokeXGuardModerationStepTemplateResponses,
+  InvokeYuE2StepTemplateData,
+  InvokeYuE2StepTemplateErrors,
+  InvokeYuE2StepTemplateResponses,
   ListServicesData,
   ListServicesErrors,
   ListServicesResponses,
@@ -694,6 +700,27 @@ export const invokeImageResourceTrainingStepTemplate = <ThrowOnError extends boo
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/imageResourceTraining',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Image scanning
+ *
+ * Classifies one image for safety, origin, tags, human presence, and apparent age.
+ */
+export const invokeImageScanningStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeImageScanningStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeImageScanningStepTemplateResponses,
+    InvokeImageScanningStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/imageScanning',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1438,6 +1465,25 @@ export const invokeXGuardModerationStepTemplate = <ThrowOnError extends boolean 
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/xGuardModeration',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Generate a song from style and lyrics with YuE2.
+ */
+export const invokeYuE2StepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeYuE2StepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeYuE2StepTemplateResponses,
+    InvokeYuE2StepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/yuE2',
     ...options,
     headers: {
       'Content-Type': 'application/json',

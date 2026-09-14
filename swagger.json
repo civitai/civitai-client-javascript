@@ -1983,6 +1983,97 @@
         }
       }
     },
+    "/v2/consumer/recipes/imageScanning": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Image scanning",
+        "description": "Classifies one image for safety, origin, tags, human presence, and apparent age.",
+        "operationId": "InvokeImageScanningStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageScanningInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageScanningInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageScanningInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageScanningOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/imageToSvg": {
       "post": {
         "tags": [
@@ -5316,6 +5407,96 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/XGuardModerationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/yuE2": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Generate a song from style and lyrics with YuE2.",
+        "operationId": "InvokeYuE2StepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YuE2Input"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YuE2Input"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/YuE2Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YuE2Output"
                 }
               }
             }
@@ -9011,6 +9192,42 @@
             "additionalProperties": false
           }
         ]
+      },
+      "AvifOutputFormat": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageOutputFormat"
+          },
+          {
+            "required": [
+              "format"
+            ],
+            "type": "object",
+            "properties": {
+              "quality": {
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer",
+                "description": "Quality setting for AVIF compression (1-100). Only applies when Lossless is false.",
+                "format": "int32",
+                "default": 85
+              },
+              "lossless": {
+                "type": "boolean",
+                "description": "When true, uses lossless compression. When false, uses lossy compression with the Quality setting.",
+                "default": false
+              },
+              "format": {
+                "enum": [
+                  "avif"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AVIF output format configuration. Animated sources are reduced to their first frame."
       },
       "BackgroundRemovalTransformer": {
         "allOf": [
@@ -24557,7 +24774,8 @@
             "jpeg": "#/components/schemas/JpegOutputFormat",
             "png": "#/components/schemas/PngOutputFormat",
             "webp": "#/components/schemas/WebpOutputFormat",
-            "gif": "#/components/schemas/GifOutputFormat"
+            "gif": "#/components/schemas/GifOutputFormat",
+            "avif": "#/components/schemas/AvifOutputFormat"
           }
         }
       },
@@ -24740,6 +24958,488 @@
           }
         ],
         "description": "LORA Training"
+      },
+      "ImageScanningHumanEvidence": {
+        "required": [
+          "polarity",
+          "score",
+          "tag"
+        ],
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "polarity": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageScanningHumanRecognition": {
+        "required": [
+          "evidence",
+          "humanScore",
+          "label",
+          "noHumanScore",
+          "ran",
+          "score",
+          "scores",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "ran": {
+            "type": "boolean"
+          },
+          "label": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "humanScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "noHumanScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "scores": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageScanningHumanEvidence"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageScanningInput": {
+        "required": [
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "Image to scan. URLs are imported into orchestrator blob storage before the job is queued.",
+            "format": "source-image"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for a unified image scan."
+      },
+      "ImageScanningJointAgeClassification": {
+        "required": [
+          "detections",
+          "ran",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "ran": {
+            "type": "boolean"
+          },
+          "skipReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "detections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageScanningJointAgeDetection"
+            }
+          },
+          "childDetected": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "minorDetected": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "oodDetected": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "warning": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageScanningJointAgeDetection": {
+        "required": [
+          "animeProbability",
+          "boundingBox",
+          "domain",
+          "isChild",
+          "isMinor",
+          "isOod",
+          "ordinalCutpointProbabilities",
+          "personDetected"
+        ],
+        "type": "object",
+        "properties": {
+          "boundingBox": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "personDetected": {
+            "type": "boolean"
+          },
+          "personDetectionConfidence": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "faceBoundingBox": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "faceDetectionConfidence": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "animeProbability": {
+            "type": "number",
+            "format": "double"
+          },
+          "apparentAge": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "ageBand": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "under13Probability": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "under18Probability": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "oodProbability": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "ordinalCutpointProbabilities": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "isChild": {
+            "type": "boolean"
+          },
+          "isMinor": {
+            "type": "boolean"
+          },
+          "isOod": {
+            "type": "boolean"
+          },
+          "warning": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageScanningLabelScore": {
+        "required": [
+          "label",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageScanningOutput": {
+        "required": [
+          "aiRecognition",
+          "animeRecognition",
+          "humanRecognition",
+          "jointAgeClassification",
+          "nsfwLevel",
+          "score",
+          "tagging",
+          "topK"
+        ],
+        "type": "object",
+        "properties": {
+          "nsfwLevel": {
+            "$ref": "#/components/schemas/NSFWLevel"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "topK": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageScanningLabelScore"
+            }
+          },
+          "aiRecognition": {
+            "$ref": "#/components/schemas/ImageScanningRecognition"
+          },
+          "animeRecognition": {
+            "$ref": "#/components/schemas/ImageScanningRecognition"
+          },
+          "tagging": {
+            "$ref": "#/components/schemas/ImageScanningTagging"
+          },
+          "humanRecognition": {
+            "$ref": "#/components/schemas/ImageScanningHumanRecognition"
+          },
+          "jointAgeClassification": {
+            "$ref": "#/components/schemas/ImageScanningJointAgeClassification"
+          },
+          "csam": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "description": "Complete result from the unified image scanner."
+      },
+      "ImageScanningRecognition": {
+        "required": [
+          "label",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "topK": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ImageScanningLabelScore"
+            }
+          },
+          "scores": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageScanningStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageScanningInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ImageScanningOutput"
+              },
+              "$type": {
+                "enum": [
+                  "imageScanning"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Image scanning"
+      },
+      "ImageScanningStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ImageScanningInput"
+              },
+              "$type": {
+                "enum": [
+                  "imageScanning"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Image scanning"
+      },
+      "ImageScanningTag": {
+        "required": [
+          "category",
+          "score",
+          "tag"
+        ],
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImageScanningTagging": {
+        "required": [
+          "ran",
+          "status",
+          "tagCount",
+          "tags",
+          "threshold",
+          "totalAboveThreshold",
+          "truncated"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "ran": {
+            "type": "boolean"
+          },
+          "threshold": {
+            "type": "number",
+            "format": "double"
+          },
+          "tagCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalAboveThreshold": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageScanningTag"
+            }
+          }
+        },
+        "additionalProperties": false
       },
       "ImageToSvgInput": {
         "required": [
@@ -33697,7 +34397,7 @@
                   "edit"
                 ],
                 "type": "string",
-                "default": "edit-plus"
+                "default": "2.0"
               },
               "images": {
                 "maxItems": 3,
@@ -42665,10 +43365,27 @@
             "format": "double"
           },
           "preparation": {
-            "$ref": "#/components/schemas/WorkflowStepPreparation"
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepPreparationResource"
+            },
+            "description": "Every resource download this step is waiting on, the one holding it back first. Only set while\nthe step is preparing."
           },
           "queuePosition": {
             "$ref": "#/components/schemas/WorkflowStepQueuePosition"
+          },
+          "warnings": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepWarning"
+            },
+            "description": "Non-fatal warnings about this step, such as a requested model that is scheduled for retirement.\nOmitted when there are none."
           }
         },
         "additionalProperties": false,
@@ -42690,6 +43407,7 @@
             "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStep",
             "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
+            "imageScanning": "#/components/schemas/ImageScanningStep",
             "imageToSvg": "#/components/schemas/ImageToSvgStep",
             "imageUpload": "#/components/schemas/ImageUploadStep",
             "imageUpscaler": "#/components/schemas/ImageUpscalerStep",
@@ -42723,7 +43441,8 @@
             "wdTagging": "#/components/schemas/WDTaggingStep",
             "webScrape": "#/components/schemas/WebScrapeStep",
             "webSearch": "#/components/schemas/WebSearchStep",
-            "xGuardModeration": "#/components/schemas/XGuardModerationStep"
+            "xGuardModeration": "#/components/schemas/XGuardModerationStep",
+            "yuE2": "#/components/schemas/YuE2Step"
           }
         }
       },
@@ -42755,7 +43474,14 @@
             "$ref": "#/components/schemas/WorkflowStepEventDetails"
           },
           "preparation": {
-            "$ref": "#/components/schemas/WorkflowStepPreparation"
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepPreparationResource"
+            },
+            "description": "Every resource download this step is waiting on, gating resource first. Only set while preparing."
           }
         },
         "additionalProperties": false,
@@ -42815,7 +43541,14 @@
             "description": "The output result from the step"
           },
           "preparation": {
-            "$ref": "#/components/schemas/WorkflowStepPreparation"
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStepPreparationResource"
+            },
+            "description": "Every resource download this step is waiting on, gating resource first. Only set while preparing."
           }
         },
         "additionalProperties": false,
@@ -42879,63 +43612,6 @@
         "additionalProperties": false,
         "description": "Details of a workflow step job event."
       },
-      "WorkflowStepPreparation": {
-        "required": [
-          "lane",
-          "queuePosition",
-          "resource",
-          "resources"
-        ],
-        "type": "object",
-        "properties": {
-          "resource": {
-            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-            "type": "string",
-            "description": "The resource currently holding the step back."
-          },
-          "queuePosition": {
-            "type": "integer",
-            "description": "Downloads ahead of this one. Zero means it is transferring now.",
-            "format": "int32"
-          },
-          "progress": {
-            "type": [
-              "null",
-              "number"
-            ],
-            "description": "Download completion, 0.0 to 1.0. Null while the download is still queued.",
-            "format": "double"
-          },
-          "etaSeconds": {
-            "type": [
-              "null",
-              "integer"
-            ],
-            "description": "Estimated seconds until the download completes.",
-            "format": "int32"
-          },
-          "lane": {
-            "$ref": "#/components/schemas/Priority"
-          },
-          "boostedEtaSeconds": {
-            "type": [
-              "null",
-              "integer"
-            ],
-            "description": "What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparation.EtaSeconds would become in the High lane. Null when already High.",
-            "format": "int32"
-          },
-          "resources": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/WorkflowStepPreparationResource"
-            },
-            "description": "Every resource this step is waiting on, gating resource first."
-          }
-        },
-        "additionalProperties": false,
-        "description": "The resource downloads a step is waiting on while its status is preparing. Absent rather than\npartially filled: without a resource and its place in the queue it says nothing the status doesn't."
-      },
       "WorkflowStepPreparationResource": {
         "required": [
           "lane",
@@ -42988,6 +43664,7 @@
               "null",
               "integer"
             ],
+            "description": "What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparationResource.EtaSeconds would become in the High lane. Null when already High.",
             "format": "int32"
           }
         },
@@ -43094,6 +43771,7 @@
             "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStepTemplate",
             "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
+            "imageScanning": "#/components/schemas/ImageScanningStepTemplate",
             "imageToSvg": "#/components/schemas/ImageToSvgStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
             "imageUpscaler": "#/components/schemas/ImageUpscalerStepTemplate",
@@ -43127,9 +43805,57 @@
             "wdTagging": "#/components/schemas/WDTaggingStepTemplate",
             "webScrape": "#/components/schemas/WebScrapeStepTemplate",
             "webSearch": "#/components/schemas/WebSearchStepTemplate",
-            "xGuardModeration": "#/components/schemas/XGuardModerationStepTemplate"
+            "xGuardModeration": "#/components/schemas/XGuardModerationStepTemplate",
+            "yuE2": "#/components/schemas/YuE2StepTemplate"
           }
         }
+      },
+      "WorkflowStepWarning": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/WorkflowStepWarningCode"
+          },
+          "message": {
+            "type": "string",
+            "description": "A human-readable description of the warning."
+          },
+          "deprecatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When the deprecation was announced, if applicable.",
+            "format": "date-time"
+          },
+          "retiresAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "When requests relying on the deprecated behavior start being rejected, if applicable.",
+            "format": "date-time"
+          },
+          "replacement": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The suggested replacement, if applicable."
+          }
+        },
+        "additionalProperties": false,
+        "description": "A non-fatal notice about a workflow step, e.g. a requested model that is scheduled for retirement."
+      },
+      "WorkflowStepWarningCode": {
+        "enum": [
+          "modelDeprecated"
+        ],
+        "type": "string"
       },
       "WorkflowTemplate": {
         "required": [
@@ -43769,6 +44495,141 @@
           }
         ],
         "description": "Input for evaluating site text content against XGuard moderation policies."
+      },
+      "YuE2Input": {
+        "required": [
+          "lyrics",
+          "mode",
+          "seed",
+          "style"
+        ],
+        "type": "object",
+        "properties": {
+          "style": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Musical style, instrumentation, mood, tempo, and vocal description."
+          },
+          "lyrics": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Lyrics with section markers such as [verse] and [chorus]."
+          },
+          "seed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxDuration": {
+            "maximum": 360,
+            "minimum": 0.03999999910593033,
+            "type": "number",
+            "description": "Maximum song duration in seconds; generation can stop earlier.",
+            "format": "float",
+            "default": 120
+          },
+          "steps": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Diffusion steps using the upstream dpm_2 / sgm_uniform sampler.",
+            "format": "int32",
+            "default": 32
+          },
+          "mode": {
+            "minLength": 1,
+            "pattern": "^(full|melody|off)$",
+            "type": "string",
+            "description": "Score planning: full (melody and chords), melody, or off.",
+            "default": "full"
+          },
+          "abc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional ABC score to use instead of generating a score. Ignored in off mode."
+          },
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional YuE2 checkpoint override containing the model, text encoder, and audio VAE."
+          }
+        },
+        "additionalProperties": false,
+        "description": "YuE2 text-to-music generation with optional ABC score planning."
+      },
+      "YuE2Output": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/AudioBlob"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output from YuE2 generation."
+      },
+      "YuE2Step": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/YuE2Input"
+              },
+              "output": {
+                "$ref": "#/components/schemas/YuE2Output"
+              },
+              "$type": {
+                "enum": [
+                  "yuE2"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a song from style and lyrics with YuE2."
+      },
+      "YuE2StepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/YuE2Input"
+              },
+              "$type": {
+                "enum": [
+                  "yuE2"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a song from style and lyrics with YuE2."
       },
       "ZImageBaseAIToolkitTrainingInput": {
         "allOf": [

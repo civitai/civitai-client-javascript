@@ -766,6 +766,21 @@ export type AvailableResourceAvailability = Omit<ResourceAvailability, 'status'>
 };
 
 /**
+ * AVIF output format configuration. Animated sources are reduced to their first frame.
+ */
+export type AvifOutputFormat = Omit<ImageOutputFormat, 'format'> & {
+  /**
+   * Quality setting for AVIF compression (1-100). Only applies when Lossless is false.
+   */
+  quality?: number;
+  /**
+   * When true, uses lossless compression. When false, uses lossy compression with the Quality setting.
+   */
+  lossless?: boolean;
+  format: 'avif';
+};
+
+/**
  * Removes the element's background per frame via a deterministic edge-connected flood fill
  * (unlike the AI-matting `imageBackgroundRemoval` step): the background colour is estimated
  * from the frame border and every border-connected pixel within tolerance becomes transparent,
@@ -5415,6 +5430,131 @@ export type ImageResourceTrainingStep = Omit<WorkflowStep, '$type'> & {
 export type ImageResourceTrainingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ImageResourceTrainingInput;
   $type: 'imageResourceTraining';
+};
+
+export type ImageScanningHumanEvidence = {
+  tag: string;
+  score: number;
+  polarity: string;
+};
+
+export type ImageScanningHumanRecognition = {
+  status: string;
+  ran: boolean;
+  label: string;
+  score: number;
+  humanScore: number;
+  noHumanScore: number;
+  scores: {
+    [key: string]: number;
+  };
+  evidence: Array<ImageScanningHumanEvidence>;
+};
+
+/**
+ * Input for a unified image scan.
+ */
+export type ImageScanningInput = {
+  /**
+   * Image to scan. URLs are imported into orchestrator blob storage before the job is queued.
+   */
+  image: string;
+};
+
+export type ImageScanningJointAgeClassification = {
+  status: string;
+  ran: boolean;
+  skipReason?: null | string;
+  detections: Array<ImageScanningJointAgeDetection>;
+  childDetected?: null | boolean;
+  minorDetected?: null | boolean;
+  oodDetected?: null | boolean;
+  warning?: null | string;
+  error?: null | string;
+};
+
+export type ImageScanningJointAgeDetection = {
+  boundingBox: Array<number>;
+  personDetected: boolean;
+  personDetectionConfidence?: null | number;
+  faceBoundingBox?: null | Array<number>;
+  faceDetectionConfidence?: null | number;
+  domain: string;
+  animeProbability: number;
+  apparentAge?: null | number;
+  ageBand?: null | string;
+  under13Probability?: null | number;
+  under18Probability?: null | number;
+  oodProbability?: null | number;
+  ordinalCutpointProbabilities: {
+    [key: string]: number;
+  };
+  isChild: boolean;
+  isMinor: boolean;
+  isOod: boolean;
+  warning?: null | string;
+};
+
+export type ImageScanningLabelScore = {
+  label: string;
+  score: number;
+};
+
+/**
+ * Complete result from the unified image scanner.
+ */
+export type ImageScanningOutput = {
+  nsfwLevel: NsfwLevel;
+  score: number;
+  topK: Array<ImageScanningLabelScore>;
+  aiRecognition: ImageScanningRecognition;
+  animeRecognition: ImageScanningRecognition;
+  tagging: ImageScanningTagging;
+  humanRecognition: ImageScanningHumanRecognition;
+  jointAgeClassification: ImageScanningJointAgeClassification;
+  csam?: null | boolean;
+};
+
+export type ImageScanningRecognition = {
+  label: string;
+  score: number;
+  topK?: null | Array<ImageScanningLabelScore>;
+  scores?: null | {
+    [key: string]: number;
+  };
+};
+
+/**
+ * Image scanning
+ */
+export type ImageScanningStep = Omit<WorkflowStep, '$type'> & {
+  input: ImageScanningInput;
+  output?: ImageScanningOutput;
+  $type: 'imageScanning';
+};
+
+/**
+ * Image scanning
+ */
+export type ImageScanningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: ImageScanningInput;
+  $type: 'imageScanning';
+};
+
+export type ImageScanningTag = {
+  tag: string;
+  category: string;
+  score: number;
+};
+
+export type ImageScanningTagging = {
+  status: string;
+  ran: boolean;
+  threshold: number;
+  tagCount: number;
+  totalAboveThreshold: number;
+  truncated: boolean;
+  tags: Array<ImageScanningTag>;
 };
 
 export type ImageToSvgInput = {
@@ -11177,8 +11317,17 @@ export type WorkflowStep = {
    * step reaches a final status.
    */
   estimatedProgressRate?: null | number;
-  preparation?: WorkflowStepPreparation;
+  /**
+   * Every resource download this step is waiting on, the one holding it back first. Only set while
+   * the step is preparing.
+   */
+  preparation?: null | Array<WorkflowStepPreparationResource>;
   queuePosition?: WorkflowStepQueuePosition;
+  /**
+   * Non-fatal warnings about this step, such as a requested model that is scheduled for retirement.
+   * Omitted when there are none.
+   */
+  warnings?: null | Array<WorkflowStepWarning>;
 };
 
 /**
@@ -11196,7 +11345,10 @@ export type WorkflowStepEvent = {
   status: WorkflowStatus;
   readonly $type: string;
   details?: WorkflowStepEventDetails;
-  preparation?: WorkflowStepPreparation;
+  /**
+   * Every resource download this step is waiting on, gating resource first. Only set while preparing.
+   */
+  preparation?: null | Array<WorkflowStepPreparationResource>;
 };
 
 /**
@@ -11233,7 +11385,10 @@ export type WorkflowStepEventDetails = {
    * The output result from the step
    */
   output?: null;
-  preparation?: WorkflowStepPreparation;
+  /**
+   * Every resource download this step is waiting on, gating resource first. Only set while preparing.
+   */
+  preparation?: null | Array<WorkflowStepPreparationResource>;
 };
 
 /**
@@ -11261,38 +11416,6 @@ export type WorkflowStepJobEvent = {
 };
 
 /**
- * The resource downloads a step is waiting on while its status is preparing. Absent rather than
- * partially filled: without a resource and its place in the queue it says nothing the status doesn't.
- */
-export type WorkflowStepPreparation = {
-  /**
-   * The resource currently holding the step back.
-   */
-  resource: string;
-  /**
-   * Downloads ahead of this one. Zero means it is transferring now.
-   */
-  queuePosition: number;
-  /**
-   * Download completion, 0.0 to 1.0. Null while the download is still queued.
-   */
-  progress?: null | number;
-  /**
-   * Estimated seconds until the download completes.
-   */
-  etaSeconds?: null | number;
-  lane: Priority;
-  /**
-   * What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparation.EtaSeconds would become in the High lane. Null when already High.
-   */
-  boostedEtaSeconds?: null | number;
-  /**
-   * Every resource this step is waiting on, gating resource first.
-   */
-  resources: Array<WorkflowStepPreparationResource>;
-};
-
-/**
  * One resource a step is waiting on. A queued resource reports a position and no progress; one that
  * is transferring reports the reverse.
  */
@@ -11304,6 +11427,9 @@ export type WorkflowStepPreparationResource = {
   progress?: null | number;
   bytesPerSecond?: null | number;
   etaSeconds?: null | number;
+  /**
+   * What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparationResource.EtaSeconds would become in the High lane. Null when already High.
+   */
   boostedEtaSeconds?: null | number;
 };
 
@@ -11351,6 +11477,34 @@ export type WorkflowStepTemplate = {
     [key: string]: unknown;
   };
 };
+
+/**
+ * A non-fatal notice about a workflow step, e.g. a requested model that is scheduled for retirement.
+ */
+export type WorkflowStepWarning = {
+  code: WorkflowStepWarningCode;
+  /**
+   * A human-readable description of the warning.
+   */
+  message: string;
+  /**
+   * When the deprecation was announced, if applicable.
+   */
+  deprecatedAt?: null | string;
+  /**
+   * When requests relying on the deprecated behavior start being rejected, if applicable.
+   */
+  retiresAt?: null | string;
+  /**
+   * The suggested replacement, if applicable.
+   */
+  replacement?: null | string;
+};
+
+export const WorkflowStepWarningCode = { MODEL_DEPRECATED: 'modelDeprecated' } as const;
+
+export type WorkflowStepWarningCode =
+  (typeof WorkflowStepWarningCode)[keyof typeof WorkflowStepWarningCode];
 
 /**
  * Details of a requested workflow.
@@ -11612,6 +11766,65 @@ export type XGuardTextModerationInput = Omit<XGuardModerationInput, 'mode'> & {
    */
   text: string;
   mode: 'text';
+};
+
+/**
+ * YuE2 text-to-music generation with optional ABC score planning.
+ */
+export type YuE2Input = {
+  /**
+   * Musical style, instrumentation, mood, tempo, and vocal description.
+   */
+  style: string;
+  /**
+   * Lyrics with section markers such as [verse] and [chorus].
+   */
+  lyrics: string;
+  seed: number;
+  /**
+   * Maximum song duration in seconds; generation can stop earlier.
+   */
+  maxDuration?: number;
+  /**
+   * Diffusion steps using the upstream dpm_2 / sgm_uniform sampler.
+   */
+  steps?: number;
+  /**
+   * Score planning: full (melody and chords), melody, or off.
+   */
+  mode: string;
+  /**
+   * Optional ABC score to use instead of generating a score. Ignored in off mode.
+   */
+  abc?: null | string;
+  /**
+   * Optional YuE2 checkpoint override containing the model, text encoder, and audio VAE.
+   */
+  model?: null | string;
+};
+
+/**
+ * Output from YuE2 generation.
+ */
+export type YuE2Output = {
+  blob: AudioBlob;
+};
+
+/**
+ * Generate a song from style and lyrics with YuE2.
+ */
+export type YuE2Step = Omit<WorkflowStep, '$type'> & {
+  input: YuE2Input;
+  output?: YuE2Output;
+  $type: 'yuE2';
+};
+
+/**
+ * Generate a song from style and lyrics with YuE2.
+ */
+export type YuE2StepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: YuE2Input;
+  $type: 'yuE2';
 };
 
 /**
@@ -13261,7 +13474,10 @@ export type WorkflowStepEventWritable = {
   name: string;
   status: WorkflowStatus;
   details?: WorkflowStepEventDetails;
-  preparation?: WorkflowStepPreparation;
+  /**
+   * Every resource download this step is waiting on, gating resource first. Only set while preparing.
+   */
+  preparation?: null | Array<WorkflowStepPreparationResource>;
 };
 
 /**
@@ -13433,8 +13649,17 @@ export type WorkflowStepWritable = {
    * step reaches a final status.
    */
   estimatedProgressRate?: null | number;
-  preparation?: WorkflowStepPreparation;
+  /**
+   * Every resource download this step is waiting on, the one holding it back first. Only set while
+   * the step is preparing.
+   */
+  preparation?: null | Array<WorkflowStepPreparationResource>;
   queuePosition?: WorkflowStepQueuePosition;
+  /**
+   * Non-fatal warnings about this step, such as a requested model that is scheduled for retirement.
+   * Omitted when there are none.
+   */
+  warnings?: null | Array<WorkflowStepWarning>;
 };
 
 export type ImageGenInputWritable = {
@@ -14457,6 +14682,42 @@ export type InvokeImageResourceTrainingStepTemplateResponses = {
 
 export type InvokeImageResourceTrainingStepTemplateResponse =
   InvokeImageResourceTrainingStepTemplateResponses[keyof InvokeImageResourceTrainingStepTemplateResponses];
+
+export type InvokeImageScanningStepTemplateData = {
+  body?: ImageScanningInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/imageScanning';
+};
+
+export type InvokeImageScanningStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeImageScanningStepTemplateError =
+  InvokeImageScanningStepTemplateErrors[keyof InvokeImageScanningStepTemplateErrors];
+
+export type InvokeImageScanningStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ImageScanningOutput;
+};
+
+export type InvokeImageScanningStepTemplateResponse =
+  InvokeImageScanningStepTemplateResponses[keyof InvokeImageScanningStepTemplateResponses];
 
 export type InvokeImageToSvgStepTemplateData = {
   body?: ImageToSvgInput;
@@ -15789,6 +16050,42 @@ export type InvokeXGuardModerationStepTemplateResponses = {
 
 export type InvokeXGuardModerationStepTemplateResponse =
   InvokeXGuardModerationStepTemplateResponses[keyof InvokeXGuardModerationStepTemplateResponses];
+
+export type InvokeYuE2StepTemplateData = {
+  body?: YuE2Input;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/yuE2';
+};
+
+export type InvokeYuE2StepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type InvokeYuE2StepTemplateError =
+  InvokeYuE2StepTemplateErrors[keyof InvokeYuE2StepTemplateErrors];
+
+export type InvokeYuE2StepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: YuE2Output;
+};
+
+export type InvokeYuE2StepTemplateResponse =
+  InvokeYuE2StepTemplateResponses[keyof InvokeYuE2StepTemplateResponses];
 
 export type QueryResourcesData = {
   body?: never;
