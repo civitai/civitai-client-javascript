@@ -5687,6 +5687,7 @@
           {
             "name": "limit",
             "in": "query",
+            "description": "Maximum number of services to return.",
             "schema": {
               "type": "integer",
               "format": "int32",
@@ -5696,6 +5697,7 @@
           {
             "name": "offset",
             "in": "query",
+            "description": "Number of services to skip.",
             "schema": {
               "type": "integer",
               "format": "int32",
@@ -11542,6 +11544,152 @@
           }
         ]
       },
+      "ComfyChromaCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyChromaImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "chroma"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyChromaImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 28
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 3.5
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "ecosystem": {
+                "enum": [
+                  "chroma"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyChromaCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyErnieImageGenInput": {
         "allOf": [
           {
@@ -12689,6 +12837,159 @@
           }
         ]
       },
+      "ComfyHiDreamI1CreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyHiDreamI1ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyHiDreamI1ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "variant": {
+                "$ref": "#/components/schemas/HiDreamI1Variant"
+              },
+              "precision": {
+                "$ref": "#/components/schemas/HiDreamI1Precision"
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Defaults to 16 for fast, 28 for dev and 50 for full.",
+                "format": "int32"
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "Defaults to 1 for fast and dev, 5 for full.",
+                "format": "double"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "ecosystem": {
+                "enum": [
+                  "hidream"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyHiDreamI1CreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyHiDreamImageGenInput": {
         "allOf": [
           {
@@ -13328,6 +13629,9 @@
                 "flux2Dev": "#/components/schemas/ComfyFlux2DevImageGenInput",
                 "ernie": "#/components/schemas/ComfyErnieImageGenInput",
                 "hidream-o1": "#/components/schemas/ComfyHiDreamImageGenInput",
+                "hidream": "#/components/schemas/ComfyHiDreamI1ImageGenInput",
+                "chroma": "#/components/schemas/ComfyChromaImageGenInput",
+                "ponyV7": "#/components/schemas/ComfyPonyV7ImageGenInput",
                 "anima": "#/components/schemas/ComfyAnimaImageGenInput",
                 "lens": "#/components/schemas/ComfyLensImageGenInput",
                 "ideogram4": "#/components/schemas/ComfyIdeogram4ImageGenInput",
@@ -16404,7 +16708,7 @@
               "null",
               "string"
             ],
-            "description": "The comfy container image to install against, as an `oci:image` AIR\n(e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy-cloud@v2.7.0`).\nThe captured layer is only valid for this exact image, so it is part of\nthe artifact's identity (hashed into the blob key). Optional: when omitted\n(e.g. a caller with no managed image of its own, like civitai-comfy-nodes\noffload) the handler resolves the configured default/\"latest\" comfy image\n(!:CustomComfy.ComfyImageOptions.DefaultComfyImage)."
+            "description": "The comfy container image to install against, as an `oci:image` AIR\n(e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy-cloud@v2.7.0`).\nThe captured layer is only valid for this exact image, so it is part of\nthe artifact's identity (hashed into the blob key). Optional: when omitted\n(e.g. a caller with no managed image of its own, like civitai-comfy-nodes\noffload) the handler resolves the configured default/\"latest\" comfy image\n(`ComfyImageOptions.DefaultComfyImage`)."
           },
           "nodepacks": {
             "minItems": 1,
@@ -16578,6 +16882,152 @@
               "mapping": {
                 "hunyuan3D": "#/components/schemas/Hunyuan3DComfyPolyGenInput",
                 "trellis2": "#/components/schemas/Trellis2ComfyPolyGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyPonyV7CreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyPonyV7ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ponyV7"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyPonyV7ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 25
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 7
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "model": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "ecosystem": {
+                "enum": [
+                  "ponyV7"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyPonyV7CreateImageGenInput"
               }
             }
           }
@@ -19587,6 +20037,151 @@
             "additionalProperties": false
           }
         ]
+      },
+      "Flux1ProFamilyImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "engine": {
+                "enum": [
+                  "flux1-pro"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "pro": "#/components/schemas/Flux1ProImageGenInput",
+                "ultra": "#/components/schemas/Flux1ProUltraImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "Flux1ProImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux1ProFamilyImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 1440,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 1440,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "model": {
+                "enum": [
+                  "pro"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux1-pro"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "FLUX1.1 [pro]"
+      },
+      "Flux1ProUltraImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux1ProFamilyImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "21:9",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16",
+                  "9:21"
+                ],
+                "type": "string",
+                "default": "1:1"
+              },
+              "raw": {
+                "type": "boolean",
+                "description": "Generates less processed, more natural-looking images.",
+                "default": false
+              },
+              "model": {
+                "enum": [
+                  "ultra"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux1-pro"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "FLUX1.1 [pro] Ultra"
       },
       "Flux1SchnellAIToolkitTrainingInput": {
         "allOf": [
@@ -23827,6 +24422,21 @@
         ],
         "description": "Engine-level base for Alibaba Happy-Horse video generation (FAL).\nThe version derived type carries the operation-level discriminator."
       },
+      "HiDreamI1Precision": {
+        "enum": [
+          "fp8",
+          "fp16"
+        ],
+        "type": "string"
+      },
+      "HiDreamI1Variant": {
+        "enum": [
+          "fast",
+          "dev",
+          "full"
+        ],
+        "type": "string"
+      },
       "HiDreamO1AIToolkitTrainingInput": {
         "allOf": [
           {
@@ -24551,6 +25161,7 @@
           "mapping": {
             "openai": "#/components/schemas/OpenApiImageGenInput",
             "flux1-kontext": "#/components/schemas/Flux1KontextImageGenInput",
+            "flux1-pro": "#/components/schemas/Flux1ProFamilyImageGenInput",
             "flux2": "#/components/schemas/Flux2ImageGenInput",
             "google": "#/components/schemas/GoogleImageGenInput",
             "wan": "#/components/schemas/WanImageGenInput",
@@ -27100,6 +27711,14 @@
                 ],
                 "description": "Inferred from reported progress over elapsed time; the worker's byte counters never leave it.",
                 "format": "double"
+              },
+              "rateLimitBytesPerSecond": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Per-stream ceiling the lane applies to this download. Null when uncapped; boosting to High lifts it.",
+                "format": "int64"
               },
               "status": {
                 "enum": [
@@ -33484,6 +34103,14 @@
                 ],
                 "description": "What Civitai.Orchestration.Grains.Resources.QueuedResourceAvailability.EtaSeconds would become in the High lane. Null when already High.",
                 "format": "int32"
+              },
+              "rateLimitBytesPerSecond": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Per-stream ceiling the lane applies to this download. Null when uncapped; boosting to High lifts it.",
+                "format": "int64"
               },
               "status": {
                 "enum": [
@@ -43666,6 +44293,14 @@
             ],
             "description": "What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparationResource.EtaSeconds would become in the High lane. Null when already High.",
             "format": "int32"
+          },
+          "rateLimitBytesPerSecond": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Per-stream ceiling the lane applies to this download. Null when uncapped; boosting to High lifts it.",
+            "format": "int64"
           }
         },
         "additionalProperties": false,

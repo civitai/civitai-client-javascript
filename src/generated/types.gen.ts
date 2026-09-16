@@ -1615,6 +1615,34 @@ export type ComfyBooguTurboImageGenInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyChromaCreateImageGenInput = Omit<
+  ComfyChromaImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  ecosystem: 'chroma';
+  engine: 'comfy';
+};
+
+export type ComfyChromaImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  model: string;
+  loras?: {
+    [key: string]: number;
+  };
+  ecosystem: 'chroma';
+  engine: 'comfy';
+};
+
 export type ComfyErnieImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
   ecosystem: 'ernie';
@@ -1860,6 +1888,41 @@ export type ComfyFlux2KleinVariantImageGenInput = Omit<
   strength?: number;
   operation: 'createVariant';
   ecosystem: 'flux2Klein';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamI1CreateImageGenInput = Omit<
+  ComfyHiDreamI1ImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  ecosystem: 'hidream';
+  engine: 'comfy';
+};
+
+export type ComfyHiDreamI1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  variant?: HiDreamI1Variant;
+  precision?: HiDreamI1Precision;
+  sampler?: ComfySampler;
+  /**
+   * Defaults to 16 for fast, 28 for dev and 50 for full.
+   */
+  steps?: null | number;
+  /**
+   * Defaults to 1 for fast and dev, 5 for full.
+   */
+  cfgScale?: null | number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  ecosystem: 'hidream';
   engine: 'comfy';
 };
 
@@ -2741,7 +2804,7 @@ export type ComfyNodepackSnapshotInput = {
    * the artifact's identity (hashed into the blob key). Optional: when omitted
    * (e.g. a caller with no managed image of its own, like civitai-comfy-nodes
    * offload) the handler resolves the configured default/"latest" comfy image
-   * (!:CustomComfy.ComfyImageOptions.DefaultComfyImage).
+   * (`ComfyImageOptions.DefaultComfyImage`).
    */
   comfyImage?: null | string;
   /**
@@ -2809,6 +2872,34 @@ export type ComfyOutput = {
 
 export type ComfyPolyGenInput = Omit<PolyGenInput, 'engine'> & {
   model: string;
+  engine: 'comfy';
+};
+
+export type ComfyPonyV7CreateImageGenInput = Omit<
+  ComfyPonyV7ImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  ecosystem: 'ponyV7';
+  engine: 'comfy';
+};
+
+export type ComfyPonyV7ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  model: string;
+  loras?: {
+    [key: string]: number;
+  };
+  ecosystem: 'ponyV7';
   engine: 'comfy';
 };
 
@@ -3855,6 +3946,37 @@ export type Flux1KontextMaxImageGenInput = Omit<Flux1KontextImageGenInput, 'engi
 export type Flux1KontextProImageGenInput = Omit<Flux1KontextImageGenInput, 'engine' | 'model'> & {
   model: 'pro';
   engine: 'flux1-kontext';
+};
+
+export type Flux1ProFamilyImageGenInput = Omit<ImageGenInput, 'engine'> & {
+  model: string;
+  prompt: string;
+  seed?: null | number;
+  quantity?: number;
+  engine: 'flux1-pro';
+};
+
+/**
+ * FLUX1.1 [pro]
+ */
+export type Flux1ProImageGenInput = Omit<Flux1ProFamilyImageGenInput, 'engine' | 'model'> & {
+  width?: number;
+  height?: number;
+  model: 'pro';
+  engine: 'flux1-pro';
+};
+
+/**
+ * FLUX1.1 [pro] Ultra
+ */
+export type Flux1ProUltraImageGenInput = Omit<Flux1ProFamilyImageGenInput, 'engine' | 'model'> & {
+  aspectRatio?: '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16' | '9:21';
+  /**
+   * Generates less processed, more natural-looking images.
+   */
+  raw?: boolean;
+  model: 'ultra';
+  engine: 'flux1-pro';
 };
 
 /**
@@ -5024,6 +5146,18 @@ export type HappyHorseVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'happyHorse';
 };
 
+export const HiDreamI1Precision = { FP8: 'fp8', FP16: 'fp16' } as const;
+
+export type HiDreamI1Precision = (typeof HiDreamI1Precision)[keyof typeof HiDreamI1Precision];
+
+export const HiDreamI1Variant = {
+  FAST: 'fast',
+  DEV: 'dev',
+  FULL: 'full',
+} as const;
+
+export type HiDreamI1Variant = (typeof HiDreamI1Variant)[keyof typeof HiDreamI1Variant];
+
 /**
  * AI Toolkit training for HiDream O1 Image models.
  */
@@ -6149,6 +6283,10 @@ export type LoadingResourceAvailability = Omit<ResourceAvailability, 'status'> &
    * Inferred from reported progress over elapsed time; the worker's byte counters never leave it.
    */
   bytesPerSecond?: null | number;
+  /**
+   * Per-stream ceiling the lane applies to this download. Null when uncapped; boosting to High lifts it.
+   */
+  rateLimitBytesPerSecond?: null | number;
   status: 'loading';
 };
 
@@ -8075,6 +8213,10 @@ export type QueuedResourceAvailability = Omit<ResourceAvailability, 'status'> & 
    * What Civitai.Orchestration.Grains.Resources.QueuedResourceAvailability.EtaSeconds would become in the High lane. Null when already High.
    */
   boostedEtaSeconds?: null | number;
+  /**
+   * Per-stream ceiling the lane applies to this download. Null when uncapped; boosting to High lifts it.
+   */
+  rateLimitBytesPerSecond?: null | number;
   status: 'queued';
 };
 
@@ -11431,6 +11573,10 @@ export type WorkflowStepPreparationResource = {
    * What Civitai.Orchestration.Grains.Workflows.WorkflowStepPreparationResource.EtaSeconds would become in the High lane. Null when already High.
    */
   boostedEtaSeconds?: null | number;
+  /**
+   * Per-stream ceiling the lane applies to this download. Null when uncapped; boosting to High lifts it.
+   */
+  rateLimitBytesPerSecond?: null | number;
 };
 
 /**
@@ -16182,7 +16328,13 @@ export type ListServicesData = {
      * Window the metrics and status are computed over: 1h, 24h or 7d.
      */
     window?: string;
+    /**
+     * Maximum number of services to return.
+     */
     limit?: number;
+    /**
+     * Number of services to skip.
+     */
     offset?: number;
   };
   url: '/v2/services';
