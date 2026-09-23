@@ -1,0 +1,4 @@
+# Keep git dependency preparation inside this package when the consumer's pnpm
+# store is nested in another workspace (as it is in website preview CI).
+packages:
+  - '.'
