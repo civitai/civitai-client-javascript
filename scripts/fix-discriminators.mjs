@@ -89,7 +89,15 @@ for (const [schemaName] of Object.entries(schemas)) {
 const writableCorrections = new Map();
 for (const [schemaName, props] of corrections) {
   const writableName = `${schemaName}Writable`;
-  writableCorrections.set(writableName, props);
+  const writableProps = { ...props };
+  // Read-only response fields create a Writable variant. It also needs the
+  // schema's own discriminator (e.g. editImage), not just inherited values.
+  for (const { propertyName, schemaToValue } of discriminators) {
+    if (schemaToValue.has(schemaName)) {
+      writableProps[propertyName] = schemaToValue.get(schemaName);
+    }
+  }
+  writableCorrections.set(writableName, writableProps);
 }
 
 // Read the generated types file and apply corrections

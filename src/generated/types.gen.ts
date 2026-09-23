@@ -2969,6 +2969,56 @@ export type ComfyQwen20bVariantImageGenInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyQwen21CreateImageGenInput = Omit<
+  ComfyQwen21ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: '2.1';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21EditImageGenInput = Omit<
+  ComfyQwen21ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared; preserves each image's aspect ratio.
+   */
+  resolution?: number;
+  readonly width: number;
+  readonly height: number;
+  operation: 'editImage';
+  model: '2.1';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21ImageGenInput = Omit<
+  ComfyQwenImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  model: '2.1';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
 export type ComfyQwenImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: null | string;
   ecosystem: 'qwen';
@@ -12428,7 +12478,7 @@ export type ComfyQwen20bEditImageGenInputWritable = Omit<
 > & {
   version?: 'latest' | '2509' | '2511';
   images: Array<string>;
-  operation: 'ComfyQwen20bEditImageGenInputWritable';
+  operation: 'editImage';
   model: '20b';
   ecosystem: 'qwen';
   engine: 'comfy';
@@ -12444,8 +12494,23 @@ export type ComfyQwen20bVariantImageGenInputWritable = Omit<
    */
   image: string;
   strength?: number;
-  operation: 'ComfyQwen20bVariantImageGenInputWritable';
+  operation: 'createVariant';
   model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21EditImageGenInputWritable = Omit<
+  ComfyQwen21ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared; preserves each image's aspect ratio.
+   */
+  resolution?: number;
+  operation: 'editImage';
+  model: '2.1';
   ecosystem: 'qwen';
   engine: 'comfy';
 };
@@ -13330,7 +13395,7 @@ export type Qwen20bEditImageGenInputWritable = Omit<
 > & {
   version?: 'latest' | '2509' | '2511';
   images: Array<string>;
-  operation: 'Qwen20bEditImageGenInputWritable';
+  operation: 'editImage';
   model: '20b';
   ecosystem: 'qwen';
   engine: 'sdcpp';
@@ -13346,7 +13411,7 @@ export type Qwen20bVariantImageGenInputWritable = Omit<
    */
   image: string;
   strength?: number;
-  operation: 'Qwen20bVariantImageGenInputWritable';
+  operation: 'createVariant';
   model: '20b';
   ecosystem: 'qwen';
   engine: 'sdcpp';
