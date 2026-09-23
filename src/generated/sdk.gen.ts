@@ -40,6 +40,9 @@ import type {
   HeadBlobData,
   HeadBlobErrors,
   HeadBlobResponses,
+  IngestConsumerBlobData,
+  IngestConsumerBlobErrors,
+  IngestConsumerBlobResponses,
   InvalidateUserCacheData,
   InvalidateUserCacheErrors,
   InvalidateUserCacheResponses,
@@ -313,6 +316,19 @@ export const uploadConsumerBlob = <ThrowOnError extends boolean = false>(
     UploadConsumerBlobErrors,
     ThrowOnError
   >({ url: '/v2/consumer/blobs', ...options });
+
+/**
+ * Copy a trusted url into a blob named after that source, so the caller can ask for it again
+ * without holding the bytes. 200 when it already existed, 201 when copied.
+ */
+export const ingestConsumerBlob = <ThrowOnError extends boolean = false>(
+  options?: Options<IngestConsumerBlobData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    IngestConsumerBlobResponses,
+    IngestConsumerBlobErrors,
+    ThrowOnError
+  >({ url: '/v2/consumer/blobs/ingest', ...options });
 
 /**
  * Serves cacheable blob content using a deterministic encrypted token
@@ -1491,6 +1507,10 @@ export const invokeYuE2StepTemplate = <ThrowOnError extends boolean = false>(
     },
   });
 
+/**
+ * List resources: `view=Queue` is what the orchestrator is loading now, `view=Loaded`
+ * what at least one worker holds and can use now. Each page is a fresh snapshot.
+ */
 export const queryResources = <ThrowOnError extends boolean = false>(
   options: Options<QueryResourcesData, ThrowOnError>
 ) =>

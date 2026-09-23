@@ -1222,6 +1222,11 @@ export type ChatCompletionInput = {
    */
   thinkingTokenBudget?: null | number;
   /**
+   * OpenAI reasoning_effort: none, minimal, low, medium, high or xhigh. Portable across vLLM
+   * and hosted providers; the worker translates it to each provider's native reasoning control.
+   */
+  reasoningEffort?: null | string;
+  /**
    * Number of completions to generate.
    */
   n?: number;
@@ -1256,8 +1261,7 @@ export type ChatCompletionInput = {
   topLogprobs?: null | number;
   /**
    * Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.
-   * For Qwen3.8, use enable_thinking (boolean) and reasoning_effort (low, medium, or xhigh).
-   * Reasoning effort is guidance, not a token limit; use ThinkingTokenBudget for a numeric cap.
+   * Prefer reasoningEffort and thinkingTokenBudget for reasoning control.
    */
   chatTemplateKwargs?: null | {
     [key: string]: unknown;
@@ -1369,6 +1373,13 @@ export type ChatCompletionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'chatCompletion';
 };
 
+export type ChatCompletionTokensDetails = {
+  /**
+   * Reasoning tokens generated before the answer; billed as completion tokens.
+   */
+  reasoningTokens?: null | number;
+};
+
 /**
  * A tool definition sent in a chat completion request.
  */
@@ -1406,6 +1417,7 @@ export type ChatCompletionUsage = {
    * Total number of tokens (prompt + completion).
    */
   totalTokens: number;
+  completionTokensDetails?: ChatCompletionTokensDetails;
 };
 
 /**
@@ -2969,6 +2981,57 @@ export type ComfyQwen20bVariantImageGenInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyQwen21CreateImageGenInput = Omit<
+  ComfyQwen21ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: '2.1';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21EditImageGenInput = Omit<
+  ComfyQwen21ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared; preserves each image's aspect ratio.
+   */
+  resolution?: number;
+  readonly width: number;
+  readonly height: number;
+  operation: 'editImage';
+  model: '2.1';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21ImageGenInput = Omit<
+  ComfyQwenImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: '2.1';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
 export type ComfyQwenImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: null | string;
   ecosystem: 'qwen';
@@ -3049,6 +3112,7 @@ export type ComfySd1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosyst
   loras?: {
     [key: string]: number;
   };
+  embeddings?: Array<string>;
   clipSkip?: number;
   controlNets?: Array<ImageJobControlNet>;
   ecosystem: 'sd1';
@@ -3097,6 +3161,8 @@ export type ComfySdxlImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosys
   loras?: {
     [key: string]: number;
   };
+  embeddings?: Array<string>;
+  clipSkip?: number;
   controlNets?: Array<ImageJobControlNet>;
   ecosystem: 'sdxl';
   engine: 'comfy';
@@ -8734,7 +8800,7 @@ export type ResourceInfo = {
  * A projection of the resource collection. There is no view that lists every known resource — resources
  * are addressed by AIR and only materialise once something asks for them.
  */
-export const ResourceView = { QUEUE: 'queue' } as const;
+export const ResourceView = { QUEUE: 'queue', LOADED: 'loaded' } as const;
 
 /**
  * A projection of the resource collection. There is no view that lists every known resource — resources
@@ -9004,6 +9070,7 @@ export type SdxlImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
     [key: string]: number;
   };
   embeddings?: Array<string>;
+  clipSkip?: number;
   uCache?: SdCppUCacheMode;
   ecosystem: 'sdxl';
   engine: 'sdcpp';
@@ -9679,6 +9746,10 @@ export type TranscodeInput = {
    * it, so a block decided after the fact cannot take it back.
    */
   public?: null | boolean;
+  /**
+   * Removes the source's container tags and chapters; the video and audio streams are untouched.
+   */
+  hideMetadata?: null | boolean;
 };
 
 export type TranscodeOutput = {
@@ -9880,6 +9951,20 @@ export type TryOnUOutput = {
  */
 export type UnavailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
   status: 'unavailable';
+};
+
+export type UniRigPolyGenInput = Omit<PolyGenInput, 'engine'> & {
+  operation: null | string;
+  seed?: null | number;
+  engine: 'unirig';
+};
+
+export type UniRigRigPolyGenInput = Omit<UniRigPolyGenInput, 'engine' | 'operation'> & {
+  mesh: string;
+  heightMeters?: null | number;
+  skeleton?: 'mixamo' | 'generic';
+  operation: 'rig';
+  engine: 'unirig';
 };
 
 export type UnsupportedResourceAvailability = Omit<ResourceAvailability, 'status'> & {
@@ -10380,19 +10465,21 @@ export type VolumeTransformer = Omit<MediaTransformer, 'type'> & {
  */
 export type WdTaggingInput = {
   /**
-   * The model to use for tagging. Defaults to "wd14-vit.v1" and also supports "cl-tagger.v2".
+   * The model to use for tagging. Tagging always runs with "cl-tagger.v2"; any other model, including the
+   * default "wd14-vit.v1", is deprecated and produces a warning.
    */
   model?: null | string;
   /**
-   * The URL of the media to tag (image or video).
+   * The URL of the image to tag.
    */
   mediaUrl: string;
   /**
    * Optional threshold for tag confidence filtering. Tags below this threshold will be excluded.
+   * The tagger never returns tags scoring below its own minimum, so lower values have no effect.
    */
   threshold?: null | number;
   /**
-   * Optional prompt to guide the tagging process.
+   * Ignored; kept for compatibility.
    */
   prompt?: null | string;
 };
@@ -11738,6 +11825,16 @@ export const WorkflowUpgradeMode = { MANUAL: 'manual', AUTOMATIC: 'automatic' } 
  */
 export type WorkflowUpgradeMode = (typeof WorkflowUpgradeMode)[keyof typeof WorkflowUpgradeMode];
 
+/**
+ * What a held read of a workflow waits for before it returns.
+ */
+export const WorkflowWaitUntil = { COMPLETION: 'completion', CHANGE: 'change' } as const;
+
+/**
+ * What a held read of a workflow waits for before it returns.
+ */
+export type WorkflowWaitUntil = (typeof WorkflowWaitUntil)[keyof typeof WorkflowWaitUntil];
+
 export type XGuardCustomSignalMetadata = {
   name: string;
   positiveSignals: {
@@ -11803,12 +11900,14 @@ export type XGuardModerationInput = {
    * the trimmed version. Intended for one-off debugging of classification decisions
    * where the full logprobs distribution or generated token stream needs inspection.
    * Leaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.
+   * Civitai prompt Scan always emits one token, including with debugging enabled.
    * This is NOT the reasoning switch — use IncludeReasoning for ModelReason. On its own it
    * merely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets
    * ~600 chars of explanation slip out before a finishReason=length cutoff.
    */
   storeFullResponse: boolean;
   /**
+   * For site-text moderation only; Civitai prompt Scan always emits one token.
    * When true, the model generates an explanation after its verdict token, populating
    * XGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 —
    * long explanations can still end at finishReason=length) and a distinct blob-cache
@@ -11854,7 +11953,7 @@ export type XGuardPromptModerationInput = Omit<XGuardModerationInput, 'mode'> & 
    */
   negativePrompt?: null | string;
   /**
-   * Additional instructions or context for the moderation evaluation.
+   * Additional instructions are unsupported by the fixed Civitai Scan contract.
    */
   instructions?: null | string;
   scope: XGuardPromptScope;
@@ -12446,6 +12545,21 @@ export type ComfyQwen20bVariantImageGenInputWritable = Omit<
   strength?: number;
   operation: 'ComfyQwen20bVariantImageGenInputWritable';
   model: '20b';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21EditImageGenInputWritable = Omit<
+  ComfyQwen21ImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared; preserves each image's aspect ratio.
+   */
+  resolution?: number;
+  operation: 'ComfyQwen21EditImageGenInputWritable';
+  model: '2.1';
   ecosystem: 'qwen';
   engine: 'comfy';
 };
@@ -14056,6 +14170,65 @@ export type UploadConsumerBlobResponses = {
 
 export type UploadConsumerBlobResponse =
   UploadConsumerBlobResponses[keyof UploadConsumerBlobResponses];
+
+export type IngestConsumerBlobData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Object to copy; must resolve to a configured trusted source.
+     */
+    sourceUrl?: string;
+    /**
+     * Store in the public tier and return a durable, unsigned URL.
+     */
+    public?: boolean;
+  };
+  url: '/v2/consumer/blobs/ingest';
+};
+
+export type IngestConsumerBlobErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+  /**
+   * Unprocessable Content
+   */
+  422: ProblemDetails;
+  /**
+   * Bad Gateway
+   */
+  502: unknown;
+};
+
+export type IngestConsumerBlobError = IngestConsumerBlobErrors[keyof IngestConsumerBlobErrors];
+
+export type IngestConsumerBlobResponses = {
+  /**
+   * OK
+   */
+  200: Blob;
+  /**
+   * Created
+   */
+  201: Blob;
+};
+
+export type IngestConsumerBlobResponse =
+  IngestConsumerBlobResponses[keyof IngestConsumerBlobResponses];
 
 export type GetBlobContentData = {
   body?: never;
@@ -16244,6 +16417,31 @@ export type QueryResourcesData = {
     view: ResourceView;
     cursor?: string;
     take?: number;
+    /**
+     * Repeatable, OR'd. Matches the AIR's type segment literally, with no alias expansion: that
+     * segment names the model's type rather than the file's, so `checkpoint` does not cover
+     * base weights arriving as `diffusion_model`, `diffusionmodel` or `unet`.
+     */
+    type?: Array<string>;
+    /**
+     * Repeatable, OR'd, and wins over `type`. `other`, `torchcompilecache` and
+     * `nodepacklayer` are the generated artifacts rather than models.
+     */
+    excludeType?: Array<string>;
+    /**
+     * Repeatable, OR'd, matched against the AIR's source segment. `civitai` is the cheapest
+     * way to drop everything the orchestrator generated itself.
+     */
+    source?: Array<string>;
+    /**
+     * Inclusive. 1073741824 (1 GiB) is where a resource starts taking the large download lane. A
+     * resource whose provider never reported a byte count has size 0 and is excluded by any value.
+     */
+    minSizeBytes?: number;
+    /**
+     * Inclusive.
+     */
+    maxSizeBytes?: number;
   };
   url: '/v2/resources';
 };
@@ -16253,6 +16451,10 @@ export type QueryResourcesErrors = {
    * Bad Request
    */
   400: ProblemDetails;
+  /**
+   * Service Unavailable
+   */
+  503: unknown;
 };
 
 export type QueryResourcesError = QueryResourcesErrors[keyof QueryResourcesErrors];
@@ -16603,6 +16805,11 @@ export type GetWorkflowData = {
      * In which case the client should use the token to query the status of the workflow.
      */
     wait?: number;
+    /**
+     * What wait waits for: `completion` (the default) returns once the workflow reaches a
+     * final status, `change` as soon as its status or any of its steps changes.
+     */
+    until?: WorkflowWaitUntil;
     /**
      * When set to true, any blob that has mature won't be available and won't have a URL
      */

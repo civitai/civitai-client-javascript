@@ -249,6 +249,109 @@
         "security": []
       }
     },
+    "/v2/consumer/blobs/ingest": {
+      "post": {
+        "tags": [
+          "Blobs"
+        ],
+        "summary": "Copy a trusted url into a blob named after that source, so the caller can ask for it again\nwithout holding the bytes. 200 when it already existed, 201 when copied.",
+        "operationId": "IngestConsumerBlob",
+        "parameters": [
+          {
+            "name": "sourceUrl",
+            "in": "query",
+            "description": "Object to copy; must resolve to a configured trusted source.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "public",
+            "in": "query",
+            "description": "Store in the public tier and return a durable, unsigned URL.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Blob"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Blob"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway"
+          }
+        },
+        "security": []
+      }
+    },
     "/v2/consumer/blobs/content/{encryptedToken}": {
       "get": {
         "tags": [
@@ -5519,6 +5622,7 @@
         "tags": [
           "Resources"
         ],
+        "summary": "List resources: `view=Queue` is what the orchestrator is loading now, `view=Loaded`\nwhat at least one worker holds and can use now. Each page is a fresh snapshot.",
         "operationId": "QueryResources",
         "parameters": [
           {
@@ -5545,6 +5649,57 @@
               "format": "int32",
               "default": 100
             }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Repeatable, OR'd. Matches the AIR's type segment literally, with no alias expansion: that\nsegment names the model's type rather than the file's, so `checkpoint` does not cover\nbase weights arriving as `diffusion_model`, `diffusionmodel` or `unet`.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "excludeType",
+            "in": "query",
+            "description": "Repeatable, OR'd, and wins over `type`. `other`, `torchcompilecache` and\n`nodepacklayer` are the generated artifacts rather than models.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "description": "Repeatable, OR'd, matched against the AIR's source segment. `civitai` is the cheapest\nway to drop everything the orchestrator generated itself.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "minSizeBytes",
+            "in": "query",
+            "description": "Inclusive. 1073741824 (1 GiB) is where a resource starts taking the large download lane. A\nresource whose provider never reported a byte count has size 0 and is excluded by any value.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "maxSizeBytes",
+            "in": "query",
+            "description": "Inclusive.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
@@ -5567,6 +5722,9 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Service Unavailable"
           }
         }
       }
@@ -6735,6 +6893,14 @@
               "type": "integer",
               "format": "int32",
               "default": 0
+            }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "description": "What wait waits for: `completion` (the default) returns once the workflow reaches a\nfinal status, `change` as soon as its status or any of its steps changes.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowWaitUntil"
             }
           },
           {
@@ -10196,6 +10362,14 @@
             "description": "Optional vLLM reasoning-token limit per completion, including each server-tool round.\nUse 0 to end thinking immediately, or -1/null for no separate thinking limit.\nMaxTokens still limits the total generated thinking and answer tokens.",
             "format": "int32"
           },
+          "reasoningEffort": {
+            "pattern": "^(none|minimal|low|medium|high|xhigh)$",
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "OpenAI reasoning_effort: none, minimal, low, medium, high or xhigh. Portable across vLLM\nand hosted providers; the worker translates it to each provider's native reasoning control."
+          },
           "n": {
             "maximum": 128,
             "minimum": 1,
@@ -10268,7 +10442,7 @@
               "object"
             ],
             "additionalProperties": {},
-            "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nFor Qwen3.8, use enable_thinking (boolean) and reasoning_effort (low, medium, or xhigh).\nReasoning effort is guidance, not a token limit; use ThinkingTokenBudget for a numeric cap."
+            "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
             "type": [
@@ -10481,6 +10655,20 @@
         ],
         "description": "ChatCompletion"
       },
+      "ChatCompletionTokensDetails": {
+        "type": "object",
+        "properties": {
+          "reasoningTokens": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Reasoning tokens generated before the answer; billed as completion tokens.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "ChatCompletionTool": {
         "required": [
           "type"
@@ -10544,6 +10732,9 @@
             "type": "integer",
             "description": "Total number of tokens (prompt + completion).",
             "format": "int32"
+          },
+          "completionTokensDetails": {
+            "$ref": "#/components/schemas/ChatCompletionTokensDetails"
           }
         },
         "additionalProperties": false,
@@ -17362,6 +17553,246 @@
           }
         ]
       },
+      "ComfyQwen21CreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwen21ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "2.1"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyQwen21EditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwen21ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "height",
+              "images",
+              "model",
+              "operation",
+              "width"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "resolution": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "description": "Reference pixel budget as resolution squared; preserves each image's aspect ratio.",
+                "format": "int32",
+                "default": 1024
+              },
+              "width": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "2.1"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyQwen21ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwenImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 25
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "model": {
+                "enum": [
+                  "2.1"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyQwen21CreateImageGenInput",
+                "editImage": "#/components/schemas/ComfyQwen21EditImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyQwenImageGenInput": {
         "allOf": [
           {
@@ -17399,7 +17830,8 @@
             "discriminator": {
               "propertyName": "model",
               "mapping": {
-                "20b": "#/components/schemas/ComfyQwen20bImageGenInput"
+                "20b": "#/components/schemas/ComfyQwen20bImageGenInput",
+                "2.1": "#/components/schemas/ComfyQwen21ImageGenInput"
               }
             }
           }
@@ -17584,6 +18016,13 @@
                 "additionalProperties": {
                   "type": "number",
                   "format": "double"
+                }
+              },
+              "embeddings": {
+                "type": "array",
+                "items": {
+                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                  "type": "string"
                 }
               },
               "clipSkip": {
@@ -17816,6 +18255,18 @@
                   "type": "number",
                   "format": "double"
                 }
+              },
+              "embeddings": {
+                "type": "array",
+                "items": {
+                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                  "type": "string"
+                }
+              },
+              "clipSkip": {
+                "type": "integer",
+                "format": "int32",
+                "default": 2
               },
               "controlNets": {
                 "type": "array",
@@ -32208,7 +32659,8 @@
           "propertyName": "engine",
           "mapping": {
             "comfy": "#/components/schemas/ComfyPolyGenInput",
-            "fal": "#/components/schemas/FalPolyGenInput"
+            "fal": "#/components/schemas/FalPolyGenInput",
+            "unirig": "#/components/schemas/UniRigPolyGenInput"
           }
         }
       },
@@ -35715,7 +36167,8 @@
       },
       "ResourceView": {
         "enum": [
-          "queue"
+          "queue",
+          "loaded"
         ],
         "type": "string",
         "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them."
@@ -36499,6 +36952,11 @@
                   "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                   "type": "string"
                 }
+              },
+              "clipSkip": {
+                "type": "integer",
+                "format": "int32",
+                "default": 2
               },
               "uCache": {
                 "$ref": "#/components/schemas/SdCppUCacheMode"
@@ -38168,6 +38626,13 @@
               "boolean"
             ],
             "description": "Serves the result at a stable unsigned url. Privileged callers only: nothing gates a read of\nit, so a block decided after the fact cannot take it back."
+          },
+          "hideMetadata": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Removes the source's container tags and chapters; the video and audio streams are untouched."
           }
         },
         "additionalProperties": false
@@ -38899,6 +39364,100 @@
           }
         ],
         "description": "Eligible, but nothing is pulling it. A resource waiting in a download lane reports\nCivitai.Orchestration.Grains.Resources.QueuedResourceAvailability instead."
+      },
+      "UniRigPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "rig"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "engine": {
+                "enum": [
+                  "unirig"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "rig": "#/components/schemas/UniRigRigPolyGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "UniRigRigPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UniRigPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "mesh",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "mesh": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "heightMeters": {
+                "maximum": 100,
+                "minimum": 0.01,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "format": "double"
+              },
+              "skeleton": {
+                "enum": [
+                  "mixamo",
+                  "generic"
+                ],
+                "type": "string",
+                "default": "mixamo"
+              },
+              "operation": {
+                "enum": [
+                  "rig"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "unirig"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "UnsupportedResourceAvailability": {
         "allOf": [
@@ -40414,11 +40973,11 @@
               "null",
               "string"
             ],
-            "description": "The model to use for tagging. Defaults to \"wd14-vit.v1\" and also supports \"cl-tagger.v2\"."
+            "description": "The model to use for tagging. Tagging always runs with \"cl-tagger.v2\"; any other model, including the\ndefault \"wd14-vit.v1\", is deprecated and produces a warning."
           },
           "mediaUrl": {
             "type": "string",
-            "description": "The URL of the media to tag (image or video).",
+            "description": "The URL of the image to tag.",
             "format": "uri"
           },
           "threshold": {
@@ -40426,7 +40985,7 @@
               "null",
               "number"
             ],
-            "description": "Optional threshold for tag confidence filtering. Tags below this threshold will be excluded.",
+            "description": "Optional threshold for tag confidence filtering. Tags below this threshold will be excluded.\nThe tagger never returns tags scoring below its own minimum, so lower values have no effect.",
             "format": "double"
           },
           "prompt": {
@@ -40434,7 +40993,7 @@
               "null",
               "string"
             ],
-            "description": "Optional prompt to guide the tagging process."
+            "description": "Ignored; kept for compatibility."
           }
         },
         "additionalProperties": false,
@@ -44631,6 +45190,14 @@
         "type": "string",
         "description": "Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment."
       },
+      "WorkflowWaitUntil": {
+        "enum": [
+          "completion",
+          "change"
+        ],
+        "type": "string",
+        "description": "What a held read of a workflow waits for before it returns."
+      },
       "XGuardCustomSignalMetadata": {
         "required": [
           "name",
@@ -44847,11 +45414,11 @@
           },
           "storeFullResponse": {
             "type": "boolean",
-            "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.\nThis is NOT the reasoning switch — use IncludeReasoning for ModelReason. On its own it\nmerely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets\n~600 chars of explanation slip out before a finishReason=length cutoff."
+            "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.\nCivitai prompt Scan always emits one token, including with debugging enabled.\nThis is NOT the reasoning switch — use IncludeReasoning for ModelReason. On its own it\nmerely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets\n~600 chars of explanation slip out before a finishReason=length cutoff."
           },
           "includeReasoning": {
             "type": "boolean",
-            "description": "When true, the model generates an explanation after its verdict token, populating\nXGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 —\nlong explanations can still end at finishReason=length) and a distinct blob-cache\nkey, so results never reuse cached verdict-only blobs."
+            "description": "For site-text moderation only; Civitai prompt Scan always emits one token.\nWhen true, the model generates an explanation after its verdict token, populating\nXGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 —\nlong explanations can still end at finishReason=length) and a distinct blob-cache\nkey, so results never reuse cached verdict-only blobs."
           }
         },
         "additionalProperties": false,
@@ -44978,7 +45545,7 @@
                   "null",
                   "string"
                 ],
-                "description": "Additional instructions or context for the moderation evaluation."
+                "description": "Additional instructions are unsupported by the fixed Civitai Scan contract."
               },
               "scope": {
                 "$ref": "#/components/schemas/XGuardPromptScope"
