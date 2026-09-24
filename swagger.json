@@ -245,8 +245,7 @@
               }
             }
           }
-        },
-        "security": []
+        }
       }
     },
     "/v2/consumer/blobs/ingest": {
@@ -13825,6 +13824,7 @@
                 "ponyV7": "#/components/schemas/ComfyPonyV7ImageGenInput",
                 "anima": "#/components/schemas/ComfyAnimaImageGenInput",
                 "lens": "#/components/schemas/ComfyLensImageGenInput",
+                "ming": "#/components/schemas/ComfyMingImageGenInput",
                 "ideogram4": "#/components/schemas/ComfyIdeogram4ImageGenInput",
                 "boogu": "#/components/schemas/ComfyBooguImageGenInput",
                 "krea2": "#/components/schemas/ComfyKrea2ImageGenInput",
@@ -16590,6 +16590,293 @@
                 "4b-turbo": "#/components/schemas/ComfyMageFlow4bTurboImageGenInput",
                 "4b-edit": "#/components/schemas/ComfyMageFlow4bEditImageGenInput",
                 "4b-edit-turbo": "#/components/schemas/ComfyMageFlow4bEditTurboImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyMingDesignCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMingDesignImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 256,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "design"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ming"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyMingDesignEditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMingDesignImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "height",
+              "images",
+              "model",
+              "operation",
+              "width"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 3,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "resolution": {
+                "maximum": 2048,
+                "minimum": 256,
+                "type": "integer",
+                "description": "Reference pixel budget as resolution squared, preserving the first image's aspect ratio.",
+                "format": "int32",
+                "default": 1024
+              },
+              "width": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "design"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ming"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyMingDesignImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyMingImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
+              },
+              "prompt": {
+                "maxLength": 20000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 20000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 12
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "model": {
+                "enum": [
+                  "design"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ming"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyMingDesignCreateImageGenInput",
+                "editImage": "#/components/schemas/ComfyMingDesignEditImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyMingImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "design"
+              },
+              "ecosystem": {
+                "enum": [
+                  "ming"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "design": "#/components/schemas/ComfyMingDesignImageGenInput"
               }
             }
           }
@@ -37834,7 +38121,7 @@
             }
           }
         ],
-        "description": "Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)\nSince FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.\nDiscriminator: operation (text-to-video or image-to-video)"
+        "description": "Retired: OpenAI shut down the Sora 2 API on 2026-09-24 and new requests are rejected."
       },
       "StarVectorImageToSvgInput": {
         "allOf": [

@@ -2723,6 +2723,63 @@ export type ComfyMageFlowImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ec
   engine: 'comfy';
 };
 
+export type ComfyMingDesignCreateImageGenInput = Omit<
+  ComfyMingDesignImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: 'design';
+  ecosystem: 'ming';
+  engine: 'comfy';
+};
+
+export type ComfyMingDesignEditImageGenInput = Omit<
+  ComfyMingDesignImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared, preserving the first image's aspect ratio.
+   */
+  resolution?: number;
+  readonly width: number;
+  readonly height: number;
+  operation: 'editImage';
+  model: 'design';
+  ecosystem: 'ming';
+  engine: 'comfy';
+};
+
+export type ComfyMingDesignImageGenInput = Omit<
+  ComfyMingImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: 'design';
+  ecosystem: 'ming';
+  engine: 'comfy';
+};
+
+export type ComfyMingImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: null | string;
+  ecosystem: 'ming';
+  engine: 'comfy';
+};
+
 /**
  * Video-to-video structure control using a preprocessed map and the MiniMax H3 Fun ControlNet Union model patch.
  */
@@ -9353,9 +9410,7 @@ export type Sora2TextToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operatio
 };
 
 /**
- * Base class for Sora 2 video generation (OpenAI's Sora-2 model via FAL)
- * Since FAL has a one-to-one mapping with OpenAI's Sora API, we don't need a provider layer.
- * Discriminator: operation (text-to-video or image-to-video)
+ * Retired: OpenAI shut down the Sora 2 API on 2026-09-24 and new requests are rejected.
  */
 export type SoraVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: null | string;
@@ -12519,6 +12574,21 @@ export type ChromaAiToolkitTrainingInputWritable = Omit<
    * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
+};
+
+export type ComfyMingDesignEditImageGenInputWritable = Omit<
+  ComfyMingDesignImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared, preserving the first image's aspect ratio.
+   */
+  resolution?: number;
+  operation: 'ComfyMingDesignEditImageGenInputWritable';
+  model: 'design';
+  ecosystem: 'ming';
+  engine: 'comfy';
 };
 
 export type ComfyQwen20bEditImageGenInputWritable = Omit<
