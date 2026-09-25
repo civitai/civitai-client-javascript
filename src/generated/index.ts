@@ -1161,6 +1161,8 @@ export {
   type Qwen20bImageGenInput,
   type Qwen20bVariantImageGenInput,
   type Qwen20bVariantImageGenInputWritable,
+  type Qwen21AiToolkitTrainingInput,
+  type Qwen21AiToolkitTrainingInputWritable,
   type Qwen2CreateFalImageGenInput,
   type Qwen2EditFalImageGenInput,
   type Qwen2FalImageGenInput,

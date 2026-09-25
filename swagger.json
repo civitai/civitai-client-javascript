@@ -348,7 +348,7 @@
             "description": "Bad Gateway"
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -407,7 +407,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -450,7 +450,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -496,7 +496,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -1648,7 +1648,7 @@
           "Recipes"
         ],
         "summary": "CustomComfy",
-        "description": "Submit a raw ComfyUI workflow graph for execution. Every resource the\n/// workflow uses (checkpoints, loras, AND <c>comfy:nodepack</c> URNs for\n/// runtime-installable custom nodes) must be declared in <c>Resources</c> —\n/// the orchestrator does not scan the workflow. Billing happens after\n/// execution based on actual ComfyUI runtime; infra failures don't charge.",
+        "description": "Submit a raw ComfyUI workflow graph for execution. Every resource the\n/// workflow uses (checkpoints, loras, AND <c>comfy:nodepack</c> URNs for\n/// runtime-installable custom nodes) must be declared in <c>Resources</c> \u2014\n/// the orchestrator does not scan the workflow. Billing happens after\n/// execution based on actual ComfyUI runtime; infra failures don't charge.",
         "operationId": "InvokeCustomComfyStepTemplate",
         "parameters": [
           {
@@ -6177,7 +6177,7 @@
           {
             "name": "view",
             "in": "query",
-            "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them.",
+            "description": "A projection of the resource collection. There is no view that lists every known resource \u2014 resources\nare addressed by AIR and only materialise once something asks for them.",
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/ResourceView"
@@ -6434,7 +6434,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/services/{serviceId}": {
@@ -6505,7 +6505,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -6549,7 +6549,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/workflows": {
@@ -6614,7 +6614,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6642,7 +6642,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -6662,15 +6662,15 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 0.00005,
-                          "textEncoderLR": 0.00005,
+                          "unetLR": 5e-05,
+                          "textEncoderLR": 5e-05,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6686,7 +6686,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -6798,7 +6798,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -6825,7 +6825,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6853,7 +6853,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -6873,15 +6873,15 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 0.00005,
-                          "textEncoderLR": 0.00005,
+                          "unetLR": 5e-05,
+                          "textEncoderLR": 5e-05,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6897,7 +6897,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -7009,7 +7009,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -7036,7 +7036,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -7064,7 +7064,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -7084,15 +7084,15 @@
                           "keepTokens": 0,
                           "clipSkip": 1,
                           "flipAugmentation": false,
-                          "unetLR": 0.00005,
-                          "textEncoderLR": 0.00005,
+                          "unetLR": 5e-05,
+                          "textEncoderLR": 5e-05,
                           "lrSchedulerNumCycles": 3,
                           "engine": "kohya",
                           "model": "urn:air:sdxl:model:civitai:101055@128078",
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -7108,7 +7108,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -7220,7 +7220,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -8130,11 +8130,11 @@
         "properties": {
           "label": {
             "type": "string",
-            "description": "Classification label, taken from the model's own id2label — AIorNot-SigLIP2 emits\n\"AI\"/\"Real\". Casing varies per model, so compare case-insensitively."
+            "description": "Classification label, taken from the model's own id2label \u2014 AIorNot-SigLIP2 emits\n\"AI\"/\"Real\". Casing varies per model, so compare case-insensitively."
           },
           "confidence": {
             "type": "number",
-            "description": "Confidence in the classification given by Label (0.0 to 1.0) — not the probability of being AI.",
+            "description": "Confidence in the classification given by Label (0.0 to 1.0) \u2014 not the probability of being AI.",
             "format": "double"
           }
         },
@@ -8168,7 +8168,7 @@
                   "null",
                   "integer"
                 ],
-                "description": "Number of training epochs — the number of saved checkpoints produced (each epoch\nyields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;\nwhen both are supplied, both are honored (epochs = checkpoint count, steps = total).",
+                "description": "Number of training epochs \u2014 the number of saved checkpoints produced (each epoch\nyields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;\nwhen both are supplied, both are honored (epochs = checkpoint count, steps = total).",
                 "format": "int32"
               },
               "steps": {
@@ -8317,7 +8317,7 @@
               },
               "storageBuzzPerEpoch": {
                 "type": "number",
-                "description": "Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on\ntop of the per-step training cost — so raising the epoch count raises the price by this much each.\nOverride per ecosystem where per-epoch samples are expensive to compute (e.g. video).",
+                "description": "Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on\ntop of the per-step training cost \u2014 so raising the epoch count raises the price by this much each.\nOverride per ecosystem where per-epoch samples are expensive to compute (e.g. video).",
                 "format": "double",
                 "readOnly": true
               },
@@ -8334,7 +8334,7 @@
               },
               "maxBatchSize": {
                 "type": "integer",
-                "description": "Ecosystem-specific maximum training batch size — the upper bound the user's\nCivitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.BatchSize is clamped to. Most ecosystems cap at 1.",
+                "description": "Ecosystem-specific maximum training batch size \u2014 the upper bound the user's\nCivitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.BatchSize is clamped to. Most ecosystems cap at 1.",
                 "format": "int32",
                 "readOnly": true
               },
@@ -8371,7 +8371,8 @@
                 "mageflow": "#/components/schemas/MageFlowAIToolkitTrainingInput",
                 "ming": "#/components/schemas/MingAIToolkitTrainingInput",
                 "yue2": "#/components/schemas/YuE2AIToolkitTrainingInput",
-                "minimaxh3": "#/components/schemas/MiniMaxH3AIToolkitTrainingInput"
+                "minimaxh3": "#/components/schemas/MiniMaxH3AIToolkitTrainingInput",
+                "qwen21": "#/components/schemas/Qwen21AIToolkitTrainingInput"
               }
             }
           }
@@ -8696,7 +8697,7 @@
               "B minor"
             ],
             "type": "string",
-            "description": "Musical key (e.g., \"C major\", \"E minor\"). Mirrors ComfyUI's\nTextEncodeAceStepAudio1.5 keyscale combo: 17 roots × {major, minor}.",
+            "description": "Musical key (e.g., \"C major\", \"E minor\"). Mirrors ComfyUI's\nTextEncodeAceStepAudio1.5 keyscale combo: 17 roots \u00d7 {major, minor}.",
             "default": "C major"
           },
           "instrumentalWeight": {
@@ -10838,7 +10839,7 @@
               "null",
               "string"
             ],
-            "description": "Approximate output resolution. \"1K\" ≈ 1MP, \"2K\" ≈ 2MP, etc. Engines clamp to their supported range."
+            "description": "Approximate output resolution. \"1K\" \u2248 1MP, \"2K\" \u2248 2MP, etc. Engines clamp to their supported range."
           },
           "n": {
             "maximum": 10,
@@ -11012,7 +11013,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
@@ -11066,7 +11067,7 @@
               "string"
             ]
           },
-          "schema": { },
+          "schema": {},
           "strict": {
             "type": [
               "null",
@@ -11145,7 +11146,7 @@
           },
           "parsed": {
             "type": "null",
-            "description": "Parsed JSON content of `Choices[0].Message.Content`. Populated when the request\nspecified a JSON-flavored `response_format` and the content was parseable.\nReachable from downstream workflow steps via `$ref` paths like\n`output.parsed.<field>` — DynamicAssignmentEvaluator walks JsonElement trees\nthe same way it walks the rest of this output."
+            "description": "Parsed JSON content of `Choices[0].Message.Content`. Populated when the request\nspecified a JSON-flavored `response_format` and the content was parseable.\nReachable from downstream workflow steps via `$ref` paths like\n`output.parsed.<field>` \u2014 DynamicAssignmentEvaluator walks JsonElement trees\nthe same way it walks the rest of this output."
           }
         },
         "additionalProperties": false,
@@ -17819,7 +17820,7 @@
           },
           "layerAir": {
             "type": "string",
-            "description": "The complete install-layer AIR — `urn:air:comfy:nodepacklayer:…@<ver>+<hex(image)>`,\nthe (pack, comfy image) pair as a single self-describing resource. Consumers declare THIS on a\ncustomComfy step's `resources` (not the bare pack URN) so the worker resolves the layer through\nthe normal resource pipeline."
+            "description": "The complete install-layer AIR \u2014 `urn:air:comfy:nodepacklayer:\u2026@<ver>+<hex(image)>`,\nthe (pack, comfy image) pair as a single self-describing resource. Consumers declare THIS on a\ncustomComfy step's `resources` (not the bare pack URN) so the worker resolves the layer through\nthe normal resource pipeline."
           },
           "layer": {
             "$ref": "#/components/schemas/Blob"
@@ -19303,7 +19304,7 @@
                   "null",
                   "integer"
                 ],
-                "description": "Number of training epochs — the number of saved checkpoints produced (each epoch\nyields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;\nwhen both are supplied, both are honored (epochs = checkpoint count, steps = total).",
+                "description": "Number of training epochs \u2014 the number of saved checkpoints produced (each epoch\nyields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;\nwhen both are supplied, both are honored (epochs = checkpoint count, steps = total).",
                 "format": "int32"
               },
               "steps": {
@@ -19452,7 +19453,7 @@
               },
               "storageBuzzPerEpoch": {
                 "type": "number",
-                "description": "Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on\ntop of the per-step training cost — so raising the epoch count raises the price by this much each.\nOverride per ecosystem where per-epoch samples are expensive to compute (e.g. video).",
+                "description": "Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on\ntop of the per-step training cost \u2014 so raising the epoch count raises the price by this much each.\nOverride per ecosystem where per-epoch samples are expensive to compute (e.g. video).",
                 "format": "double",
                 "readOnly": true
               },
@@ -20016,7 +20017,7 @@
               "null",
               "number"
             ],
-            "description": "Absolute start time on the output timeline, in seconds. When set, this element is anchored\nat this position and excluded from the implicit sequencing chain — useful for a music bed,\nor for placing an audio track at a known time over a video. When unset, the element starts\nafter the previous non-anchored element ends, nudged by Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.Offset.",
+            "description": "Absolute start time on the output timeline, in seconds. When set, this element is anchored\nat this position and excluded from the implicit sequencing chain \u2014 useful for a music bed,\nor for placing an audio track at a known time over a video. When unset, the element starts\nafter the previous non-anchored element ends, nudged by Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.Offset.",
             "format": "float"
           },
           "offset": {
@@ -20082,7 +20083,7 @@
             "items": {
               "$ref": "#/components/schemas/ComposeMediaResolvedElement"
             },
-            "description": "Per-element resolved timing in input order — useful for rendering subtitles, speaker\nhighlights, or chapter markers without re-probing every source clip."
+            "description": "Per-element resolved timing in input order \u2014 useful for rendering subtitles, speaker\nhighlights, or chapter markers without re-probing every source clip."
           }
         },
         "additionalProperties": false,
@@ -20106,7 +20107,7 @@
           }
         },
         "additionalProperties": false,
-        "description": "Describes the desired output of a composition. Both fields are optional — leave\nCivitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaOutputSpec.Type unset to derive the kind from the elements."
+        "description": "Describes the desired output of a composition. Both fields are optional \u2014 leave\nCivitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaOutputSpec.Type unset to derive the kind from the elements."
       },
       "ComposeMediaResolvedElement": {
         "required": [
@@ -20238,7 +20239,7 @@
               "null",
               "boolean"
             ],
-            "description": "Stores the result in a bucket that serves it directly, so the returned url is stable and\nunsigned rather than presigned — a CDN can cache it, and reading it never touches the\norchestrator. Restricted to privileged callers: nothing gates a read of that url, so no NSFW\nlevel, blocked reason or mature-content restriction applies to it, and a block decided after\nthe fact cannot take it back."
+            "description": "Stores the result in a bucket that serves it directly, so the returned url is stable and\nunsigned rather than presigned \u2014 a CDN can cache it, and reading it never touches the\norchestrator. Restricted to privileged callers: nothing gates a read of that url, so no NSFW\nlevel, blocked reason or mature-content restriction applies to it, and a block decided after\nthe fact cannot take it back."
           }
         },
         "additionalProperties": false,
@@ -20387,7 +20388,7 @@
               "null",
               "string"
             ],
-            "description": "Optional custom comfy container image, declared as an\n`urn:air:oci:image:<source>:<repo>@<version|sha256:…>` AIR\n(e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy@v2.5.5`).\nWhen set, the worker pulls and runs this image instead of its default\ncomfy image. Null = worker default."
+            "description": "Optional custom comfy container image, declared as an\n`urn:air:oci:image:<source>:<repo>@<version|sha256:\u2026>` AIR\n(e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy@v2.5.5`).\nWhen set, the worker pulls and runs this image instead of its default\ncomfy image. Null = worker default."
           },
           "minVramGb": {
             "type": [
@@ -20409,7 +20410,7 @@
               "null",
               "integer"
             ],
-            "description": "Optional submit-time affordability gate (seconds). When set, the workflow is rejected at\nsubmit (→ 400) unless the user can afford at least this many seconds of generation — the\ncheck lives in `CustomComfyHandler.InitializeAsync`. The consumer (comfy-cloud)\ndefaults it to e.g. 300 and, when rejected, warns the user how much generation they have\nleft; choosing \"run anyway\" resubmits with this omitted to skip the gate. The live-balance\nguard still cancels mid-run if the balance later goes negative. Null = no gate.",
+            "description": "Optional submit-time affordability gate (seconds). When set, the workflow is rejected at\nsubmit (\u2192 400) unless the user can afford at least this many seconds of generation \u2014 the\ncheck lives in `CustomComfyHandler.InitializeAsync`. The consumer (comfy-cloud)\ndefaults it to e.g. 300 and, when rejected, warns the user how much generation they have\nleft; choosing \"run anyway\" resubmits with this omitted to skip the gate. The live-balance\nguard still cancels mid-run if the balance later goes negative. Null = no gate.",
             "format": "int32"
           }
         },
@@ -20526,7 +20527,7 @@
           },
           "estimatedCost": {
             "type": "number",
-            "description": "Estimate as of Civitai.Orchestration.Grains.Workflows.Steps.CustomComfy.CustomComfyUsage.ComputedAt: `Max(1, RuntimeSeconds × BuzzPerSecond)` (mirrors the billing floor).",
+            "description": "Estimate as of Civitai.Orchestration.Grains.Workflows.Steps.CustomComfy.CustomComfyUsage.ComputedAt: `Max(1, RuntimeSeconds \u00d7 BuzzPerSecond)` (mirrors the billing floor).",
             "format": "double"
           },
           "startedAt": {
@@ -21901,7 +21902,7 @@
                 "type": "number",
                 "description": "Learning rate for training.",
                 "format": "double",
-                "default": 0.00005
+                "default": 5e-05
               },
               "defaultCaption": {
                 "type": [
@@ -22013,7 +22014,7 @@
                 "type": "number",
                 "description": "Learning rate for training.",
                 "format": "double",
-                "default": 0.00005
+                "default": 5e-05
               },
               "defaultCaption": {
                 "type": [
@@ -23296,7 +23297,7 @@
             "maximum": 480,
             "minimum": 0,
             "type": "integer",
-            "description": "Frame position of this keyframe in the generated 24 fps video. Must be unique across the\nkeyframes and no greater than the duration in seconds × 24.",
+            "description": "Frame position of this keyframe in the generated 24 fps video. Must be unique across the\nkeyframes and no greater than the duration in seconds \u00d7 24.",
             "format": "int32"
           }
         },
@@ -23320,7 +23321,7 @@
             "properties": {
               "draftCache": {
                 "type": "string",
-                "description": "URL of the draft cache produced by a draft generation — pass the draftCache url from that\nstep's output. Read the workflow again to mint a fresh url if it has expired.",
+                "description": "URL of the draft cache produced by a draft generation \u2014 pass the draftCache url from that\nstep's output. Read the workflow again to mint a fresh url if it has expired.",
                 "format": "uri"
               },
               "duration": {
@@ -24708,7 +24709,7 @@
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 },
-                "description": "1–7 reference images guiding style and content; tag them in the prompt as <IMAGE_0>, <IMAGE_1>, etc."
+                "description": "1\u20137 reference images guiding style and content; tag them in the prompt as <IMAGE_0>, <IMAGE_1>, etc."
               },
               "operation": {
                 "enum": [
@@ -24732,7 +24733,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Grok v1.5 Reference-to-Video. Generates a video guided by 1–7 reference images;\nreference them in the prompt as <IMAGE_0> through <IMAGE_6>.\nFAL Endpoint: xai/grok-imagine-video/v1.5/reference-to-video"
+        "description": "Grok v1.5 Reference-to-Video. Generates a video guided by 1\u20137 reference images;\nreference them in the prompt as <IMAGE_0> through <IMAGE_6>.\nFAL Endpoint: xai/grok-imagine-video/v1.5/reference-to-video"
       },
       "GrokV1_5TextToVideoInput": {
         "allOf": [
@@ -24969,7 +24970,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Grok v2.0 Edit Image. Edits 1–3 source images; \"auto\" keeps the source aspect ratio.\nFAL Endpoint: xai/grok-imagine-image/v2.0/edit"
+        "description": "Grok v2.0 Edit Image. Edits 1\u20133 source images; \"auto\" keeps the source aspect ratio.\nFAL Endpoint: xai/grok-imagine-image/v2.0/edit"
       },
       "GrokV2ImageGenInput": {
         "allOf": [
@@ -25305,7 +25306,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Generate a video using 1–9 reference images for subject consistency.\nReference subjects via \"character1\" through \"character9\" placeholders in the prompt."
+        "description": "Generate a video using 1\u20139 reference images for subject consistency.\nReference subjects via \"character1\" through \"character9\" placeholders in the prompt."
       },
       "HappyHorseV1TextToVideoInput": {
         "allOf": [
@@ -25411,7 +25412,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Edit an existing video, optionally guided by reference images.\nFAL bills both the input and output seconds — the per-second rate is doubled."
+        "description": "Edit an existing video, optionally guided by reference images.\nFAL bills both the input and output seconds \u2014 the per-second rate is doubled."
       },
       "HappyHorseV1VideoGenInput": {
         "allOf": [
@@ -25580,7 +25581,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Generate a video using 1–9 reference images for subject consistency.\nReference subjects via \"character1\" through \"character9\" placeholders in the prompt."
+        "description": "Generate a video using 1\u20139 reference images for subject consistency.\nReference subjects via \"character1\" through \"character9\" placeholders in the prompt."
       },
       "HappyHorseV1_1TextToVideoInput": {
         "allOf": [
@@ -28408,7 +28409,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net",
                 "format": "double",
-                "default": 0.00005
+                "default": 5e-05
               },
               "textEncoderLR": {
                 "maximum": 1,
@@ -28416,7 +28417,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for the text encoder. The effect of additional training on text encoders affects the entire U-Net.",
                 "format": "double",
-                "default": 0.00005
+                "default": 5e-05
               },
               "lrScheduler": {
                 "enum": [
@@ -29040,7 +29041,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Transferring. No queue position — it is no longer waiting."
+        "description": "Transferring. No queue position \u2014 it is no longer waiting."
       },
       "Ltx23AIToolkitTrainingInput": {
         "allOf": [
@@ -29730,7 +29731,7 @@
               "null",
               "string"
             ],
-            "description": "The image to rate. Pre-processed in the API layer — imported into blob storage so the\nworker can pre-fetch it as a declared resource. After processing, contains the blob AIR URL.",
+            "description": "The image to rate. Pre-processed in the API layer \u2014 imported into blob storage so the\nworker can pre-fetch it as a declared resource. After processing, contains the blob AIR URL.",
             "format": "source-image"
           },
           "includeAgeClassification": {
@@ -30344,7 +30345,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "1–4 views of the same object. Meshy has no ultra or lowpoly mode on this operation."
+                "description": "1\u20134 views of the same object. Meshy has no ultra or lowpoly mode on this operation."
               },
               "operation": {
                 "enum": [
@@ -30412,7 +30413,7 @@
               "null",
               "number"
             ],
-            "description": "Succeeded over non-canceled requests, 0..1. Null when everything in the window was\ncanceled — which is not the same as a success rate of zero.",
+            "description": "Succeeded over non-canceled requests, 0..1. Null when everything in the window was\ncanceled \u2014 which is not the same as a success rate of zero.",
             "format": "double"
           },
           "canceledRate": {
@@ -30422,7 +30423,7 @@
           },
           "userErrorRate": {
             "type": "number",
-            "description": "Fraction that failed on the user's input rather than the service — most often a provider\ncontent-policy rejection (e.g. asking a provider that forbids it for mature content). Kept\nout of the success rate so a service isn't marked unhealthy for refusing disallowed requests.",
+            "description": "Fraction that failed on the user's input rather than the service \u2014 most often a provider\ncontent-policy rejection (e.g. asking a provider that forbids it for mature content). Kept\nout of the success rate so a service isn't marked unhealthy for refusing disallowed requests.",
             "format": "double"
           },
           "costBuzz": {
@@ -31768,7 +31769,7 @@
                 "type": "number",
                 "description": "Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net",
                 "format": "double",
-                "default": 0.00005
+                "default": 5e-05
               },
               "lrScheduler": {
                 "enum": [
@@ -35252,7 +35253,7 @@
             ]
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "PromptEnhancementInput": {
         "required": [
@@ -35285,7 +35286,7 @@
               "null",
               "number"
             ],
-            "description": "LLM temperature for enhancement creativity (0.0–1.0). Defaults to 0.7.",
+            "description": "LLM temperature for enhancement creativity (0.0\u20131.0). Defaults to 0.7.",
             "format": "double"
           },
           "instruction": {
@@ -35305,7 +35306,7 @@
               "description": "Either A URL, A DataURL or a Base64 string",
               "format": "source-image"
             },
-            "description": "Optional reference images for the prompt enhancement model to consider when enhancing the prompt\n(subject, style, lighting, composition, color palette). Accepts URLs, data URIs, raw base64, or AIR strings.\nRequires the per-ecosystem prompt-analysis model to be a vision-capable LLM (configured via\nIPromptAnalysisGrain.SetConfigurationAsync) — non-VLM models will silently ignore the images."
+            "description": "Optional reference images for the prompt enhancement model to consider when enhancing the prompt\n(subject, style, lighting, composition, color palette). Accepts URLs, data URIs, raw base64, or AIR strings.\nRequires the per-ecosystem prompt-analysis model to be a vision-capable LLM (configured via\nIPromptAnalysisGrain.SetConfigurationAsync) \u2014 non-VLM models will silently ignore the images."
           }
         },
         "additionalProperties": false,
@@ -35479,7 +35480,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Waiting in a download lane. No progress or speed — nothing is transferring yet."
+        "description": "Waiting in a download lane. No progress or speed \u2014 nothing is transferring yet."
       },
       "Qwen20bCreateImageGenInput": {
         "allOf": [
@@ -36392,7 +36393,7 @@
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 },
-                "description": "Reference images. DashScope numbers them by input order — prompts refer to them as \"Image 1\", \"Image 2\", \"Image 3\"."
+                "description": "Reference images. DashScope numbers them by input order \u2014 prompts refer to them as \"Image 1\", \"Image 2\", \"Image 3\"."
               },
               "operation": {
                 "enum": [
@@ -37076,7 +37077,7 @@
           "loaded"
         ],
         "type": "string",
-        "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them."
+        "description": "A projection of the resource collection. There is no view that lists every known resource \u2014 resources\nare addressed by AIR and only materialise once something asks for them."
       },
       "ReveCreateFalImageGenInput": {
         "allOf": [
@@ -40397,7 +40398,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -40439,7 +40440,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -40632,7 +40633,7 @@
             }
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -44393,7 +44394,7 @@
               },
               "enablePromptExpansion": {
                 "type": "boolean",
-                "description": "Prompt rewriting. Disabling saves 20-60s of latency but may reduce generation quality —\nfollow Alibaba's prompting guide when turning it off.",
+                "description": "Prompt rewriting. Disabling saves 20-60s of latency but may reduce generation quality \u2014\nfollow Alibaba's prompting guide when turning it off.",
                 "default": true
               },
               "usePrime": {
@@ -44954,7 +44955,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -44985,7 +44986,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -45444,7 +45445,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -45847,7 +45848,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -45968,7 +45969,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -46009,7 +46010,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -46057,7 +46058,7 @@
               "null",
               "string"
             ],
-            "description": "Optional client-supplied idempotency key. If a workflow with the same\n`(userId, externalId)` already exists — including from a prior\n`whatif=true` request — the existing workflow is returned instead\nof creating a new one. Mirrors `externalTransactionId` in the buzz\nservice. Max 128 chars, `[A-Za-z0-9_-]+`."
+            "description": "Optional client-supplied idempotency key. If a workflow with the same\n`(userId, externalId)` already exists \u2014 including from a prior\n`whatif=true` request \u2014 the existing workflow is returned instead\nof creating a new one. Mirrors `externalTransactionId` in the buzz\nservice. Max 128 chars, `[A-Za-z0-9_-]+`."
           }
         },
         "additionalProperties": false,
@@ -46319,11 +46320,11 @@
           },
           "storeFullResponse": {
             "type": "boolean",
-            "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.\nCivitai prompt Scan always emits one token, including with debugging enabled.\nThis is NOT the reasoning switch — use IncludeReasoning for ModelReason. On its own it\nmerely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets\n~600 chars of explanation slip out before a finishReason=length cutoff."
+            "description": "Debug opt-out. When true, the worker stores the full raw chat completion response\n(including the complete logprobs.content array) in the destination blob instead of\nthe trimmed version. Intended for one-off debugging of classification decisions\nwhere the full logprobs distribution or generated token stream needs inspection.\nLeaves blobs at ~200KB instead of ~2-3KB \u2014 do not enable in normal traffic.\nCivitai prompt Scan always emits one token, including with debugging enabled.\nThis is NOT the reasoning switch \u2014 use IncludeReasoning for ModelReason. On its own it\nmerely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets\n~600 chars of explanation slip out before a finishReason=length cutoff."
           },
           "includeReasoning": {
             "type": "boolean",
-            "description": "For site-text moderation only; Civitai prompt Scan always emits one token.\nWhen true, the model generates an explanation after its verdict token, populating\nXGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 —\nlong explanations can still end at finishReason=length) and a distinct blob-cache\nkey, so results never reuse cached verdict-only blobs."
+            "description": "For site-text moderation only; Civitai prompt Scan always emits one token.\nWhen true, the model generates an explanation after its verdict token, populating\nXGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 \u2014\nlong explanations can still end at finishReason=length) and a distinct blob-cache\nkey, so results never reuse cached verdict-only blobs."
           }
         },
         "additionalProperties": false,
@@ -47348,6 +47349,52 @@
           "outdoor"
         ],
         "type": "string"
+      },
+      "Qwen21AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen21"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit LoRA training for Qwen Image 2.1."
       }
     },
     "securitySchemes": {
@@ -47360,7 +47407,7 @@
     }
   },
   "security": [
-    { }
+    {}
   ],
   "tags": [
     {
