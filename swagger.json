@@ -348,7 +348,7 @@
             "description": "Bad Gateway"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -407,7 +407,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -450,7 +450,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -496,7 +496,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -696,6 +696,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -787,6 +797,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -878,6 +898,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -967,6 +997,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1057,6 +1097,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1148,6 +1198,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1239,6 +1299,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1328,6 +1398,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1419,6 +1499,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1509,6 +1599,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1600,6 +1700,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1691,6 +1801,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1780,6 +1900,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1870,6 +2000,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -1961,6 +2101,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2052,6 +2202,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2143,6 +2303,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2233,6 +2403,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2324,6 +2504,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2413,6 +2603,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2504,6 +2704,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2595,6 +2805,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2686,6 +2906,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2776,6 +3006,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2867,6 +3107,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -2958,6 +3208,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3049,6 +3309,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3140,6 +3410,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3231,6 +3511,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3322,6 +3612,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3413,6 +3713,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3502,6 +3812,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3591,6 +3911,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3682,6 +4012,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3773,6 +4113,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3863,6 +4213,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -3954,6 +4314,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4045,6 +4415,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4136,6 +4516,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4227,6 +4617,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4317,6 +4717,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4408,6 +4818,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4497,6 +4917,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4587,6 +5017,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4677,6 +5117,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4768,6 +5218,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4859,6 +5319,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -4949,6 +5419,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5039,6 +5519,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5129,6 +5619,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5220,6 +5720,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5311,6 +5821,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5402,6 +5922,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5493,6 +6023,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5583,6 +6123,16 @@
           }
         },
         "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -5884,7 +6434,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/services/{serviceId}": {
@@ -5955,7 +6505,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -5999,7 +6549,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/workflows": {
@@ -6064,7 +6614,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6092,7 +6642,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -6120,7 +6670,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6136,7 +6686,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -6248,7 +6798,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -6275,7 +6825,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6303,7 +6853,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -6331,7 +6881,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6347,7 +6897,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -6459,7 +7009,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -6486,7 +7036,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6514,7 +7064,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -6542,7 +7092,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6558,7 +7108,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -6670,7 +7220,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -7042,6 +7592,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       },
@@ -7099,6 +7659,16 @@
           },
           "400": {
             "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -7799,6 +8369,8 @@
                 "krea2": "#/components/schemas/Krea2AIToolkitTrainingInput",
                 "ideogram4": "#/components/schemas/Ideogram4AIToolkitTrainingInput",
                 "mageflow": "#/components/schemas/MageFlowAIToolkitTrainingInput",
+                "ming": "#/components/schemas/MingAIToolkitTrainingInput",
+                "yue2": "#/components/schemas/YuE2AIToolkitTrainingInput",
                 "minimaxh3": "#/components/schemas/MiniMaxH3AIToolkitTrainingInput"
               }
             }
@@ -10440,7 +11012,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
@@ -10494,7 +11066,7 @@
               "string"
             ]
           },
-          "schema": {},
+          "schema": { },
           "strict": {
             "type": [
               "null",
@@ -29862,6 +30434,52 @@
         },
         "additionalProperties": false
       },
+      "MingAIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "ming"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit LoRA training for Ming Image 0.1 Design."
+      },
       "MiniMaxH3AIToolkitTrainingInput": {
         "allOf": [
           {
@@ -34634,7 +35252,7 @@
             ]
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "PromptEnhancementInput": {
         "required": [
@@ -39779,7 +40397,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -39821,7 +40439,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -40014,7 +40632,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -44336,7 +44954,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -44367,7 +44985,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -44826,7 +45444,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -45229,7 +45847,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -45350,7 +45968,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -45391,7 +46009,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -45985,8 +46603,61 @@
         ],
         "description": "Input for evaluating site text content against XGuard moderation policies."
       },
+      "YuE2AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "samplesOverrides": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/YuE2SampleOverride"
+                }
+              },
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "yue2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "YuE2 music LoRA training. Audio captions contain style followed by [Lyrics] and lyrics."
+      },
       "YuE2Input": {
         "required": [
+          "loras",
           "lyrics",
           "mode",
           "seed",
@@ -46045,6 +46716,14 @@
               "string"
             ],
             "description": "Optional YuE2 checkpoint override containing the model, text encoder, and audio VAE."
+          },
+          "loras": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Optional LoRAs for both YuE2 experts."
           }
         },
         "additionalProperties": false,
@@ -46062,6 +46741,50 @@
         },
         "additionalProperties": false,
         "description": "Output from YuE2 generation."
+      },
+      "YuE2SampleOverride": {
+        "type": "object",
+        "properties": {
+          "lyrics": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "duration": {
+            "maximum": 360,
+            "minimum": 0.03999999910593033,
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "float"
+          },
+          "steps": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "mode": {
+            "pattern": "^(full|melody|off)$",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "abc": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "description": "Optional overrides aligned with Samples.Prompts."
       },
       "YuE2Step": {
         "allOf": [
@@ -46637,7 +47360,7 @@
     }
   },
   "security": [
-    {}
+    { }
   ],
   "tags": [
     {

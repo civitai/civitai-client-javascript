@@ -6978,6 +6978,19 @@ export type MetricsResponse = {
 };
 
 /**
+ * AI Toolkit LoRA training for Ming Image 0.1 Design.
+ */
+export type MingAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  ecosystem: 'ming';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * AI Toolkit training for the MiniMax H3 base (FL2VA) model.
  */
 export type MiniMaxH3AiToolkitTrainingInput = Omit<
@@ -12069,6 +12082,20 @@ export type XGuardTextModerationInput = Omit<XGuardModerationInput, 'mode'> & {
 };
 
 /**
+ * YuE2 music LoRA training. Audio captions contain style followed by [Lyrics] and lyrics.
+ */
+export type YuE2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  samplesOverrides?: Array<YuE2SampleOverride>;
+  readonly defaultSteps: number;
+  ecosystem: 'yue2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * YuE2 text-to-music generation with optional ABC score planning.
  */
 export type YuE2Input = {
@@ -12101,6 +12128,12 @@ export type YuE2Input = {
    * Optional YuE2 checkpoint override containing the model, text encoder, and audio VAE.
    */
   model?: null | string;
+  /**
+   * Optional LoRAs for both YuE2 experts.
+   */
+  loras: {
+    [key: string]: number;
+  };
 };
 
 /**
@@ -12108,6 +12141,17 @@ export type YuE2Input = {
  */
 export type YuE2Output = {
   blob: AudioBlob;
+};
+
+/**
+ * Optional overrides aligned with Samples.Prompts.
+ */
+export type YuE2SampleOverride = {
+  lyrics?: null | string;
+  duration?: null | number;
+  steps?: null | number;
+  mode?: null | string;
+  abc?: null | string;
 };
 
 /**
@@ -13118,6 +13162,21 @@ export type MageFlowAiToolkitTrainingInputWritable = Omit<
 };
 
 /**
+ * AI Toolkit LoRA training for Ming Image 0.1 Design.
+ */
+export type MingAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'ming';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * AI Toolkit training for the MiniMax H3 base (FL2VA) model.
  */
 export type MiniMaxH3AiToolkitTrainingInputWritable = Omit<
@@ -13885,6 +13944,22 @@ export type XGuardSignalMetadataWritable = {
 };
 
 /**
+ * YuE2 music LoRA training. Audio captions contain style followed by [Lyrics] and lyrics.
+ */
+export type YuE2AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  samplesOverrides?: Array<YuE2SampleOverride>;
+  ecosystem: 'yue2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * AI Toolkit training for Z Image Turbo models
  */
 export type ZImageBaseAiToolkitTrainingInputWritable = Omit<
@@ -14517,6 +14592,10 @@ export type InvokeAceStepAudioStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeAceStepAudioStepTemplateError =
@@ -14553,6 +14632,10 @@ export type InvokeAgeClassificationStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeAgeClassificationStepTemplateError =
@@ -14589,6 +14672,10 @@ export type InvokeAudioCaptioningStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeAudioCaptioningStepTemplateError =
@@ -14625,6 +14712,10 @@ export type InvokeBatchOcrSafetyClassificationStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeBatchOcrSafetyClassificationStepTemplateError =
@@ -14661,6 +14752,10 @@ export type InvokeBlobArchiveStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeBlobArchiveStepTemplateError =
@@ -14697,6 +14792,10 @@ export type InvokeChatCompletionStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeChatCompletionStepTemplateError =
@@ -14733,6 +14832,10 @@ export type InvokeComfyStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeComfyStepTemplateError =
@@ -14769,6 +14872,10 @@ export type InvokeComfyNodepackSnapshotStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeComfyNodepackSnapshotStepTemplateError =
@@ -14805,6 +14912,10 @@ export type InvokeComposeMediaStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeComposeMediaStepTemplateError =
@@ -14841,6 +14952,10 @@ export type InvokeConvertImageStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeConvertImageStepTemplateError =
@@ -14877,6 +14992,10 @@ export type InvokeCustomComfyStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeCustomComfyStepTemplateError =
@@ -14913,6 +15032,10 @@ export type InvokeEchoStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeEchoStepTemplateError =
@@ -14949,6 +15072,10 @@ export type InvokeHumanoidImageMaskStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeHumanoidImageMaskStepTemplateError =
@@ -14985,6 +15112,10 @@ export type InvokeImageBackgroundRemovalStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeImageBackgroundRemovalStepTemplateError =
@@ -15021,6 +15152,10 @@ export type InvokeImageGenStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeImageGenStepTemplateError =
@@ -15057,6 +15192,10 @@ export type InvokeImageResourceTrainingStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeImageResourceTrainingStepTemplateError =
@@ -15093,6 +15232,10 @@ export type InvokeImageScanningStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeImageScanningStepTemplateError =
@@ -15129,6 +15272,10 @@ export type InvokeImageToSvgStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeImageToSvgStepTemplateError =
@@ -15165,6 +15312,10 @@ export type InvokeImageUploadStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeImageUploadStepTemplateError =
@@ -15201,6 +15352,10 @@ export type InvokeImageUpscalerStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeImageUpscalerStepTemplateError =
@@ -15237,6 +15392,10 @@ export type InvokeMediaCaptioningStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeMediaCaptioningStepTemplateError =
@@ -15273,6 +15432,10 @@ export type InvokeMediaHashStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeMediaHashStepTemplateError =
@@ -15309,6 +15472,10 @@ export type InvokeMediaRatingStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeMediaRatingStepTemplateError =
@@ -15345,6 +15512,10 @@ export type InvokeMiniMaxMusic3StepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeMiniMaxMusic3StepTemplateError =
@@ -15381,6 +15552,10 @@ export type InvokeModel3dPreviewStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeModel3dPreviewStepTemplateError =
@@ -15417,6 +15592,10 @@ export type InvokeModelClamScanStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeModelClamScanStepTemplateError =
@@ -15453,6 +15632,10 @@ export type InvokeModelHashStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeModelHashStepTemplateError =
@@ -15489,6 +15672,10 @@ export type InvokeModelParseMetadataStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeModelParseMetadataStepTemplateError =
@@ -15525,6 +15712,10 @@ export type InvokeModelPickleScanStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeModelPickleScanStepTemplateError =
@@ -15561,6 +15752,10 @@ export type InvokePolyGenStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokePolyGenStepTemplateError =
@@ -15597,6 +15792,10 @@ export type InvokePrepareResourceStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokePrepareResourceStepTemplateError =
@@ -15633,6 +15832,10 @@ export type InvokePreprocessImageStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokePreprocessImageStepTemplateError =
@@ -15669,6 +15872,10 @@ export type InvokePreprocessVideoStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokePreprocessVideoStepTemplateError =
@@ -15705,6 +15912,10 @@ export type InvokePromptEnhancementStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokePromptEnhancementStepTemplateError =
@@ -15741,6 +15952,10 @@ export type InvokeQwenImageBenchStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeQwenImageBenchStepTemplateError =
@@ -15777,6 +15992,10 @@ export type InvokeRepeatStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeRepeatStepTemplateError =
@@ -15813,6 +16032,10 @@ export type InvokeShieldstralModerationStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeShieldstralModerationStepTemplateError =
@@ -15849,6 +16072,10 @@ export type InvokeTextToImageStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeTextToImageStepTemplateError =
@@ -15885,6 +16112,10 @@ export type InvokeTextToSpeechStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeTextToSpeechStepTemplateError =
@@ -15921,6 +16152,10 @@ export type InvokeTrainingStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeTrainingStepTemplateError =
@@ -15957,6 +16192,10 @@ export type InvokeTranscodeStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeTranscodeStepTemplateError =
@@ -15993,6 +16232,10 @@ export type InvokeTranscriptionStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeTranscriptionStepTemplateError =
@@ -16029,6 +16272,10 @@ export type InvokeTryOnUStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeTryOnUStepTemplateError =
@@ -16065,6 +16312,10 @@ export type InvokeVideoBackgroundRemovalStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeVideoBackgroundRemovalStepTemplateError =
@@ -16101,6 +16352,10 @@ export type InvokeVideoEnhancementStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeVideoEnhancementStepTemplateError =
@@ -16137,6 +16392,10 @@ export type InvokeVideoFrameExtractionStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeVideoFrameExtractionStepTemplateError =
@@ -16173,6 +16432,10 @@ export type InvokeVideoGenStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeVideoGenStepTemplateError =
@@ -16209,6 +16472,10 @@ export type InvokeVideoInterpolationStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeVideoInterpolationStepTemplateError =
@@ -16245,6 +16512,10 @@ export type InvokeVideoMetadataStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeVideoMetadataStepTemplateError =
@@ -16281,6 +16552,10 @@ export type InvokeVideoUpscalerStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeVideoUpscalerStepTemplateError =
@@ -16317,6 +16592,10 @@ export type InvokeWdTaggingStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeWdTaggingStepTemplateError =
@@ -16353,6 +16632,10 @@ export type InvokeWebScrapeStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeWebScrapeStepTemplateError =
@@ -16389,6 +16672,10 @@ export type InvokeWebSearchStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeWebSearchStepTemplateError =
@@ -16425,6 +16712,10 @@ export type InvokeXGuardModerationStepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeXGuardModerationStepTemplateError =
@@ -16461,6 +16752,10 @@ export type InvokeYuE2StepTemplateErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
 };
 
 export type InvokeYuE2StepTemplateError =
@@ -16939,6 +17234,10 @@ export type PatchWorkflowErrors = {
    */
   401: ProblemDetails;
   /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
    * Not Found
    */
   404: ProblemDetails;
@@ -16984,6 +17283,10 @@ export type UpdateWorkflowErrors = {
    * Unauthorized
    */
   401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
   /**
    * Not Found
    */
