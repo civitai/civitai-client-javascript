@@ -85,7 +85,7 @@ export {
   updateWorkflow,
   updateWorkflowStep,
   uploadConsumerBlob,
-} from './sdk.gen';
+} from './sdk.gen.js';
 export {
   type AceStep15AiToolkitTrainingInput,
   type AceStep15AiToolkitTrainingInputWritable,
@@ -1490,4 +1490,4 @@ export {
   type ZImageTurboImageGenInput,
   type ZipTrainingData,
   ZoeDepthEnvironment,
-} from './types.gen';
+} from './types.gen.js';

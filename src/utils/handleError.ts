@@ -1,4 +1,4 @@
-import { ProblemDetails } from 'src/generated';
+import { ProblemDetails } from '../generated/index.js';
 
 export function handleError(error: string | ProblemDetails) {
   if (typeof error === 'string') return error;

@@ -1,5 +1,5 @@
-import { createClient, createConfig } from '../generated/client';
-import { ProblemDetails } from '../generated';
+import { createClient, createConfig } from '../generated/client/index.js';
+import { ProblemDetails } from '../generated/index.js';
 
 type ClientConfig = {
   env?: 'dev' | 'prod';
