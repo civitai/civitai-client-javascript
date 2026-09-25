@@ -8355,6 +8355,7 @@
                 "chroma": "#/components/schemas/ChromaAIToolkitTrainingInput",
                 "ernie": "#/components/schemas/ErnieAIToolkitTrainingInput",
                 "qwen": "#/components/schemas/QwenAIToolkitTrainingInput",
+                "qwen21": "#/components/schemas/Qwen21AIToolkitTrainingInput",
                 "zimageturbo": "#/components/schemas/ZImageTurboAIToolkitTrainingInput",
                 "zimagebase": "#/components/schemas/ZImageBaseAIToolkitTrainingInput",
                 "flux2klein": "#/components/schemas/Flux2KleinAIToolkitTrainingInput",
@@ -36268,6 +36269,52 @@
             "additionalProperties": false
           }
         ]
+      },
+      "Qwen21AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen21"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit LoRA training for Qwen Image 2.1."
       },
       "QwenAIToolkitTrainingInput": {
         "allOf": [
