@@ -348,7 +348,7 @@
             "description": "Bad Gateway"
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -407,7 +407,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -450,7 +450,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -496,7 +496,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -6434,7 +6434,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/services/{serviceId}": {
@@ -6505,7 +6505,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -6549,7 +6549,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/workflows": {
@@ -6614,7 +6614,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6642,7 +6642,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -6670,7 +6670,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6686,7 +6686,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -6798,7 +6798,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -6825,7 +6825,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6853,7 +6853,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -6881,7 +6881,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6897,7 +6897,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -7009,7 +7009,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -7036,7 +7036,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -7064,7 +7064,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -7092,7 +7092,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -7108,7 +7108,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -7220,7 +7220,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -11013,7 +11013,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
@@ -11067,7 +11067,7 @@
               "string"
             ]
           },
-          "schema": { },
+          "schema": {},
           "strict": {
             "type": [
               "null",
@@ -35253,7 +35253,7 @@
             ]
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "PromptEnhancementInput": {
         "required": [
@@ -40444,7 +40444,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -40486,7 +40486,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -40679,7 +40679,7 @@
             }
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -45001,7 +45001,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -45032,7 +45032,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -45491,7 +45491,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -45894,7 +45894,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -46015,7 +46015,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -46056,7 +46056,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -47407,7 +47407,7 @@
     }
   },
   "security": [
-    { }
+    {}
   ],
   "tags": [
     {

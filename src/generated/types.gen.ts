@@ -8550,6 +8550,19 @@ export type Qwen3VoiceDesignTtsInput = Omit<
 };
 
 /**
+ * AI Toolkit LoRA training for Qwen Image 2.1.
+ */
+export type Qwen21AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  ecosystem: 'qwen21';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * AI Toolkit training for Qwen Image models
  */
 export type QwenAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
@@ -12298,19 +12311,6 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
 /**
- * AI Toolkit LoRA training for Qwen Image 2.1.
- */
-export type Qwen21AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
-  readonly defaultSteps: number;
-  ecosystem: 'qwen21';
-  engine: 'ai-toolkit';
-  /**
-   * Training batch size. Fixed at 1 for this ecosystem.
-   */
-  batchSize?: null | number;
-};
-
-/**
  * Base input for AI Toolkit training across all ecosystems
  */
 export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
@@ -13609,6 +13609,21 @@ export type Qwen20bVariantImageGenInputWritable = Omit<
 };
 
 /**
+ * AI Toolkit LoRA training for Qwen Image 2.1.
+ */
+export type Qwen21AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'qwen21';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+/**
  * AI Toolkit training for Qwen Image models
  */
 export type QwenAiToolkitTrainingInputWritable = Omit<
@@ -13998,21 +14013,6 @@ export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
   engine: 'ai-toolkit';
   /**
    * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
-   */
-  batchSize?: null | number;
-};
-
-/**
- * AI Toolkit LoRA training for Qwen Image 2.1.
- */
-export type Qwen21AiToolkitTrainingInputWritable = Omit<
-  AiToolkitTrainingInputWritable,
-  'engine' | 'ecosystem'
-> & {
-  ecosystem: 'qwen21';
-  engine: 'ai-toolkit';
-  /**
-   * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
 };
