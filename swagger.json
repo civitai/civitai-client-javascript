@@ -4357,6 +4357,106 @@
         }
       }
     },
+    "/v2/consumer/recipes/soniloAudioGen": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Generate music or a standalone sound effect from a text prompt with Sonilo.",
+        "operationId": "InvokeSoniloAudioGenStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SoniloAudioGenInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SoniloAudioGenInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SoniloAudioGenInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoniloAudioGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/textToImage": {
       "post": {
         "tags": [
@@ -10135,7 +10235,7 @@
               "null",
               "string"
             ],
-            "description": "Get the storage tier holding this blob, when it is not the default one. Null means the default\ntier, which is what every blob produced before the managed tier existed deserializes as.\nCarried so a downstream step or consumer resolves the right grain directly rather than\nprobing each tier for the key."
+            "description": "Get the storage tier holding this blob, when one was declared. Null resolves to the private\nmanaged tier, falling back to the classic one for blobs written before producers moved off it."
           }
         },
         "additionalProperties": false,
@@ -35041,6 +35141,28 @@
           }
         ]
       },
+      "PreprocessVideoGrayInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "gray"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "PreprocessVideoHedInput": {
         "allOf": [
           {
@@ -35102,9 +35224,49 @@
             "mlsd": "#/components/schemas/PreprocessVideoMlsdInput",
             "depth-anything-v2": "#/components/schemas/PreprocessVideoDepthAnythingV2Input",
             "hed": "#/components/schemas/PreprocessVideoHedInput",
-            "dwpose": "#/components/schemas/PreprocessVideoDwPoseInput"
+            "dwpose": "#/components/schemas/PreprocessVideoDwPoseInput",
+            "scribble": "#/components/schemas/PreprocessVideoScribbleInput",
+            "gray": "#/components/schemas/PreprocessVideoGrayInput",
+            "layout": "#/components/schemas/PreprocessVideoLayoutInput"
           }
         }
+      },
+      "PreprocessVideoLayoutInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "threshold": {
+                "type": "number",
+                "format": "double",
+                "default": 0.5
+              },
+              "className": {
+                "type": "string",
+                "description": "A COCO class name, or \"all\" to keep every detected class.",
+                "default": "all"
+              },
+              "maxDetections": {
+                "type": "integer",
+                "format": "int32",
+                "default": 10
+              },
+              "kind": {
+                "enum": [
+                  "layout"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "PreprocessVideoMlsdInput": {
         "allOf": [
@@ -35153,6 +35315,35 @@
           }
         },
         "additionalProperties": false
+      },
+      "PreprocessVideoScribbleInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PreprocessVideoInput"
+          },
+          {
+            "required": [
+              "kind"
+            ],
+            "type": "object",
+            "properties": {
+              "threshold": {
+                "maximum": 64,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 32
+              },
+              "kind": {
+                "enum": [
+                  "scribble"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "PreprocessVideoStep": {
         "allOf": [
@@ -35811,6 +36002,52 @@
           }
         ]
       },
+      "Qwen21AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen21"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "AI Toolkit LoRA training for Qwen Image 2.1."
+      },
       "Qwen2CreateFalImageGenInput": {
         "allOf": [
           {
@@ -36269,52 +36506,6 @@
             "additionalProperties": false
           }
         ]
-      },
-      "Qwen21AIToolkitTrainingInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/AIToolkitTrainingInput"
-          },
-          {
-            "required": [
-              "defaultSteps",
-              "ecosystem",
-              "engine"
-            ],
-            "type": "object",
-            "properties": {
-              "defaultSteps": {
-                "type": "integer",
-                "format": "int32",
-                "readOnly": true
-              },
-              "ecosystem": {
-                "enum": [
-                  "qwen21"
-                ],
-                "type": "string"
-              },
-              "engine": {
-                "enum": [
-                  "ai-toolkit"
-                ],
-                "type": "string"
-              },
-              "batchSize": {
-                "maximum": 1,
-                "minimum": 1,
-                "type": [
-                  "null",
-                  "integer"
-                ],
-                "description": "Training batch size. Fixed at 1 for this ecosystem.",
-                "default": 1
-              }
-            },
-            "additionalProperties": false
-          }
-        ],
-        "description": "AI Toolkit LoRA training for Qwen Image 2.1."
       },
       "QwenAIToolkitTrainingInput": {
         "allOf": [
@@ -37112,6 +37303,13 @@
           },
           "availability": {
             "$ref": "#/components/schemas/ResourceAvailability"
+          },
+          "isPromoted": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "Promoted resources download in the High lane for free, whatever lane the job asked for."
           }
         },
         "additionalProperties": false,
@@ -38647,6 +38845,166 @@
         ],
         "description": "Input for evaluating arbitrary site text with Shieldstral."
       },
+      "SoniloAudioGenInput": {
+        "required": [
+          "operation",
+          "prompt"
+        ],
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": "music"
+          },
+          "prompt": {
+            "maxLength": 2000,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.",
+        "discriminator": {
+          "propertyName": "operation",
+          "mapping": {
+            "music": "#/components/schemas/SoniloMusicInput",
+            "soundEffect": "#/components/schemas/SoniloSoundEffectInput"
+          }
+        }
+      },
+      "SoniloAudioGenOutput": {
+        "required": [
+          "blob"
+        ],
+        "type": "object",
+        "properties": {
+          "blob": {
+            "$ref": "#/components/schemas/AudioBlob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SoniloAudioGenStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/SoniloAudioGenInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/SoniloAudioGenOutput"
+              },
+              "$type": {
+                "enum": [
+                  "soniloAudioGen"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate music or a standalone sound effect from a text prompt with Sonilo."
+      },
+      "SoniloAudioGenStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/SoniloAudioGenInput"
+              },
+              "$type": {
+                "enum": [
+                  "soniloAudioGen"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate music or a standalone sound effect from a text prompt with Sonilo."
+      },
+      "SoniloMusicInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SoniloAudioGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 360,
+                "minimum": 5,
+                "type": "integer",
+                "description": "Track length in seconds. Sonilo bills a minimum of 10 seconds.",
+                "format": "int32",
+                "default": 90
+              },
+              "operation": {
+                "enum": [
+                  "music"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a music track. Style, mood, instrumentation, lyrics and tempo are inferred from the prompt."
+      },
+      "SoniloSoundEffectInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SoniloAudioGenInput"
+          },
+          {
+            "required": [
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "duration": {
+                "maximum": 180,
+                "minimum": 0.5,
+                "type": "number",
+                "description": "Effect length in seconds. Sonilo bills a minimum of 3 seconds.",
+                "format": "double",
+                "default": 8
+              },
+              "operation": {
+                "enum": [
+                  "soundEffect"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Generate a standalone sound effect, e.g. \"heavy wooden door creaking open in a stone hallway\"."
+      },
       "Sora2ImageToVideoInput": {
         "allOf": [
           {
@@ -39630,7 +39988,7 @@
               "null",
               "string"
             ],
-            "description": "Storage tier holding the blob; null means the default tier."
+            "description": "Storage tier holding the blob; null when none was declared."
           }
         },
         "additionalProperties": false
@@ -45564,6 +45922,7 @@
             "promptEnhancement": "#/components/schemas/PromptEnhancementStep",
             "qwenImageBench": "#/components/schemas/QwenImageBenchStep",
             "shieldstralModeration": "#/components/schemas/ShieldstralModerationStep",
+            "soniloAudioGen": "#/components/schemas/SoniloAudioGenStep",
             "textToImage": "#/components/schemas/TextToImageStep",
             "textToSpeech": "#/components/schemas/TextToSpeechStep",
             "training": "#/components/schemas/TrainingStep",
@@ -45936,6 +46295,7 @@
             "promptEnhancement": "#/components/schemas/PromptEnhancementStepTemplate",
             "qwenImageBench": "#/components/schemas/QwenImageBenchStepTemplate",
             "shieldstralModeration": "#/components/schemas/ShieldstralModerationStepTemplate",
+            "soniloAudioGen": "#/components/schemas/SoniloAudioGenStepTemplate",
             "textToImage": "#/components/schemas/TextToImageStepTemplate",
             "textToSpeech": "#/components/schemas/TextToSpeechStepTemplate",
             "training": "#/components/schemas/TrainingStepTemplate",

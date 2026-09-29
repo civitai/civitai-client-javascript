@@ -852,10 +852,8 @@ export type Blob = {
    */
   blockedReason?: null | string;
   /**
-   * Get the storage tier holding this blob, when it is not the default one. Null means the default
-   * tier, which is what every blob produced before the managed tier existed deserializes as.
-   * Carried so a downstream step or consumer resolves the right grain directly rather than
-   * probing each tier for the key.
+   * Get the storage tier holding this blob, when one was declared. Null resolves to the private
+   * managed tier, falling back to the classic one for blobs written before producers moved off it.
    */
   tier?: null | string;
 };
@@ -8193,6 +8191,10 @@ export type PreprocessVideoDwPoseInput = Omit<PreprocessVideoInput, 'kind'> & {
   kind: 'dwpose';
 };
 
+export type PreprocessVideoGrayInput = Omit<PreprocessVideoInput, 'kind'> & {
+  kind: 'gray';
+};
+
 export type PreprocessVideoHedInput = Omit<PreprocessVideoInput, 'kind'> & {
   safe?: SafeMode;
   kind: 'hed';
@@ -8208,6 +8210,16 @@ export type PreprocessVideoInput = {
   readonly preprocessorType: string;
 };
 
+export type PreprocessVideoLayoutInput = Omit<PreprocessVideoInput, 'kind'> & {
+  threshold?: number;
+  /**
+   * A COCO class name, or "all" to keep every detected class.
+   */
+  className?: string;
+  maxDetections?: number;
+  kind: 'layout';
+};
+
 export type PreprocessVideoMlsdInput = Omit<PreprocessVideoInput, 'kind'> & {
   scoreThreshold?: number;
   distanceThreshold?: number;
@@ -8216,6 +8228,11 @@ export type PreprocessVideoMlsdInput = Omit<PreprocessVideoInput, 'kind'> & {
 
 export type PreprocessVideoOutput = {
   blob: VideoBlob;
+};
+
+export type PreprocessVideoScribbleInput = Omit<PreprocessVideoInput, 'kind'> & {
+  threshold?: number;
+  kind: 'scribble';
 };
 
 export type PreprocessVideoStep = Omit<WorkflowStep, '$type'> & {
@@ -8419,6 +8436,19 @@ export type Qwen20bVariantImageGenInput = Omit<
   engine: 'sdcpp';
 };
 
+/**
+ * AI Toolkit LoRA training for Qwen Image 2.1.
+ */
+export type Qwen21AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  ecosystem: 'qwen21';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type Qwen2CreateFalImageGenInput = Omit<
   Qwen2FalImageGenInput,
   'engine' | 'model' | 'operation'
@@ -8547,19 +8577,6 @@ export type Qwen3VoiceDesignTtsInput = Omit<
   operation: 'voiceDesign';
   ecosystem: 'qwen3';
   engine: 'vllm-omni';
-};
-
-/**
- * AI Toolkit LoRA training for Qwen Image 2.1.
- */
-export type Qwen21AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
-  readonly defaultSteps: number;
-  ecosystem: 'qwen21';
-  engine: 'ai-toolkit';
-  /**
-   * Training batch size. Fixed at 1 for this ecosystem.
-   */
-  batchSize?: null | number;
 };
 
 /**
@@ -8877,6 +8894,10 @@ export type ResourceInfo = {
    */
   userId?: null | number;
   availability?: ResourceAvailability;
+  /**
+   * Promoted resources download in the High lane for free, whatever lane the job asked for.
+   */
+  isPromoted?: null | boolean;
 };
 
 /**
@@ -9413,6 +9434,57 @@ export type ShieldstralTextModerationInput = Omit<ShieldstralModerationInput, 'm
 };
 
 /**
+ * Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.
+ */
+export type SoniloAudioGenInput = {
+  operation: null | string;
+  prompt: string;
+};
+
+export type SoniloAudioGenOutput = {
+  blob: AudioBlob;
+};
+
+/**
+ * Generate music or a standalone sound effect from a text prompt with Sonilo.
+ */
+export type SoniloAudioGenStep = Omit<WorkflowStep, '$type'> & {
+  input: SoniloAudioGenInput;
+  output?: SoniloAudioGenOutput;
+  $type: 'soniloAudioGen';
+};
+
+/**
+ * Generate music or a standalone sound effect from a text prompt with Sonilo.
+ */
+export type SoniloAudioGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: SoniloAudioGenInput;
+  $type: 'soniloAudioGen';
+};
+
+/**
+ * Generate a music track. Style, mood, instrumentation, lyrics and tempo are inferred from the prompt.
+ */
+export type SoniloMusicInput = Omit<SoniloAudioGenInput, 'operation'> & {
+  /**
+   * Track length in seconds. Sonilo bills a minimum of 10 seconds.
+   */
+  duration?: number;
+  operation: 'music';
+};
+
+/**
+ * Generate a standalone sound effect, e.g. "heavy wooden door creaking open in a stone hallway".
+ */
+export type SoniloSoundEffectInput = Omit<SoniloAudioGenInput, 'operation'> & {
+  /**
+   * Effect length in seconds. Sonilo bills a minimum of 3 seconds.
+   */
+  duration?: number;
+  operation: 'soundEffect';
+};
+
+/**
  * Sora 2 Image-to-Video
  * FAL Endpoints:
  * - Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video
@@ -9855,7 +9927,7 @@ export type TranscodeOutput = {
    */
   jobId: string;
   /**
-   * Storage tier holding the blob; null means the default tier.
+   * Storage tier holding the blob; null when none was declared.
    */
   tier?: null | string;
 };
@@ -13549,6 +13621,10 @@ export type PreprocessVideoDwPoseInputWritable = Omit<PreprocessVideoInputWritab
   kind: 'dwpose';
 };
 
+export type PreprocessVideoGrayInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  kind: 'gray';
+};
+
 export type PreprocessVideoHedInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
   safe?: SafeMode;
   kind: 'hed';
@@ -13563,10 +13639,25 @@ export type PreprocessVideoInputWritable = {
   resolution?: number;
 };
 
+export type PreprocessVideoLayoutInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  threshold?: number;
+  /**
+   * A COCO class name, or "all" to keep every detected class.
+   */
+  className?: string;
+  maxDetections?: number;
+  kind: 'layout';
+};
+
 export type PreprocessVideoMlsdInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
   scoreThreshold?: number;
   distanceThreshold?: number;
   kind: 'mlsd';
+};
+
+export type PreprocessVideoScribbleInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  threshold?: number;
+  kind: 'scribble';
 };
 
 export type PreprocessVideoStepWritable = Omit<WorkflowStepWritable, '$type'> & {
@@ -16078,6 +16169,46 @@ export type InvokeShieldstralModerationStepTemplateResponses = {
 
 export type InvokeShieldstralModerationStepTemplateResponse =
   InvokeShieldstralModerationStepTemplateResponses[keyof InvokeShieldstralModerationStepTemplateResponses];
+
+export type InvokeSoniloAudioGenStepTemplateData = {
+  body?: SoniloAudioGenInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/soniloAudioGen';
+};
+
+export type InvokeSoniloAudioGenStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeSoniloAudioGenStepTemplateError =
+  InvokeSoniloAudioGenStepTemplateErrors[keyof InvokeSoniloAudioGenStepTemplateErrors];
+
+export type InvokeSoniloAudioGenStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: SoniloAudioGenOutput;
+};
+
+export type InvokeSoniloAudioGenStepTemplateResponse =
+  InvokeSoniloAudioGenStepTemplateResponses[keyof InvokeSoniloAudioGenStepTemplateResponses];
 
 export type InvokeTextToImageStepTemplateData = {
   body?: TextToImageInput;

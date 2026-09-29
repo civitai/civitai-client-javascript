@@ -160,6 +160,9 @@ import type {
   InvokeShieldstralModerationStepTemplateData,
   InvokeShieldstralModerationStepTemplateErrors,
   InvokeShieldstralModerationStepTemplateResponses,
+  InvokeSoniloAudioGenStepTemplateData,
+  InvokeSoniloAudioGenStepTemplateErrors,
+  InvokeSoniloAudioGenStepTemplateResponses,
   InvokeTextToImageStepTemplateData,
   InvokeTextToImageStepTemplateErrors,
   InvokeTextToImageStepTemplateResponses,
@@ -1138,6 +1141,25 @@ export const invokeShieldstralModerationStepTemplate = <ThrowOnError extends boo
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/shieldstralModeration',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Generate music or a standalone sound effect from a text prompt with Sonilo.
+ */
+export const invokeSoniloAudioGenStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeSoniloAudioGenStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeSoniloAudioGenStepTemplateResponses,
+    InvokeSoniloAudioGenStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/soniloAudioGen',
     ...options,
     headers: {
       'Content-Type': 'application/json',
