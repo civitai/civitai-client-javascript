@@ -5428,6 +5428,67 @@ export type HunyuanVdeoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'hunyuan';
 };
 
+export type Ideogram45CreateFalImageGenInput = Omit<
+  Ideogram45FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  quality?: 'low' | 'medium' | 'high';
+  imageSize?:
+    | 'square_hd'
+    | 'square'
+    | 'portrait_4_3'
+    | 'portrait_16_9'
+    | 'landscape_4_3'
+    | 'landscape_16_9';
+  enablePromptExpansion?: boolean;
+  operation: 'createImage';
+  model: 'ideogram45';
+  engine: 'fal';
+};
+
+export type Ideogram45EditFalImageGenInput = Omit<
+  Ideogram45FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  quality?: 'very_low' | 'low' | 'medium' | 'high';
+  imageSize?:
+    | 'auto'
+    | 'square_hd'
+    | 'square'
+    | 'portrait_4_3'
+    | 'portrait_16_9'
+    | 'landscape_4_3'
+    | 'landscape_16_9';
+  /**
+   * The first image is the source; the remaining images are references.
+   */
+  images: Array<string>;
+  /**
+   * Black edits, white preserves. Must match the source dimensions and contain both regions.
+   */
+  maskImage?: null | string;
+  editPrecision?: 'regular' | 'high';
+  operation: 'editImage';
+  model: 'ideogram45';
+  engine: 'fal';
+};
+
+export type Ideogram45FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  quantity?: number;
+  seed?: null | number;
+  quality?: string;
+  imageSize?: string;
+  /**
+   * Custom dimensions override imageSize. Set width and height together.
+   */
+  width?: null | number;
+  height?: null | number;
+  model: 'ideogram45';
+  engine: 'fal';
+};
+
 /**
  * AI Toolkit training for Ideogram 4 models.
  */
@@ -8898,6 +8959,10 @@ export type ResourceInfo = {
    * Promoted resources download in the High lane for free, whatever lane the job asked for.
    */
   isPromoted?: null | boolean;
+  /**
+   * When false, workers keep the cluster's last copy of this resource rather than evicting it.
+   */
+  evictable?: null | boolean;
 };
 
 /**

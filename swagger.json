@@ -21132,7 +21132,8 @@
                 "krea2": "#/components/schemas/Krea2FalImageGenInput",
                 "maiImage": "#/components/schemas/MaiImageFalImageGenInput",
                 "reve": "#/components/schemas/ReveFalImageGenInput",
-                "museImage": "#/components/schemas/MuseImageFalImageGenInput"
+                "museImage": "#/components/schemas/MuseImageFalImageGenInput",
+                "ideogram45": "#/components/schemas/Ideogram45FalImageGenInput"
               }
             }
           }
@@ -26353,6 +26354,240 @@
               }
             },
             "additionalProperties": false
+          }
+        ]
+      },
+      "Ideogram45CreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Ideogram45FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "quality": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "medium"
+              },
+              "imageSize": {
+                "enum": [
+                  "square_hd",
+                  "square",
+                  "portrait_4_3",
+                  "portrait_16_9",
+                  "landscape_4_3",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "default": "square_hd"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": true
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "ideogram45"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Ideogram45EditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Ideogram45FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "quality": {
+                "enum": [
+                  "very_low",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "medium"
+              },
+              "imageSize": {
+                "enum": [
+                  "auto",
+                  "square_hd",
+                  "square",
+                  "portrait_4_3",
+                  "portrait_16_9",
+                  "landscape_4_3",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "images": {
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                },
+                "description": "The first image is the source; the remaining images are references."
+              },
+              "maskImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Black edits, white preserves. Must match the source dimensions and contain both regions.",
+                "format": "source-image"
+              },
+              "editPrecision": {
+                "enum": [
+                  "regular",
+                  "high"
+                ],
+                "type": "string",
+                "default": "regular"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "ideogram45"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Ideogram45FalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "quantity": {
+                "maximum": 8,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "quality": {
+                "type": "string",
+                "default": "medium"
+              },
+              "imageSize": {
+                "type": "string"
+              },
+              "width": {
+                "maximum": 16384,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Custom dimensions override imageSize. Set width and height together.",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 16384,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "model": {
+                "enum": [
+                  "ideogram45"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Ideogram45CreateFalImageGenInput",
+                "editImage": "#/components/schemas/Ideogram45EditFalImageGenInput"
+              }
+            }
           }
         ]
       },
@@ -37310,6 +37545,13 @@
               "boolean"
             ],
             "description": "Promoted resources download in the High lane for free, whatever lane the job asked for."
+          },
+          "evictable": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "When false, workers keep the cluster's last copy of this resource rather than evicting it."
           }
         },
         "additionalProperties": false,
