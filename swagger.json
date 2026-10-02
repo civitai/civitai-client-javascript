@@ -21133,7 +21133,8 @@
                 "maiImage": "#/components/schemas/MaiImageFalImageGenInput",
                 "reve": "#/components/schemas/ReveFalImageGenInput",
                 "museImage": "#/components/schemas/MuseImageFalImageGenInput",
-                "ideogram45": "#/components/schemas/Ideogram45FalImageGenInput"
+                "ideogram45": "#/components/schemas/Ideogram45FalImageGenInput",
+                "flux3": "#/components/schemas/Flux3FalImageGenInput"
               }
             }
           }
@@ -23377,6 +23378,186 @@
               "mapping": {
                 "createImage": "#/components/schemas/Flux2ProCreateImageInput",
                 "editImage": "#/components/schemas/Flux2ProEditImageInput"
+              }
+            }
+          }
+        ]
+      },
+      "Flux3CreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "flux3"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3EditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                },
+                "description": "One to ten ordered references, each at least 256 pixels per side and at most 4 MP."
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "flux3"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3FalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "minLength": 1,
+                "type": "string",
+                "description": "Bounding boxes can be included in the prompt using FLUX 3's prompt syntax."
+              },
+              "quantity": {
+                "maximum": 8,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "resolution": {
+                "enum": [
+                  "768sq",
+                  "1k",
+                  "2k",
+                  "4k"
+                ],
+                "type": "string",
+                "default": "1k"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "3:2",
+                  "7:5",
+                  "4:3",
+                  "5:4",
+                  "1:1",
+                  "4:5",
+                  "3:4",
+                  "5:7",
+                  "2:3",
+                  "9:16",
+                  "1:2"
+                ],
+                "type": "string",
+                "description": "Auto follows the first reference image, or uses a square for generation.",
+                "default": "auto"
+              },
+              "enablePromptExpansion": {
+                "type": "boolean",
+                "default": false
+              },
+              "safetyTolerance": {
+                "maximum": 4,
+                "minimum": 0,
+                "type": "integer",
+                "format": "int32",
+                "default": 2
+              },
+              "model": {
+                "enum": [
+                  "flux3"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Flux3CreateFalImageGenInput",
+                "editImage": "#/components/schemas/Flux3EditFalImageGenInput"
               }
             }
           }

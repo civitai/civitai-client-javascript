@@ -4523,6 +4523,61 @@ export type Flux2ProImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'>
   engine: 'flux2';
 };
 
+export type Flux3CreateFalImageGenInput = Omit<
+  Flux3FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'flux3';
+  engine: 'fal';
+};
+
+export type Flux3EditFalImageGenInput = Omit<
+  Flux3FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  /**
+   * One to ten ordered references, each at least 256 pixels per side and at most 4 MP.
+   */
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'flux3';
+  engine: 'fal';
+};
+
+export type Flux3FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  /**
+   * Bounding boxes can be included in the prompt using FLUX 3's prompt syntax.
+   */
+  prompt: string;
+  quantity?: number;
+  resolution?: '768sq' | '1k' | '2k' | '4k';
+  /**
+   * Auto follows the first reference image, or uses a square for generation.
+   */
+  aspectRatio?:
+    | 'auto'
+    | '21:9'
+    | '2:1'
+    | '16:9'
+    | '3:2'
+    | '7:5'
+    | '4:3'
+    | '5:4'
+    | '1:1'
+    | '4:5'
+    | '3:4'
+    | '5:7'
+    | '2:3'
+    | '9:16'
+    | '1:2';
+  enablePromptExpansion?: boolean;
+  safetyTolerance?: number;
+  model: 'flux3';
+  engine: 'fal';
+};
+
 /**
  * An image pinned to a frame position in the generated video.
  */
