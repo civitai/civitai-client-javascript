@@ -5864,6 +5864,7 @@ export type ImageScanningJointAgeDetection = {
   isMinor: boolean;
   isOod: boolean;
   warning?: null | string;
+  personMask?: ImageScanningPersonMask;
 };
 
 export type ImageScanningLabelScore = {
@@ -5884,6 +5885,12 @@ export type ImageScanningOutput = {
   humanRecognition: ImageScanningHumanRecognition;
   jointAgeClassification: ImageScanningJointAgeClassification;
   csam?: null | boolean;
+};
+
+export type ImageScanningPersonMask = {
+  width: number;
+  height: number;
+  pngBase64: string;
 };
 
 export type ImageScanningRecognition = {
@@ -6506,6 +6513,65 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
+export type LiveTranscriptionInput = {
+  /**
+   * Optional language hint (e.g., "en", "zh") to guide transcription.
+   */
+  language?: null | string;
+  /**
+   * Optional context prompt to improve transcription accuracy.
+   */
+  context?: null | string;
+  /**
+   * The session ends after this many seconds of audio, even if the input is still open.
+   * The upfront balance check covers this much audio.
+   */
+  maxDurationSeconds?: number;
+  /**
+   * The input is treated as closed when no audio arrives for this many seconds, so a client that
+   * disappears does not hold the session open.
+   */
+  idleTimeoutSeconds?: number;
+};
+
+export type LiveTranscriptionOutput = {
+  /**
+   * POST raw PCM (s16le, 16 kHz, mono) here in chunks numbered `?seq=0,1,…`, with `final=true` on the last.
+   */
+  inputUrl: string;
+  inputUrlExpiresAt: string;
+  /**
+   * NDJSON transcript events: `partial` replaces the open segment's text, `final` commits it,
+   * and `done` ends the stream with the whole transcript.
+   */
+  transcriptUrl: string;
+  /**
+   * The whole transcript, once the session has ended.
+   */
+  text?: null | string;
+  /**
+   * Seconds of audio received so far; the session is billed on this.
+   */
+  audioSeconds: number;
+};
+
+/**
+ * Live transcription
+ */
+export type LiveTranscriptionStep = Omit<WorkflowStep, '$type'> & {
+  input: LiveTranscriptionInput;
+  output?: LiveTranscriptionOutput;
+  $type: 'liveTranscription';
+};
+
+/**
+ * Live transcription
+ */
+export type LiveTranscriptionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: LiveTranscriptionInput;
+  $type: 'liveTranscription';
+};
+
 /**
  * Transferring. No queue position — it is no longer waiting.
  */
@@ -6932,6 +6998,125 @@ export type MediaTransformer = {
 };
 
 /**
+ * One field of a merge: where its values come from and how they are combined.
+ */
+export type MergeField = {
+  /**
+   * The name of the step to read from, or `$arguments` for the workflow's arguments.
+   */
+  $ref: string;
+  /**
+   * The path to the values, e.g. `output.steps[*].output.nsfwLevel`. `[*]` selects the rest of the path
+   * from every item of a list; nested `[*]` flatten into one list.
+   */
+  path: string;
+  reduce: MergeReducer;
+  /**
+   * For `group`: the property of each item to group by.
+   */
+  by?: null | string;
+  /**
+   * For `top` and `group`: the properties to rank items by, in order, each 1 (ascending) or -1 (descending).
+   */
+  sortBy?: null | {
+    [key: string]: number;
+  };
+  /**
+   * For `max`, `min`, `top` and `push`: wrap each result as `{ value, index }`, where index is
+   * the position of its source item in the first `[*]` of the path.
+   */
+  includeIndex: boolean;
+};
+
+/**
+ * Input for the Merge workflow step.
+ */
+export type MergeInput = {
+  onMissing: MergeMissingBehavior;
+  /**
+   * The fields of the merged result, keyed by the name each appears under in the output.
+   */
+  fields: {
+    [key: string]: MergeField;
+  };
+};
+
+/**
+ * How a merge treats a source item that has no output.
+ */
+export const MergeMissingBehavior = { FAIL: 'fail', PARTIAL: 'partial' } as const;
+
+/**
+ * How a merge treats a source item that has no output.
+ */
+export type MergeMissingBehavior = (typeof MergeMissingBehavior)[keyof typeof MergeMissingBehavior];
+
+/**
+ * Output of the Merge workflow step.
+ */
+export type MergeOutput = {
+  /**
+   * The merged values, keyed by the field names of the input. Their shape follows the requested reducers.
+   */
+  fields: {
+    [key: string]: null;
+  };
+  /**
+   * The number of source items selected by the first `[*]` of the fields' paths.
+   */
+  sourceCount: number;
+  /**
+   * The number of source items whose values were merged.
+   */
+  mergedCount: number;
+  /**
+   * The number of source items left out because they had no output.
+   */
+  failedCount: number;
+};
+
+/**
+ * How a merge field combines its values. Null values are skipped, except by `any` and `all`, which count them as false.
+ */
+export const MergeReducer = {
+  MAX: 'max',
+  MIN: 'min',
+  SUM: 'sum',
+  AVG: 'avg',
+  COUNT: 'count',
+  ANY: 'any',
+  ALL: 'all',
+  FIRST: 'first',
+  LAST: 'last',
+  PUSH: 'push',
+  ADD_TO_SET: 'addToSet',
+  TOP: 'top',
+  GROUP: 'group',
+} as const;
+
+/**
+ * How a merge field combines its values. Null values are skipped, except by `any` and `all`, which count them as false.
+ */
+export type MergeReducer = (typeof MergeReducer)[keyof typeof MergeReducer];
+
+/**
+ * Merge
+ */
+export type MergeStep = Omit<WorkflowStep, '$type'> & {
+  input: MergeInput;
+  output?: MergeOutput;
+  $type: 'merge';
+};
+
+/**
+ * Merge
+ */
+export type MergeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: MergeInput;
+  $type: 'merge';
+};
+
+/**
  * Model-level base for Meshy 3D generation (via FAL).
  * The version derived type carries the operation-level discriminator.
  * Payloads without a version deserialize as v6.
@@ -7119,6 +7304,93 @@ export type MiniMaxH3AiToolkitTrainingInput = Omit<
    * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
+};
+
+export type MiniMaxH3MaxImageToVideoInput = Omit<
+  MiniMaxH3MaxVideoGenInput,
+  'engine' | 'operation'
+> & {
+  /**
+   * Optional first frame. If omitted, the last frame sets the canvas. With neither, FAL generates from text at 16:9.
+   */
+  firstFrameImage?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  lastFrameImage?: null | string;
+  /**
+   * HTTP(S) URL of a soundtrack, at least 2 seconds and at most 15 MB. Requires duration >= 2.
+   */
+  targetAudio?: null | string;
+  operation: 'imageToVideo';
+  engine: 'minimax-h3-max';
+};
+
+/**
+ * Max only. Up to 9 images, 3 videos and 3 audio clips, at most 12 combined. Reference charges share a 4096-token allowance.
+ */
+export type MiniMaxH3MaxReferenceToVideoInput = Omit<
+  MiniMaxH3MaxVideoGenInput,
+  'engine' | 'operation'
+> & {
+  aspectRatio?: 'adaptive' | '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  referenceImages?: Array<string>;
+  /**
+   * HTTP(S) clips, each 2-15 seconds, combined at most 15 seconds.
+   */
+  referenceVideos?: Array<string>;
+  /**
+   * HTTP(S) audio clips, each 2-15 seconds, combined at most 15 seconds.
+   */
+  referenceAudios?: Array<string>;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  firstFrameImage?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  lastFrameImage?: null | string;
+  /**
+   * Requires first and last frames, middleFrameTime, and 480P or 768P.
+   */
+  middleFrameImage?: null | string;
+  /**
+   * Seconds from the start, rounded to 24 fps. Must fall strictly inside the requested duration.
+   */
+  middleFrameTime?: null | number;
+  operation: 'referenceToVideo';
+  engine: 'minimax-h3-max';
+};
+
+export type MiniMaxH3MaxTextToVideoInput = Omit<
+  MiniMaxH3MaxVideoGenInput,
+  'engine' | 'operation'
+> & {
+  aspectRatio?: '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  /**
+   * HTTP(S) URL of a soundtrack, at least 2 seconds and at most 15 MB. Requires duration >= 2.
+   */
+  targetAudio?: null | string;
+  operation: 'textToVideo';
+  engine: 'minimax-h3-max';
+};
+
+/**
+ * MiniMax H3 Max and H3 Max Turbo core generation through FAL.
+ */
+export type MiniMaxH3MaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation: null | string;
+  model?: 'max' | 'turbo';
+  /**
+   * Requested seconds. FAL may return up to about 0.7 additional seconds.
+   */
+  duration?: number;
+  resolution?: '480P' | '768P' | '1080P';
+  promptExpansionMode?: 'disabled' | 'balanced' | 'quality';
+  seed?: null | number;
+  enableSafetyChecker?: boolean;
+  engine: 'minimax-h3-max';
 };
 
 export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
@@ -9646,6 +9918,13 @@ export type StarVectorImageToSvgInput = Omit<ComfyImageToSvgInput, 'engine' | 'e
   maxLength?: number;
   ecosystem: 'starvector';
   engine: 'comfy';
+};
+
+export type StreamingBlobAppendResponse = {
+  /**
+   * The sequence number the blob expects next.
+   */
+  nextSequence: number;
 };
 
 /**
@@ -15610,6 +15889,46 @@ export type InvokeImageUpscalerStepTemplateResponses = {
 export type InvokeImageUpscalerStepTemplateResponse =
   InvokeImageUpscalerStepTemplateResponses[keyof InvokeImageUpscalerStepTemplateResponses];
 
+export type InvokeLiveTranscriptionStepTemplateData = {
+  body?: LiveTranscriptionInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/liveTranscription';
+};
+
+export type InvokeLiveTranscriptionStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeLiveTranscriptionStepTemplateError =
+  InvokeLiveTranscriptionStepTemplateErrors[keyof InvokeLiveTranscriptionStepTemplateErrors];
+
+export type InvokeLiveTranscriptionStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: LiveTranscriptionOutput;
+};
+
+export type InvokeLiveTranscriptionStepTemplateResponse =
+  InvokeLiveTranscriptionStepTemplateResponses[keyof InvokeLiveTranscriptionStepTemplateResponses];
+
 export type InvokeMediaCaptioningStepTemplateData = {
   body?: MediaCaptioningInput;
   path?: never;
@@ -15729,6 +16048,46 @@ export type InvokeMediaRatingStepTemplateResponses = {
 
 export type InvokeMediaRatingStepTemplateResponse =
   InvokeMediaRatingStepTemplateResponses[keyof InvokeMediaRatingStepTemplateResponses];
+
+export type InvokeMergeStepTemplateData = {
+  body?: MergeInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+  };
+  url: '/v2/consumer/recipes/merge';
+};
+
+export type InvokeMergeStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeMergeStepTemplateError =
+  InvokeMergeStepTemplateErrors[keyof InvokeMergeStepTemplateErrors];
+
+export type InvokeMergeStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: MergeOutput;
+};
+
+export type InvokeMergeStepTemplateResponse =
+  InvokeMergeStepTemplateResponses[keyof InvokeMergeStepTemplateResponses];
 
 export type InvokeMiniMaxMusic3StepTemplateData = {
   body?: MiniMaxMusic3Input;
@@ -17276,6 +17635,49 @@ export type GetStreamingBlobResponses = {
   200: unknown;
 };
 
+export type AppendStreamingBlobData = {
+  body?: never;
+  path: {
+    blobKey: string;
+  };
+  query?: {
+    seq?: number;
+    final?: boolean;
+  };
+  url: '/v2/consumer/streaming-blobs/{blobKey}';
+};
+
+export type AppendStreamingBlobErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Conflict
+   */
+  409: StreamingBlobAppendResponse;
+  /**
+   * Content Too Large
+   */
+  413: ProblemDetails;
+};
+
+export type AppendStreamingBlobError = AppendStreamingBlobErrors[keyof AppendStreamingBlobErrors];
+
+export type AppendStreamingBlobResponses = {
+  /**
+   * OK
+   */
+  200: StreamingBlobAppendResponse;
+};
+
+export type AppendStreamingBlobResponse =
+  AppendStreamingBlobResponses[keyof AppendStreamingBlobResponses];
+
 export type QueryWorkflowsData = {
   body?: never;
   headers?: {
@@ -17298,6 +17700,10 @@ export type QueryWorkflowsData = {
      * An optional list of tags to query by
      */
     tags?: Array<string>;
+    /**
+     * An optional list of tags; workflows with any of these tags are excluded
+     */
+    excludeTags?: Array<string>;
     /**
      * An optional additional query that is used to match workflows through metadata
      */

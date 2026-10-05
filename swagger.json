@@ -348,7 +348,7 @@
             "description": "Bad Gateway"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -407,7 +407,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -450,7 +450,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -496,7 +496,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -2646,6 +2646,107 @@
         }
       }
     },
+    "/v2/consumer/recipes/liveTranscription": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Live transcription",
+        "description": "Transcribes speech while it is recorded: append audio to <c>output.inputUrl</c> and read text from\n/// <c>output.transcriptUrl</c> as it decodes. Billed per second of audio once the session ends.",
+        "operationId": "InvokeLiveTranscriptionStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiveTranscriptionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiveTranscriptionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiveTranscriptionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveTranscriptionOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/mediaCaptioning": {
       "post": {
         "tags": [
@@ -2932,6 +3033,107 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MediaRatingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/merge": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Merge",
+        "description": "Also waits for every step the referenced steps generate, such as each iteration of a repeat.",
+        "operationId": "InvokeMergeStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeOutput"
                 }
               }
             }
@@ -6534,7 +6736,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/services/{serviceId}": {
@@ -6605,10 +6807,96 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
+      "post": {
+        "tags": [
+          "StreamingBlobs"
+        ],
+        "description": "Number chunks from `seq=0`; a resent seq is a no-op, a gap returns 409 with the expected seq,\nand `final=true` closes the blob.",
+        "operationId": "AppendStreamingBlob",
+        "parameters": [
+          {
+            "name": "blobKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "seq",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "final",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamingBlobAppendResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamingBlobAppendResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [ ]
+      },
       "get": {
         "tags": [
           "StreamingBlobs"
@@ -6649,7 +6937,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/workflows": {
@@ -6714,7 +7002,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6742,7 +7030,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -6770,7 +7058,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6786,7 +7074,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -6898,7 +7186,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -6925,7 +7213,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -6953,7 +7241,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -6981,7 +7269,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -6997,7 +7285,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -7109,7 +7397,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -7136,7 +7424,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -7164,7 +7452,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -7192,7 +7480,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -7208,7 +7496,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -7320,7 +7608,7 @@
                       }
                     ],
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -7419,6 +7707,17 @@
             "name": "tags",
             "in": "query",
             "description": "An optional list of tags to query by",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "excludeTags",
+            "in": "query",
+            "description": "An optional list of tags; workflows with any of these tags are excluded",
             "schema": {
               "type": "array",
               "items": {
@@ -11113,7 +11412,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
@@ -11167,7 +11466,7 @@
               "string"
             ]
           },
-          "schema": {},
+          "schema": { },
           "strict": {
             "type": [
               "null",
@@ -27651,6 +27950,9 @@
               "null",
               "string"
             ]
+          },
+          "personMask": {
+            "$ref": "#/components/schemas/ImageScanningPersonMask"
           }
         },
         "additionalProperties": false
@@ -27722,6 +28024,28 @@
         },
         "additionalProperties": false,
         "description": "Complete result from the unified image scanner."
+      },
+      "ImageScanningPersonMask": {
+        "required": [
+          "height",
+          "pngBase64",
+          "width"
+        ],
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pngBase64": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
       },
       "ImageScanningRecognition": {
         "required": [
@@ -29486,6 +29810,137 @@
           }
         ]
       },
+      "LiveTranscriptionInput": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional language hint (e.g., \"en\", \"zh\") to guide transcription."
+          },
+          "context": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Optional context prompt to improve transcription accuracy."
+          },
+          "maxDurationSeconds": {
+            "maximum": 600,
+            "minimum": 1,
+            "type": "integer",
+            "description": "The session ends after this many seconds of audio, even if the input is still open.\nThe upfront balance check covers this much audio.",
+            "format": "int32",
+            "default": 120
+          },
+          "idleTimeoutSeconds": {
+            "maximum": 60,
+            "minimum": 2,
+            "type": "integer",
+            "description": "The input is treated as closed when no audio arrives for this many seconds, so a client that\ndisappears does not hold the session open.",
+            "format": "int32",
+            "default": 10
+          }
+        },
+        "additionalProperties": false
+      },
+      "LiveTranscriptionOutput": {
+        "required": [
+          "audioSeconds",
+          "inputUrl",
+          "inputUrlExpiresAt",
+          "transcriptUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "inputUrl": {
+            "type": "string",
+            "description": "POST raw PCM (s16le, 16 kHz, mono) here in chunks numbered `?seq=0,1,…`, with `final=true` on the last.",
+            "format": "uri"
+          },
+          "inputUrlExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "transcriptUrl": {
+            "type": "string",
+            "description": "NDJSON transcript events: `partial` replaces the open segment's text, `final` commits it,\nand `done` ends the stream with the whole transcript.",
+            "format": "uri"
+          },
+          "text": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The whole transcript, once the session has ended."
+          },
+          "audioSeconds": {
+            "type": "number",
+            "description": "Seconds of audio received so far; the session is billed on this.",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LiveTranscriptionStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/LiveTranscriptionInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/LiveTranscriptionOutput"
+              },
+              "$type": {
+                "enum": [
+                  "liveTranscription"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Live transcription"
+      },
+      "LiveTranscriptionStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/LiveTranscriptionInput"
+              },
+              "$type": {
+                "enum": [
+                  "liveTranscription"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Live transcription"
+      },
       "LoadingResourceAvailability": {
         "allOf": [
           {
@@ -30432,6 +30887,192 @@
           }
         }
       },
+      "MergeField": {
+        "required": [
+          "$ref",
+          "includeIndex",
+          "path",
+          "reduce"
+        ],
+        "type": "object",
+        "properties": {
+          "$ref": {
+            "type": "string",
+            "description": "The name of the step to read from, or `$arguments` for the workflow's arguments."
+          },
+          "path": {
+            "type": "string",
+            "description": "The path to the values, e.g. `output.steps[*].output.nsfwLevel`. `[*]` selects the rest of the path\nfrom every item of a list; nested `[*]` flatten into one list."
+          },
+          "reduce": {
+            "$ref": "#/components/schemas/MergeReducer"
+          },
+          "by": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "For `group`: the property of each item to group by."
+          },
+          "sortBy": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "For `top` and `group`: the properties to rank items by, in order, each 1 (ascending) or -1 (descending)."
+          },
+          "includeIndex": {
+            "type": "boolean",
+            "description": "For `max`, `min`, `top` and `push`: wrap each result as `{ value, index }`, where index is\nthe position of its source item in the first `[*]` of the path."
+          }
+        },
+        "additionalProperties": false,
+        "description": "One field of a merge: where its values come from and how they are combined."
+      },
+      "MergeInput": {
+        "required": [
+          "fields",
+          "onMissing"
+        ],
+        "type": "object",
+        "properties": {
+          "onMissing": {
+            "$ref": "#/components/schemas/MergeMissingBehavior"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MergeField"
+            },
+            "description": "The fields of the merged result, keyed by the name each appears under in the output."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Input for the Merge workflow step."
+      },
+      "MergeMissingBehavior": {
+        "enum": [
+          "fail",
+          "partial"
+        ],
+        "type": "string",
+        "description": "How a merge treats a source item that has no output."
+      },
+      "MergeOutput": {
+        "required": [
+          "failedCount",
+          "fields",
+          "mergedCount",
+          "sourceCount"
+        ],
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "null"
+            },
+            "description": "The merged values, keyed by the field names of the input. Their shape follows the requested reducers."
+          },
+          "sourceCount": {
+            "type": "integer",
+            "description": "The number of source items selected by the first `[*]` of the fields' paths.",
+            "format": "int32"
+          },
+          "mergedCount": {
+            "type": "integer",
+            "description": "The number of source items whose values were merged.",
+            "format": "int32"
+          },
+          "failedCount": {
+            "type": "integer",
+            "description": "The number of source items left out because they had no output.",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Output of the Merge workflow step."
+      },
+      "MergeReducer": {
+        "enum": [
+          "max",
+          "min",
+          "sum",
+          "avg",
+          "count",
+          "any",
+          "all",
+          "first",
+          "last",
+          "push",
+          "addToSet",
+          "top",
+          "group"
+        ],
+        "type": "string",
+        "description": "How a merge field combines its values. Null values are skipped, except by `any` and `all`, which count them as false."
+      },
+      "MergeStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MergeInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/MergeOutput"
+              },
+              "$type": {
+                "enum": [
+                  "merge"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Merge"
+      },
+      "MergeStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/MergeInput"
+              },
+              "$type": {
+                "enum": [
+                  "merge"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Merge"
+      },
       "MeshyFalPolyGenInput": {
         "allOf": [
           {
@@ -31048,6 +31689,294 @@
           }
         ],
         "description": "AI Toolkit training for the MiniMax H3 base (FL2VA) model."
+      },
+      "MiniMaxH3MaxImageToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MiniMaxH3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "firstFrameImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Optional first frame. If omitted, the last frame sets the canvas. With neither, FAL generates from text at 16:9.",
+                "format": "source-image"
+              },
+              "lastFrameImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "targetAudio": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "HTTP(S) URL of a soundtrack, at least 2 seconds and at most 15 MB. Requires duration >= 2.",
+                "format": "uri"
+              },
+              "operation": {
+                "enum": [
+                  "imageToVideo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-max"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MiniMaxH3MaxReferenceToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MiniMaxH3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "adaptive",
+                  "21:9",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "adaptive"
+              },
+              "referenceImages": {
+                "maxItems": 9,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "referenceVideos": {
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "HTTP(S) clips, each 2-15 seconds, combined at most 15 seconds."
+              },
+              "referenceAudios": {
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "HTTP(S) audio clips, each 2-15 seconds, combined at most 15 seconds."
+              },
+              "firstFrameImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "lastFrameImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "middleFrameImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Requires first and last frames, middleFrameTime, and 480P or 768P.",
+                "format": "source-image"
+              },
+              "middleFrameTime": {
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "Seconds from the start, rounded to 24 fps. Must fall strictly inside the requested duration.",
+                "format": "double"
+              },
+              "operation": {
+                "enum": [
+                  "referenceToVideo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-max"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Max only. Up to 9 images, 3 videos and 3 audio clips, at most 12 combined. Reference charges share a 4096-token allowance."
+      },
+      "MiniMaxH3MaxTextToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MiniMaxH3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "aspectRatio": {
+                "enum": [
+                  "21:9",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "16:9"
+              },
+              "targetAudio": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "HTTP(S) URL of a soundtrack, at least 2 seconds and at most 15 MB. Requires duration >= 2.",
+                "format": "uri"
+              },
+              "operation": {
+                "enum": [
+                  "textToVideo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-max"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MiniMaxH3MaxVideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "textToVideo"
+              },
+              "model": {
+                "enum": [
+                  "max",
+                  "turbo"
+                ],
+                "type": "string",
+                "default": "max"
+              },
+              "duration": {
+                "maximum": 15,
+                "minimum": 0.92,
+                "type": "number",
+                "description": "Requested seconds. FAL may return up to about 0.7 additional seconds.",
+                "format": "double",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "480P",
+                  "768P",
+                  "1080P"
+                ],
+                "type": "string",
+                "default": "768P"
+              },
+              "promptExpansionMode": {
+                "enum": [
+                  "disabled",
+                  "balanced",
+                  "quality"
+                ],
+                "type": "string",
+                "default": "balanced"
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": true
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-max"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textToVideo": "#/components/schemas/MiniMaxH3MaxTextToVideoInput",
+                "imageToVideo": "#/components/schemas/MiniMaxH3MaxImageToVideoInput",
+                "referenceToVideo": "#/components/schemas/MiniMaxH3MaxReferenceToVideoInput"
+              }
+            }
+          }
+        ],
+        "description": "MiniMax H3 Max and H3 Max Turbo core generation through FAL."
       },
       "MiniMaxH3VideoGenInput": {
         "allOf": [
@@ -35860,7 +36789,7 @@
             ]
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "PromptEnhancementInput": {
         "required": [
@@ -39621,6 +40550,20 @@
           }
         ]
       },
+      "StreamingBlobAppendResponse": {
+        "required": [
+          "nextSequence"
+        ],
+        "type": "object",
+        "properties": {
+          "nextSequence": {
+            "type": "integer",
+            "description": "The sequence number the blob expects next.",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
       "SystemMessage": {
         "allOf": [
           {
@@ -41225,7 +42168,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An optional set of new properties to set on the workflow."
           },
           "tags": {
@@ -41267,7 +42210,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "An set of new properties to set on the workflow step."
           }
         },
@@ -41460,7 +42403,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -42060,6 +43003,7 @@
             "grok": "#/components/schemas/GrokVideoGenInput",
             "seedance": "#/components/schemas/SeedanceVideoGenInput",
             "happyHorse": "#/components/schemas/HappyHorseVideoGenInput",
+            "minimax-h3-max": "#/components/schemas/MiniMaxH3MaxVideoGenInput",
             "minimax-h3": "#/components/schemas/MiniMaxH3VideoGenInput",
             "minimax-h3-comfy": "#/components/schemas/ComfyMiniMaxH3VideoGenInput",
             "flux": "#/components/schemas/Flux3VideoGenInput"
@@ -45782,7 +46726,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow."
           },
           "status": {
@@ -45813,7 +46757,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "steps": {
@@ -46272,7 +47216,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           },
           "estimatedProgressRate": {
@@ -46330,9 +47274,11 @@
             "imageToSvg": "#/components/schemas/ImageToSvgStep",
             "imageUpload": "#/components/schemas/ImageUploadStep",
             "imageUpscaler": "#/components/schemas/ImageUpscalerStep",
+            "liveTranscription": "#/components/schemas/LiveTranscriptionStep",
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStep",
             "mediaHash": "#/components/schemas/MediaHashStep",
             "mediaRating": "#/components/schemas/MediaRatingStep",
+            "merge": "#/components/schemas/MergeStep",
             "miniMaxMusic3": "#/components/schemas/MiniMaxMusic3Step",
             "model3DPreview": "#/components/schemas/Model3DPreviewStep",
             "modelClamScan": "#/components/schemas/ModelClamScanStep",
@@ -46676,7 +47622,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata for the workflow step."
           }
         },
@@ -46703,9 +47649,11 @@
             "imageToSvg": "#/components/schemas/ImageToSvgStepTemplate",
             "imageUpload": "#/components/schemas/ImageUploadStepTemplate",
             "imageUpscaler": "#/components/schemas/ImageUpscalerStepTemplate",
+            "liveTranscription": "#/components/schemas/LiveTranscriptionStepTemplate",
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStepTemplate",
             "mediaHash": "#/components/schemas/MediaHashStepTemplate",
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
+            "merge": "#/components/schemas/MergeStepTemplate",
             "miniMaxMusic3": "#/components/schemas/MiniMaxMusic3StepTemplate",
             "model3DPreview": "#/components/schemas/Model3DPreviewStepTemplate",
             "modelClamScan": "#/components/schemas/ModelClamScanStepTemplate",
@@ -46798,7 +47746,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "A collection of user defined metadata that can be used to store additional information about the workflow."
           },
           "tags": {
@@ -46839,7 +47787,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Get an associated collection of arguments"
           },
           "nsfwLevel": {
@@ -48190,7 +49138,7 @@
     }
   },
   "security": [
-    {}
+    { }
   ],
   "tags": [
     {

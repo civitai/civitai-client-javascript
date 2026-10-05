@@ -6,6 +6,9 @@ import type {
   AddWorkflowTagData,
   AddWorkflowTagErrors,
   AddWorkflowTagResponses,
+  AppendStreamingBlobData,
+  AppendStreamingBlobErrors,
+  AppendStreamingBlobResponses,
   DeleteWorkflowData,
   DeleteWorkflowErrors,
   DeleteWorkflowResponses,
@@ -109,6 +112,9 @@ import type {
   InvokeImageUpscalerStepTemplateData,
   InvokeImageUpscalerStepTemplateErrors,
   InvokeImageUpscalerStepTemplateResponses,
+  InvokeLiveTranscriptionStepTemplateData,
+  InvokeLiveTranscriptionStepTemplateErrors,
+  InvokeLiveTranscriptionStepTemplateResponses,
   InvokeMediaCaptioningStepTemplateData,
   InvokeMediaCaptioningStepTemplateErrors,
   InvokeMediaCaptioningStepTemplateResponses,
@@ -118,6 +124,9 @@ import type {
   InvokeMediaRatingStepTemplateData,
   InvokeMediaRatingStepTemplateErrors,
   InvokeMediaRatingStepTemplateResponses,
+  InvokeMergeStepTemplateData,
+  InvokeMergeStepTemplateErrors,
+  InvokeMergeStepTemplateResponses,
   InvokeMiniMaxMusic3StepTemplateData,
   InvokeMiniMaxMusic3StepTemplateErrors,
   InvokeMiniMaxMusic3StepTemplateResponses,
@@ -804,6 +813,28 @@ export const invokeImageUpscalerStepTemplate = <ThrowOnError extends boolean = f
   });
 
 /**
+ * Live transcription
+ *
+ * Transcribes speech while it is recorded: append audio to <c>output.inputUrl</c> and read text from
+ * /// <c>output.transcriptUrl</c> as it decodes. Billed per second of audio once the session ends.
+ */
+export const invokeLiveTranscriptionStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeLiveTranscriptionStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeLiveTranscriptionStepTemplateResponses,
+    InvokeLiveTranscriptionStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/liveTranscription',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
  * Media Captioning
  *
  * Generates a descriptive caption for a single media item using the JoyCaption model.
@@ -859,6 +890,27 @@ export const invokeMediaRatingStepTemplate = <ThrowOnError extends boolean = fal
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/mediaRating',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Merge
+ *
+ * Also waits for every step the referenced steps generate, such as each iteration of a repeat.
+ */
+export const invokeMergeStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeMergeStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeMergeStepTemplateResponses,
+    InvokeMergeStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/merge',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1582,6 +1634,19 @@ export const getStreamingBlob = <ThrowOnError extends boolean = false>(
     url: '/v2/consumer/streaming-blobs/{blobKey}',
     ...options,
   });
+
+/**
+ * Number chunks from `seq=0`; a resent seq is a no-op, a gap returns 409 with the expected seq,
+ * and `final=true` closes the blob.
+ */
+export const appendStreamingBlob = <ThrowOnError extends boolean = false>(
+  options: Options<AppendStreamingBlobData, ThrowOnError>
+) =>
+  (options.client ?? client).post<
+    AppendStreamingBlobResponses,
+    AppendStreamingBlobErrors,
+    ThrowOnError
+  >({ url: '/v2/consumer/streaming-blobs/{blobKey}', ...options });
 
 /**
  * Query workflows
