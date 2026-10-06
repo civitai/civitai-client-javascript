@@ -1046,6 +1046,7 @@ export {
   type MuseImageFalImageGenInput,
   type MusubiImageResourceTrainingInput,
   type MusubiImageResourceTrainingInputWritable,
+  type NanoBanana21ImageGenInput,
   type NanoBanana2ImageGenInput,
   type NanoBanana2LiteImageGenInput,
   type NanoBananaProImageGenInput,
