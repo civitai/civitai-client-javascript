@@ -4806,6 +4806,34 @@ export type FluxDevFastImageResourceTrainingInput = Omit<ImageResourceTrainingIn
   engine: 'flux-dev-fast';
 };
 
+export type FreeTierModelResponse = {
+  /**
+   * The quota bucket. Every AIR listed counts against the same quota.
+   */
+  key: string;
+  airs: Array<string>;
+  /**
+   * Free requests left right now: the tightest of Civitai.Orchestration.Api.Controllers.v2.Consumers.FreeTier.FreeTierModelResponse.Windows.
+   */
+  remaining: number;
+  windows: Array<FreeTierWindowResponse>;
+};
+
+export type FreeTierResponse = {
+  enabled: boolean;
+  models: Array<FreeTierModelResponse>;
+};
+
+export type FreeTierWindowResponse = {
+  duration: string;
+  limit: number;
+  remaining: number;
+  /**
+   * When this window's usage resets. Null until the first free request in it.
+   */
+  resetAt?: null | string;
+};
+
 export type Gemini25FlashCreateImageGenInput = Omit<
   Gemini25FlashImageGenInput,
   'engine' | 'model' | 'operation'
@@ -5320,6 +5348,37 @@ export type HappyHorseV11VideoGenInput = Omit<HappyHorseVideoGenInput, 'engine' 
 export type HappyHorseVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version: string;
   engine: 'happyHorse';
+};
+
+/**
+ * HeyGen Video 1 (based on MiniMax H3), served through OpenRouter. Audio is generated with the video.
+ */
+export type HeyGenVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation: 'textToVideo' | 'imageToVideo' | 'referenceToVideo';
+  duration: number;
+  resolution: '480p' | '768p';
+  /**
+   * Ignored for imageToVideo, which follows the first frame's aspect ratio.
+   */
+  aspectRatio: '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  seed?: null | number;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  firstFrameImage?: null | string;
+  /**
+   * Up to 9 images; refer to them in the prompt as <Picture 1>, <Picture 2>, etc.
+   */
+  referenceImages?: Array<string>;
+  /**
+   * Up to 3 public HTTPS videos (32 MB each). The model uses the first 5 seconds of each.
+   */
+  referenceVideos?: Array<string>;
+  /**
+   * Up to 3 public HTTPS audio files (32 MB each), accompanying a reference image or video.
+   */
+  referenceAudios?: Array<string>;
+  engine: 'heygen';
 };
 
 export const HiDreamI1Precision = { FP8: 'fp8', FP16: 'fp16' } as const;
@@ -5864,6 +5923,7 @@ export type ImageScanningJointAgeDetection = {
   isMinor: boolean;
   isOod: boolean;
   warning?: null | string;
+  personMask?: ImageScanningPersonMask;
 };
 
 export type ImageScanningLabelScore = {
@@ -5884,6 +5944,12 @@ export type ImageScanningOutput = {
   humanRecognition: ImageScanningHumanRecognition;
   jointAgeClassification: ImageScanningJointAgeClassification;
   csam?: null | boolean;
+};
+
+export type ImageScanningPersonMask = {
+  width: number;
+  height: number;
+  pngBase64: string;
 };
 
 export type ImageScanningRecognition = {
@@ -6506,6 +6572,65 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
+export type LiveTranscriptionInput = {
+  /**
+   * Language of the speech (e.g., "en", "zh"). Send it: without it the model assumes English and invents English text for other languages.
+   */
+  language?: null | string;
+  /**
+   * Optional context prompt to improve transcription accuracy.
+   */
+  context?: null | string;
+  /**
+   * The session ends after this many seconds of audio, even if the input is still open.
+   * The upfront balance check covers this much audio.
+   */
+  maxDurationSeconds?: number;
+  /**
+   * The input is treated as closed when no audio arrives for this many seconds, so a client that
+   * disappears does not hold the session open.
+   */
+  idleTimeoutSeconds?: number;
+};
+
+export type LiveTranscriptionOutput = {
+  /**
+   * POST raw PCM (s16le, 16 kHz, mono) here in chunks numbered `?seq=0,1,…`, with `final=true` on the last.
+   */
+  inputUrl: string;
+  inputUrlExpiresAt: string;
+  /**
+   * NDJSON transcript events: `partial` replaces the open segment's text, `final` commits it,
+   * and `done` ends the stream with the whole transcript.
+   */
+  transcriptUrl: string;
+  /**
+   * The whole transcript, once the session has ended.
+   */
+  text?: null | string;
+  /**
+   * Seconds of audio received so far; the session is billed on this.
+   */
+  audioSeconds: number;
+};
+
+/**
+ * Live transcription
+ */
+export type LiveTranscriptionStep = Omit<WorkflowStep, '$type'> & {
+  input: LiveTranscriptionInput;
+  output?: LiveTranscriptionOutput;
+  $type: 'liveTranscription';
+};
+
+/**
+ * Live transcription
+ */
+export type LiveTranscriptionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: LiveTranscriptionInput;
+  $type: 'liveTranscription';
+};
+
 /**
  * Transferring. No queue position — it is no longer waiting.
  */
@@ -6932,6 +7057,125 @@ export type MediaTransformer = {
 };
 
 /**
+ * One field of a merge: where its values come from and how they are combined.
+ */
+export type MergeField = {
+  /**
+   * The name of the step to read from, or `$arguments` for the workflow's arguments.
+   */
+  $ref: string;
+  /**
+   * The path to the values, e.g. `output.steps[*].output.nsfwLevel`. `[*]` selects the rest of the path
+   * from every item of a list; nested `[*]` flatten into one list.
+   */
+  path: string;
+  reduce: MergeReducer;
+  /**
+   * For `group`: the property of each item to group by.
+   */
+  by?: null | string;
+  /**
+   * For `top` and `group`: the properties to rank items by, in order, each 1 (ascending) or -1 (descending).
+   */
+  sortBy?: null | {
+    [key: string]: number;
+  };
+  /**
+   * For `max`, `min`, `top` and `push`: wrap each result as `{ value, index }`, where index is
+   * the position of its source item in the first `[*]` of the path.
+   */
+  includeIndex: boolean;
+};
+
+/**
+ * Input for the Merge workflow step.
+ */
+export type MergeInput = {
+  onMissing: MergeMissingBehavior;
+  /**
+   * The fields of the merged result, keyed by the name each appears under in the output.
+   */
+  fields: {
+    [key: string]: MergeField;
+  };
+};
+
+/**
+ * How a merge treats a source item that has no output.
+ */
+export const MergeMissingBehavior = { FAIL: 'fail', PARTIAL: 'partial' } as const;
+
+/**
+ * How a merge treats a source item that has no output.
+ */
+export type MergeMissingBehavior = (typeof MergeMissingBehavior)[keyof typeof MergeMissingBehavior];
+
+/**
+ * Output of the Merge workflow step.
+ */
+export type MergeOutput = {
+  /**
+   * The merged values, keyed by the field names of the input. Their shape follows the requested reducers.
+   */
+  fields: {
+    [key: string]: null;
+  };
+  /**
+   * The number of source items selected by the first `[*]` of the fields' paths.
+   */
+  sourceCount: number;
+  /**
+   * The number of source items whose values were merged.
+   */
+  mergedCount: number;
+  /**
+   * The number of source items left out because they had no output.
+   */
+  failedCount: number;
+};
+
+/**
+ * How a merge field combines its values. Null values are skipped, except by `any` and `all`, which count them as false.
+ */
+export const MergeReducer = {
+  MAX: 'max',
+  MIN: 'min',
+  SUM: 'sum',
+  AVG: 'avg',
+  COUNT: 'count',
+  ANY: 'any',
+  ALL: 'all',
+  FIRST: 'first',
+  LAST: 'last',
+  PUSH: 'push',
+  ADD_TO_SET: 'addToSet',
+  TOP: 'top',
+  GROUP: 'group',
+} as const;
+
+/**
+ * How a merge field combines its values. Null values are skipped, except by `any` and `all`, which count them as false.
+ */
+export type MergeReducer = (typeof MergeReducer)[keyof typeof MergeReducer];
+
+/**
+ * Merge
+ */
+export type MergeStep = Omit<WorkflowStep, '$type'> & {
+  input: MergeInput;
+  output?: MergeOutput;
+  $type: 'merge';
+};
+
+/**
+ * Merge
+ */
+export type MergeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: MergeInput;
+  $type: 'merge';
+};
+
+/**
  * Model-level base for Meshy 3D generation (via FAL).
  * The version derived type carries the operation-level discriminator.
  * Payloads without a version deserialize as v6.
@@ -7119,6 +7363,93 @@ export type MiniMaxH3AiToolkitTrainingInput = Omit<
    * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
+};
+
+export type MiniMaxH3MaxImageToVideoInput = Omit<
+  MiniMaxH3MaxVideoGenInput,
+  'engine' | 'operation'
+> & {
+  /**
+   * Optional first frame. If omitted, the last frame sets the canvas. With neither, FAL generates from text at 16:9.
+   */
+  firstFrameImage?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  lastFrameImage?: null | string;
+  /**
+   * HTTP(S) URL of a soundtrack, at least 2 seconds and at most 15 MB. Requires duration >= 2.
+   */
+  targetAudio?: null | string;
+  operation: 'imageToVideo';
+  engine: 'minimax-h3-max';
+};
+
+/**
+ * Max only. Up to 9 images, 3 videos and 3 audio clips, at most 12 combined. Reference charges share a 4096-token allowance.
+ */
+export type MiniMaxH3MaxReferenceToVideoInput = Omit<
+  MiniMaxH3MaxVideoGenInput,
+  'engine' | 'operation'
+> & {
+  aspectRatio?: 'adaptive' | '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  referenceImages?: Array<string>;
+  /**
+   * HTTP(S) clips, each 2-15 seconds, combined at most 15 seconds.
+   */
+  referenceVideos?: Array<string>;
+  /**
+   * HTTP(S) audio clips, each 2-15 seconds, combined at most 15 seconds.
+   */
+  referenceAudios?: Array<string>;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  firstFrameImage?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  lastFrameImage?: null | string;
+  /**
+   * Requires first and last frames, middleFrameTime, and 480P or 768P.
+   */
+  middleFrameImage?: null | string;
+  /**
+   * Seconds from the start, rounded to 24 fps. Must fall strictly inside the requested duration.
+   */
+  middleFrameTime?: null | number;
+  operation: 'referenceToVideo';
+  engine: 'minimax-h3-max';
+};
+
+export type MiniMaxH3MaxTextToVideoInput = Omit<
+  MiniMaxH3MaxVideoGenInput,
+  'engine' | 'operation'
+> & {
+  aspectRatio?: '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  /**
+   * HTTP(S) URL of a soundtrack, at least 2 seconds and at most 15 MB. Requires duration >= 2.
+   */
+  targetAudio?: null | string;
+  operation: 'textToVideo';
+  engine: 'minimax-h3-max';
+};
+
+/**
+ * MiniMax H3 Max and H3 Max Turbo core generation through FAL.
+ */
+export type MiniMaxH3MaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation: null | string;
+  model?: 'max' | 'turbo';
+  /**
+   * Requested seconds. FAL may return up to about 0.7 additional seconds.
+   */
+  duration?: number;
+  resolution?: '480P' | '768P' | '1080P';
+  promptExpansionMode?: 'disabled' | 'balanced' | 'quality';
+  seed?: null | number;
+  enableSafetyChecker?: boolean;
+  engine: 'minimax-h3-max';
 };
 
 export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
@@ -8242,6 +8573,13 @@ export type PreprocessImageScribbleXdogInput = Omit<PreprocessImageInput, 'kind'
   kind: 'scribble-xdog';
 };
 
+export type PreprocessImageSdPoseInput = Omit<PreprocessImageInput, 'kind'> & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  kind: 'sdpose';
+};
+
 export type PreprocessImageShuffleInput = Omit<PreprocessImageInput, 'kind'> & {
   seed?: number;
   kind: 'shuffle';
@@ -8351,6 +8689,13 @@ export type PreprocessVideoScribbleInput = Omit<PreprocessVideoInput, 'kind'> & 
   kind: 'scribble';
 };
 
+export type PreprocessVideoSdPoseInput = Omit<PreprocessVideoInput, 'kind'> & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  kind: 'sdpose';
+};
+
 export type PreprocessVideoStep = Omit<WorkflowStep, '$type'> & {
   input: PreprocessVideoInput;
   output?: PreprocessVideoOutput;
@@ -8369,6 +8714,7 @@ export const Priority = {
   HIGH: 'high',
   NORMAL: 'normal',
   LOW: 'low',
+  IDLE: 'idle',
 } as const;
 
 /**
@@ -9646,6 +9992,13 @@ export type StarVectorImageToSvgInput = Omit<ComfyImageToSvgInput, 'engine' | 'e
   maxLength?: number;
   ecosystem: 'starvector';
   engine: 'comfy';
+};
+
+export type StreamingBlobAppendResponse = {
+  /**
+   * The sequence number the blob expects next.
+   */
+  nextSequence: number;
 };
 
 /**
@@ -11572,6 +11925,7 @@ export type Workflow = {
    */
   deletedAt?: null | string;
   downloadPriority?: Priority;
+  tier: WorkflowTier;
 };
 
 /**
@@ -12045,6 +12399,7 @@ export type WorkflowTemplate = {
   };
   nsfwLevel?: NsfwLevel;
   downloadPriority?: Priority;
+  tier?: WorkflowTier;
   /**
    * Get or set whether this workflow is experimental
    */
@@ -12076,6 +12431,16 @@ export type WorkflowTemplate = {
    */
   externalId?: null | string;
 };
+
+/**
+ * How a workflow is paid for.
+ */
+export const WorkflowTier = { PAID: 'paid', FREE: 'free' } as const;
+
+/**
+ * How a workflow is paid for.
+ */
+export type WorkflowTier = (typeof WorkflowTier)[keyof typeof WorkflowTier];
 
 export type WorkflowTips = {
   /**
@@ -13667,6 +14032,13 @@ export type PreprocessImageScribbleXdogInputWritable = Omit<
   kind: 'scribble-xdog';
 };
 
+export type PreprocessImageSdPoseInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  kind: 'sdpose';
+};
+
 export type PreprocessImageShuffleInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {
   seed?: number;
   kind: 'shuffle';
@@ -13778,6 +14150,13 @@ export type PreprocessVideoMlsdInputWritable = Omit<PreprocessVideoInputWritable
 export type PreprocessVideoScribbleInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
   threshold?: number;
   kind: 'scribble';
+};
+
+export type PreprocessVideoSdPoseInputWritable = Omit<PreprocessVideoInputWritable2, 'kind'> & {
+  detectHand?: boolean;
+  detectBody?: boolean;
+  detectFace?: boolean;
+  kind: 'sdpose';
 };
 
 export type PreprocessVideoStepWritable = Omit<WorkflowStepWritable, '$type'> & {
@@ -14036,6 +14415,7 @@ export type WorkflowWritable = {
    */
   deletedAt?: null | string;
   downloadPriority?: Priority;
+  tier: WorkflowTier;
 };
 
 export type WorkflowCostWritable = {
@@ -14810,6 +15190,31 @@ export type InvalidateUserTokensResponses = {
 export type InvalidateUserTokensResponse =
   InvalidateUserTokensResponses[keyof InvalidateUserTokensResponses];
 
+export type GetFreeTierData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/free-tier';
+};
+
+export type GetFreeTierErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+};
+
+export type GetFreeTierError = GetFreeTierErrors[keyof GetFreeTierErrors];
+
+export type GetFreeTierResponses = {
+  /**
+   * OK
+   */
+  200: FreeTierResponse;
+};
+
+export type GetFreeTierResponse = GetFreeTierResponses[keyof GetFreeTierResponses];
+
 export type InvokeAceStepAudioStepTemplateData = {
   body?: AceStepAudioInput;
   path?: never;
@@ -14818,6 +15223,10 @@ export type InvokeAceStepAudioStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/aceStepAudio';
 };
@@ -14858,6 +15267,10 @@ export type InvokeAgeClassificationStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/ageClassification';
 };
@@ -14898,6 +15311,10 @@ export type InvokeAudioCaptioningStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/audioCaptioning';
 };
@@ -14938,6 +15355,10 @@ export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/batchOCRSafetyClassification';
 };
@@ -14978,6 +15399,10 @@ export type InvokeBlobArchiveStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/blobArchive';
 };
@@ -15018,6 +15443,10 @@ export type InvokeChatCompletionStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/chatCompletion';
 };
@@ -15058,6 +15487,10 @@ export type InvokeComfyStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/comfy';
 };
@@ -15098,6 +15531,10 @@ export type InvokeComfyNodepackSnapshotStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/comfyNodepackSnapshot';
 };
@@ -15138,6 +15575,10 @@ export type InvokeComposeMediaStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/composeMedia';
 };
@@ -15178,6 +15619,10 @@ export type InvokeConvertImageStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/convertImage';
 };
@@ -15218,6 +15663,10 @@ export type InvokeCustomComfyStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/customComfy';
 };
@@ -15258,6 +15707,10 @@ export type InvokeEchoStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/echo';
 };
@@ -15298,6 +15751,10 @@ export type InvokeHumanoidImageMaskStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/humanoidImageMask';
 };
@@ -15338,6 +15795,10 @@ export type InvokeImageBackgroundRemovalStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/imageBackgroundRemoval';
 };
@@ -15378,6 +15839,10 @@ export type InvokeImageGenStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/imageGen';
 };
@@ -15418,6 +15883,10 @@ export type InvokeImageResourceTrainingStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/imageResourceTraining';
 };
@@ -15458,6 +15927,10 @@ export type InvokeImageScanningStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/imageScanning';
 };
@@ -15498,6 +15971,10 @@ export type InvokeImageToSvgStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/imageToSvg';
 };
@@ -15538,6 +16015,10 @@ export type InvokeImageUploadStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/imageUpload';
 };
@@ -15578,6 +16059,10 @@ export type InvokeImageUpscalerStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/imageUpscaler';
 };
@@ -15610,6 +16095,50 @@ export type InvokeImageUpscalerStepTemplateResponses = {
 export type InvokeImageUpscalerStepTemplateResponse =
   InvokeImageUpscalerStepTemplateResponses[keyof InvokeImageUpscalerStepTemplateResponses];
 
+export type InvokeLiveTranscriptionStepTemplateData = {
+  body?: LiveTranscriptionInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+  };
+  url: '/v2/consumer/recipes/liveTranscription';
+};
+
+export type InvokeLiveTranscriptionStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeLiveTranscriptionStepTemplateError =
+  InvokeLiveTranscriptionStepTemplateErrors[keyof InvokeLiveTranscriptionStepTemplateErrors];
+
+export type InvokeLiveTranscriptionStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: LiveTranscriptionOutput;
+};
+
+export type InvokeLiveTranscriptionStepTemplateResponse =
+  InvokeLiveTranscriptionStepTemplateResponses[keyof InvokeLiveTranscriptionStepTemplateResponses];
+
 export type InvokeMediaCaptioningStepTemplateData = {
   body?: MediaCaptioningInput;
   path?: never;
@@ -15618,6 +16147,10 @@ export type InvokeMediaCaptioningStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/mediaCaptioning';
 };
@@ -15658,6 +16191,10 @@ export type InvokeMediaHashStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/mediaHash';
 };
@@ -15698,6 +16235,10 @@ export type InvokeMediaRatingStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/mediaRating';
 };
@@ -15730,6 +16271,50 @@ export type InvokeMediaRatingStepTemplateResponses = {
 export type InvokeMediaRatingStepTemplateResponse =
   InvokeMediaRatingStepTemplateResponses[keyof InvokeMediaRatingStepTemplateResponses];
 
+export type InvokeMergeStepTemplateData = {
+  body?: MergeInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+  };
+  url: '/v2/consumer/recipes/merge';
+};
+
+export type InvokeMergeStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeMergeStepTemplateError =
+  InvokeMergeStepTemplateErrors[keyof InvokeMergeStepTemplateErrors];
+
+export type InvokeMergeStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: MergeOutput;
+};
+
+export type InvokeMergeStepTemplateResponse =
+  InvokeMergeStepTemplateResponses[keyof InvokeMergeStepTemplateResponses];
+
 export type InvokeMiniMaxMusic3StepTemplateData = {
   body?: MiniMaxMusic3Input;
   path?: never;
@@ -15738,6 +16323,10 @@ export type InvokeMiniMaxMusic3StepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/miniMaxMusic3';
 };
@@ -15778,6 +16367,10 @@ export type InvokeModel3dPreviewStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/model3DPreview';
 };
@@ -15818,6 +16411,10 @@ export type InvokeModelClamScanStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/modelClamScan';
 };
@@ -15858,6 +16455,10 @@ export type InvokeModelHashStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/modelHash';
 };
@@ -15898,6 +16499,10 @@ export type InvokeModelParseMetadataStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/modelParseMetadata';
 };
@@ -15938,6 +16543,10 @@ export type InvokeModelPickleScanStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/modelPickleScan';
 };
@@ -15978,6 +16587,10 @@ export type InvokePolyGenStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/polyGen';
 };
@@ -16018,6 +16631,10 @@ export type InvokePrepareResourceStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/prepareResource';
 };
@@ -16058,6 +16675,10 @@ export type InvokePreprocessImageStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/preprocessImage';
 };
@@ -16098,6 +16719,10 @@ export type InvokePreprocessVideoStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/preprocessVideo';
 };
@@ -16138,6 +16763,10 @@ export type InvokePromptEnhancementStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/promptEnhancement';
 };
@@ -16178,6 +16807,10 @@ export type InvokeQwenImageBenchStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/qwenImageBench';
 };
@@ -16218,6 +16851,10 @@ export type InvokeRepeatStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/repeat';
 };
@@ -16258,6 +16895,10 @@ export type InvokeShieldstralModerationStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/shieldstralModeration';
 };
@@ -16298,6 +16939,10 @@ export type InvokeSoniloAudioGenStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/soniloAudioGen';
 };
@@ -16338,6 +16983,10 @@ export type InvokeTextToImageStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/textToImage';
 };
@@ -16378,6 +17027,10 @@ export type InvokeTextToSpeechStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/textToSpeech';
 };
@@ -16418,6 +17071,10 @@ export type InvokeTrainingStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/training';
 };
@@ -16458,6 +17115,10 @@ export type InvokeTranscodeStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/transcode';
 };
@@ -16498,6 +17159,10 @@ export type InvokeTranscriptionStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/transcription';
 };
@@ -16538,6 +17203,10 @@ export type InvokeTryOnUStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/tryOnU';
 };
@@ -16578,6 +17247,10 @@ export type InvokeVideoBackgroundRemovalStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/videoBackgroundRemoval';
 };
@@ -16618,6 +17291,10 @@ export type InvokeVideoEnhancementStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/videoEnhancement';
 };
@@ -16658,6 +17335,10 @@ export type InvokeVideoFrameExtractionStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/videoFrameExtraction';
 };
@@ -16698,6 +17379,10 @@ export type InvokeVideoGenStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/videoGen';
 };
@@ -16738,6 +17423,10 @@ export type InvokeVideoInterpolationStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/videoInterpolation';
 };
@@ -16778,6 +17467,10 @@ export type InvokeVideoMetadataStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/videoMetadata';
 };
@@ -16818,6 +17511,10 @@ export type InvokeVideoUpscalerStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/videoUpscaler';
 };
@@ -16858,6 +17555,10 @@ export type InvokeWdTaggingStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/wdTagging';
 };
@@ -16898,6 +17599,10 @@ export type InvokeWebScrapeStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/webScrape';
 };
@@ -16938,6 +17643,10 @@ export type InvokeWebSearchStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/webSearch';
 };
@@ -16978,6 +17687,10 @@ export type InvokeXGuardModerationStepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/xGuardModeration';
 };
@@ -17018,6 +17731,10 @@ export type InvokeYuE2StepTemplateData = {
     allowMatureContent?: boolean;
     whatif?: boolean;
     ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
   };
   url: '/v2/consumer/recipes/yuE2';
 };
@@ -17276,6 +17993,49 @@ export type GetStreamingBlobResponses = {
   200: unknown;
 };
 
+export type AppendStreamingBlobData = {
+  body?: never;
+  path: {
+    blobKey: string;
+  };
+  query?: {
+    seq?: number;
+    final?: boolean;
+  };
+  url: '/v2/consumer/streaming-blobs/{blobKey}';
+};
+
+export type AppendStreamingBlobErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+  /**
+   * Conflict
+   */
+  409: StreamingBlobAppendResponse;
+  /**
+   * Content Too Large
+   */
+  413: ProblemDetails;
+};
+
+export type AppendStreamingBlobError = AppendStreamingBlobErrors[keyof AppendStreamingBlobErrors];
+
+export type AppendStreamingBlobResponses = {
+  /**
+   * OK
+   */
+  200: StreamingBlobAppendResponse;
+};
+
+export type AppendStreamingBlobResponse =
+  AppendStreamingBlobResponses[keyof AppendStreamingBlobResponses];
+
 export type QueryWorkflowsData = {
   body?: never;
   headers?: {
@@ -17298,6 +18058,10 @@ export type QueryWorkflowsData = {
      * An optional list of tags to query by
      */
     tags?: Array<string>;
+    /**
+     * An optional list of tags; workflows with any of these tags are excluded
+     */
+    excludeTags?: Array<string>;
     /**
      * An optional additional query that is used to match workflows through metadata
      */
