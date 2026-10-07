@@ -7961,6 +7961,31 @@ export const NsfwLevel = {
 
 export type NsfwLevel = (typeof NsfwLevel)[keyof typeof NsfwLevel];
 
+export type NanoBanana21ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
+  prompt: string;
+  aspectRatio?:
+    | '21:9'
+    | '16:9'
+    | '3:2'
+    | '4:3'
+    | '5:4'
+    | '1:1'
+    | '4:5'
+    | '3:4'
+    | '2:3'
+    | '9:16'
+    | '1:4'
+    | '4:1'
+    | '1:8'
+    | '8:1'
+    | '9:21';
+  numImages?: number;
+  resolution?: '1K' | '2K' | '4K';
+  images?: Array<string>;
+  model: 'nano-banana-2.1';
+  engine: 'google';
+};
+
 export type NanoBanana2ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
   aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
