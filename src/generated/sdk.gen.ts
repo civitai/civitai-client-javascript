@@ -115,6 +115,9 @@ import type {
   InvokeImageUpscalerStepTemplateData,
   InvokeImageUpscalerStepTemplateErrors,
   InvokeImageUpscalerStepTemplateResponses,
+  InvokeLiveTextToSpeechStepTemplateData,
+  InvokeLiveTextToSpeechStepTemplateErrors,
+  InvokeLiveTextToSpeechStepTemplateResponses,
   InvokeLiveTranscriptionStepTemplateData,
   InvokeLiveTranscriptionStepTemplateErrors,
   InvokeLiveTranscriptionStepTemplateResponses,
@@ -163,6 +166,9 @@ import type {
   InvokePromptEnhancementStepTemplateData,
   InvokePromptEnhancementStepTemplateErrors,
   InvokePromptEnhancementStepTemplateResponses,
+  InvokePromptModerationStepTemplateData,
+  InvokePromptModerationStepTemplateErrors,
+  InvokePromptModerationStepTemplateResponses,
   InvokeQwenImageBenchStepTemplateData,
   InvokeQwenImageBenchStepTemplateErrors,
   InvokeQwenImageBenchStepTemplateResponses,
@@ -422,8 +428,7 @@ export const getFreeTier = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Workflow step for generating music using ACE Step 1.5.
- * /// Produces full songs from text descriptions and structured lyrics.
+ * Generates full songs from text descriptions and structured lyrics with ACE Step 1.5.
  */
 export const invokeAceStepAudioStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeAceStepAudioStepTemplateData, ThrowOnError>
@@ -502,9 +507,8 @@ export const invokeBatchOcrSafetyClassificationStepTemplate = <
   });
 
 /**
- * Bundles a set of blobs into a single archive (zip or tar) that callers can
- * /// download from a signed streaming URL. Runs in-process in the orchestrator;
- * /// no worker job is dispatched.
+ * Bundles blobs into a single zip or tar that callers download from a signed streaming URL.
+ * /// Runs in-process in the orchestrator; no worker job is dispatched.
  */
 export const invokeBlobArchiveStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeBlobArchiveStepTemplateData, ThrowOnError>
@@ -584,12 +588,8 @@ export const invokeComfyNodepackSnapshotStepTemplate = <ThrowOnError extends boo
 /**
  * Compose Media
  *
- * Composes multiple audio and/or video elements onto a single timeline and canvas: overlay and
- * /// stack videos, scale and pad them to an output canvas, mix and place audio, and apply per-element
- * /// transformers (fades, volume). Each element is placed at its own absolute or implicitly-sequenced
- * /// start time. Produces a video blob when any element is video, otherwise an audio blob. Pair with
- * /// text-to-speech, music, and video-generation steps to assemble narrated clips, multi-speaker
- * /// scenes with cross-talk, or picture-in-picture compositions.
+ * Composes audio and/or video elements onto one timeline and canvas: overlay and stack videos, mix and place audio,
+ * /// and apply per-element transformers (fades, volume). Produces a video blob when any element is video, otherwise an audio blob.
  */
 export const invokeComposeMediaStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeComposeMediaStepTemplateData, ThrowOnError>
@@ -629,11 +629,9 @@ export const invokeConvertImageStepTemplate = <ThrowOnError extends boolean = fa
 /**
  * CustomComfy
  *
- * Submit a raw ComfyUI workflow graph for execution. Every resource the
- * /// workflow uses (checkpoints, loras, AND <c>comfy:nodepack</c> URNs for
- * /// runtime-installable custom nodes) must be declared in <c>Resources</c> —
- * /// the orchestrator does not scan the workflow. Billing happens after
- * /// execution based on actual ComfyUI runtime; infra failures don't charge.
+ * Submit a raw ComfyUI workflow graph for execution. Every resource the workflow uses, including <c>comfy:nodepack</c> URNs
+ * /// for custom nodes, must be declared in <c>resources</c>; the orchestrator does not scan the workflow. Billed after execution
+ * /// on actual ComfyUI runtime; infra failures don't charge.
  */
 export const invokeCustomComfyStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeCustomComfyStepTemplateData, ThrowOnError>
@@ -690,7 +688,7 @@ export const invokeHumanoidImageMaskStepTemplate = <ThrowOnError extends boolean
   });
 
 /**
- * A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job).
+ * Removes the background from an image using BiRefNet.
  */
 export const invokeImageBackgroundRemovalStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeImageBackgroundRemovalStepTemplateData, ThrowOnError>
@@ -820,6 +818,27 @@ export const invokeImageUpscalerStepTemplate = <ThrowOnError extends boolean = f
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/imageUpscaler',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Live text to speech
+ *
+ * Append text to <c>output.inputUrl</c> and play <c>output.audioUrl</c>; billed per character once the session ends.
+ */
+export const invokeLiveTextToSpeechStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeLiveTextToSpeechStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeLiveTextToSpeechStepTemplateResponses,
+    InvokeLiveTextToSpeechStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/liveTextToSpeech',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1154,6 +1173,27 @@ export const invokePromptEnhancementStepTemplate = <ThrowOnError extends boolean
   });
 
 /**
+ * PromptModeration
+ *
+ * Evaluate CR, Young and Sexual together with Civitai Imajev's fixed BF16 model and packaged policies.
+ */
+export const invokePromptModerationStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokePromptModerationStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokePromptModerationStepTemplateResponses,
+    InvokePromptModerationStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/promptModeration',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
  * Qwen Image Bench
  *
  * Scores generated images against their prompts using Qwen-Image-Bench.
@@ -1279,9 +1319,7 @@ export const invokeTextToSpeechStepTemplate = <ThrowOnError extends boolean = fa
 /**
  * Training
  *
- * A workflow step for training machine learning models (LoRAs, checkpoints, etc.)
- * /// on various types of data (images, videos, audio). This replaces ImageResourceTraining
- * /// with a cleaner architecture that creates one job per epoch instead of a single monolithic job.
+ * Trains models (LoRAs, checkpoints) on images, videos or audio, one job per epoch.
  */
 export const invokeTrainingStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeTrainingStepTemplateData, ThrowOnError>
@@ -1692,7 +1730,7 @@ export const submitWorkflow = <ThrowOnError extends boolean = false>(
 /**
  * Delete workflow
  *
- * This will delete a workflow. This may trigger a refund if the work requested with this workflow has not yet started
+ * May trigger a refund if the work requested with this workflow has not yet started
  */
 export const deleteWorkflow = <ThrowOnError extends boolean = false>(
   options: Options<DeleteWorkflowData, ThrowOnError>
@@ -1716,7 +1754,7 @@ export const getWorkflow = <ThrowOnError extends boolean = false>(
 /**
  * Patch workflow
  *
- * Patches a worfklow using JSON Patch. This can currently be used to cancel a worfklow, update metadata and add additional tags
+ * Patches a workflow using JSON Patch. This can currently be used to cancel a workflow, update metadata and add additional tags
  */
 export const patchWorkflow = <ThrowOnError extends boolean = false>(
   options: Options<PatchWorkflowData, ThrowOnError>
@@ -1733,7 +1771,7 @@ export const patchWorkflow = <ThrowOnError extends boolean = false>(
 /**
  * Update workflow
  *
- * Updates a worfklow. This can currently be used to cancel a worfklow or override metadata and/or tags
+ * Updates a workflow. This can currently be used to cancel a workflow or override metadata and/or tags
  */
 export const updateWorkflow = <ThrowOnError extends boolean = false>(
   options: Options<UpdateWorkflowData, ThrowOnError>
@@ -1761,8 +1799,6 @@ export const removeAllWorkflowTags = <ThrowOnError extends boolean = false>(
 
 /**
  * Add workflow tag
- *
- * Adds a tag to a workflow
  */
 export const addWorkflowTag = <ThrowOnError extends boolean = false>(
   options: Options<AddWorkflowTagData, ThrowOnError>

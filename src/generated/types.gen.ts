@@ -19,27 +19,21 @@ export type AiRecognitionResult = {
   confidence: number;
 };
 
-/**
- * Base input for AI Toolkit training across all ecosystems
- */
 export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
   ecosystem: string;
   /**
-   * Number of training epochs — the number of saved checkpoints produced (each epoch
-   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
-   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
+   * Number of saved checkpoints (one downloadable model per epoch). Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps when omitted;
+   * when both are supplied, epochs is the checkpoint count and steps the total.
    */
   epochs?: null | number;
   /**
-   * Total number of training steps. This is the primary control over training length and
-   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
-   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
+   * Total training steps; the primary control over training length and pricing.
+   * Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs when omitted.
    */
   steps?: null | number;
   /**
-   * Training batch size. Defaults to 1; raise it (up to the ecosystem's maximum) to train faster at the
-   * cost of more GPU memory. A larger batch sees more images per step, so fewer steps are needed for a
-   * comparable result. Values above the ecosystem maximum are clamped down.
+   * Defaults to 1; raise it (up to the ecosystem maximum, above which it is clamped) to train faster at the cost of GPU memory.
+   * A larger batch sees more images per step, so fewer steps are needed.
    */
   batchSize?: null | number;
   /**
@@ -78,11 +72,7 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored weights by Alpha/Dim (e.g. 16/32 halves the effective learning rate); equal to Dim means no scaling.
    */
   networkAlpha?: null | number;
   /**
@@ -98,9 +88,7 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   shuffleTokens?: boolean;
   /**
-   * If your training images have tags, you can randomly shuffle them.
-   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
-   * This option does nothing if the Shuffle Tokens option is off.
+   * Number of leading tags kept in place when Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.ShuffleTokens is on; does nothing otherwise.
    */
   keepTokens?: number;
   /**
@@ -115,34 +103,25 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
   continueFrom?: null | string;
   trace: TrainingTraceMode;
   /**
-   * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
-   * top of the per-step training cost — so raising the epoch count raises the price by this much each.
-   * Override per ecosystem where per-epoch samples are expensive to compute (e.g. video).
+   * Per-epoch surcharge (buzz) for the delivered checkpoint and its preview samples, billed on top of the per-step cost. Override where per-epoch samples are expensive (e.g. video).
    */
   readonly storageBuzzPerEpoch: number;
   /**
-   * Default total step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied.
-   * Override per ecosystem where the default training length differs (e.g. video needs more steps,
-   * quickly-overtrained models need fewer).
+   * Default step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied; override where the ecosystem needs more or fewer.
    */
   readonly defaultSteps: number;
   /**
-   * True when billing uses the per-step model. This is the default; the only exception is the legacy
-   * path where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps (existing consumers),
+   * False only on the legacy path where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps,
    * which keeps the historical flat per-epoch price.
    */
   readonly usesStepPricing: boolean;
   /**
-   * Ecosystem-specific maximum training batch size — the upper bound the user's
-   * Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.BatchSize is clamped to. Most ecosystems cap at 1.
+   * Upper bound the user's Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.BatchSize is clamped to; most ecosystems cap at 1.
    */
   readonly maxBatchSize: number;
   engine: 'ai-toolkit';
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 base models.
- */
 export type AceStep15AiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -156,9 +135,6 @@ export type AceStep15AiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 XL models.
- */
 export type AceStep15XlAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -169,9 +145,6 @@ export type AceStep15XlAiToolkitTrainingInput = Omit<
   engine: 'ai-toolkit';
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 XL base models.
- */
 export type AceStep15XlBaseAiToolkitTrainingInput = Omit<
   AceStep15XlAiToolkitTrainingInput,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -185,9 +158,6 @@ export type AceStep15XlBaseAiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 XL SFT models.
- */
 export type AceStep15XlSftAiToolkitTrainingInput = Omit<
   AceStep15XlAiToolkitTrainingInput,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -202,19 +172,15 @@ export type AceStep15XlSftAiToolkitTrainingInput = Omit<
 };
 
 /**
- * Cover image configuration for ACE Step audio output.
  * When present, the output is a WebM video with this image as the visual.
  */
 export type AceStepAudioCover = {
   /**
-   * The cover image source.
+   * Either A URL, A DataURL or a Base64 string
    */
   imageUrl: string;
 };
 
-/**
- * Input parameters for ACE Step 1.5 audio generation workflow step
- */
 export type AceStepAudioInput = {
   /**
    * Music style/genre description (e.g., "Neo-Soul: A warm, organic neo-soul track...")
@@ -224,9 +190,6 @@ export type AceStepAudioInput = {
    * Structured lyrics with section markers like [Verse], [Chorus], [Bridge], etc.
    */
   lyrics: string;
-  /**
-   * Random seed for reproducible generation
-   */
   seed: number;
   /**
    * Duration in seconds (1-190)
@@ -342,8 +305,7 @@ export type AceStepAudioInput = {
    */
   cfg?: number;
   /**
-   * Optional LoRAs to apply. Each entry's strength is applied to both the
-   * diffusion model (UNET) and the dual CLIP via ComfyUI's LoraLoader.
+   * LoRAs to apply; each strength applies to both the diffusion model and the dual CLIP.
    * Compatibility with non-default base models is the caller's responsibility.
    */
   loras?: {
@@ -351,17 +313,12 @@ export type AceStepAudioInput = {
   };
 };
 
-/**
- * Output from ACE Step 1.5 audio generation workflow step.
- * Returns a VideoBlob (when a background image is provided) or an AudioBlob (audio only).
- */
 export type AceStepAudioOutput = {
   blob: Blob;
 };
 
 /**
- * Workflow step for generating music using ACE Step 1.5.
- * Produces full songs from text descriptions and structured lyrics.
+ * Generates full songs from text descriptions and structured lyrics with ACE Step 1.5.
  */
 export type AceStepAudioStep = Omit<WorkflowStep, '$type'> & {
   input: AceStepAudioInput;
@@ -370,8 +327,7 @@ export type AceStepAudioStep = Omit<WorkflowStep, '$type'> & {
 };
 
 /**
- * Workflow step for generating music using ACE Step 1.5.
- * Produces full songs from text descriptions and structured lyrics.
+ * Generates full songs from text descriptions and structured lyrics with ACE Step 1.5.
  */
 export type AceStepAudioStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: AceStepAudioInput;
@@ -379,10 +335,8 @@ export type AceStepAudioStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 };
 
 /**
- * Optional per-prompt overrides for AceStep training sample generation.
- * Index-aligned with `Samples.Prompts`: entry `[i]` overrides the
- * defaults for the sample produced for prompt `[i]`. Any field left
- * null falls back to the hardcoded sample default.
+ * Per-prompt overrides for AceStep training samples, index-aligned with `Samples.Prompts`;
+ * null fields fall back to the hardcoded sample default.
  */
 export type AceStepSampleOverride = {
   lyrics?: null | string;
@@ -423,13 +377,7 @@ export type AgeClassificationOutput = {
   labels: {
     [key: string]: Array<AgeClassifierLabel>;
   };
-  /**
-   * Whether any minor was detected in the dataset
-   */
   hasMinor: boolean;
-  /**
-   * Total number of age predictions made
-   */
   numPredictions: number;
   /**
    * Number of flagged predictions (minors)
@@ -441,27 +389,15 @@ export type AgeClassificationOutput = {
   faceRecognitionFaces?: null | {
     [key: string]: Array<FaceDetectionInfo>;
   };
-  /**
-   * Total number of faces detected across all images
-   */
   faceRecognitionNumFaces?: null | number;
   /**
    * Estimated number of unique people in the dataset (based on similarity clustering)
    */
   faceRecognitionNumUniquePeople?: null | number;
-  /**
-   * Whether face recognition data is available for this result
-   */
   faceRecognitionAvailable: boolean;
 };
 
-/**
- * Represents age classification results for media content.
- */
 export type AgeClassificationResult = {
-  /**
-   * Array of detected people with age classifications.
-   */
   detections: Array<AgeDetection>;
   status?: null | string;
   ran?: null | boolean;
@@ -498,9 +434,6 @@ export type AgeClassifierLabel = {
   personDetectionConfidence?: null | number;
 };
 
-/**
- * Represents a single age detection in an image.
- */
 export type AgeDetection = {
   /**
    * The detector type used (e.g., "yolo", "mediapipe", "ensemble").
@@ -515,9 +448,6 @@ export type AgeDetection = {
    * Confidence score for the age classification (0.0 to 1.0).
    */
   confidence: number;
-  /**
-   * Whether the detected person is classified as a minor.
-   */
   isMinor: boolean;
   /**
    * Full probability distribution across all age labels.
@@ -528,9 +458,6 @@ export type AgeDetection = {
   };
 };
 
-/**
- * AI Toolkit training for Anima models.
- */
 export type AnimaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   /**
    * The primary Anima model to train upon. Custom checkpoints use the base Anima repository as extras.
@@ -653,14 +580,8 @@ export const AnylineMergeWith = {
 
 export type AnylineMergeWith = (typeof AnylineMergeWith)[keyof typeof AnylineMergeWith];
 
-/**
- * Container format for a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep output.
- */
 export const ArchiveFormat = { ZIP: 'zip', TAR: 'tar' } as const;
 
-/**
- * Container format for a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep output.
- */
 export type ArchiveFormat = (typeof ArchiveFormat)[keyof typeof ArchiveFormat];
 
 /**
@@ -671,17 +592,8 @@ export type AssistantMessage = Omit<ChatCompletionMessage, 'role'> & {
    * The assistant message content (text only).
    */
   content?: null | string;
-  /**
-   * Optional name for the participant.
-   */
   name?: null | string;
-  /**
-   * Optional refusal message if the model refused to respond.
-   */
   refusal?: null | string;
-  /**
-   * Tool calls requested by the model.
-   */
   tool_calls?: null | Array<ChatCompletionToolCall>;
   /**
    * Generated images attached to this assistant message, populated when the request
@@ -766,27 +678,20 @@ export type AvailableResourceAvailability = Omit<ResourceAvailability, 'status'>
 };
 
 /**
- * AVIF output format configuration. Animated sources are reduced to their first frame.
+ * Animated sources are reduced to their first frame.
  */
 export type AvifOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   /**
    * Quality setting for AVIF compression (1-100). Only applies when Lossless is false.
    */
   quality?: number;
-  /**
-   * When true, uses lossless compression. When false, uses lossy compression with the Quality setting.
-   */
   lossless?: boolean;
   format: 'avif';
 };
 
 /**
- * Removes the element's background per frame via a deterministic edge-connected flood fill
- * (unlike the AI-matting `imageBackgroundRemoval` step): the background colour is estimated
- * from the frame border and every border-connected pixel within tolerance becomes transparent,
- * so background-coloured pixels enclosed inside the artwork are kept. Video elements only. Pair
- * with an alpha-capable output container (webp) and a transparent canvas background to carry the
- * transparency into the output.
+ * Per-frame edge-connected flood fill from the border colour (not AI matting), so enclosed background-coloured pixels
+ * are kept. Video only; needs an alpha-capable container (webp) and a transparent canvas background to carry the transparency.
  */
 export type BackgroundRemovalTransformer = Omit<MediaTransformer, 'type'> & {
   shadowRemoval?: ShadowRemoval;
@@ -821,50 +726,29 @@ export type BatchOcrSafetyClassificationResult = {
   text?: null | string;
 };
 
-/**
- * Represents a blob that gets produced as part of a specific job
- */
 export type Blob = {
   type: string;
-  /**
-   * Gets the id of the blob that contains this image.
-   */
   id: string;
-  /**
-   * Gets a value indicating whether the blob is available.
-   */
   available: boolean;
-  /**
-   * Gets a url that can be used to preview the blob.
-   */
   url?: null | string;
-  /**
-   * Get when the url is set to expire
-   */
   urlExpiresAt?: null | string;
-  /**
-   * Get the id of the job that is associated with this blob.
-   */
   jobId?: null | string;
   nsfwLevel?: NsfwLevel;
-  /**
-   * Get an optional reason for why the blob was blocked. This is only set if the blob was blocked.
-   */
   blockedReason?: null | string;
   /**
-   * Get the storage tier holding this blob, when one was declared. Null resolves to the private
-   * managed tier, falling back to the classic one for blobs written before producers moved off it.
+   * Deprecated: use Civitai.Orchestration.Grains.Workflows.Steps.Common.Blob.PublicUrl to tell a public blob. Get the storage tier holding this blob, when
+   * one was declared. Null resolves to the private managed tier, falling back to the classic one for blobs
+   * written before producers moved off it.
    */
   tier?: null | string;
+  /**
+   * The durable, unsigned url of a blob requested public, which a CDN can cache. Set as soon as the blob is
+   * requested, so it may 404 until the workflow that produces it completes; Civitai.Orchestration.Grains.Workflows.Steps.Common.Blob.Url waits instead.
+   */
+  publicUrl?: null | string;
 };
 
-/**
- * A single entry within a Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveStep.
- */
 export type BlobArchiveEntry = {
-  /**
-   * The blob ID to include in the archive.
-   */
   blobId: string;
   /**
    * Optional filename to use inside the archive. When omitted, the blob ID is used.
@@ -873,9 +757,6 @@ export type BlobArchiveEntry = {
   fileName?: null | string;
 };
 
-/**
- * Input configuration for the BlobArchive workflow step.
- */
 export type BlobArchiveInput = {
   /**
    * The blobs to include in the archive. Must contain at least 1 and at most 1000 entries.
@@ -889,17 +770,11 @@ export type BlobArchiveInput = {
   format?: ArchiveFormat;
 };
 
-/**
- * Output produced by the BlobArchive workflow step.
- */
 export type BlobArchiveOutput = {
   /**
    * The signed URL that streams the archive when requested.
    */
   url: string;
-  /**
-   * The number of entries included in the archive.
-   */
   entryCount: number;
   format: ArchiveFormat;
   /**
@@ -909,9 +784,8 @@ export type BlobArchiveOutput = {
 };
 
 /**
- * Bundles a set of blobs into a single archive (zip or tar) that callers can
- * download from a signed streaming URL. Runs in-process in the orchestrator;
- * no worker job is dispatched.
+ * Bundles blobs into a single zip or tar that callers download from a signed streaming URL.
+ * Runs in-process in the orchestrator; no worker job is dispatched.
  */
 export type BlobArchiveStep = Omit<WorkflowStep, '$type'> & {
   input: BlobArchiveInput;
@@ -920,18 +794,14 @@ export type BlobArchiveStep = Omit<WorkflowStep, '$type'> & {
 };
 
 /**
- * Bundles a set of blobs into a single archive (zip or tar) that callers can
- * download from a signed streaming URL. Runs in-process in the orchestrator;
- * no worker job is dispatched.
+ * Bundles blobs into a single zip or tar that callers download from a signed streaming URL.
+ * Runs in-process in the orchestrator; no worker job is dispatched.
  */
 export type BlobArchiveStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: BlobArchiveInput;
   $type: 'blobArchive';
 };
 
-/**
- * A single training item: a consumer-uploaded blob plus an optional caption.
- */
 export type BlobTrainingDataItem = {
   /**
    * The blob reference. Accepts an AIR urn (urn:air:other:other:orchestrator:blob@{blobKey}),
@@ -978,28 +848,16 @@ export type BlurRegion = {
   y2: number;
 };
 
-/**
- * Determines how regions are applied to the blur operation.
- */
 export const BlurRegionMode = { INCLUDE: 'include', EXCLUDE: 'exclude' } as const;
 
-/**
- * Determines how regions are applied to the blur operation.
- */
 export type BlurRegionMode = (typeof BlurRegionMode)[keyof typeof BlurRegionMode];
 
 /**
  * Applies a Gaussian blur with optional region-based masking.
  */
 export type BlurTransform = Omit<ImageTransform, 'type'> & {
-  /**
-   * The blur intensity (1-100).
-   */
   blur: number;
   mode: BlurRegionMode;
-  /**
-   * Rectangular regions that define the blur mask.
-   */
   regions?: Array<BlurRegion>;
   type: 'blur';
 };
@@ -1039,9 +897,6 @@ export type BodyAgeDetection = {
   isOod: boolean;
 };
 
-/**
- * AI Toolkit training for Boogu Image models.
- */
 export type BooguAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly defaultSteps: number;
   ecosystem: 'boogu';
@@ -1052,9 +907,6 @@ export type BooguAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
   batchSize?: null | number;
 };
 
-/**
- * Represents a bounding box with coordinates.
- */
 export type BoundingBox = {
   x1: number;
   y1: number;
@@ -1081,41 +933,22 @@ export const BuzzClientAccount = {
 
 export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClientAccount];
 
-/**
- * A completion choice.
- */
 export type ChatCompletionChoice = {
-  /**
-   * The index of this choice.
-   */
   index: number;
   message: AssistantMessage;
-  /**
-   * The reason the model stopped generating.
-   */
   finishReason?: null | string;
-  /**
-   * Log probability information (if requested).
-   */
   logprobs?: null;
 };
 
 /**
- * Base type for message content parts.
- * Supports both camelCase (imageUrl) and snake_case (image_url) type discriminators via ContentPartJsonConverter.
+ * Accepts both camelCase (`imageUrl`) and snake_case (`image_url`) type discriminators.
  */
 export type ChatCompletionContentPart = {
   readonly type: string;
-  /**
-   * The text content.
-   */
   text?: null | string;
   imageUrl?: ChatCompletionImageUrl;
 };
 
-/**
- * A function definition within a tool.
- */
 export type ChatCompletionFunction = {
   name: string;
   description?: null | string;
@@ -1123,9 +956,6 @@ export type ChatCompletionFunction = {
   strict?: null | boolean;
 };
 
-/**
- * The function call details within a tool call.
- */
 export type ChatCompletionFunctionCall = {
   name: string;
   arguments: string;
@@ -1136,15 +966,12 @@ export type ChatCompletionFunctionCall = {
  * Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities. Matches the OpenRouter wire shape.
  */
 export type ChatCompletionGeneratedImage = {
-  /**
-   * Always "image_url".
-   */
   type?: string;
   image_url: ChatCompletionGeneratedImageUrl;
 };
 
 /**
- * The image_url payload on a generated image. Currently always a base64 data URI.
+ * Currently always a base64 data URI.
  */
 export type ChatCompletionGeneratedImageUrl = {
   /**
@@ -1158,9 +985,6 @@ export type ChatCompletionGeneratedImageUrl = {
  * Mirrors OpenRouter's `image_config` shape on chat-completion requests.
  */
 export type ChatCompletionImageConfig = {
-  /**
-   * Width:height aspect ratio. Examples: "1:1", "16:9", "9:16", "4:3", "3:4", "21:9".
-   */
   aspect_ratio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '21:9';
   /**
    * Approximate output resolution. "1K" ≈ 1MP, "2K" ≈ 2MP, etc. Engines clamp to their supported range.
@@ -1172,13 +996,9 @@ export type ChatCompletionImageConfig = {
   n?: null | number;
 };
 
-/**
- * Image URL details matching OpenAI API spec.
- */
 export type ChatCompletionImageUrl = {
   /**
-   * The image source (can be a URL, base64 data URI, or raw base64).
-   * After processing, this will contain the blob URL.
+   * A URL, base64 data URI, or raw base64.
    */
   url: string;
   /**
@@ -1192,14 +1012,7 @@ export type ChatCompletionImageUrl = {
  * Input for a chat completion step, compatible with OpenAI Chat Completions API.
  */
 export type ChatCompletionInput = {
-  /**
-   * The model to use for chat completion.
-   * Examples: "gpt-4o", "gpt-4-turbo", "gpt-4o-mini"
-   */
   model: string;
-  /**
-   * The messages to generate a completion for.
-   */
   messages: Array<ChatCompletionMessage>;
   /**
    * Temperature for sampling (0-2). Higher values make output more random.
@@ -1209,14 +1022,10 @@ export type ChatCompletionInput = {
    * Nucleus sampling parameter. Consider tokens with top_p probability mass.
    */
   topP?: number;
-  /**
-   * Maximum number of tokens to generate.
-   */
   maxTokens?: null | number;
   /**
-   * Optional vLLM reasoning-token limit per completion, including each server-tool round.
-   * Use 0 to end thinking immediately, or -1/null for no separate thinking limit.
-   * MaxTokens still limits the total generated thinking and answer tokens.
+   * vLLM reasoning-token limit per completion, including each server-tool round: 0 ends thinking immediately,
+   * -1/null sets no separate limit. MaxTokens still caps thinking plus answer tokens.
    */
   thinkingTokenBudget?: null | number;
   /**
@@ -1240,17 +1049,8 @@ export type ChatCompletionInput = {
    * Frequency penalty (-2.0 to 2.0). Positive values penalize new tokens based on their existing frequency in the text.
    */
   frequencyPenalty?: number;
-  /**
-   * Seed for deterministic sampling (beta feature).
-   */
   seed?: null | number;
-  /**
-   * A unique identifier for the end-user.
-   */
   user?: null | string;
-  /**
-   * Request token log probabilities in the response.
-   */
   logprobs?: null | boolean;
   /**
    * Number of top log probability candidates to return per generated token.
@@ -1264,9 +1064,6 @@ export type ChatCompletionInput = {
   chatTemplateKwargs?: null | {
     [key: string]: unknown;
   };
-  /**
-   * Tool definitions available for the model to call.
-   */
   tools?: null | Array<ChatCompletionTool>;
   /**
    * Controls which (if any) tool is called by the model.
@@ -1274,9 +1071,8 @@ export type ChatCompletionInput = {
    */
   tool_choice?: null;
   /**
-   * Output modalities the model should produce. Defaults to text-only when omitted.
-   * Supported values: "text", "image". When "image" is included, the request is routed
-   * to the image generation pipeline and returns generated images on the assistant message.
+   * Output modalities, "text" and/or "image"; defaults to text-only. Including "image" routes the request to the
+   * image generation pipeline and returns generated images on the assistant message.
    */
   modalities?: null | Array<string>;
   image_config?: ChatCompletionImageConfig;
@@ -1293,58 +1089,31 @@ export type ChatCompletionJsonSchema = {
   strict?: null | boolean;
 };
 
-/**
- * Base type for chat messages, discriminated by the "role" property.
- * Uses ChatCompletionMessageJsonConverter to handle polymorphism and user message content flexibility.
- */
 export type ChatCompletionMessage = {
   role: string;
 };
 
-/**
- * Output from a chat completion step.
- */
 export type ChatCompletionOutput = {
-  /**
-   * Unique identifier for the completion.
-   */
   id: string;
-  /**
-   * The object type, always "chat.completion".
-   */
   object?: string;
   /**
    * Unix timestamp of when the completion was created.
    */
   created: number;
-  /**
-   * The model used for completion.
-   */
   model: string;
-  /**
-   * The generated completion choices.
-   */
   choices: Array<ChatCompletionChoice>;
   usage?: ChatCompletionUsage;
-  /**
-   * System fingerprint for the model configuration.
-   */
   systemFingerprint?: null | string;
   /**
-   * Parsed JSON content of `Choices[0].Message.Content`. Populated when the request
-   * specified a JSON-flavored `response_format` and the content was parseable.
-   * Reachable from downstream workflow steps via `$ref` paths like
-   * `output.parsed.<field>` — DynamicAssignmentEvaluator walks JsonElement trees
-   * the same way it walks the rest of this output.
+   * Parsed JSON of `Choices[0].Message.Content`, populated when the request used a JSON `response_format`
+   * and the content parsed. Reachable from later steps via `$ref` paths like `output.parsed.<field>`.
    */
   parsed?: null;
 };
 
 /**
- * OpenAI-compatible response_format. When Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionResponseFormat.Type is `json_object` or
- * `json_schema`, the LLM-emitted content is parsed as JSON server-side and exposed on
- * Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionOutput.Parsed, allowing downstream workflow steps to reference
- * individual fields via `$ref` paths like `output.parsed.<field>`.
+ * OpenAI-compatible response_format. For `json_object` or `json_schema` the content is parsed server-side and
+ * exposed on Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionOutput.Parsed for `$ref` paths like `output.parsed.<field>`.
  */
 export type ChatCompletionResponseFormat = {
   /**
@@ -1378,9 +1147,6 @@ export type ChatCompletionTokensDetails = {
   reasoningTokens?: null | number;
 };
 
-/**
- * A tool definition sent in a chat completion request.
- */
 export type ChatCompletionTool = {
   type: string;
   function?: ChatCompletionFunction;
@@ -1390,37 +1156,19 @@ export type ChatCompletionTool = {
   parameters?: null;
 };
 
-/**
- * A tool call returned in an assistant message response.
- */
 export type ChatCompletionToolCall = {
   id: string;
   type: string;
   function: ChatCompletionFunctionCall;
 };
 
-/**
- * Token usage statistics for the completion.
- */
 export type ChatCompletionUsage = {
-  /**
-   * Number of tokens in the prompt.
-   */
   promptTokens: number;
-  /**
-   * Number of tokens in the generated completion.
-   */
   completionTokens: number;
-  /**
-   * Total number of tokens (prompt + completion).
-   */
   totalTokens: number;
   completionTokensDetails?: ChatCompletionTokensDetails;
 };
 
-/**
- * AI Toolkit training for Chroma models
- */
 export type ChromaAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   ecosystem: 'chroma';
   engine: 'ai-toolkit';
@@ -2067,9 +1815,6 @@ export type ComfyImageToSvgInput = Omit<ImageToSvgInput, 'engine'> & {
 };
 
 export type ComfyInput = {
-  /**
-   * Get the comfy workflow that needs to be executed
-   */
   comfyWorkflow: {
     [key: string]: ComfyNode;
   };
@@ -2317,9 +2062,6 @@ export type ComfyLtx23EditVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' | 
   engine: 'ltx2.3';
 };
 
-/**
- * Extend an existing video with new content (ComfyUI backend)
- */
 export type ComfyLtx23ExtendVideoInput = Omit<ComfyLtx23VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
   numFrames?: number;
@@ -2342,17 +2084,11 @@ export type ComfyLtx23FirstLastFrameToVideoInput = Omit<
    * Last frame guide image. At least one of FirstFrame or LastFrame must be provided.
    */
   lastFrame?: null | string;
-  /**
-   * Strength of the frame guide conditioning (0.0 to 1.0).
-   */
   frameGuideStrength?: number;
   operation: 'firstLastFrameToVideo';
   engine: 'ltx2.3';
 };
 
-/**
- * LTX Video v2.3 generation via ComfyUI backend
- */
 export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: null | string;
   negativePrompt?: null | string;
@@ -2372,9 +2108,8 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
     [key: string]: number;
   };
   /**
-   * Optional override for the LTX 2.3 diffusion-model checkpoint. When set, replaces the
-   * transformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx23VideoGenInput.Model while leaving the CLIPs, VAEs, and
-   * upscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base).
+   * Overrides the transformer checkpoint selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx23VideoGenInput.Model, leaving CLIPs, VAEs and upscale LoRA unchanged;
+   * use it for community fine-tunes (e.g. SulphurAI/Sulphur-2-base).
    */
   diffusionModel?: null | string;
   /**
@@ -2440,9 +2175,6 @@ export type ComfyLtx25EditVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 
   engine: 'ltx2.5';
 };
 
-/**
- * Extend an existing video with new content (ComfyUI backend)
- */
 export type ComfyLtx25ExtendVideoInput = Omit<ComfyLtx25VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
   numFrames?: number;
@@ -2465,17 +2197,11 @@ export type ComfyLtx25FirstLastFrameToVideoInput = Omit<
    * Last frame guide image. At least one of FirstFrame or LastFrame must be provided.
    */
   lastFrame?: null | string;
-  /**
-   * Strength of the frame guide conditioning (0.0 to 1.0).
-   */
   frameGuideStrength?: number;
   operation: 'firstLastFrameToVideo';
   engine: 'ltx2.5';
 };
 
-/**
- * LTX Video v2.5 generation via ComfyUI backend
- */
 export type ComfyLtx25VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: null | string;
   negativePrompt?: null | string;
@@ -2495,9 +2221,8 @@ export type ComfyLtx25VideoGenInput = Omit<VideoGenInput, 'engine'> & {
     [key: string]: number;
   };
   /**
-   * Optional override for the LTX 2.5 diffusion-model checkpoint. When set, replaces the
-   * transformer file selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx25VideoGenInput.Model while leaving the text encoder, VAEs, and
-   * upscale-LoRA behavior unchanged. Use to point at a community fine-tune (e.g. SulphurAI/Sulphur-2-base).
+   * Overrides the transformer checkpoint selected by Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.ComfyLtx25VideoGenInput.Model, leaving text encoder, VAEs and upscale LoRA unchanged;
+   * use it for community fine-tunes (e.g. SulphurAI/Sulphur-2-base).
    */
   diffusionModel?: null | string;
   /**
@@ -2542,9 +2267,6 @@ export type ComfyLtx2EditVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 'o
   engine: 'ltx2';
 };
 
-/**
- * Extend an existing video with new content (ComfyUI backend)
- */
 export type ComfyLtx2ExtendVideoInput = Omit<ComfyLtx2VideoGenInput, 'engine' | 'operation'> & {
   sourceVideo: string;
   numFrames?: number;
@@ -2567,17 +2289,11 @@ export type ComfyLtx2FirstLastFrameToVideoInput = Omit<
    * Last frame guide image. At least one of FirstFrame or LastFrame must be provided.
    */
   lastFrame?: null | string;
-  /**
-   * Strength of the frame guide conditioning (0.0 to 1.0).
-   */
   frameGuideStrength?: number;
   operation: 'firstLastFrameToVideo';
   engine: 'ltx2';
 };
 
-/**
- * LTX Video v2 generation via ComfyUI backend
- */
 export type ComfyLtx2VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: null | string;
   negativePrompt?: null | string;
@@ -2824,9 +2540,6 @@ export type ComfyMiniMaxH3ReferenceToVideoInput = Omit<
   engine: 'minimax-h3-comfy';
 };
 
-/**
- * MiniMax H3 generation through the local ComfyUI backend.
- */
 export type ComfyMiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: null | string;
   seed?: null | number;
@@ -2858,32 +2571,22 @@ export type ComfyNode = {
 };
 
 /**
- * Input for a ComfyNodepackSnapshot step: install one or more ComfyUI custom
- * nodepacks on a given comfy image (and hardware tier) and capture the
- * resolved install + editor metadata as reusable blobs. Runs on a real worker
- * so compiled/arch-specific deps match the fleet the consumer will run on.
+ * Installs ComfyUI custom nodepacks on a comfy image and captures the resolved install and editor metadata as
+ * reusable blobs. Runs on a real worker so compiled deps match the fleet the consumer will run on.
  */
 export type ComfyNodepackSnapshotInput = {
   /**
-   * The comfy container image to install against, as an `oci:image` AIR
-   * (e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy-cloud@v2.7.0`).
-   * The captured layer is only valid for this exact image, so it is part of
-   * the artifact's identity (hashed into the blob key). Optional: when omitted
-   * (e.g. a caller with no managed image of its own, like civitai-comfy-nodes
-   * offload) the handler resolves the configured default/"latest" comfy image
-   * (`ComfyImageOptions.DefaultComfyImage`).
+   * The comfy image to install against, as an `oci:image` AIR. The captured layer is only valid for this exact
+   * image, so it is part of the blob key; when omitted the handler uses the configured default comfy image.
    */
   comfyImage?: null | string;
   /**
-   * The `comfy:nodepack` AIRs to install and snapshot, e.g.
-   * `urn:air:comfy:nodepack:comfyregistry:kijai/comfyui-kjnodes@1.4.0`.
-   * One snapshot job is produced per pack (per-pack cache granularity).
+   * The `comfy:nodepack` AIRs to install and snapshot, e.g. `urn:air:comfy:nodepack:comfyregistry:kijai/comfyui-kjnodes@1.4.0`.
+   * One snapshot job is produced per pack.
    */
   nodepacks: Array<string>;
   /**
-   * Optional minimum GPU VRAM (GB) the capturing worker must report, gated in
-   * M:Civitai.Orchestration.Grains.Jobs.ComfyNodepackSnapshotJob.GetWorkerSupport(Civitai.Orchestration.Workers.WorkerRegistration). Mirrors the
-   * session's tier so the install happens on representative hardware.
+   * Minimum GPU VRAM (GB) the capturing worker must report, so the install happens on hardware representative of the session's tier.
    */
   minVramGb?: null | number;
   /**
@@ -2894,9 +2597,8 @@ export type ComfyNodepackSnapshotInput = {
 };
 
 /**
- * Output of a ComfyNodepackSnapshot step: one result per installed pack, each
- * carrying the three captured blobs (install layer, full /object_info, web
- * assets). Consumers read these directly from orchestrator blob storage.
+ * One result per installed pack, each carrying the captured install layer, full /object_info and web assets as
+ * blobs that consumers read directly from orchestrator blob storage.
  */
 export type ComfyNodepackSnapshotOutput = {
   results: Array<ComfyNodepackSnapshotResult>;
@@ -2908,10 +2610,8 @@ export type ComfyNodepackSnapshotResult = {
    */
   nodepack: string;
   /**
-   * The complete install-layer AIR — `urn:air:comfy:nodepacklayer:…@<ver>+<hex(image)>`,
-   * the (pack, comfy image) pair as a single self-describing resource. Consumers declare THIS on a
-   * customComfy step's `resources` (not the bare pack URN) so the worker resolves the layer through
-   * the normal resource pipeline.
+   * The complete install-layer AIR (`urn:air:comfy:nodepacklayer:…@<ver>+<hex(image)>`), the (pack, comfy image) pair.
+   * Declare this, not the bare pack URN, on a customComfy step's `resources`.
    */
   layerAir: string;
   layer: Blob;
@@ -2931,9 +2631,6 @@ export type ComfyNodepackSnapshotStepTemplate = Omit<WorkflowStepTemplate, '$typ
 };
 
 export type ComfyOutput = {
-  /**
-   * Get a list of blobs that got generated by this comfy workflow step.
-   */
   blobs: Array<Blob>;
 };
 
@@ -3256,21 +2953,16 @@ export type ComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'comfy';
 };
 
-/**
- * Input for model-family-driven Comfy-backed LoRA training.
- */
 export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
   ecosystem?: string;
   /**
-   * Number of training epochs — the number of saved checkpoints produced (each epoch
-   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
-   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
+   * Number of saved checkpoints (one downloadable model per epoch). Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps when omitted;
+   * when both are supplied, epochs is the checkpoint count and steps the total.
    */
   epochs?: null | number;
   /**
-   * Total number of training steps. This is the primary control over training length and
-   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
-   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
+   * Total training steps; the primary control over training length and pricing.
+   * Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs when omitted.
    */
   steps?: null | number;
   /**
@@ -3313,11 +3005,7 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored weights by Alpha/Dim (e.g. 16/32 halves the effective learning rate); equal to Dim means no scaling.
    */
   networkAlpha?: null | number;
   /**
@@ -3333,9 +3021,7 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   shuffleTokens?: boolean;
   /**
-   * If your training images have tags, you can randomly shuffle them.
-   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
-   * This option does nothing if the Shuffle Tokens option is off.
+   * Number of leading tags kept in place when Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.ShuffleTokens is on; does nothing otherwise.
    */
   keepTokens?: number;
   /**
@@ -3350,20 +3036,15 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
   continueFrom?: null | string;
   trace: TrainingTraceMode;
   /**
-   * Per-epoch surcharge (buzz). Each epoch is a delivered checkpoint plus its preview samples, billed on
-   * top of the per-step training cost — so raising the epoch count raises the price by this much each.
-   * Override per ecosystem where per-epoch samples are expensive to compute (e.g. video).
+   * Per-epoch surcharge (buzz) for the delivered checkpoint and its preview samples, billed on top of the per-step cost. Override where per-epoch samples are expensive (e.g. video).
    */
   readonly storageBuzzPerEpoch: number;
   /**
-   * Default total step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied.
-   * Override per ecosystem where the default training length differs (e.g. video needs more steps,
-   * quickly-overtrained models need fewer).
+   * Default step budget when neither Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps nor Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs is supplied; override where the ecosystem needs more or fewer.
    */
   readonly defaultSteps: number;
   /**
-   * True when billing uses the per-step model. This is the default; the only exception is the legacy
-   * path where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps (existing consumers),
+   * False only on the legacy path where the caller supplied Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs but no Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps,
    * which keeps the historical flat per-epoch price.
    */
   readonly usesStepPricing: boolean;
@@ -3491,16 +3172,13 @@ export type ComposeMediaElementInput = {
    */
   url?: null | string;
   /**
-   * Absolute start time on the output timeline, in seconds. When set, this element is anchored
-   * at this position and excluded from the implicit sequencing chain — useful for a music bed,
-   * or for placing an audio track at a known time over a video. When unset, the element starts
-   * after the previous non-anchored element ends, nudged by Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.Offset.
+   * Absolute start time on the output timeline, in seconds; anchors the element outside the implicit sequencing chain
+   * (e.g. a music bed). When unset, the element starts after the previous non-anchored element ends, nudged by Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.Offset.
    */
   at?: null | number;
   /**
-   * Seconds to nudge this element relative to its implicit "after-previous" position. Negative
-   * values produce overlap/interruption; positive values produce a gap. Ignored when
-   * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.At is set.
+   * Seconds to shift this element from its after-previous position: negative overlaps, positive leaves a gap.
+   * Ignored when Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.At is set.
    */
   offset?: number;
   layout?: MediaLayout;
@@ -3510,30 +3188,20 @@ export type ComposeMediaElementInput = {
   transformers?: Array<MediaTransformer>;
 };
 
-/**
- * Input for the ComposeMedia workflow step.
- */
 export type ComposeMediaInput = {
   /**
-   * The elements to compose, in implicit sequencing order. Overlapping audio intervals are
-   * mixed; overlapping video is layered by canvas `zOrder` then array order. To stitch
-   * videos end-to-end, list them in order with no `at`/`offset`.
+   * Elements in implicit sequencing order; overlapping audio is mixed, overlapping video is layered by canvas
+   * `zOrder` then array order. To stitch videos end-to-end, list them with no `at`/`offset`.
    */
   elements: Array<ComposeMediaElementInput>;
   canvas?: MediaCanvas;
   output?: ComposeMediaOutputSpec;
   /**
-   * If true, divide the audio mix by the number of overlapping elements to avoid clipping.
-   * Defaults to false to preserve per-element volume levels.
+   * Divide the audio mix by the number of overlapping elements to avoid clipping. Defaults to false.
    */
   normalize?: boolean;
 };
 
-/**
- * Output from the ComposeMedia workflow step. Discriminated on `type`: an
- * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.AudioComposeMediaOutput (`"audio"`) for an audio mixdown, or a
- * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.VideoComposeMediaOutput (`"video"`) for a video composition.
- */
 export type ComposeMediaOutput = {
   type: string;
   /**
@@ -3556,9 +3224,6 @@ export type ComposeMediaOutputSpec = {
  * Resolved timing for a single element in the composed output.
  */
 export type ComposeMediaResolvedElement = {
-  /**
-   * Where this element starts on the output timeline, in seconds.
-   */
   startSeconds: number;
   /**
    * Probed duration of the source clip, in seconds.
@@ -3592,33 +3257,23 @@ export const ContainerFormat = { MP4: 'mp4', WEB_M: 'webM' } as const;
 
 export type ContainerFormat = (typeof ContainerFormat)[keyof typeof ContainerFormat];
 
-/**
- * Input configuration for the ConvertImage workflow step.
- */
 export type ConvertImageInput = {
   /**
-   * The source image to convert.
+   * Either A URL, A DataURL or a Base64 string
    */
   image: string;
   /**
-   * Optional list of transforms to apply to the image before conversion.
-   * Transforms are applied in order.
+   * Applied in order, before conversion.
    */
   transforms?: Array<ImageTransform>;
   output: ImageOutputFormat;
   /**
-   * Stores the result in a bucket that serves it directly, so the returned url is stable and
-   * unsigned rather than presigned — a CDN can cache it, and reading it never touches the
-   * orchestrator. Restricted to privileged callers: nothing gates a read of that url, so no NSFW
-   * level, blocked reason or mature-content restriction applies to it, and a block decided after
-   * the fact cannot take it back.
+   * Stores the result in a bucket that serves it directly, so the URL is stable and unsigned (CDN-cacheable). Privileged
+   * callers only: nothing gates a read, so no NSFW level, blocked reason or mature-content restriction applies and a later block cannot take it back.
    */
   public?: null | boolean;
 };
 
-/**
- * Output from the ConvertImage workflow step.
- */
 export type ConvertImageOutput = {
   blob?: ImageBlob;
 };
@@ -3650,17 +3305,10 @@ export type CursedArrayOfTelemetryCursorAndWorkflow = {
   items: Array<Workflow>;
 };
 
-/**
- * Input for a CustomComfy step.
- */
 export type CustomComfyInput = {
   /**
-   * All resources the workflow needs, declared explicitly as AIR URNs.
-   * Includes checkpoint/lora/vae models AND `comfy:nodepack` URNs
-   * for runtime-installable custom nodes
-   * (e.g. `urn:air:comfy:nodepack:comfyregistry:kijai/comfyui-kjnodes@1.4.0`).
-   * Anything the workflow references that isn't listed here will fail at
-   * load time inside ComfyUI.
+   * All resources the workflow needs as AIR URNs, including `comfy:nodepack` URNs for runtime-installable
+   * custom nodes. Anything the workflow references that is not listed here fails at load time inside ComfyUI.
    */
   resources: Array<string>;
   /**
@@ -3670,55 +3318,35 @@ export type CustomComfyInput = {
   workflow: unknown;
   trace: TraceMode;
   /**
-   * Optional session identifier. When set, the scheduler prefers a
-   * worker that already holds this session's ComfyUI container (P5
-   * session affinity). Null = no preference, treated as a fresh session.
+   * When set, the scheduler prefers a worker that already holds this session's ComfyUI container.
+   * Null = no preference.
    */
   sessionId?: null | string;
   /**
-   * Optional custom comfy container image, declared as an
-   * `urn:air:oci:image:<source>:<repo>@<version|sha256:…>` AIR
-   * (e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy@v2.5.5`).
-   * When set, the worker pulls and runs this image instead of its default
-   * comfy image. Null = worker default.
+   * Custom comfy container image as an `urn:air:oci:image:<source>:<repo>@<version|sha256:…>` AIR
+   * (e.g. `urn:air:oci:image:ghcr:civitai/civitai-spine-comfy@v2.5.5`). Null = worker default.
    */
   comfyImage?: null | string;
   /**
-   * Optional minimum GPU VRAM (in GB) the claiming worker must have. The
-   * scheduler only offers the job to workers whose reported host VRAM
-   * (`WorkerCapabilities.HostResources.MaxVramGb`) is at least this.
-   * Null = no requirement (any comfy-capable worker). Lets a session
-   * request a higher-VRAM tier (e.g. 48) for heavy workflows.
+   * Minimum GPU VRAM (GB) the claiming worker must report. Null = any comfy-capable worker.
    */
   minVramGb?: null | number;
   /**
-   * Optional toggle for ComfyUI's Sage Attention. When true, the worker
-   * launches ComfyUI with `--use-sage-attention`. Null/false = the
-   * image's default (off for the cloud/slim images). The SageAttention
-   * wheel is baked into the comfy images; this only flips the flag.
+   * Launches ComfyUI with `--use-sage-attention`. Null/false = the image's default (off for the cloud/slim images).
    */
   useSageAttention?: null | boolean;
   /**
-   * Optional submit-time affordability gate (seconds). When set, the workflow is rejected at
-   * submit (→ 400) unless the user can afford at least this many seconds of generation — the
-   * check lives in `CustomComfyHandler.InitializeAsync`. The consumer (comfy-cloud)
-   * defaults it to e.g. 300 and, when rejected, warns the user how much generation they have
-   * left; choosing "run anyway" resubmits with this omitted to skip the gate. The live-balance
-   * guard still cancels mid-run if the balance later goes negative. Null = no gate.
+   * Submit-time affordability gate: the workflow is rejected (400) unless the user can afford at least this many
+   * seconds of generation. Null = no gate; the live-balance guard still cancels mid-run if the balance goes negative.
    */
   minimumDurationSeconds?: null | number;
 };
 
-/**
- * Output from a CustomComfy step.
- */
 export type CustomComfyOutput = {
   blobs: Array<Blob>;
   /**
-   * Consumer URL for the recorded ComfyUI `/ws` trace (plain-text
-   * `.txt` log or framed binary `.bin` recording, per the requested
-   * `trace` mode), tailable live while the job runs. Null when tracing
-   * wasn't requested.
+   * URL of the recorded ComfyUI `/ws` trace (`.txt` log or `.bin` recording per the requested `trace` mode),
+   * tailable live while the job runs. Null when tracing wasn't requested.
    */
   traceUrl?: null | string;
   tempBlobs: Array<Blob>;
@@ -3789,9 +3417,6 @@ export type CustomTextToSpeechInput = Omit<TextToSpeechInput, 'engine'> & {
    * Optional style instruction for CustomVoice mode.
    */
   instruct?: null | string;
-  /**
-   * Optional generation cap for max tokens.
-   */
   maxNewTokens?: null | number;
   engine: 'custom';
 };
@@ -3847,23 +3472,11 @@ export const DwPoseEstimator = {
 
 export type DwPoseEstimator = (typeof DwPoseEstimator)[keyof typeof DwPoseEstimator];
 
-/**
- * Represents the input information needed for the Echo workflow step.
- */
 export type EchoInput = {
-  /**
-   * The message to be returned in the output.
-   */
   message: string;
 };
 
-/**
- * Represents the output information returned from the Echo workflow step.
- */
 export type EchoOutput = {
-  /**
-   * The message to be returned.
-   */
   message: string;
 };
 
@@ -3884,22 +3497,13 @@ export type EchoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'echo';
 };
 
-/**
- * An epock result.
- */
 export type EpochResult = {
   epochNumber: number;
-  /**
-   * Get the name of the generated epoch assets
-   */
   blobName: string;
   /**
    * Get the total size in bytes of the asset
    */
   blobSize?: null | number;
-  /**
-   * Get a list of the names of the blobs that represent sample images
-   */
   sampleImages: Array<string>;
   /**
    * A presigned url that points to the epoch file
@@ -3907,9 +3511,6 @@ export type EpochResult = {
   blobUrl: string;
 };
 
-/**
- * AI Toolkit training for ERNIE-Image models
- */
 export type ErnieAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly maxBatchSize: number;
   ecosystem: 'ernie';
@@ -3920,9 +3521,6 @@ export type ErnieAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
   batchSize?: null | number;
 };
 
-/**
- * Represents a single face detection with embeddings and landmarks.
- */
 export type FaceDetection = {
   boundingBox: BoundingBox;
   /**
@@ -3932,15 +3530,9 @@ export type FaceDetection = {
   landmarks?: null | {
     [key: string]: ValueTupleOfDoubleAndDouble;
   };
-  /**
-   * Face embedding vector for similarity comparison.
-   */
   embedding?: null | Array<number>;
 };
 
-/**
- * Information about a detected face in an image
- */
 export type FaceDetectionInfo = {
   /**
    * Bounding box coordinates [x1, y1, x2, y2]
@@ -3952,19 +3544,10 @@ export type FaceDetectionInfo = {
   landmarks?: null | {
     [key: string]: Array<number>;
   };
-  /**
-   * Whether this face has an embedding (for similarity comparison)
-   */
   hasEmbedding: boolean;
 };
 
-/**
- * Represents face recognition results for media content.
- */
 export type FaceRecognitionResult = {
-  /**
-   * Array of detected faces with embeddings and landmarks.
-   */
   faces: Array<FaceDetection>;
   /**
    * Pairwise cosine similarity matrix between detected faces.
@@ -3977,9 +3560,6 @@ export type FaceRecognitionResult = {
  * Linear fade from silence (audio) and/or black (video) at the head of the element.
  */
 export type FadeInTransformer = Omit<MediaTransformer, 'type'> & {
-  /**
-   * Fade-in duration in milliseconds.
-   */
   durationMs: number;
   type: 'fadeIn';
 };
@@ -3988,9 +3568,6 @@ export type FadeInTransformer = Omit<MediaTransformer, 'type'> & {
  * Linear fade to silence (audio) and/or black (video) at the tail of the element.
  */
 export type FadeOutTransformer = Omit<MediaTransformer, 'type'> & {
-  /**
-   * Fade-out duration in milliseconds.
-   */
   durationMs: number;
   type: 'fadeOut';
 };
@@ -4017,9 +3594,6 @@ export const FileFormat = {
 
 export type FileFormat = (typeof FileFormat)[keyof typeof FileFormat];
 
-/**
- * AI Toolkit training for Flux.1 models
- */
 export type Flux1AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   modelVariant: string;
   readonly storageBuzzPerEpoch: number;
@@ -4027,9 +3601,6 @@ export type Flux1AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
   engine: 'ai-toolkit';
 };
 
-/**
- * AI Toolkit training for Flux.1 Dev models
- */
 export type Flux1DevAiToolkitTrainingInput = Omit<
   Flux1AiToolkitTrainingInput,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -4100,9 +3671,6 @@ export type Flux1ProUltraImageGenInput = Omit<Flux1ProFamilyImageGenInput, 'engi
   engine: 'flux1-pro';
 };
 
-/**
- * AI Toolkit training for Flux.1 Schnell models
- */
 export type Flux1SchnellAiToolkitTrainingInput = Omit<
   Flux1AiToolkitTrainingInput,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -4191,17 +3759,11 @@ export type Flux2DevEditImageInput = Omit<
   engine: 'flux2';
 };
 
-/**
- * Input for Flux 2 Dev image editing LoRA training via FAL.
- */
 export type Flux2DevEditImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
   /**
    * Number of training steps. Must be in increments of 100.
    */
   steps?: number;
-  /**
-   * Learning rate for training.
-   */
   learningRate?: number;
   /**
    * Default caption to use if caption files are missing from training data.
@@ -4224,17 +3786,11 @@ export type Flux2DevImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'>
   engine: 'flux2';
 };
 
-/**
- * Input for Flux 2 Dev text-to-image LoRA training via FAL.
- */
 export type Flux2DevImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
   /**
    * Number of training steps. Must be in increments of 100.
    */
   steps?: number;
-  /**
-   * Learning rate for training.
-   */
   learningRate?: number;
   /**
    * Default caption to use if caption files are missing from training data.
@@ -4333,9 +3889,6 @@ export type Flux2ImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'flux2';
 };
 
-/**
- * AI Toolkit training for Flux2 Klein 4b-base models
- */
 export type Flux2Klein4bAiToolkitTrainingInput = Omit<
   Flux2KleinAiToolkitTrainingInput,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -4350,9 +3903,6 @@ export type Flux2Klein4bAiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Flux2 Klein 9b-base models
- */
 export type Flux2Klein9bAiToolkitTrainingInput = Omit<
   Flux2KleinAiToolkitTrainingInput,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -4366,9 +3916,6 @@ export type Flux2Klein9bAiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Flux2 Klein models (image training)
- */
 export type Flux2KleinAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -4412,9 +3959,6 @@ export type Flux2KleinImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model
   loras?: {
     [key: string]: number;
   };
-  /**
-   * The Klein model variant: 4b, 4b-base, 9b, 9b-base, or 9b-kv (ComfyUI)
-   */
   modelVersion?: '4b' | '4b-base' | '9b' | '9b-base' | '9b-kv';
   model: 'klein';
   engine: 'flux2';
@@ -4622,7 +4166,7 @@ export type Flux3V3ExtendVideoInput = Omit<
   'engine' | 'version' | 'operation'
 > & {
   /**
-   * Duration of the generated video in seconds.
+   * Duration in seconds. FAL also accepts "auto"; an explicit value is required so the Buzz cost is known up front.
    */
   duration?: number;
   resolution?: '720p' | '1080p';
@@ -4630,9 +4174,6 @@ export type Flux3V3ExtendVideoInput = Omit<
    * Aspect ratio of the generated video. "auto" lets the model choose.
    */
   aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
-  /**
-   * Whether to generate a synchronized audio track for the video.
-   */
   generateAudio?: boolean;
   /**
    * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
@@ -4656,7 +4197,7 @@ export type Flux3V3FirstLastFrameToVideoInput = Omit<
   'engine' | 'version' | 'operation'
 > & {
   /**
-   * Duration of the generated video in seconds.
+   * Duration in seconds. FAL also accepts "auto"; an explicit value is required so the Buzz cost is known up front.
    */
   duration?: number;
   resolution?: '720p' | '1080p';
@@ -4664,9 +4205,6 @@ export type Flux3V3FirstLastFrameToVideoInput = Omit<
    * Aspect ratio of the generated video. "auto" lets the model choose.
    */
   aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
-  /**
-   * Whether to generate a synchronized audio track for the video.
-   */
   generateAudio?: boolean;
   /**
    * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
@@ -4694,7 +4232,7 @@ export type Flux3V3ImageToVideoInput = Omit<
   'engine' | 'version' | 'operation'
 > & {
   /**
-   * Duration of the generated video in seconds.
+   * Duration in seconds. FAL also accepts "auto"; an explicit value is required so the Buzz cost is known up front.
    */
   duration?: number;
   resolution?: '720p' | '1080p';
@@ -4702,9 +4240,6 @@ export type Flux3V3ImageToVideoInput = Omit<
    * Aspect ratio of the generated video. "auto" lets the model choose.
    */
   aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
-  /**
-   * Whether to generate a synchronized audio track for the video.
-   */
   generateAudio?: boolean;
   /**
    * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
@@ -4728,7 +4263,7 @@ export type Flux3V3KeyframesToVideoInput = Omit<
   'engine' | 'version' | 'operation'
 > & {
   /**
-   * Duration of the generated video in seconds.
+   * Duration in seconds. FAL also accepts "auto"; an explicit value is required so the Buzz cost is known up front.
    */
   duration?: number;
   resolution?: '720p' | '1080p';
@@ -4736,9 +4271,6 @@ export type Flux3V3KeyframesToVideoInput = Omit<
    * Aspect ratio of the generated video. "auto" lets the model choose.
    */
   aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
-  /**
-   * Whether to generate a synchronized audio track for the video.
-   */
   generateAudio?: boolean;
   /**
    * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
@@ -4762,7 +4294,7 @@ export type Flux3V3TextToVideoInput = Omit<
   'engine' | 'version' | 'operation'
 > & {
   /**
-   * Duration of the generated video in seconds.
+   * Duration in seconds. FAL also accepts "auto"; an explicit value is required so the Buzz cost is known up front.
    */
   duration?: number;
   resolution?: '720p' | '1080p';
@@ -4770,9 +4302,6 @@ export type Flux3V3TextToVideoInput = Omit<
    * Aspect ratio of the generated video. "auto" lets the model choose.
    */
   aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
-  /**
-   * Whether to generate a synchronized audio track for the video.
-   */
   generateAudio?: boolean;
   /**
    * Render a fast, cheap 720p draft instead of a full-quality video. Draft results additionally
@@ -4784,9 +4313,6 @@ export type Flux3V3TextToVideoInput = Omit<
   engine: 'flux';
 };
 
-/**
- * Version-level base for FLUX-3. Carries the operation discriminator and the shared pricing table.
- */
 export type Flux3V3VideoGenInput = Omit<Flux3VideoGenInput, 'engine' | 'version'> & {
   operation: string;
   version: 'v3.0';
@@ -4794,8 +4320,7 @@ export type Flux3V3VideoGenInput = Omit<Flux3VideoGenInput, 'engine' | 'version'
 };
 
 /**
- * Engine-level base for Black Forest Labs FLUX-3 video generation (FAL).
- * The version derived type carries the operation-level discriminator.
+ * Black Forest Labs FLUX-3 video generation via FAL.
  */
 export type Flux3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version: null | string;
@@ -4888,9 +4413,6 @@ export type GeminiOmniVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'gemini-omni';
 };
 
-/**
- * GIF output format configuration.
- */
 export type GifOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   /**
    * Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.
@@ -4910,9 +4432,6 @@ export type GrokCreateImageGenInput = Omit<
   GrokV1ImageGenInput,
   'engine' | 'version' | 'operation'
 > & {
-  /**
-   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
-   */
   aspectRatio?:
     | '2:1'
     | '20:9'
@@ -4943,10 +4462,8 @@ export type GrokEditImageGenInput = Omit<
 };
 
 /**
- * Grok Edit-Video
  * FAL Endpoint: xai/grok-imagine-video/edit-video
  * Input video is resized to max 854x480 and truncated to 8 seconds.
- * Uses FFProbe to analyze input video duration for accurate costing.
  */
 export type GrokEditVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' | 'operation'> & {
   videoUrl: string;
@@ -4957,9 +4474,7 @@ export type GrokEditVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' 
 };
 
 /**
- * Engine-level base for Grok image generation (xAI's Grok-Imagine model via FAL).
- * The version derived type carries the operation-level discriminator.
- * Payloads without a version deserialize as v1.0.
+ * xAI's Grok-Imagine model via FAL. Payloads without a version deserialize as v1.0.
  */
 export type GrokImageGenInput = Omit<ImageGenInput, 'engine'> & {
   version: null | string;
@@ -4969,7 +4484,6 @@ export type GrokImageGenInput = Omit<ImageGenInput, 'engine'> & {
 };
 
 /**
- * Grok Image-to-Video
  * FAL Endpoint: xai/grok-imagine-video/image-to-video
  */
 export type GrokImageToVideoInput = Omit<
@@ -4984,7 +4498,6 @@ export type GrokImageToVideoInput = Omit<
 };
 
 /**
- * Grok Text-to-Video
  * FAL Endpoint: xai/grok-imagine-video/text-to-video
  */
 export type GrokTextToVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version' | 'operation'> & {
@@ -4995,9 +4508,7 @@ export type GrokTextToVideoInput = Omit<GrokV1VideoGenInput, 'engine' | 'version
 };
 
 /**
- * Version-level base for Grok v1.0.
- * Discriminator: operation (createImage, editImage)
- * FAL Endpoints: xai/grok-imagine-image[/edit]
+ * FAL endpoints: xai/grok-imagine-image[/edit]
  */
 export type GrokV1ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> & {
   operation: string;
@@ -5005,10 +4516,6 @@ export type GrokV1ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> 
   engine: 'grok';
 };
 
-/**
- * Version-level base for Grok v1.0.
- * Discriminator: operation (text-to-video, image-to-video, edit-video)
- */
 export type GrokV1VideoGenInput = Omit<GrokVideoGenInput, 'engine' | 'version'> & {
   operation: null | string;
   duration?: number;
@@ -5036,7 +4543,6 @@ export type GrokV15ImageToVideoInput = Omit<
 /**
  * Grok v1.5 Reference-to-Video. Generates a video guided by 1–7 reference images;
  * reference them in the prompt as <IMAGE_0> through <IMAGE_6>.
- * FAL Endpoint: xai/grok-imagine-video/v1.5/reference-to-video
  */
 export type GrokV15ReferenceToVideoInput = Omit<
   GrokV15VideoGenInput,
@@ -5055,7 +4561,6 @@ export type GrokV15ReferenceToVideoInput = Omit<
 };
 
 /**
- * Grok v1.5 Text-to-Video
  * FAL Endpoint: xai/grok-imagine-video/v1.5/text-to-video
  */
 export type GrokV15TextToVideoInput = Omit<
@@ -5071,9 +4576,7 @@ export type GrokV15TextToVideoInput = Omit<
 };
 
 /**
- * Version-level base for Grok v1.5 (Grok Imagine 1.5).
- * Discriminator: operation (textToVideo, imageToVideo, referenceToVideo)
- * FAL Endpoints: xai/grok-imagine-video/v1.5/{operation}
+ * Grok Imagine 1.5 via FAL (xai/grok-imagine-video/v1.5/{operation}).
  */
 export type GrokV15VideoGenInput = Omit<GrokVideoGenInput, 'engine' | 'version'> & {
   operation: null | string;
@@ -5082,16 +4585,12 @@ export type GrokV15VideoGenInput = Omit<GrokVideoGenInput, 'engine' | 'version'>
 };
 
 /**
- * Grok v2.0 Create Image
- * FAL Endpoint: xai/grok-imagine-image/v2.0/text-to-image
+ * FAL endpoint: xai/grok-imagine-image/v2.0/text-to-image
  */
 export type GrokV2CreateImageGenInput = Omit<
   GrokV2ImageGenInput,
   'engine' | 'version' | 'operation'
 > & {
-  /**
-   * Aspect ratio: 2:1, 20:9, 19.5:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:19.5, 9:20, 1:2
-   */
   aspectRatio?:
     | '2:1'
     | '20:9'
@@ -5141,9 +4640,7 @@ export type GrokV2EditImageGenInput = Omit<
 };
 
 /**
- * Version-level base for Grok v2.0 (Grok Imagine Image 2.0).
- * Discriminator: operation (createImage, editImage)
- * FAL Endpoints: xai/grok-imagine-image/v2.0/{text-to-image,edit}
+ * Grok Imagine Image 2.0. FAL endpoints: xai/grok-imagine-image/v2.0/{text-to-image,edit}
  */
 export type GrokV2ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> & {
   operation: null | string;
@@ -5154,9 +4651,7 @@ export type GrokV2ImageGenInput = Omit<GrokImageGenInput, 'engine' | 'version'> 
 };
 
 /**
- * Engine-level base for Grok video generation (xAI's Grok-Imagine-Video model via FAL).
- * The version derived type carries the operation-level discriminator.
- * Payloads without a version deserialize as v1.0.
+ * Grok Imagine Video (xAI) via FAL.
  */
 export type GrokVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version: null | string;
@@ -5273,9 +4768,6 @@ export type HappyHorseV1VideoEditInput = Omit<
   engine: 'happyHorse';
 };
 
-/**
- * Version-level base for Happy-Horse v1.0. Carries common v1.0 parameters and the operation discriminator.
- */
 export type HappyHorseV1VideoGenInput = Omit<HappyHorseVideoGenInput, 'engine' | 'version'> & {
   operation: string;
   resolution?: '720p' | '1080p';
@@ -5329,9 +4821,6 @@ export type HappyHorseV11TextToVideoInput = Omit<
   engine: 'happyHorse';
 };
 
-/**
- * Version-level base for Happy-Horse v1.1. Carries common v1.1 parameters and the operation discriminator.
- */
 export type HappyHorseV11VideoGenInput = Omit<HappyHorseVideoGenInput, 'engine' | 'version'> & {
   operation: string;
   resolution?: '720p' | '1080p';
@@ -5342,8 +4831,7 @@ export type HappyHorseV11VideoGenInput = Omit<HappyHorseVideoGenInput, 'engine' 
 };
 
 /**
- * Engine-level base for Alibaba Happy-Horse video generation (FAL).
- * The version derived type carries the operation-level discriminator.
+ * Alibaba Happy-Horse video generation via FAL.
  */
 export type HappyHorseVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version: string;
@@ -5393,9 +4881,6 @@ export const HiDreamI1Variant = {
 
 export type HiDreamI1Variant = (typeof HiDreamI1Variant)[keyof typeof HiDreamI1Variant];
 
-/**
- * AI Toolkit training for HiDream O1 Image models.
- */
 export type HiDreamO1AiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -5603,9 +5088,6 @@ export type Ideogram45FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'mode
   engine: 'fal';
 };
 
-/**
- * AI Toolkit training for Ideogram 4 models.
- */
 export type Ideogram4AiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -5624,26 +5106,20 @@ export const ImageBackgroundRemovalFormat = { PNG: 'png', WEBP: 'webp' } as cons
 export type ImageBackgroundRemovalFormat =
   (typeof ImageBackgroundRemovalFormat)[keyof typeof ImageBackgroundRemovalFormat];
 
-/**
- * Input configuration for the ImageBackgroundRemoval workflow step.
- */
 export type ImageBackgroundRemovalInput = {
   /**
-   * The source image to remove the background from.
+   * Either A URL, A DataURL or a Base64 string
    */
   image: string;
   format?: ImageBackgroundRemovalFormat;
 };
 
-/**
- * Output from the ImageBackgroundRemoval workflow step.
- */
 export type ImageBackgroundRemovalOutput = {
   image?: ImageBlob;
 };
 
 /**
- * A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job).
+ * Removes the background from an image using BiRefNet.
  */
 export type ImageBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
   input: ImageBackgroundRemovalInput;
@@ -5652,7 +5128,7 @@ export type ImageBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
 };
 
 /**
- * A workflow step that removes the background from an image using BiRefNet (builds a ComfyUI graph under the hood and runs it as a comfy job).
+ * Removes the background from an image using BiRefNet.
  */
 export type ImageBackgroundRemovalStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: ImageBackgroundRemovalInput;
@@ -5666,9 +5142,6 @@ export type ImageBlob = Omit<Blob, 'type'> & {
    * Gets a url that can be used to preview a resized version of the image.
    */
   previewUrl?: null | string;
-  /**
-   * Gets when the preview url is set to expire.
-   */
   previewUrlExpiresAt?: null | string;
   type: 'image';
 };
@@ -5688,13 +5161,7 @@ export type ImageGenInputLora = {
 };
 
 export type ImageGenOutput = {
-  /**
-   * A collection of output images.
-   */
   images: Array<ImageBlob>;
-  /**
-   * An optional list of errors related to generation failures
-   */
   errors?: null | Array<string>;
 };
 
@@ -5723,22 +5190,10 @@ export type ImageGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'imageGen';
 };
 
-/**
- * Information for a controlnet provided for a text to image input.
- */
 export type ImageJobControlNet = {
   preprocessor: ImageTransformer;
-  /**
-   * A value representing the weight applied to the ControlNet.
-   */
   weight: number;
-  /**
-   * A value representing the start step selected for the ControlNet.
-   */
   startStep: number;
-  /**
-   * A value representing the end step selected for the ControlNet.
-   */
   endStep: number;
   /**
    * The preprocessed control image. Accepts an AIR URN, a URL, or a base64 data URL; the
@@ -5766,15 +5221,10 @@ export type ImageJobNetworkParams = {
   type?: null | string;
 };
 
-/**
- * Base class for image output formats. Uses "format" as the type discriminator.
- */
 export type ImageOutputFormat = {
   format: string;
   /**
-   * When true, metadata such as EXIF data will be stripped from the output image. Defaults to false.
-   * Note that some formats like JPEG may still include minimal metadata even when this is false, due to encoder behavior.
-   * Setting this to true will attempt to remove all metadata, but results may vary by format and encoder implementation.
+   * Strips metadata such as EXIF from the output. Defaults to false; some encoders (e.g. JPEG) may still emit minimal metadata.
    */
   hideMetadata: boolean;
 };
@@ -5789,30 +5239,15 @@ export const ImageResouceTrainingModerationStatus = {
 export type ImageResouceTrainingModerationStatus =
   (typeof ImageResouceTrainingModerationStatus)[keyof typeof ImageResouceTrainingModerationStatus];
 
-/**
- * Input for an image resource training step.
- */
 export type ImageResourceTrainingInput = {
   engine: string;
-  /**
-   * The primary model to train upon.
-   */
   model: string;
-  /**
-   * A url referring data to use in training.
-   */
   trainingData: string;
   /**
    * The number of images embedded in this training data. This is used to calculate the cost of training.
    */
   trainingDataImagesCount: number;
-  /**
-   * The desired lora name.
-   */
   loraName?: string;
-  /**
-   * A selection of sample prompts.
-   */
   samplePrompts?: Array<string>;
   /**
    * An optional negative prompt that will get applied when generating samples
@@ -5822,21 +5257,11 @@ export type ImageResourceTrainingInput = {
 
 export type ImageResourceTrainingOutput = {
   moderationStatus: ImageResouceTrainingModerationStatus;
-  /**
-   * An array of epochs.
-   */
   epochs: Array<EpochResult>;
-  /**
-   * The selected prompts for sample images
-   */
   sampleImagesPrompts: Array<string>;
-  /**
-   * The selected images for sample images
-   */
   sampleInputImages?: null | Array<string>;
   /**
-   * Get wether the blobs are actually stored as assets
-   * Assets are deprecated and require a different retrieval mechanism
+   * True when the blobs are stored as (deprecated) assets, which need a different retrieval mechanism.
    */
   storedAsAssets?: null | boolean;
   /**
@@ -5881,9 +5306,6 @@ export type ImageScanningHumanRecognition = {
   evidence: Array<ImageScanningHumanEvidence>;
 };
 
-/**
- * Input for a unified image scan.
- */
 export type ImageScanningInput = {
   /**
    * Image to scan. URLs are imported into orchestrator blob storage before the job is queued.
@@ -5931,9 +5353,6 @@ export type ImageScanningLabelScore = {
   score: number;
 };
 
-/**
- * Complete result from the unified image scanner.
- */
 export type ImageScanningOutput = {
   nsfwLevel: NsfwLevel;
   score: number;
@@ -6023,16 +5442,10 @@ export type ImageToSvgStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'imageToSvg';
 };
 
-/**
- * Base class for image transforms that can be applied during image conversion.
- */
 export type ImageTransform = {
   type: string;
 };
 
-/**
- * Available image transformers.
- */
 export const ImageTransformer = {
   CANNY: 'canny',
   MLSD: 'mlsd',
@@ -6072,9 +5485,6 @@ export const ImageTransformer = {
   INPAINT: 'inpaint',
 } as const;
 
-/**
- * Available image transformers.
- */
 export type ImageTransformer = (typeof ImageTransformer)[keyof typeof ImageTransformer];
 
 export type ImageUploadOutput = {
@@ -6085,9 +5495,6 @@ export type ImageUploadOutput = {
  * Image upload
  */
 export type ImageUploadStep = Omit<WorkflowStep, '$type'> & {
-  /**
-   * The workflow's input.
-   */
   input: string;
   output?: ImageUploadOutput;
   $type: 'imageUpload';
@@ -6109,9 +5516,6 @@ export type ImageUpscalerInput = {
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  /**
-   * The upscaler model to use (AIR URN format).
-   */
   model?: null | string;
   /**
    * Number of times to repeat the upscale operation (1-3). Each repeat doubles the resolution.
@@ -6144,18 +5548,12 @@ export type Imagen4ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'>
   engine: 'google';
 };
 
-/**
- * Available levels of job support.
- */
 export const JobSupport = {
   UNSUPPORTED: 'unsupported',
   UNAVAILABLE: 'unavailable',
   AVAILABLE: 'available',
 } as const;
 
-/**
- * Available levels of job support.
- */
 export type JobSupport = (typeof JobSupport)[keyof typeof JobSupport];
 
 /**
@@ -6196,13 +5594,7 @@ export type JointAgeDetection = {
   warning?: null | string;
 };
 
-/**
- * JPEG output format configuration.
- */
 export type JpegOutputFormat = Omit<ImageOutputFormat, 'format'> & {
-  /**
-   * Quality setting for JPEG compression (1-100). Higher values produce better quality but larger files.
-   */
   quality?: number;
   format: 'jpeg';
 };
@@ -6248,27 +5640,27 @@ export type KlingCameraControl = {
 
 export type KlingCameraControlConfig = {
   /**
-   * Horizontal, controls the camera's movement along the horizontal axis (translation along the x-axis).
+   * Translation along the x-axis; negative moves left, positive right.
    */
   horizontal?: null | number;
   /**
-   * Vertical, controls the camera's movement along the vertical axis (translation along the y-axis).
+   * Translation along the y-axis; negative moves down, positive up.
    */
   vertical?: null | number;
   /**
-   * Pan, controls the camera's rotation in the horizontal plane (rotation around the y-axis).
+   * Rotation around the y-axis; negative turns left, positive right.
    */
   pan?: null | number;
   /**
-   * Tilt, controls the camera's rotation in the horizontal plane (rotation around the y-axis).
+   * Rotation around the x-axis; negative tilts down, positive up.
    */
   tilt?: null | number;
   /**
-   * Roll, controls the camera's rolling amount (rotation around the z-axis).
+   * Rotation around the z-axis; negative is counterclockwise, positive clockwise.
    */
   roll?: null | number;
   /**
-   * Zoom, controls the change in the camera's focal length, affecting the proximity of the field of view.
+   * Focal length change; negative narrows the field of view, positive widens it.
    */
   zoom?: null | number;
 };
@@ -6390,9 +5782,7 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
    */
   shuffleCaption?: boolean;
   /**
-   * If your training images have tags, you can randomly shuffle them.
-   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
-   * This option does nothing if the Shuffle Tags option is off.
+   * Keeps this many leading tags in place when shuffling captions. Does nothing when Shuffle Tags is off.
    */
   keepTokens?: number;
   /**
@@ -6420,12 +5810,7 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
    */
   lrSchedulerNumCycles?: number;
   /**
-   * Learning is performed by putting noise of various strengths on the training image,
-   * but depending on the difference in strength of the noise on which it is placed, learning will be
-   * stable by moving closer to or farther from the learning target.
-   *
-   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
-   * it may deviate greatly from the target, so try to suppress this jump.
+   * Compensates for unstable learning across noise strengths by suppressing large deviations when training images carry little noise.
    */
   minSnrGamma?: null | number;
   /**
@@ -6433,11 +5818,8 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored LoRA weights relative to Dim: alpha 16 with dim 32 applies the learning rate at half strength;
+   * equal values leave it unchanged.
    */
   networkAlpha?: null | number;
   /**
@@ -6445,18 +5827,13 @@ export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, '
    */
   noiseOffset?: null | number;
   /**
-   * The optimizer determines how to update the neural net weights during training.
-   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
-   * is "AdamW8bit" or "Adafactor" for SDXL.
+   * Optimizer that updates the weights during training; "AdamW8bit" is the common choice, "Adafactor" for SDXL.
    */
   optimizerType?: null | string;
   readonly targetSteps?: null | number;
   engine: 'kohya';
 };
 
-/**
- * AI Toolkit training for Krea 2 models.
- */
 export type Krea2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly defaultSteps: number;
   ecosystem: 'krea2';
@@ -6572,6 +5949,107 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
+export type LiveQwen3CustomVoiceTtsInput = Omit<
+  LiveQwen3TextToSpeechInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Built-in speaker name.
+   */
+  speaker:
+    | 'aiden'
+    | 'dylan'
+    | 'eric'
+    | 'ono_anna'
+    | 'ryan'
+    | 'serena'
+    | 'sohee'
+    | 'uncle_fu'
+    | 'vivian';
+  /**
+   * Optional style instruction (e.g., "speak slowly and clearly").
+   */
+  instruct?: null | string;
+  operation: 'customVoice';
+  ecosystem: 'qwen3';
+  engine: 'vllm-omni';
+};
+
+export type LiveQwen3TextToSpeechInput = Omit<
+  LiveVllmOmniTextToSpeechInput,
+  'engine' | 'ecosystem'
+> & {
+  operation: string;
+  /**
+   * Token cap per sentence.
+   */
+  maxNewTokens?: null | number;
+  ecosystem: 'qwen3';
+  engine: 'vllm-omni';
+};
+
+/**
+ * Mirrors `textToSpeech` inputs, but only for voices proven to stream with low first-audio latency.
+ */
+export type LiveTextToSpeechInput = {
+  engine: string;
+  /**
+   * Spoken before any appended text.
+   */
+  text?: null | string;
+  /**
+   * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
+   */
+  language?: null | string;
+  /**
+   * `pcm` streams raw s16le 24 kHz mono for the lowest latency; `ogg` streams Opus.
+   */
+  format?: 'pcm' | 'ogg';
+  /**
+   * The session ends once this many characters have been spoken. The upfront balance check covers this much text.
+   */
+  maxCharacters?: number;
+  /**
+   * The input is treated as closed when no text arrives for this many seconds.
+   */
+  idleTimeoutSeconds?: number;
+};
+
+export type LiveTextToSpeechOutput = {
+  /**
+   * POST UTF-8 text here in chunks numbered `?seq=0,1,…`, with `final=true` on the last.
+   * Text is spoken a sentence at a time; the final chunk flushes whatever is left.
+   */
+  inputUrl: string;
+  inputUrlExpiresAt: string;
+  /**
+   * One continuous audio stream for the whole session, in the requested format.
+   */
+  audioUrl: string;
+  /**
+   * Characters spoken so far; the session is billed on this.
+   */
+  characters: number;
+  audioSeconds: number;
+};
+
+/**
+ * Live text to speech
+ */
+export type LiveTextToSpeechStep = Omit<WorkflowStep, '$type'> & {
+  input: LiveTextToSpeechInput;
+  output?: LiveTextToSpeechOutput;
+  $type: 'liveTextToSpeech';
+};
+
+/**
+ * Live text to speech
+ */
+export type LiveTextToSpeechStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: LiveTextToSpeechInput;
+  $type: 'liveTextToSpeech';
+};
+
 export type LiveTranscriptionInput = {
   /**
    * Language of the speech (e.g., "en", "zh"). Send it: without it the model assumes English and invents English text for other languages.
@@ -6631,6 +6109,11 @@ export type LiveTranscriptionStepTemplate = Omit<WorkflowStepTemplate, '$type'> 
   $type: 'liveTranscription';
 };
 
+export type LiveVllmOmniTextToSpeechInput = Omit<LiveTextToSpeechInput, 'engine'> & {
+  ecosystem: string;
+  engine: 'vllm-omni';
+};
+
 /**
  * Transferring. No queue position — it is no longer waiting.
  */
@@ -6652,9 +6135,6 @@ export type LoadingResourceAvailability = Omit<ResourceAvailability, 'status'> &
   status: 'loading';
 };
 
-/**
- * AI Toolkit training for LTX 2.3 video models
- */
 export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly defaultSteps: number;
   readonly storageBuzzPerEpoch: number;
@@ -6666,9 +6146,6 @@ export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for LTX 2.5 video models.
- */
 export type Ltx25AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly defaultSteps: number;
   readonly storageBuzzPerEpoch: number;
@@ -6680,9 +6157,6 @@ export type Ltx25AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' 
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for LTX2 video models
- */
 export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly defaultSteps: number;
   readonly storageBuzzPerEpoch: number;
@@ -6694,9 +6168,6 @@ export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for the Mage-Flow Base model.
- */
 export type MageFlowAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -6762,21 +6233,14 @@ export type MediaCanvas = {
    * Output height in pixels.
    */
   height: number;
-  /**
-   * Output frame rate.
-   */
   fps?: number;
   /**
-   * Hex background colour (e.g. `"#000000"`) painted where no element covers the canvas.
-   * An 8-digit `"#RRGGBBAA"` value sets the background alpha; anything below fully opaque
-   * requires an alpha-capable output container (webp).
+   * Hex background colour (e.g. `"#000000"`) painted where no element covers the canvas. An 8-digit
+   * `"#RRGGBBAA"` sets the alpha, which needs an alpha-capable output container (webp).
    */
   background?: string;
 };
 
-/**
- * Represents the input information needed for the MediaCaptioning workflow step.
- */
 export type MediaCaptioningInput = {
   /**
    * Captioning model and output contract. Use `ideogram4` for structured
@@ -6803,13 +6267,7 @@ export type MediaCaptioningInput = {
   customInstructions?: null | string;
 };
 
-/**
- * Represents the output information returned from the MediaCaptioning workflow step.
- */
 export type MediaCaptioningOutput = {
-  /**
-   * The generated caption text for the media.
-   */
   caption: string;
 };
 
@@ -6830,9 +6288,6 @@ export type MediaCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
   $type: 'mediaCaptioning';
 };
 
-/**
- * Output container for a composition.
- */
 export const MediaContainer = {
   AUTO: 'auto',
   MP4: 'mp4',
@@ -6842,9 +6297,6 @@ export const MediaContainer = {
   WEBP: 'webp',
 } as const;
 
-/**
- * Output container for a composition.
- */
 export type MediaContainer = (typeof MediaContainer)[keyof typeof MediaContainer];
 
 /**
@@ -6861,23 +6313,14 @@ export const MediaFit = {
  */
 export type MediaFit = (typeof MediaFit)[keyof typeof MediaFit];
 
-/**
- * Represents the input information needed for the MediaHash workflow step.
- */
 export type MediaHashInput = {
   /**
    * The URL of the media to hash (image or video).
    */
   mediaUrl: string;
-  /**
-   * The types of hashes to generate.
-   */
   hashTypes: Array<MediaHashType>;
 };
 
-/**
- * Represents the output information returned from the MediaHash workflow step.
- */
 export type MediaHashOutput = {
   /**
    * The generated hashes, keyed by hash type (e.g., "perceptual" -> "12345678").
@@ -6904,18 +6347,12 @@ export type MediaHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'mediaHash';
 };
 
-/**
- * Represents the type of hash algorithm to use for media content.
- */
 export const MediaHashType = {
   PERCEPTUAL: 'perceptual',
   PERCEPTUAL_DCT: 'perceptualDct',
   PERCEPTUAL_DCT256: 'perceptualDct256',
 } as const;
 
-/**
- * Represents the type of hash algorithm to use for media content.
- */
 export type MediaHashType = (typeof MediaHashType)[keyof typeof MediaHashType];
 
 /**
@@ -6954,13 +6391,9 @@ export const MediaOutputType = { AUDIO: 'audio', VIDEO: 'video' } as const;
  */
 export type MediaOutputType = (typeof MediaOutputType)[keyof typeof MediaOutputType];
 
-/**
- * Represents the input information needed for the MediaRating workflow step.
- */
 export type MediaRatingInput = {
   /**
-   * The image to rate. Pre-processed in the API layer — imported into blob storage so the
-   * worker can pre-fetch it as a declared resource. After processing, contains the blob AIR URL.
+   * The image to rate. URLs are imported into blob storage before the job is queued so the worker can pre-fetch it.
    */
   image?: null | string;
   /**
@@ -6998,18 +6431,9 @@ export type MediaRatingInput = {
   includeJointAgeClassification: boolean;
 };
 
-/**
- * Represents the output information returned from the MediaRating workflow step.
- */
 export type MediaRatingOutput = {
   nsfwLevel: NsfwLevel;
-  /**
-   * The reason the content was blocked, if any.
-   */
   blockedReason?: null | string;
-  /**
-   * Whether the content is blocked.
-   */
   isBlocked: boolean;
   /**
    * Detected content labels (e.g., "Animal", "Child", etc.).
@@ -7048,9 +6472,7 @@ export type MediaRatingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 };
 
 /**
- * Base class for per-element transformers applied to a single media element before it is
- * composited onto the output timeline. Transformers are applied in array order. Extensible:
- * add a derived record plus a `[JsonDerivedType]` entry here.
+ * Per-element transformer applied to a media element before it is composited; transformers run in array order.
  */
 export type MediaTransformer = {
   type: string;
@@ -7087,9 +6509,6 @@ export type MergeField = {
   includeIndex: boolean;
 };
 
-/**
- * Input for the Merge workflow step.
- */
 export type MergeInput = {
   onMissing: MergeMissingBehavior;
   /**
@@ -7110,9 +6529,6 @@ export const MergeMissingBehavior = { FAIL: 'fail', PARTIAL: 'partial' } as cons
  */
 export type MergeMissingBehavior = (typeof MergeMissingBehavior)[keyof typeof MergeMissingBehavior];
 
-/**
- * Output of the Merge workflow step.
- */
 export type MergeOutput = {
   /**
    * The merged values, keyed by the field names of the input. Their shape follows the requested reducers.
@@ -7176,9 +6592,7 @@ export type MergeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 };
 
 /**
- * Model-level base for Meshy 3D generation (via FAL).
- * The version derived type carries the operation-level discriminator.
- * Payloads without a version deserialize as v6.
+ * Meshy 3D generation via FAL. Payloads without a version deserialize as v6.
  */
 export type MeshyFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
   version: null | string;
@@ -7220,9 +6634,7 @@ export type MeshyTextTo3dFalPolyGenInput = Omit<
 };
 
 /**
- * Version-level base for Meshy v6.
- * Discriminator: operation (textTo3D, imageTo3D)
- * FAL Endpoints: fal-ai/meshy/v6/{text-to-3d,image-to-3d}
+ * FAL endpoints: fal-ai/meshy/v6/{text-to-3d,image-to-3d}
  */
 export type MeshyV6FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'model' | 'version'> & {
   operation: string;
@@ -7233,9 +6645,7 @@ export type MeshyV6FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'mode
 };
 
 /**
- * Version-level base for Meshy v7.
- * Discriminator: operation (imageTo3D, multiImageTo3D)
- * FAL Endpoints: meshy/v7/{image-to-3d,multi-image-to-3d}
+ * Meshy v7. FAL endpoints: meshy/v7/{image-to-3d,multi-image-to-3d}
  */
 export type MeshyV7FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'model' | 'version'> & {
   operation: string;
@@ -7326,18 +6736,14 @@ export type MetricsResponse = {
    */
   canceledRate: number;
   /**
-   * Fraction that failed on the user's input rather than the service — most often a provider
-   * content-policy rejection (e.g. asking a provider that forbids it for mature content). Kept
-   * out of the success rate so a service isn't marked unhealthy for refusing disallowed requests.
+   * Fraction that failed on the user's input rather than the service, most often a provider content-policy
+   * rejection. Kept out of the success rate so refusing disallowed requests does not mark a service unhealthy.
    */
   userErrorRate: number;
   costBuzz?: PercentilesResponse;
   latencySeconds?: PercentilesResponse;
 };
 
-/**
- * AI Toolkit LoRA training for Ming Image 0.1 Design.
- */
 export type MingAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly defaultSteps: number;
   ecosystem: 'ming';
@@ -7348,9 +6754,6 @@ export type MingAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for the MiniMax H3 base (FL2VA) model.
- */
 export type MiniMaxH3AiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -7469,17 +6872,13 @@ export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   referenceAudios?: Array<string>;
   watermark?: boolean;
   /**
-   * Measured total duration of Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.MiniMaxH3VideoGenInput.ReferenceVideos, filled in during initialization.
-   * MiniMax bills uploaded reference video at the same per-second rate as output, so this has to
-   * be known before the estimate is charged.
+   * Measured total duration of Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.MiniMaxH3VideoGenInput.ReferenceVideos, filled in during initialization; MiniMax bills uploaded
+   * reference video at the output per-second rate, so it must be known before the estimate is charged.
    */
   referenceVideoSeconds?: number;
   engine: 'minimax-h3';
 };
 
-/**
- * Input parameters for MiniMax Music 3 text-to-music generation.
- */
 export type MiniMaxMusic3Input = {
   /**
    * Structured music description. For best results use Global Metadata, Vocal Details,
@@ -7490,18 +6889,12 @@ export type MiniMaxMusic3Input = {
    * Lyrics with section markers such as [Intro], [Verse], [Chorus], and [Outro].
    */
   lyrics: string;
-  /**
-   * Random seed for reproducible generation.
-   */
   seed: number;
   /**
    * Maximum generated song duration in seconds. The model may end the song earlier when
    * the requested lyric structure is complete.
    */
   maxDuration?: number;
-  /**
-   * Number of diffusion sampling steps.
-   */
   steps?: number;
   /**
    * Classifier-free guidance scale used by both text encoding and sampling.
@@ -7511,17 +6904,8 @@ export type MiniMaxMusic3Input = {
    * Top-k sampling limit used by the MiniMax music text encoder.
    */
   topK?: number;
-  /**
-   * Optional diffusion model override.
-   */
   diffusionModel?: null | string;
-  /**
-   * Optional MiniMax text encoder override.
-   */
   textEncoder?: null | string;
-  /**
-   * Optional audio VAE override.
-   */
   vae?: null | string;
   /**
    * Optional LoRAs to apply to both the diffusion model and MiniMax text encoder.
@@ -7532,9 +6916,6 @@ export type MiniMaxMusic3Input = {
   };
 };
 
-/**
- * Output from MiniMax Music 3 generation.
- */
 export type MiniMaxMusic3Output = {
   blob: AudioBlob;
 };
@@ -7628,40 +7009,19 @@ export type Model3dPreviewStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'model3DPreview';
 };
 
-/**
- * Represents the input information needed for the ModelClamScan workflow step.
- */
 export type ModelClamScanInput = {
-  /**
-   * The AIR of the model file to scan.
-   */
   model: string;
 };
 
-/**
- * Represents the output information returned from the ModelClamScan workflow step.
- */
 export type ModelClamScanOutput = {
-  /**
-   * The ClamAV scan exit code.
-   */
   exitCode?: null | number;
-  /**
-   * The raw ClamAV scan output.
-   */
   output?: null | string;
   status?: ModelClamScanStatus;
   /**
    * True when ClamAV reported one or more infected files (exit code 1).
    */
   infected?: null | boolean;
-  /**
-   * Number of infected files parsed from the ClamAV scan summary.
-   */
   infectedFileCount?: null | number;
-  /**
-   * Number of files scanned, parsed from the ClamAV scan summary.
-   */
   scannedFileCount?: null | number;
 };
 
@@ -7691,19 +7051,10 @@ export type ModelClamScanStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'modelClamScan';
 };
 
-/**
- * Represents the input information needed for the ModelHash workflow step.
- */
 export type ModelHashInput = {
-  /**
-   * The AIR of the model file to hash.
-   */
   model: string;
 };
 
-/**
- * Represents the output information returned from the ModelHash workflow step.
- */
 export type ModelHashOutput = {
   /**
    * SHA256 hash of the full file.
@@ -7748,24 +7099,14 @@ export type ModelHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'modelHash';
 };
 
-/**
- * Represents the input information needed for the ModelParseMetadata workflow step.
- */
 export type ModelParseMetadataInput = {
-  /**
-   * The AIR of the model file to read metadata from.
-   */
   model: string;
 };
 
-/**
- * Represents the output information returned from the ModelParseMetadata workflow step.
- */
 export type ModelParseMetadataOutput = {
   /**
-   * The `__metadata__` object from the safetensors header as a JSON string,
-   * or null when the model is not a safetensors file, the header could not be
-   * parsed, or no `__metadata__` object is present.
+   * The safetensors header's `__metadata__` object as a JSON string; null when the model is not safetensors,
+   * the header could not be parsed, or there is no `__metadata__`.
    */
   metadata?: null | string;
 };
@@ -7787,40 +7128,16 @@ export type ModelParseMetadataStepTemplate = Omit<WorkflowStepTemplate, '$type'>
   $type: 'modelParseMetadata';
 };
 
-/**
- * Represents the input information needed for the ModelPickleScan workflow step.
- */
 export type ModelPickleScanInput = {
-  /**
-   * The AIR of the model file to scan.
-   */
   model: string;
 };
 
-/**
- * Represents the output information returned from the ModelPickleScan workflow step.
- */
 export type ModelPickleScanOutput = {
-  /**
-   * The picklescan exit code.
-   */
   exitCode?: null | number;
-  /**
-   * The raw picklescan output.
-   */
   output?: null | string;
-  /**
-   * Global imports discovered during pickle scanning.
-   */
   globalImports?: null | Array<string>;
-  /**
-   * Dangerous imports discovered during pickle scanning.
-   */
   dangerousImports?: null | Array<string>;
   status?: ModelPickleScanStatus;
-  /**
-   * True when one or more dangerous imports were detected.
-   */
   dangerousImportsFound?: null | boolean;
   /**
    * True when picklescan was skipped (e.g. file is safetensors and cannot contain pickled code).
@@ -7830,17 +7147,8 @@ export type ModelPickleScanOutput = {
    * Reason picklescan was skipped, if applicable. Examples: "safetensors", "safetensors-extension".
    */
   skipReason?: null | string;
-  /**
-   * Number of files scanned, parsed from the picklescan summary.
-   */
   scannedFileCount?: null | number;
-  /**
-   * Number of infected files reported by picklescan.
-   */
   infectedFileCount?: null | number;
-  /**
-   * Number of dangerous globals reported by picklescan.
-   */
   dangerousGlobalCount?: null | number;
 };
 
@@ -7933,17 +7241,12 @@ export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored LoRA weights relative to Dim: alpha 16 with dim 32 applies the learning rate at half strength;
+   * equal values leave it unchanged.
    */
   networkAlpha?: null | number;
   /**
-   * The optimizer determines how to update the neural net weights during training.
-   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
-   * is "AdamW8bit" or "Adafactor" for SDXL.
+   * Optimizer that updates the weights during training; "AdamW8bit" is the common choice, "Adafactor" for SDXL.
    */
   optimizerType?: null | string;
   readonly targetSteps?: null | number;
@@ -8119,13 +7422,7 @@ export type OpenAiGpt15EditImageInput = Omit<
   'engine' | 'model' | 'operation'
 > & {
   images: Array<string>;
-  /**
-   * Input fidelity: low or high
-   */
   inputFidelity?: 'low' | 'high';
-  /**
-   * Image size for edit mode: auto, 1024x1024, 1536x1024, or 1024x1536
-   */
   size?: 'auto' | '1024x1024' | '1536x1024' | '1024x1536';
   operation: 'editImage';
   model: 'gpt-image-1.5';
@@ -8292,15 +7589,13 @@ export type OpenAiGpt2EditImageInput = Omit<
    */
   maskImage?: null | string;
   /**
-   * When null, fal infers output size from the input images (image_size: "auto").
-   * When set, the requested width is sent to fal as image_size.width.
-   * Both Width and Height must be set together, or both null.
+   * When null, fal infers the output size from the input images (image_size: "auto").
+   * Width and Height must be set together, or both null.
    */
   width?: null | number;
   /**
-   * When null, fal infers output size from the input images (image_size: "auto").
-   * When set, the requested height is sent to fal as image_size.height.
-   * Both Width and Height must be set together, or both null.
+   * When null, fal infers the output size from the input images (image_size: "auto").
+   * Width and Height must be set together, or both null.
    */
   height?: null | number;
   operation: 'editImage';
@@ -8346,9 +7641,6 @@ export type PercentilesResponse = {
   p95: number;
 };
 
-/**
- * PNG output format configuration.
- */
 export type PngOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   format: 'png';
 };
@@ -8385,31 +7677,16 @@ export type PolyGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'polyGen';
 };
 
-/**
- * Represents the input information needed for the PrepareResource workflow step.
- */
 export type PrepareResourceInput = {
-  /**
-   * The AIR of the resource to make available.
-   */
   resource: string;
 };
 
-/**
- * The result of a PrepareResource workflow step.
- */
 export type PrepareResourceOutput = {
-  /**
-   * The resource that was prepared.
-   */
   resource?: null | string;
   /**
    * When the resource became available. Null while the step has not completed.
    */
   preparedAt?: null | string;
-  /**
-   * The provider the resource was prepared on.
-   */
   provider?: null | string;
 };
 
@@ -8499,10 +7776,6 @@ export type PreprocessImageInput = {
    */
   image: string;
   resolution?: number;
-  /**
-   * Gets the preprocessor type identifier used to map to ComfyUI nodes.
-   * This is derived from the JsonDerivedType discriminator.
-   */
   readonly preprocessorType: string;
 };
 
@@ -8732,9 +8005,6 @@ export type PreprocessVideoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
   $type: 'preprocessVideo';
 };
 
-/**
- * Available options for priority.
- */
 export const Priority = {
   HIGH: 'high',
   NORMAL: 'normal',
@@ -8742,9 +8012,6 @@ export const Priority = {
   IDLE: 'idle',
 } as const;
 
-/**
- * Available options for priority.
- */
 export type Priority = (typeof Priority)[keyof typeof Priority];
 
 export type ProblemDetails = {
@@ -8756,21 +8023,12 @@ export type ProblemDetails = {
   [key: string]: unknown;
 };
 
-/**
- * Input for a prompt enhancement step.
- */
 export type PromptEnhancementInput = {
   /**
    * The target ecosystem (e.g., "sd1", "sdxl", "flux", "ltx2").
    */
   ecosystem: string;
-  /**
-   * The user's prompt to analyze and enhance.
-   */
   prompt: string;
-  /**
-   * Optional negative prompt to analyze and enhance.
-   */
   negativePrompt?: null | string;
   /**
    * LLM temperature for enhancement creativity (0.0–1.0). Defaults to 0.7.
@@ -8781,33 +8039,16 @@ export type PromptEnhancementInput = {
    */
   instruction?: null | string;
   /**
-   * Optional reference images for the prompt enhancement model to consider when enhancing the prompt
-   * (subject, style, lighting, composition, color palette). Accepts URLs, data URIs, raw base64, or AIR strings.
-   * Requires the per-ecosystem prompt-analysis model to be a vision-capable LLM (configured via
-   * IPromptAnalysisGrain.SetConfigurationAsync) — non-VLM models will silently ignore the images.
+   * Reference images (URLs, data URIs, raw base64 or AIR strings) the model considers for subject, style, lighting and
+   * composition. Requires the ecosystem's prompt-analysis model to be vision-capable; non-VLM models silently ignore them.
    */
   images?: null | Array<string>;
 };
 
-/**
- * Output from prompt enhancement analysis.
- */
 export type PromptEnhancementOutput = {
-  /**
-   * Detected issues with the original prompt.
-   */
   issues: Array<PromptIssue>;
-  /**
-   * Actionable recommendations for improving the prompt.
-   */
   recommendations: Array<string>;
-  /**
-   * Enhanced version of the original prompt.
-   */
   enhancedPrompt: string;
-  /**
-   * Enhanced version of the negative prompt, if one was provided.
-   */
   enhancedNegativePrompt?: null | string;
 };
 
@@ -8828,18 +8069,58 @@ export type PromptEnhancementStepTemplate = Omit<WorkflowStepTemplate, '$type'> 
   $type: 'promptEnhancement';
 };
 
-/**
- * A detected issue with the user's prompt.
- */
 export type PromptIssue = {
-  /**
-   * Description of the issue.
-   */
   description: string;
   /**
    * Severity level: "info", "warning", or "error".
    */
   severity?: null | string;
+};
+
+export type PromptModerationInput = {
+  /**
+   * Original positive prompt, preserved without normalization. Empty is allowed.
+   */
+  positivePrompt: string;
+  /**
+   * Original negative prompt; omitted/null is equivalent to an empty string.
+   */
+  negativePrompt?: null | string;
+};
+
+export type PromptModerationLabelResult = {
+  label: string;
+  /**
+   * P(yes) + 0.5 P(unknown), after the saved temperature calibration.
+   */
+  score: number;
+  threshold: number;
+  flagged: boolean;
+  unknownProbability: number;
+  abstained: boolean;
+};
+
+export type PromptModerationOutput = {
+  model: string;
+  policyVersion: string;
+  results: Array<PromptModerationLabelResult>;
+};
+
+/**
+ * PromptModeration
+ */
+export type PromptModerationStep = Omit<WorkflowStep, '$type'> & {
+  input: PromptModerationInput;
+  output?: PromptModerationOutput;
+  $type: 'promptModeration';
+};
+
+/**
+ * PromptModeration
+ */
+export type PromptModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  input: PromptModerationInput;
+  $type: 'promptModeration';
 };
 
 /**
@@ -8923,9 +8204,6 @@ export type Qwen20bVariantImageGenInput = Omit<
   engine: 'sdcpp';
 };
 
-/**
- * AI Toolkit LoRA training for Qwen Image 2.1.
- */
 export type Qwen21AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   readonly defaultSteps: number;
   ecosystem: 'qwen21';
@@ -9044,9 +8322,6 @@ export type Qwen3CustomVoiceTtsInput = Omit<
 
 export type Qwen3TextToSpeechInput = Omit<VllmOmniTextToSpeechInput, 'engine' | 'ecosystem'> & {
   operation: string;
-  /**
-   * Optional generation cap for max tokens.
-   */
   maxNewTokens?: null | number;
   ecosystem: 'qwen3';
   engine: 'vllm-omni';
@@ -9066,9 +8341,6 @@ export type Qwen3VoiceDesignTtsInput = Omit<
   engine: 'vllm-omni';
 };
 
-/**
- * AI Toolkit training for Qwen Image models
- */
 export type QwenAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   version?: 'latest' | '2509' | '2512';
   ecosystem: 'qwen';
@@ -9112,21 +8384,12 @@ export type QwenApiImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'qwen';
 };
 
-/**
- * Input for evaluating generated images with Qwen-Image-Bench.
- */
 export type QwenImageBenchInput = {
   /**
    * Prompt/image pairs to score. Each item is evaluated independently.
    */
   items: Array<QwenImageBenchItem>;
-  /**
-   * The AIR model to use for the benchmark judge.
-   */
   model?: string;
-  /**
-   * Maximum number of tokens to generate.
-   */
   maxTokens?: number;
   /**
    * Deterministic seed. The model card recommends 42.
@@ -9146,19 +8409,13 @@ export type QwenImageBenchItem = {
    * Stable caller-provided identifier used as the output key.
    */
   id: string;
-  /**
-   * The text prompt used to generate the image.
-   */
   prompt: string;
   /**
-   * The generated image to evaluate.
+   * Either A URL, A DataURL or a Base64 string
    */
   image: string;
 };
 
-/**
- * Score output for one evaluated image.
- */
 export type QwenImageBenchItemResult = {
   /**
    * Top-level benchmark dimension scores, mapped to the benchmark 0/60/100 scale.
@@ -9170,9 +8427,6 @@ export type QwenImageBenchItemResult = {
    * Average of the available top-level field scores.
    */
   totalScore?: null | number;
-  /**
-   * Recursive score tree derived from the model output.
-   */
   scores: Array<QwenImageBenchScoreNode>;
   /**
    * Parse errors keyed by benchmark dimension.
@@ -9180,15 +8434,9 @@ export type QwenImageBenchItemResult = {
   errors: {
     [key: string]: string;
   };
-  /**
-   * Parse or retrieval error, if the score could not be read.
-   */
   error?: null | string;
 };
 
-/**
- * Scores returned by Qwen-Image-Bench.
- */
 export type QwenImageBenchOutput = {
   /**
    * Results keyed by the caller-provided item id.
@@ -9198,9 +8446,6 @@ export type QwenImageBenchOutput = {
   };
 };
 
-/**
- * A benchmark dimension or sub-dimension score.
- */
 export type QwenImageBenchScoreNode = {
   name: string;
   score?: null | number;
@@ -9230,9 +8475,6 @@ export type QwenImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
   engine: 'sdcpp';
 };
 
-/**
- * Represents the "for" clause in a repeat step that specifies what to iterate over.
- */
 export type RepeatForClause = {
   /**
    * The dynamic assignment reference to the array to iterate over (e.g., "$stepName").
@@ -9248,17 +8490,11 @@ export type RepeatForClause = {
   as: string;
 };
 
-/**
- * Represents the input information needed for the Repeat workflow step.
- */
 export type RepeatInput = {
   for: RepeatForClause;
   template: WorkflowStepTemplate;
 };
 
-/**
- * Represents the output information returned from the Repeat workflow step.
- */
 export type RepeatOutput = {
   steps: Array<WorkflowStep>;
 };
@@ -9289,86 +8525,48 @@ export const ResourceFeeType = { PER_IMAGE_BUZZ: 'perImageBuzz' } as const;
 
 export type ResourceFeeType = (typeof ResourceFeeType)[keyof typeof ResourceFeeType];
 
-/**
- * Details for a specific resource.
- */
 export type ResourceInfo = {
-  /**
-   * An AIR ID for the resource.
-   */
   air: string;
   /**
-   * The resource size in bytes.
+   * In bytes.
    */
   size: number;
-  /**
-   * A collection of hashes.
-   */
   hashes: {
     [key: string]: string;
   };
-  /**
-   * An array of download urls.
-   */
   downloadUrls: Array<string>;
-  /**
-   * The name of the resource.
-   */
   resourceName?: null | string;
-  /**
-   * The name of the version.
-   */
   versionName?: null | string;
-  /**
-   * The date time to invalidate at.
-   */
   invalidateAt?: null | string;
-  /**
-   * A DateTime representing when early access for the resource ends.
-   */
   earlyAccessEndsAt?: null | string;
   /**
-   * A bool indicating if permission is required to use this resource.
+   * Whether permission is required to use this resource.
    */
   checkPermission: boolean;
-  /**
-   * A bool indicating if generation is enabled for this resource.
-   */
   canGenerate: boolean;
   /**
-   * An optional limit on the number of uses for this resource per user that has early acccess.
+   * Per-user limit on uses while the resource is in early access.
    */
   freeTrialLimit?: null | number;
-  /**
-   * Wether this resource requires authorization.
-   */
   requiresAuthorization?: null | boolean;
   fileFormat: FileFormat;
   /**
-   * A boolean indicating whether this resource restricts mature content generation.
-   * If resources with this restriction are used in generation, then generations will automatically be enforced to not generate mature content
+   * Generations using this resource are forced to not produce mature content.
    */
   hasMatureContentRestriction: boolean;
   /**
-   * Get a rank between 0-1 on the popularity of the resource.
+   * 0-1.
    */
   popularityRank?: null | number;
-  /**
-   * Get wether this resource is featured
-   */
   isFeatured?: null | boolean;
-  /**
-   * The date at which this model got published
-   */
   publishedAt?: null | string;
   /**
-   * A boolean indicating whether this resource restricts to SFW content generation.
-   * NSFWContent covers X and XXX whereas MatureContent includes R rated content.
+   * NSFW covers X and XXX, whereas mature content also includes R.
    */
   hasNSFWContentRestriction: boolean;
   fee?: ResourceFee;
   /**
-   * If set to false, then this resource is not eligible for compenstation or tips
+   * False makes the resource ineligible for compensation.
    */
   payoutEnabled?: null | boolean;
   /**
@@ -9389,6 +8587,10 @@ export type ResourceInfo = {
    * When false, workers keep the cluster's last copy of this resource rather than evicting it.
    */
   evictable?: null | boolean;
+  /**
+   * Unlike payoutEnabled, a licensing fee does not disqualify the resource from tips.
+   */
+  tipsEnabled?: null | boolean;
 };
 
 /**
@@ -9452,22 +8654,11 @@ export type ReveFalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & 
   engine: 'fal';
 };
 
-/**
- * AI Toolkit training for Stable Diffusion 1.5 models
- */
 export type Sd1AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   /**
-   * Learning is performed by putting noise of various strengths on the training image,
-   * but depending on the difference in strength of the noise on which it is placed, learning will be
-   * stable by moving closer to or farther from the learning target.
-   *
-   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
-   * it may deviate greatly from the target, so try to suppress this jump.
+   * Compensates for the varying noise strength applied to training images, suppressing large jumps when images have little noise.
    */
   minSnrGamma?: null | number;
-  /**
-   * The primary model to train upon.
-   */
   model?: string;
   readonly maxBatchSize: number;
   ecosystem: 'sd1';
@@ -9482,9 +8673,6 @@ export const SafeMode = { ENABLE: 'enable', DISABLE: 'disable' } as const;
 
 export type SafeMode = (typeof SafeMode)[keyof typeof SafeMode];
 
-/**
- * The available options for schedulers used in image generation.
- */
 export const Scheduler = {
   EULER_A: 'eulerA',
   EULER: 'euler',
@@ -9513,9 +8701,6 @@ export const Scheduler = {
   DP_M3MSDE: 'dpM3MSDE',
 } as const;
 
-/**
- * The available options for schedulers used in image generation.
- */
 export type Scheduler = (typeof Scheduler)[keyof typeof Scheduler];
 
 export type Sd1CreateImageGenInput = Omit<
@@ -9612,22 +8797,11 @@ export const SdCppUCacheMode = { OFF: 'off', NORMAL: 'normal' } as const;
 
 export type SdCppUCacheMode = (typeof SdCppUCacheMode)[keyof typeof SdCppUCacheMode];
 
-/**
- * AI Toolkit training for Stable Diffusion XL models
- */
 export type SdxlAiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
   /**
-   * Learning is performed by putting noise of various strengths on the training image,
-   * but depending on the difference in strength of the noise on which it is placed, learning will be
-   * stable by moving closer to or farther from the learning target.
-   *
-   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
-   * it may deviate greatly from the target, so try to suppress this jump.
+   * Compensates for the varying noise strength applied to training images, suppressing large jumps when images have little noise.
    */
   minSnrGamma?: null | number;
-  /**
-   * The primary model to train upon.
-   */
   model?: string;
   readonly maxBatchSize: number;
   ecosystem: 'sdxl';
@@ -9903,9 +9077,6 @@ export type ShieldstralPolicyResult = {
   policyHash?: null | string;
 };
 
-/**
- * Input for evaluating an image-generation prompt with Shieldstral.
- */
 export type ShieldstralPromptModerationInput = Omit<ShieldstralModerationInput, 'mode'> & {
   positivePrompt: string;
   negativePrompt?: null | string;
@@ -9916,9 +9087,6 @@ export type ShieldstralPromptModerationInput = Omit<ShieldstralModerationInput, 
   mode: 'prompt';
 };
 
-/**
- * Input for evaluating arbitrary site text with Shieldstral.
- */
 export type ShieldstralTextModerationInput = Omit<ShieldstralModerationInput, 'mode'> & {
   text: string;
   mode: 'text';
@@ -9976,10 +9144,7 @@ export type SoniloSoundEffectInput = Omit<SoniloAudioGenInput, 'operation'> & {
 };
 
 /**
- * Sora 2 Image-to-Video
- * FAL Endpoints:
- * - Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video
- * - Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/image-to-video/pro
+ * FAL endpoints fal-ai/sora-2/image-to-video and fal-ai/sora-2/image-to-video/pro
  */
 export type Sora2ImageToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operation'> & {
   images?: Array<string>;
@@ -9988,10 +9153,7 @@ export type Sora2ImageToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operati
 };
 
 /**
- * Sora 2 Text-to-Video
- * FAL Endpoints:
- * - Standard: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video
- * - Pro: https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/sora-2/text-to-video/pro
+ * FAL endpoints fal-ai/sora-2/text-to-video and fal-ai/sora-2/text-to-video/pro
  */
 export type Sora2TextToVideoInput = Omit<SoraVideoGenInput, 'engine' | 'operation'> & {
   operation: 'text-to-video';
@@ -10034,79 +9196,40 @@ export type SystemMessage = Omit<ChatCompletionMessage, 'role'> & {
    * The system message content (text only).
    */
   content: string;
-  /**
-   * Optional name for the participant.
-   */
   name?: null | string;
   role: 'system';
 };
 
-/**
- * Input for an text to image step.
- */
 export type TextToImageInput = {
   /**
    * The number of batches to run.
    */
   quantity?: number;
-  /**
-   * The size of each batch
-   */
   batchSize?: number;
-  /**
-   * The AIR of the checkpoint model to use for generation.
-   */
   model?: string;
   /**
-   * Get or set a associative list of additional networks. Use the AIR of the network as the key.
+   * Additional networks keyed by their AIR.
    */
   additionalNetworks?: {
     [key: string]: ImageJobNetworkParams;
   };
-  /**
-   * Get or set a associative list of ControlNets.
-   */
   controlNets?: Array<ImageJobControlNet>;
-  /**
-   * The provided text prompt.
-   */
   prompt: string;
-  /**
-   * The provided negative text prompt.
-   */
   negativePrompt?: null | string;
   scheduler?: Scheduler;
-  /**
-   * The number of steps for image generation.
-   */
   steps?: number;
-  /**
-   * The CFG scale value for image generation.
-   */
   cfgScale: number;
-  /**
-   * The desired image width in pixels.
-   */
   width?: number;
-  /**
-   * The desired image height in pixels.
-   */
   height?: number;
   /**
    * The seed to use in image generation. Defaults to a random value if left unpopulated.
    */
   seed: number;
-  /**
-   * The clip skip value for image generation.
-   */
   clipSkip?: number;
   /**
    * External metadata that will be stored with the image
    */
   imageMetadata?: null | string;
-  /**
-   * An optional engine to use for generation.
-   */
   engine?: null | string;
   outputFormat?: OutputFormat;
   /**
@@ -10119,13 +9242,7 @@ export type TextToImageInput = {
   sourceImageDenoiseStrenght?: number;
 };
 
-/**
- * Represents the output of a TextToImage workflow step.
- */
 export type TextToImageOutput = {
-  /**
-   * A collection of output images.
-   */
   images: Array<ImageBlob>;
 };
 
@@ -10148,9 +9265,6 @@ export type TextToImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 
 export type TextToSpeechInput = {
   engine: null | string;
-  /**
-   * The text to synthesize into speech.
-   */
   text: string;
   /**
    * Target language (e.g., "English", "Chinese"). Defaults to "Auto".
@@ -10158,9 +9272,6 @@ export type TextToSpeechInput = {
   language?: null | string;
 };
 
-/**
- * Output from text-to-speech workflow step.
- */
 export type TextToSpeechOutput = {
   audioBlob: AudioBlob;
   /**
@@ -10194,13 +9305,7 @@ export type TextToSpeechStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
  * A tool result message sent back after executing a tool call.
  */
 export type ToolMessage = Omit<ChatCompletionMessage, 'role'> & {
-  /**
-   * The tool result content.
-   */
   content: string;
-  /**
-   * The ID of the tool call this message is responding to.
-   */
   tool_call_id: string;
   role: 'tool';
 };
@@ -10221,16 +9326,10 @@ export const TraceMode = {
  */
 export type TraceMode = (typeof TraceMode)[keyof typeof TraceMode];
 
-/**
- * Represents training data in various formats
- */
 export type TrainingData = {
   type: string;
 };
 
-/**
- * Input for a training step.
- */
 export type TrainingInput = {
   engine: string;
   trainingData: TrainingData;
@@ -10239,28 +9338,17 @@ export type TrainingInput = {
    * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
    */
   readonly usesStepPricing: boolean;
-  /**
-   * Whether age classification should run on this training type's dataset.
-   */
   readonly requiresAgeClassification: boolean;
 };
 
-/**
- * Sample generation configuration for training workflows
- */
 export type TrainingInputSamples = {
   /**
    * A selection of sample prompts to generate preview outputs during training.
    */
   prompts?: Array<string>;
-  /**
-   * An optional negative prompt that will be applied when generating samples
-   */
   negativePrompt?: null | string;
   /**
-   * Source images for edit training sample generation.
-   * Processed by ISourceImageProcessor during initialization, then TryGetUri() yields URLs
-   * that are passed as ReferenceImageUrls when generating samples with edit LoRAs.
+   * Source images for edit-LoRA sample generation, passed as reference images when rendering samples.
    */
   sourceImages?: Array<string>;
   /**
@@ -10273,9 +9361,6 @@ export type TrainingInputSamples = {
   strength?: null | number;
 };
 
-/**
- * The moderation status of the training data
- */
 export const TrainingModerationStatus = {
   EVALUATING: 'evaluating',
   UNDER_REVIEW: 'underReview',
@@ -10283,15 +9368,9 @@ export const TrainingModerationStatus = {
   REJECTED: 'rejected',
 } as const;
 
-/**
- * The moderation status of the training data
- */
 export type TrainingModerationStatus =
   (typeof TrainingModerationStatus)[keyof typeof TrainingModerationStatus];
 
-/**
- * Output from a training step.
- */
 export type TrainingOutput = {
   moderationStatus: TrainingModerationStatus;
   /**
@@ -10301,9 +9380,6 @@ export type TrainingOutput = {
   epochs: Array<TrainingOutputEpochResult>;
 };
 
-/**
- * Represents the output of a single training epoch
- */
 export type TrainingOutputEpochResult = {
   /**
    * The epoch number (1-based)
@@ -10315,10 +9391,8 @@ export type TrainingOutputEpochResult = {
    */
   samples: Array<Blob>;
   /**
-   * Tail-able live trace of this epoch's job, only when the input requested `trace`: plain text console
-   * output for `logs`, or NDJSON for `events` where each line carries a unix-millisecond `t`,
-   * a `type` and the `epoch`. Responds 404 until the worker has written its first line and stays
-   * open (chunked) while the epoch job runs. Null for epochs served from an existing checkpoint.
+   * Live trace of this epoch's job when the input requested `trace`: plain text for `logs`, NDJSON for `events` (each line has unix-ms `t`, `type`, `epoch`).
+   * 404 until the worker writes its first line, chunked while the job runs; null for epochs served from an existing checkpoint.
    */
   traceUrl?: null | string;
 };
@@ -10356,29 +9430,17 @@ export const TrainingTraceMode = {
  */
 export type TrainingTraceMode = (typeof TrainingTraceMode)[keyof typeof TrainingTraceMode];
 
-/**
- * Transaction information.
- */
 export type TransactionInfo = {
   type: TransactionType;
-  /**
-   * The transaction amount.
-   */
   amount: number;
-  /**
-   * The transaction ID.
-   */
   id?: null | string;
   accountType: BuzzClientAccount;
 };
 
 export type TransactionSummary = {
-  /**
-   * Get a list of individual transactions.
-   */
   list: Array<TransactionInfo>;
   /**
-   * A boolean returned with whatif requests to indicate whether the user has nsufficient buzz to run a workflow.
+   * Returned with whatif requests to indicate whether the user has insufficient buzz to run the workflow.
    */
   insufficientBuzz?: null | boolean;
 };
@@ -10408,26 +9470,20 @@ export type TranscodeOutput = {
    * Gets the id of the blob that contains the media.
    */
   id: string;
-  /**
-   * Gets a value indicating whether the media is available.
-   */
   available: boolean;
-  /**
-   * Gets a url that can be used to preview the media.
-   */
   url?: null | string;
-  /**
-   * Get when the url is set to expire
-   */
   urlExpiresAt?: null | string;
-  /**
-   * Get the id of the job that is associated with this media.
-   */
   jobId: string;
   /**
-   * Storage tier holding the blob; null when none was declared.
+   * Deprecated: use Civitai.Orchestration.Grains.Workflows.Steps.Transcode.TranscodeOutput.PublicUrl to tell a public blob. Storage tier holding the blob; null when none
+   * was declared.
    */
   tier?: null | string;
+  /**
+   * The durable, unsigned url of a blob requested public, which a CDN can cache. May 404 until the workflow that
+   * produces it completes; Civitai.Orchestration.Grains.Workflows.Steps.Transcode.TranscodeOutput.Url waits instead.
+   */
+  publicUrl?: null | string;
 };
 
 /**
@@ -10448,9 +9504,6 @@ export type TranscodeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 };
 
 export type TranscriptionInput = {
-  /**
-   * The URL of the audio media to transcribe.
-   */
   mediaUrl: string;
   /**
    * Optional language hint (e.g., "en", "zh") to guide transcription.
@@ -10460,16 +9513,10 @@ export type TranscriptionInput = {
    * Optional context prompt to improve transcription accuracy.
    */
   context?: null | string;
-  /**
-   * Whether to return word-level timestamps. Defaults to true.
-   */
   returnTimeStamps?: boolean;
 };
 
 export type TranscriptionOutput = {
-  /**
-   * The full transcribed text.
-   */
   text: string;
   /**
    * The detected language of the audio.
@@ -10479,9 +9526,6 @@ export type TranscriptionOutput = {
    * Word-level timestamps (if requested).
    */
   timeStamps: Array<TranscriptionTimeStamp>;
-  /**
-   * Total processing time in seconds.
-   */
   elapsedSeconds: number;
 };
 
@@ -10622,20 +9666,11 @@ export type UnsupportedResourceAvailability = Omit<ResourceAvailability, 'status
   status: 'unsupported';
 };
 
-/**
- * An request for updating a workflow.
- */
 export type UpdateWorkflowRequest = {
   status?: UpdateWorkflowStatus;
-  /**
-   * An optional set of new properties to set on the workflow.
-   */
   metadata?: null | {
     [key: string]: unknown;
   };
-  /**
-   * An optional set of new tags to set on the workflow.
-   */
   tags?: null | Array<string>;
   /**
    * Set to true to remove the mature content restriction on the workflow.
@@ -10644,20 +9679,11 @@ export type UpdateWorkflowRequest = {
   downloadPriority?: Priority;
 };
 
-/**
- * Available statuses for updating workflows.
- */
 export const UpdateWorkflowStatus = { CANCELED: 'canceled' } as const;
 
-/**
- * Available statuses for updating workflows.
- */
 export type UpdateWorkflowStatus = (typeof UpdateWorkflowStatus)[keyof typeof UpdateWorkflowStatus];
 
 export type UpdateWorkflowStepRequest = {
-  /**
-   * An set of new properties to set on the workflow step.
-   */
   metadata: {
     [key: string]: unknown;
   };
@@ -10668,13 +9694,9 @@ export type UpdateWorkflowStepRequest = {
  */
 export type UserMessage = Omit<ChatCompletionMessage, 'role'> & {
   /**
-   * The message content - can be a simple string or array of content parts.
-   * When deserialized from a string, it will be converted to a single TextContentPart.
+   * A string or an array of content parts; a plain string is accepted as a single text part.
    */
   content: Array<ChatCompletionContentPart>;
-  /**
-   * Optional name for the participant.
-   */
   name?: null | string;
   role: 'user';
 };
@@ -10843,33 +9865,22 @@ export type VideoEnhancementStepTemplate = Omit<WorkflowStepTemplate, '$type'> &
   $type: 'videoEnhancement';
 };
 
-/**
- * Represents the input information needed for the VideoFrameExtraction workflow step.
- */
 export type VideoFrameExtractionInput = {
-  /**
-   * The URL of the video to extract frames from.
-   */
   videoUrl: string;
   /**
-   * The rate at which to extract frames (frames per second).
-   * Default is 1.0 (one frame per second).
+   * Frames per second to extract.
    */
   frameRate?: number;
   /**
-   * The similarity threshold for determining unique frames (0.0 to 1.0).
-   * Frames with similarity above this threshold are considered duplicates and filtered out.
-   * Default is 0.9 (90% similarity).
+   * Similarity (0.0 to 1.0) above which a frame counts as a duplicate and is dropped.
    */
   uniqueThreshold?: number;
   /**
-   * Optional maximum number of unique frames to extract.
-   * If null, all unique frames will be extracted.
+   * Maximum number of unique frames to extract; null extracts all.
    */
   maxFrames?: null | number;
   /**
-   * Time in seconds to seek to before extracting frames.
-   * Default is 0 (start of video).
+   * Seconds into the video to start extracting from.
    */
   startTime?: number;
   /**
@@ -10879,17 +9890,8 @@ export type VideoFrameExtractionInput = {
   public?: null | boolean;
 };
 
-/**
- * Represents the output from the VideoFrameExtraction workflow step.
- */
 export type VideoFrameExtractionOutput = {
-  /**
-   * A collection of extracted unique video frames as image blobs.
-   */
   frames: Array<ImageBlob>;
-  /**
-   * The total number of unique frames extracted from the video.
-   */
   totalFramesExtracted: number;
 };
 
@@ -10923,9 +9925,8 @@ export type VideoGenInputLora = {
 export type VideoGenOutput = {
   video?: VideoBlob;
   /**
-   * Extra videos produced by the step when Quantity > 1. Always null/empty for single-output
-   * engines; populated alongside Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.VideoGenOutput.Video (the primary slot) by engines that batch
-   * multiple videos in a single job (e.g. LTX 2.3).
+   * Extra videos when Quantity > 1, produced by engines that batch multiple videos in one job (e.g. LTX 2.3);
+   * Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.VideoGenOutput.Video is always the primary slot. Null/empty for single-output engines.
    */
   additionalVideos?: null | Array<VideoBlob>;
   draftCache?: Blob;
@@ -10975,35 +9976,14 @@ export type VideoInterpolationStepTemplate = Omit<WorkflowStepTemplate, '$type'>
   $type: 'videoInterpolation';
 };
 
-/**
- * Represents the input information needed for the VideoMetadata workflow step.
- */
 export type VideoMetadataInput = {
-  /**
-   * The video file to extract metadata from.
-   */
   video: string;
 };
 
-/**
- * Represents the output information returned from the VideoMetadata workflow step.
- */
 export type VideoMetadataOutput = {
-  /**
-   * The width of the video in pixels.
-   */
   width: number;
-  /**
-   * The height of the video in pixels.
-   */
   height: number;
-  /**
-   * The frame rate of the video in frames per second.
-   */
   fps: number;
-  /**
-   * The duration of the video.
-   */
   duration: string;
 };
 
@@ -11061,6 +10041,41 @@ export type ViduQ3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'vidu-q3';
 };
 
+/**
+ * Animate one starting frame. Use an empty prompt for animation without text instructions. Audio is generated by the provider.
+ */
+export type ViduQ4ImageToVideoInput = Omit<ViduQ4VideoGenInput, 'engine' | 'operation'> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  operation: 'imageToVideo';
+  engine: 'vidu-q4';
+};
+
+/**
+ * Refer to images as [@reference_image_1] and voices as [reference_audio_1], using their array positions.
+ */
+export type ViduQ4ReferenceToVideoInput = Omit<ViduQ4VideoGenInput, 'engine' | 'operation'> & {
+  referenceImages?: Array<string>;
+  /**
+   * Up to three MP3 clips, each 3–12 seconds and at most 50 MB, as HTTP(S) URLs or base64 audio/mpeg data URIs.
+   */
+  referenceAudios?: Array<string>;
+  aspectRatio?: '16:9' | '9:16' | '4:3' | '3:4' | '1:1';
+  enableAudio?: boolean;
+  operation: 'referenceToVideo';
+  engine: 'vidu-q4';
+};
+
+export type ViduQ4VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation: null | string;
+  duration?: number;
+  resolution?: '540p' | '720p' | '1080p' | '2K' | '4K';
+  seed?: null | number;
+  engine: 'vidu-q4';
+};
+
 export type ViduVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   enablePromptEnhancer?: boolean;
   seed?: null | number;
@@ -11105,25 +10120,16 @@ export type VllmOmniTextToSpeechInput = Omit<TextToSpeechInput, 'engine'> & {
  * attenuate. No-op for elements with no audio stream.
  */
 export type VolumeTransformer = Omit<MediaTransformer, 'type'> & {
-  /**
-   * Gain adjustment in dB.
-   */
   db: number;
   type: 'volume';
 };
 
-/**
- * Represents the input information needed for the WDTagging workflow step.
- */
 export type WdTaggingInput = {
   /**
    * The model to use for tagging. Tagging always runs with "cl-tagger.v2"; any other model, including the
    * default "wd14-vit.v1", is deprecated and produces a warning.
    */
   model?: null | string;
-  /**
-   * The URL of the image to tag.
-   */
   mediaUrl: string;
   /**
    * Optional threshold for tag confidence filtering. Tags below this threshold will be excluded.
@@ -11136,9 +10142,6 @@ export type WdTaggingInput = {
   prompt?: null | string;
 };
 
-/**
- * Represents the output information returned from the WDTagging workflow step.
- */
 export type WdTaggingOutput = {
   /**
    * The detected tags with their confidence scores.
@@ -11505,7 +10508,7 @@ export type Wan27FalEditVideoInput = Omit<
    */
   videoUrl: string;
   /**
-   * Reference image for reference-based editing
+   * Either A URL, A DataURL or a Base64 string
    */
   referenceImage?: null | string;
   /**
@@ -11549,7 +10552,7 @@ export type Wan27FalImageToVideoInput = Omit<
   'engine' | 'version' | 'provider' | 'operation'
 > & {
   /**
-   * First frame image URL
+   * Either A URL, A DataURL or a Base64 string
    */
   startImage?: null | string;
   /**
@@ -11712,13 +10715,7 @@ export type WanVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'wan';
 };
 
-/**
- * Represents the input information needed for the WebScrape workflow step.
- */
 export type WebScrapeInput = {
-  /**
-   * The URL of the page to scrape.
-   */
   url: string;
   /**
    * The formats to return the page content in (e.g. "markdown", "html", "links").
@@ -11726,9 +10723,6 @@ export type WebScrapeInput = {
   formats: Array<string>;
 };
 
-/**
- * Represents the output information returned from the WebScrape workflow step.
- */
 export type WebScrapeOutput = {
   /**
    * The page content as markdown, when requested.
@@ -11742,17 +10736,8 @@ export type WebScrapeOutput = {
    * The links found on the page, when requested.
    */
   links?: null | Array<string>;
-  /**
-   * The title of the page.
-   */
   title?: null | string;
-  /**
-   * The description of the page.
-   */
   description?: null | string;
-  /**
-   * The HTTP status code returned by the page.
-   */
   statusCode?: null | number;
 };
 
@@ -11773,13 +10758,7 @@ export type WebScrapeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'webScrape';
 };
 
-/**
- * Represents the input information needed for the WebSearch workflow step.
- */
 export type WebSearchInput = {
-  /**
-   * The search query.
-   */
   query: string;
   /**
    * The maximum number of results to return (1-10).
@@ -11792,9 +10771,6 @@ export type WebSearchInput = {
   scrapeFormats?: null | Array<string>;
 };
 
-/**
- * Represents the output information returned from the WebSearch workflow step.
- */
 export type WebSearchOutput = {
   /**
    * The search results, in relevance order.
@@ -11802,17 +10778,8 @@ export type WebSearchOutput = {
   results: Array<WebSearchResult>;
 };
 
-/**
- * A single web search result.
- */
 export type WebSearchResult = {
-  /**
-   * The URL of the result page.
-   */
   url: string;
-  /**
-   * The title of the result page.
-   */
   title?: null | string;
   /**
    * The search engine's snippet/description for the result.
@@ -11842,17 +10809,11 @@ export type WebSearchStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'webSearch';
 };
 
-/**
- * WebP output format configuration.
- */
 export type WebpOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   /**
    * Quality setting for WebP compression (1-100). Only applies when Lossless is false.
    */
   quality?: number;
-  /**
-   * When true, uses lossless compression. When false, uses lossy compression with the Quality setting.
-   */
   lossless?: boolean;
   /**
    * Maximum number of frames to include in the output. Set to 1 to extract only the first frame from animated images.
@@ -11862,64 +10823,34 @@ export type WebpOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   format: 'webp';
 };
 
-/**
- * Details of a workflow.
- */
 export type Workflow = {
-  /**
-   * The ID for the workflow.
-   */
   id?: null | string;
-  /**
-   * The date / time the workflow was created.
-   */
   createdAt: string;
   transactions?: TransactionSummary;
-  /**
-   * A collection of user defined metadata for the workflow.
-   */
   metadata: {
     [key: string]: unknown;
   };
   status: WorkflowStatus;
-  /**
-   * The date / time the workflow was started. Null if not yet started.
-   */
   startedAt?: null | string;
-  /**
-   * The date / time the workflow was completed. Null if not yet complete.
-   */
   completedAt?: null | string;
   /**
-   * An optional list of tags for the workflow.
+   * Indexed for searching; at most 10 per workflow.
    */
   tags: Array<string>;
-  /**
-   * Get an associated collection of arguments
-   */
   arguments: {
     [key: string]: unknown;
   };
   readonly steps: Array<WorkflowStep>;
-  /**
-   * An array of callback details for the workflow.
-   */
   callbacks: Array<WorkflowCallback>;
   tips: WorkflowTips;
   cost: WorkflowCost;
   nsfwLevel?: NsfwLevel;
   /**
-   * Get or set whether this workflow is experimental
+   * Opts the workflow in to new features or behaviours that are not yet stable.
    */
   experimental?: null | boolean;
-  /**
-   * Gets or sets a value indicating whether mature content is allowed in this workflow.
-   */
   allowMatureContent?: null | boolean;
   upgradeMode: WorkflowUpgradeMode;
-  /**
-   * An optional set of currencies to use for this workflow.
-   */
   currencies: Array<BuzzClientAccount>;
   /**
    * Whether this workflow has been force-refunded.
@@ -11927,44 +10858,29 @@ export type Workflow = {
    */
   forceRefunded: boolean;
   /**
-   * When true, this workflow is not persisted to telemetry/MongoDB.
-   * In-flight state lives only in Orleans grain state (Redis); once the workflow
-   * reaches a terminal state the grain clears its state and no record remains.
+   * Not persisted to telemetry/MongoDB; in-flight state lives only in grain state and nothing remains once terminal.
    */
   ephemeral?: null | boolean;
   /**
-   * Client-supplied idempotency key. Stored as `"{userId}-{clientValue}"`
-   * so the partial unique index can be single-field while still scoping
-   * uniqueness per-user. See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
+   * Client-supplied idempotency key, stored as `"{userId}-{clientValue}"` so the unique index is single-field yet per-user.
+   * See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
    */
   externalId?: null | string;
   /**
-   * Net buzz refunded because deliverable blobs were lost in the 2026-06-12 storage
-   * incident (v2.20.1 wrote Default-tier blobs to the wrong store). Null = not yet
-   * checked, 0 = checked and intact. A value > 0 also prevents re-charging on recovery.
+   * Net buzz refunded for deliverable blobs lost in the 2026-06-12 storage incident. Null = not yet checked, 0 = intact;
+   * a value > 0 also prevents re-charging on recovery.
    */
   lostBlobsRefund?: null | number;
   /**
-   * When the consumer deleted this workflow. Soft delete: the telemetry document is kept
-   * (until its natural TTL) so operators can still inspect it in the dashboard, but
-   * consumer reads and queries treat the workflow as gone.
+   * Soft delete: the telemetry document is kept until its TTL for operators, but consumer reads treat the workflow as gone.
    */
   deletedAt?: null | string;
   downloadPriority?: Priority;
   tier: WorkflowTier;
 };
 
-/**
- * Details of a callback setup for a workflow.
- */
 export type WorkflowCallback = {
-  /**
-   * The url for the callback.
-   */
   url: string;
-  /**
-   * An array of event types to send to the callback.
-   */
   type: Array<
     | 'workflow:*'
     | 'workflow:unassigned'
@@ -12002,12 +10918,9 @@ export type WorkflowCallback = {
 
 export type WorkflowCost = {
   /**
-   * The base cost of this request, excludsing any tips
+   * The base cost of this request, excluding any tips
    */
   base: number;
-  /**
-   * A breakdown of the cost factors for this request
-   */
   factors?: null | {
     [key: string]: number;
   };
@@ -12019,17 +10932,14 @@ export type WorkflowCost = {
   };
   tips: WorkflowCostTips;
   /**
-   * Per-resource licensing fees for this request, keyed by resource AIR. The
-   * user is charged the sum of the values; each entry is settled to its
-   * resource's recipient (see `EmitFeeCompensationsAsync`).
+   * Per-resource licensing fees keyed by resource AIR; the user is charged the sum and each entry is settled to its resource's recipient.
    */
   fees?: null | {
     [key: string]: number;
   };
   /**
-   * When true, this price is a cap that may settle lower: at least one step is
-   * post-billed and charged up front at its maximum, with the difference
-   * refunded once the provider reports the actual work delivered.
+   * When true the price is a cap that may settle lower: a post-billed step is charged at its maximum up front and
+   * the difference refunded once the provider reports actual work.
    */
   variable?: null | boolean;
   /**
@@ -12038,32 +10948,14 @@ export type WorkflowCost = {
   readonly total: number;
 };
 
-/**
- * Get the cost of tips
- */
 export type WorkflowCostTips = {
-  /**
-   * The buzz tipped to Civitai
-   */
   civitai: number;
-  /**
-   * The buzz tipped to the Creators who's resources were used
-   */
   creators: number;
 };
 
-/**
- * Details of a workflow event.
- */
 export type WorkflowEvent = {
-  /**
-   * The ID that represents the corresponding workflow.
-   */
   workflowId: string;
   status: WorkflowStatus;
-  /**
-   * A timestamp for when this event got raised
-   */
   timestamp: string;
   readonly $type: string;
   details?: WorkflowEventDetails;
@@ -12073,76 +10965,31 @@ export type WorkflowEvent = {
  * Detailed information about a workflow included in webhook callbacks when detailed mode is enabled.
  */
 export type WorkflowEventDetails = {
-  /**
-   * Custom metadata associated with the workflow
-   */
   metadata?: null | {
     [key: string]: null;
   };
-  /**
-   * Arguments provided to the workflow
-   */
   arguments?: null | {
     [key: string]: null;
   };
-  /**
-   * When the workflow was created
-   */
   createdAt: string;
-  /**
-   * When the workflow completed execution
-   */
   completedAt?: null | string;
-  /**
-   * When the workflow started execution
-   */
   startedAt?: null | string;
-  /**
-   * Details about each step in the workflow
-   */
   steps: Array<WorkflowEventStepDetails>;
 };
 
-/**
- * Detailed information about a workflow step within a workflow event.
- */
 export type WorkflowEventStepDetails = {
-  /**
-   * The name of the step
-   */
   name: string;
   status: WorkflowStatus;
-  /**
-   * When the step started execution
-   */
   startedAt?: null | string;
-  /**
-   * When the step completed execution
-   */
   completedAt?: null | string;
-  /**
-   * Custom metadata associated with the step
-   */
   metadata?: null | {
     [key: string]: null;
   };
-  /**
-   * The input configuration for the step
-   */
   input?: null;
-  /**
-   * The output result from the step
-   */
   output?: null;
-  /**
-   * The cost of executing the step
-   */
   cost?: null | number;
 };
 
-/**
- * Values available to represent workflow status.
- */
 export const WorkflowStatus = {
   UNASSIGNED: 'unassigned',
   PREPARING: 'preparing',
@@ -12154,14 +11001,8 @@ export const WorkflowStatus = {
   CANCELED: 'canceled',
 } as const;
 
-/**
- * Values available to represent workflow status.
- */
 export type WorkflowStatus = (typeof WorkflowStatus)[keyof typeof WorkflowStatus];
 
-/**
- * Details of a workflow step.
- */
 export type WorkflowStep = {
   $type: string;
   /**
@@ -12169,34 +11010,16 @@ export type WorkflowStep = {
    */
   name: string;
   priority: Priority;
-  /**
-   * The maximum time to wait for this step to complete.
-   */
   timeout?: null | string;
-  /**
-   * The maximum number of times this step should be retried.
-   */
   retries?: null | number;
   status: WorkflowStatus;
-  /**
-   * The date / time the step was started. Null if not yet started.
-   */
   startedAt?: null | string;
-  /**
-   * The date / time the step was completed. Null if not yet completed.
-   */
   completedAt?: null | string;
-  /**
-   * A collection of user defined metadata for the workflow step.
-   */
   metadata: {
     [key: string]: unknown;
   };
   /**
-   * An estimation on the current progression of this step, or null if there is no estimation.
-   * Computed by the step's handler (see `WorkflowStepHandler.GetEstimatedProgressRate`)
-   * and refreshed by `WorkflowStepManager` on each job event. Cleared to null once the
-   * step reaches a final status.
+   * Estimated progress of this step, or null when there is no estimate (including once the step reaches a final status).
    */
   estimatedProgressRate?: null | number;
   /**
@@ -12212,17 +11035,8 @@ export type WorkflowStep = {
   warnings?: null | Array<WorkflowStepWarning>;
 };
 
-/**
- * Details of a workflow step event.
- */
 export type WorkflowStepEvent = {
-  /**
-   * The workflow ID.
-   */
   workflowId: string;
-  /**
-   * The workflow step's name.
-   */
   name: string;
   status: WorkflowStatus;
   readonly $type: string;
@@ -12237,35 +11051,17 @@ export type WorkflowStepEvent = {
  * Detailed information about a workflow step included in webhook callbacks when detailed mode is enabled.
  */
 export type WorkflowStepEventDetails = {
-  /**
-   * When the step started execution
-   */
   startedAt?: null | string;
-  /**
-   * When the step completed execution
-   */
   completedAt?: null | string;
   /**
    * Estimated progress rate of the step (0.0 to 1.0)
    */
   estimatedProgressRate?: null | number;
-  /**
-   * Number of times the step has been retried
-   */
   retries: number;
-  /**
-   * Custom metadata associated with the step
-   */
   metadata?: null | {
     [key: string]: null;
   };
-  /**
-   * The input configuration for the step
-   */
   input?: null;
-  /**
-   * The output result from the step
-   */
   output?: null;
   /**
    * Every resource download this step is waiting on, gating resource first. Only set while preparing.
@@ -12273,21 +11069,9 @@ export type WorkflowStepEventDetails = {
   preparation?: null | Array<WorkflowStepPreparationResource>;
 };
 
-/**
- * Details of a workflow step job event.
- */
 export type WorkflowStepJobEvent = {
-  /**
-   * The workflow ID.
-   */
   workflowId: string;
-  /**
-   * The step's name.
-   */
   stepName: string;
-  /**
-   * The job's ID.
-   */
   jobId: string;
   status: WorkflowStatus;
   readonly $type: string;
@@ -12319,28 +11103,13 @@ export type WorkflowStepPreparationResource = {
   rateLimitBytesPerSecond?: null | number;
 };
 
-/**
- * Details of a workflow step's position in the queue.
- */
 export type WorkflowStepQueuePosition = {
   support: JobSupport;
-  /**
-   * The number of preceding jobs in the queue.
-   */
   precedingJobs?: null | number;
-  /**
-   * An estimated date / time for when the step will start.
-   */
   estimatedStartAt?: null | string;
-  /**
-   * An estimated date / time for when the step will complete.
-   */
   estimatedCompleteAt?: null | string;
 };
 
-/**
- * Details of a workflow step template.
- */
 export type WorkflowStepTemplate = {
   $type: string;
   /**
@@ -12348,17 +11117,8 @@ export type WorkflowStepTemplate = {
    */
   name?: null | string;
   priority?: Priority;
-  /**
-   * The maximum time to wait for this step to complete.
-   */
   timeout?: null | string;
-  /**
-   * The maximum number of times this step should be retried.
-   */
   retries?: null | number;
-  /**
-   * A collection of user defined metadata for the workflow step.
-   */
   metadata?: null | {
     [key: string]: unknown;
   };
@@ -12369,9 +11129,6 @@ export type WorkflowStepTemplate = {
  */
 export type WorkflowStepWarning = {
   code: WorkflowStepWarningCode;
-  /**
-   * A human-readable description of the warning.
-   */
   message: string;
   /**
    * When the deprecation was announced, if applicable.
@@ -12381,9 +11138,6 @@ export type WorkflowStepWarning = {
    * When requests relying on the deprecated behavior start being rejected, if applicable.
    */
   retiresAt?: null | string;
-  /**
-   * The suggested replacement, if applicable.
-   */
   replacement?: null | string;
 };
 
@@ -12392,34 +11146,17 @@ export const WorkflowStepWarningCode = { MODEL_DEPRECATED: 'modelDeprecated' } a
 export type WorkflowStepWarningCode =
   (typeof WorkflowStepWarningCode)[keyof typeof WorkflowStepWarningCode];
 
-/**
- * Details of a requested workflow.
- */
 export type WorkflowTemplate = {
-  /**
-   * A collection of user defined metadata that can be used to store additional information about the workflow.
-   */
   metadata?: null | {
     [key: string]: unknown;
   };
   /**
-   * A list of tags associated with this workflow.
-   * Tags are indexed and can be used to search for workflows.
-   * At most 10 tags can be assigned to a workflow. Each tag can be at most 200 characters long.
+   * Indexed for searching. At most 10 tags, each at most 200 characters.
    */
   tags?: null | Array<string>;
-  /**
-   * An array of steps that compose this workflow.
-   */
   steps: Array<WorkflowStepTemplate>;
-  /**
-   * An array of callbacks to be triggered during the lifetime of the workflow.
-   */
   callbacks?: null | Array<WorkflowCallback>;
   tips?: WorkflowTips;
-  /**
-   * Get an associated collection of arguments
-   */
   arguments?: null | {
     [key: string]: unknown;
   };
@@ -12427,13 +11164,11 @@ export type WorkflowTemplate = {
   downloadPriority?: Priority;
   tier?: WorkflowTier;
   /**
-   * Get or set whether this workflow is experimental
+   * Opts the workflow in to new features or behaviours that are not yet stable.
    */
   experimental?: null | boolean;
   /**
-   * Get or set whether this workflow should allow mature content.
-   * When set to false, the workflow will not return any content that is marked as mature.
-   * Additional payment options are available for workflows that do not allow mature content.
+   * When false, no content marked as mature is returned; additional payment options are available for such workflows.
    */
   allowMatureContent?: null | boolean;
   upgradeMode?: WorkflowUpgradeMode;
@@ -12442,18 +11177,13 @@ export type WorkflowTemplate = {
    */
   currencies: Array<BuzzClientAccount>;
   /**
-   * When true, the workflow is never persisted to long-term storage.
-   * Results are available via callbacks and via the synchronous `wait` parameter only;
-   * after the workflow reaches a terminal state, GET /v2/consumer/workflows/{id} returns 404.
-   * Requires at least one callback OR `wait > 0` on submission.
+   * Never persisted: results are available only via callbacks or the synchronous `wait` parameter, and GET returns 404 once terminal.
+   * Requires at least one callback or `wait > 0` on submission.
    */
   ephemeral?: null | boolean;
   /**
-   * Optional client-supplied idempotency key. If a workflow with the same
-   * `(userId, externalId)` already exists — including from a prior
-   * `whatif=true` request — the existing workflow is returned instead
-   * of creating a new one. Mirrors `externalTransactionId` in the buzz
-   * service. Max 128 chars, `[A-Za-z0-9_-]+`.
+   * Idempotency key: if a workflow with the same `(userId, externalId)` exists (including from a prior `whatif=true` request),
+   * it is returned instead of creating a new one. Max 128 chars, `[A-Za-z0-9_-]+`.
    */
   externalId?: null | string;
 };
@@ -12548,9 +11278,8 @@ export type XGuardMatchedTerms = {
 export type XGuardModerationInput = {
   mode: string;
   /**
-   * Optional label filter. When provided, only the named labels are evaluated.
-   * Labels not found in the defaults (or label overrides) are silently ignored.
-   * When omitted or empty, all labels are evaluated.
+   * Only the named labels are evaluated; names not in the defaults (or overrides) are silently ignored.
+   * Omitted or empty evaluates all labels.
    */
   labels?: null | Array<string>;
   /**
@@ -12559,23 +11288,13 @@ export type XGuardModerationInput = {
    */
   labelOverrides?: null | Array<XGuardLabelConfiguration>;
   /**
-   * Debug opt-out. When true, the worker stores the full raw chat completion response
-   * (including the complete logprobs.content array) in the destination blob instead of
-   * the trimmed version. Intended for one-off debugging of classification decisions
-   * where the full logprobs distribution or generated token stream needs inspection.
-   * Leaves blobs at ~200KB instead of ~2-3KB — do not enable in normal traffic.
-   * Civitai prompt Scan always emits one token, including with debugging enabled.
-   * This is NOT the reasoning switch — use IncludeReasoning for ModelReason. On its own it
-   * merely raises the token budget from 1 to 128 (XGuardScoring.MaxTokensFor), which lets
-   * ~600 chars of explanation slip out before a finishReason=length cutoff.
+   * Stores the full raw chat completion (including all logprobs) in the destination blob, ~200KB instead of ~2-3KB; debugging only.
+   * Not the reasoning switch (see Civitai.Orchestration.Grains.Workflows.Steps.XGuardModeration.XGuardModerationInput.IncludeReasoning): it only raises the token budget from 1 to 128.
    */
   storeFullResponse: boolean;
   /**
-   * For site-text moderation only; Civitai prompt Scan always emits one token.
-   * When true, the model generates an explanation after its verdict token, populating
-   * XGuardLabelResult.ModelReason and MatchedTerms. Uses a larger token budget (256 —
-   * long explanations can still end at finishReason=length) and a distinct blob-cache
-   * key, so results never reuse cached verdict-only blobs.
+   * Site-text moderation only (prompt scan always emits one token). Generates an explanation after the verdict,
+   * populating ModelReason and MatchedTerms, with a larger token budget and a distinct blob-cache key.
    */
   includeReasoning: boolean;
 };
@@ -12604,17 +11323,8 @@ export type XGuardModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> &
   $type: 'xGuardModeration';
 };
 
-/**
- * Input for evaluating generation prompts (positive/negative) against XGuard moderation policies.
- */
 export type XGuardPromptModerationInput = Omit<XGuardModerationInput, 'mode'> & {
-  /**
-   * The positive prompt to evaluate.
-   */
   positivePrompt: string;
-  /**
-   * The negative prompt to evaluate.
-   */
   negativePrompt?: null | string;
   /**
    * Additional instructions are unsupported by the fixed Civitai Scan contract.
@@ -12666,13 +11376,7 @@ export type XGuardSignalMetadata = {
   readonly negativeSexualCount: number;
 };
 
-/**
- * Input for evaluating site text content against XGuard moderation policies.
- */
 export type XGuardTextModerationInput = Omit<XGuardModerationInput, 'mode'> & {
-  /**
-   * The text to evaluate.
-   */
   text: string;
   mode: 'text';
 };
@@ -12732,9 +11436,6 @@ export type YuE2Input = {
   };
 };
 
-/**
- * Output from YuE2 generation.
- */
 export type YuE2Output = {
   blob: AudioBlob;
 };
@@ -12767,9 +11468,6 @@ export type YuE2StepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'yuE2';
 };
 
-/**
- * AI Toolkit training for Z Image Turbo models
- */
 export type ZImageBaseAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -12824,9 +11522,6 @@ export type ZImageImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem
   engine: 'sdcpp';
 };
 
-/**
- * AI Toolkit training for Z Image Turbo models
- */
 export type ZImageTurboAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -12874,13 +11569,7 @@ export type ZImageTurboImageGenInput = Omit<
   engine: 'sdcpp';
 };
 
-/**
- * Training data packaged as a zip file
- */
 export type ZipTrainingData = Omit<TrainingData, 'type'> & {
-  /**
-   * AIR pointing to the zip file containing training data
-   */
   sourceUrl: string;
   /**
    * The number of images/frames/items in this training data
@@ -12893,62 +11582,21 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
-/**
- * Animate one starting frame. Use an empty prompt for animation without text instructions. Audio is generated by the provider.
- */
-export type ViduQ4ImageToVideoInput = Omit<ViduQ4VideoGenInput, 'engine' | 'operation'> & {
-  /**
-   * Either A URL, A DataURL or a Base64 string
-   */
-  image: string;
-  operation: 'imageToVideo';
-  engine: 'vidu-q4';
-};
-
-/**
- * Refer to images as [@reference_image_1] and voices as [reference_audio_1], using their array positions.
- */
-export type ViduQ4ReferenceToVideoInput = Omit<ViduQ4VideoGenInput, 'engine' | 'operation'> & {
-  referenceImages?: Array<string>;
-  /**
-   * Up to three MP3 clips, each 3–12 seconds and at most 50 MB, as HTTP(S) URLs or base64 audio/mpeg data URIs.
-   */
-  referenceAudios?: Array<string>;
-  aspectRatio?: '16:9' | '9:16' | '4:3' | '3:4' | '1:1';
-  enableAudio?: boolean;
-  operation: 'referenceToVideo';
-  engine: 'vidu-q4';
-};
-
-export type ViduQ4VideoGenInput = Omit<VideoGenInput, 'engine'> & {
-  operation: null | string;
-  duration?: number;
-  resolution?: '540p' | '720p' | '1080p' | '2K' | '4K';
-  seed?: null | number;
-  engine: 'vidu-q4';
-};
-
-/**
- * Base input for AI Toolkit training across all ecosystems
- */
 export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem: string;
   /**
-   * Number of training epochs — the number of saved checkpoints produced (each epoch
-   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
-   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
+   * Number of saved checkpoints (one downloadable model per epoch). Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps when omitted;
+   * when both are supplied, epochs is the checkpoint count and steps the total.
    */
   epochs?: null | number;
   /**
-   * Total number of training steps. This is the primary control over training length and
-   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
-   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
+   * Total training steps; the primary control over training length and pricing.
+   * Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs when omitted.
    */
   steps?: null | number;
   /**
-   * Training batch size. Defaults to 1; raise it (up to the ecosystem's maximum) to train faster at the
-   * cost of more GPU memory. A larger batch sees more images per step, so fewer steps are needed for a
-   * comparable result. Values above the ecosystem maximum are clamped down.
+   * Defaults to 1; raise it (up to the ecosystem maximum, above which it is clamped) to train faster at the cost of GPU memory.
+   * A larger batch sees more images per step, so fewer steps are needed.
    */
   batchSize?: null | number;
   /**
@@ -12987,11 +11635,7 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored weights by Alpha/Dim (e.g. 16/32 halves the effective learning rate); equal to Dim means no scaling.
    */
   networkAlpha?: null | number;
   /**
@@ -13007,9 +11651,7 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
    */
   shuffleTokens?: boolean;
   /**
-   * If your training images have tags, you can randomly shuffle them.
-   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
-   * This option does nothing if the Shuffle Tokens option is off.
+   * Number of leading tags kept in place when Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.ShuffleTokens is on; does nothing otherwise.
    */
   keepTokens?: number;
   /**
@@ -13026,9 +11668,6 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
   engine: 'ai-toolkit';
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 base models.
- */
 export type AceStep15AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13042,9 +11681,6 @@ export type AceStep15AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 XL models.
- */
 export type AceStep15XlAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13055,9 +11691,6 @@ export type AceStep15XlAiToolkitTrainingInputWritable = Omit<
   engine: 'ai-toolkit';
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 XL base models.
- */
 export type AceStep15XlBaseAiToolkitTrainingInputWritable = Omit<
   AceStep15XlAiToolkitTrainingInputWritable,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -13071,9 +11704,6 @@ export type AceStep15XlBaseAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for ACE-Step 1.5 XL SFT models.
- */
 export type AceStep15XlSftAiToolkitTrainingInputWritable = Omit<
   AceStep15XlAiToolkitTrainingInputWritable,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -13087,9 +11717,6 @@ export type AceStep15XlSftAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Anima models.
- */
 export type AnimaAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13114,17 +11741,8 @@ export type AssistantMessageWritable = Omit<ChatCompletionMessageWritable, 'role
    * The assistant message content (text only).
    */
   content?: null | string;
-  /**
-   * Optional name for the participant.
-   */
   name?: null | string;
-  /**
-   * Optional refusal message if the model refused to respond.
-   */
   refusal?: null | string;
-  /**
-   * Tool calls requested by the model.
-   */
   tool_calls?: null | Array<ChatCompletionToolCall>;
   /**
    * Generated images attached to this assistant message, populated when the request
@@ -13142,9 +11760,6 @@ export type AssistantMessageWritable = Omit<ChatCompletionMessageWritable, 'role
   role: 'assistant';
 };
 
-/**
- * AI Toolkit training for Boogu Image models.
- */
 export type BooguAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13157,72 +11772,35 @@ export type BooguAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * A completion choice.
- */
 export type ChatCompletionChoiceWritable = {
-  /**
-   * The index of this choice.
-   */
   index: number;
   message: AssistantMessageWritable;
-  /**
-   * The reason the model stopped generating.
-   */
   finishReason?: null | string;
-  /**
-   * Log probability information (if requested).
-   */
   logprobs?: null;
 };
 
 /**
- * Base type for message content parts.
- * Supports both camelCase (imageUrl) and snake_case (image_url) type discriminators via ContentPartJsonConverter.
+ * Accepts both camelCase (`imageUrl`) and snake_case (`image_url`) type discriminators.
  */
 export type ChatCompletionContentPartWritable = {
-  /**
-   * The text content.
-   */
   text?: null | string;
   imageUrl?: ChatCompletionImageUrl;
 };
 
-/**
- * Output from a chat completion step.
- */
 export type ChatCompletionOutputWritable = {
-  /**
-   * Unique identifier for the completion.
-   */
   id: string;
-  /**
-   * The object type, always "chat.completion".
-   */
   object?: string;
   /**
    * Unix timestamp of when the completion was created.
    */
   created: number;
-  /**
-   * The model used for completion.
-   */
   model: string;
-  /**
-   * The generated completion choices.
-   */
   choices: Array<ChatCompletionChoiceWritable>;
   usage?: ChatCompletionUsage;
-  /**
-   * System fingerprint for the model configuration.
-   */
   systemFingerprint?: null | string;
   /**
-   * Parsed JSON content of `Choices[0].Message.Content`. Populated when the request
-   * specified a JSON-flavored `response_format` and the content was parseable.
-   * Reachable from downstream workflow steps via `$ref` paths like
-   * `output.parsed.<field>` — DynamicAssignmentEvaluator walks JsonElement trees
-   * the same way it walks the rest of this output.
+   * Parsed JSON of `Choices[0].Message.Content`, populated when the request used a JSON `response_format`
+   * and the content parsed. Reachable from later steps via `$ref` paths like `output.parsed.<field>`.
    */
   parsed?: null;
 };
@@ -13236,9 +11814,6 @@ export type ChatCompletionStepWritable = Omit<WorkflowStepWritable, '$type'> & {
   $type: 'chatCompletion';
 };
 
-/**
- * AI Toolkit training for Chroma models
- */
 export type ChromaAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13309,21 +11884,16 @@ export type ComfyQwen21EditImageGenInputWritable = Omit<
   engine: 'comfy';
 };
 
-/**
- * Input for model-family-driven Comfy-backed LoRA training.
- */
 export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem?: string;
   /**
-   * Number of training epochs — the number of saved checkpoints produced (each epoch
-   * yields one downloadable model). When omitted it is derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps;
-   * when both are supplied, both are honored (epochs = checkpoint count, steps = total).
+   * Number of saved checkpoints (one downloadable model per epoch). Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Steps when omitted;
+   * when both are supplied, epochs is the checkpoint count and steps the total.
    */
   epochs?: null | number;
   /**
-   * Total number of training steps. This is the primary control over training length and
-   * determines pricing. When supplied, Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs (the number of saved
-   * checkpoints) is derived from it; when omitted, steps are derived from epochs.
+   * Total training steps; the primary control over training length and pricing.
+   * Derived from Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.Epochs when omitted.
    */
   steps?: null | number;
   /**
@@ -13366,11 +11936,7 @@ export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored weights by Alpha/Dim (e.g. 16/32 halves the effective learning rate); equal to Dim means no scaling.
    */
   networkAlpha?: null | number;
   /**
@@ -13386,9 +11952,7 @@ export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    */
   shuffleTokens?: boolean;
   /**
-   * If your training images have tags, you can randomly shuffle them.
-   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
-   * This option does nothing if the Shuffle Tokens option is off.
+   * Number of leading tags kept in place when Civitai.Orchestration.Grains.Workflows.Steps.Training.AIToolkit.AIToolkitTrainingInput.ShuffleTokens is on; does nothing otherwise.
    */
   keepTokens?: number;
   /**
@@ -13445,9 +12009,6 @@ export type CursedArrayOfTelemetryCursorAndWorkflowWritable = {
   items: Array<WorkflowWritable>;
 };
 
-/**
- * AI Toolkit training for ERNIE-Image models
- */
 export type ErnieAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13460,9 +12021,6 @@ export type ErnieAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Flux.1 models
- */
 export type Flux1AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13472,9 +12030,6 @@ export type Flux1AiToolkitTrainingInputWritable = Omit<
   engine: 'ai-toolkit';
 };
 
-/**
- * AI Toolkit training for Flux.1 Dev models
- */
 export type Flux1DevAiToolkitTrainingInputWritable = Omit<
   Flux1AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -13522,9 +12077,6 @@ export type Flux1KontextProImageGenInputWritable = Omit<
   engine: 'flux1-kontext';
 };
 
-/**
- * AI Toolkit training for Flux.1 Schnell models
- */
 export type Flux1SchnellAiToolkitTrainingInputWritable = Omit<
   Flux1AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -13538,9 +12090,6 @@ export type Flux1SchnellAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Flux2 Klein 4b-base models
- */
 export type Flux2Klein4bAiToolkitTrainingInputWritable = Omit<
   Flux2KleinAiToolkitTrainingInputWritable,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -13554,9 +12103,6 @@ export type Flux2Klein4bAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Flux2 Klein 9b-base models
- */
 export type Flux2Klein9bAiToolkitTrainingInputWritable = Omit<
   Flux2KleinAiToolkitTrainingInputWritable,
   'engine' | 'ecosystem' | 'modelVariant'
@@ -13570,9 +12116,6 @@ export type Flux2Klein9bAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Flux2 Klein models (image training)
- */
 export type Flux2KleinAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13595,9 +12138,6 @@ export type GeminiOmniVideoGenInputWritable = Omit<VideoGenInputWritable, 'engin
   engine: 'gemini-omni';
 };
 
-/**
- * AI Toolkit training for HiDream O1 Image models.
- */
 export type HiDreamO1AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13610,9 +12150,6 @@ export type HiDreamO1AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Ideogram 4 models.
- */
 export type Ideogram4AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13654,9 +12191,7 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
    */
   shuffleCaption?: boolean;
   /**
-   * If your training images have tags, you can randomly shuffle them.
-   * However, if you have words that you want to keep at the beginning, you can use this option to specify "Keep the first 0 words at the beginning".
-   * This option does nothing if the Shuffle Tags option is off.
+   * Keeps this many leading tags in place when shuffling captions. Does nothing when Shuffle Tags is off.
    */
   keepTokens?: number;
   /**
@@ -13684,12 +12219,7 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
    */
   lrSchedulerNumCycles?: number;
   /**
-   * Learning is performed by putting noise of various strengths on the training image,
-   * but depending on the difference in strength of the noise on which it is placed, learning will be
-   * stable by moving closer to or farther from the learning target.
-   *
-   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
-   * it may deviate greatly from the target, so try to suppress this jump.
+   * Compensates for unstable learning across noise strengths by suppressing large deviations when training images carry little noise.
    */
   minSnrGamma?: null | number;
   /**
@@ -13697,11 +12227,8 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored LoRA weights relative to Dim: alpha 16 with dim 32 applies the learning rate at half strength;
+   * equal values leave it unchanged.
    */
   networkAlpha?: null | number;
   /**
@@ -13709,17 +12236,12 @@ export type KohyaImageResourceTrainingInputWritable = Omit<
    */
   noiseOffset?: null | number;
   /**
-   * The optimizer determines how to update the neural net weights during training.
-   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
-   * is "AdamW8bit" or "Adafactor" for SDXL.
+   * Optimizer that updates the weights during training; "AdamW8bit" is the common choice, "Adafactor" for SDXL.
    */
   optimizerType?: null | string;
   engine: 'kohya';
 };
 
-/**
- * AI Toolkit training for Krea 2 models.
- */
 export type Krea2AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13732,9 +12254,6 @@ export type Krea2AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for LTX 2.3 video models
- */
 export type Ltx23AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13747,9 +12266,6 @@ export type Ltx23AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for LTX 2.5 video models.
- */
 export type Ltx25AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13762,9 +12278,6 @@ export type Ltx25AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for LTX2 video models
- */
 export type Ltx2AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13777,9 +12290,6 @@ export type Ltx2AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for the Mage-Flow Base model.
- */
 export type MageFlowAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13792,9 +12302,6 @@ export type MageFlowAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit LoRA training for Ming Image 0.1 Design.
- */
 export type MingAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13807,9 +12314,6 @@ export type MingAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for the MiniMax H3 base (FL2VA) model.
- */
 export type MiniMaxH3AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13856,17 +12360,12 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
    */
   networkDim?: null | number;
   /**
-   * The smaller the Network alpha value, the larger the stored LoRA neural net weights.
-   * For example, with an Alpha of 16 and a Dim of 32, the strength of the weight used is 16/32 = 0.5,
-   * meaning that the learning rate is only half as powerful as the Learning Rate setting.
-   *
-   * If Alpha and Dim are the same number, the strength used will be 1 and will have no effect on the learning rate.
+   * Scales the stored LoRA weights relative to Dim: alpha 16 with dim 32 applies the learning rate at half strength;
+   * equal values leave it unchanged.
    */
   networkAlpha?: null | number;
   /**
-   * The optimizer determines how to update the neural net weights during training.
-   * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning
-   * is "AdamW8bit" or "Adafactor" for SDXL.
+   * Optimizer that updates the weights during training; "AdamW8bit" is the common choice, "Adafactor" for SDXL.
    */
   optimizerType?: null | string;
   engine: 'musubi';
@@ -14259,9 +12758,6 @@ export type Qwen20bVariantImageGenInputWritable = Omit<
   engine: 'sdcpp';
 };
 
-/**
- * AI Toolkit LoRA training for Qwen Image 2.1.
- */
 export type Qwen21AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -14274,9 +12770,6 @@ export type Qwen21AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Qwen Image models
- */
 export type QwenAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -14290,25 +12783,14 @@ export type QwenAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Stable Diffusion 1.5 models
- */
 export type Sd1AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
 > & {
   /**
-   * Learning is performed by putting noise of various strengths on the training image,
-   * but depending on the difference in strength of the noise on which it is placed, learning will be
-   * stable by moving closer to or farther from the learning target.
-   *
-   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
-   * it may deviate greatly from the target, so try to suppress this jump.
+   * Compensates for the varying noise strength applied to training images, suppressing large jumps when images have little noise.
    */
   minSnrGamma?: null | number;
-  /**
-   * The primary model to train upon.
-   */
   model?: string;
   ecosystem: 'sd1';
   engine: 'ai-toolkit';
@@ -14318,25 +12800,14 @@ export type Sd1AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Stable Diffusion XL models
- */
 export type SdxlAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
 > & {
   /**
-   * Learning is performed by putting noise of various strengths on the training image,
-   * but depending on the difference in strength of the noise on which it is placed, learning will be
-   * stable by moving closer to or farther from the learning target.
-   *
-   * Min SNR gamma was introduced to compensate for that. When learning images have little noise,
-   * it may deviate greatly from the target, so try to suppress this jump.
+   * Compensates for the varying noise strength applied to training images, suppressing large jumps when images have little noise.
    */
   minSnrGamma?: null | number;
-  /**
-   * The primary model to train upon.
-   */
   model?: string;
   ecosystem: 'sdxl';
   engine: 'ai-toolkit';
@@ -14346,9 +12817,6 @@ export type SdxlAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * Input for a training step.
- */
 export type TrainingInputWritable = {
   engine: string;
   trainingData: TrainingData;
@@ -14377,74 +12845,40 @@ export type TrainingStepTemplateWritable = Omit<WorkflowStepTemplateWritable, '$
  */
 export type UserMessageWritable = Omit<ChatCompletionMessageWritable, 'role'> & {
   /**
-   * The message content - can be a simple string or array of content parts.
-   * When deserialized from a string, it will be converted to a single TextContentPart.
+   * A string or an array of content parts; a plain string is accepted as a single text part.
    */
   content: Array<ChatCompletionContentPartWritable>;
-  /**
-   * Optional name for the participant.
-   */
   name?: null | string;
   role: 'user';
 };
 
-/**
- * Details of a workflow.
- */
 export type WorkflowWritable = {
-  /**
-   * The ID for the workflow.
-   */
   id?: null | string;
-  /**
-   * The date / time the workflow was created.
-   */
   createdAt: string;
   transactions?: TransactionSummary;
-  /**
-   * A collection of user defined metadata for the workflow.
-   */
   metadata: {
     [key: string]: unknown;
   };
   status: WorkflowStatus;
-  /**
-   * The date / time the workflow was started. Null if not yet started.
-   */
   startedAt?: null | string;
-  /**
-   * The date / time the workflow was completed. Null if not yet complete.
-   */
   completedAt?: null | string;
   /**
-   * An optional list of tags for the workflow.
+   * Indexed for searching; at most 10 per workflow.
    */
   tags: Array<string>;
-  /**
-   * Get an associated collection of arguments
-   */
   arguments: {
     [key: string]: unknown;
   };
-  /**
-   * An array of callback details for the workflow.
-   */
   callbacks: Array<WorkflowCallback>;
   tips: WorkflowTips;
   cost: WorkflowCostWritable;
   nsfwLevel?: NsfwLevel;
   /**
-   * Get or set whether this workflow is experimental
+   * Opts the workflow in to new features or behaviours that are not yet stable.
    */
   experimental?: null | boolean;
-  /**
-   * Gets or sets a value indicating whether mature content is allowed in this workflow.
-   */
   allowMatureContent?: null | boolean;
   upgradeMode: WorkflowUpgradeMode;
-  /**
-   * An optional set of currencies to use for this workflow.
-   */
   currencies: Array<BuzzClientAccount>;
   /**
    * Whether this workflow has been force-refunded.
@@ -14452,27 +12886,21 @@ export type WorkflowWritable = {
    */
   forceRefunded: boolean;
   /**
-   * When true, this workflow is not persisted to telemetry/MongoDB.
-   * In-flight state lives only in Orleans grain state (Redis); once the workflow
-   * reaches a terminal state the grain clears its state and no record remains.
+   * Not persisted to telemetry/MongoDB; in-flight state lives only in grain state and nothing remains once terminal.
    */
   ephemeral?: null | boolean;
   /**
-   * Client-supplied idempotency key. Stored as `"{userId}-{clientValue}"`
-   * so the partial unique index can be single-field while still scoping
-   * uniqueness per-user. See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
+   * Client-supplied idempotency key, stored as `"{userId}-{clientValue}"` so the unique index is single-field yet per-user.
+   * See Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.ExternalId.
    */
   externalId?: null | string;
   /**
-   * Net buzz refunded because deliverable blobs were lost in the 2026-06-12 storage
-   * incident (v2.20.1 wrote Default-tier blobs to the wrong store). Null = not yet
-   * checked, 0 = checked and intact. A value > 0 also prevents re-charging on recovery.
+   * Net buzz refunded for deliverable blobs lost in the 2026-06-12 storage incident. Null = not yet checked, 0 = intact;
+   * a value > 0 also prevents re-charging on recovery.
    */
   lostBlobsRefund?: null | number;
   /**
-   * When the consumer deleted this workflow. Soft delete: the telemetry document is kept
-   * (until its natural TTL) so operators can still inspect it in the dashboard, but
-   * consumer reads and queries treat the workflow as gone.
+   * Soft delete: the telemetry document is kept until its TTL for operators, but consumer reads treat the workflow as gone.
    */
   deletedAt?: null | string;
   downloadPriority?: Priority;
@@ -14481,12 +12909,9 @@ export type WorkflowWritable = {
 
 export type WorkflowCostWritable = {
   /**
-   * The base cost of this request, excludsing any tips
+   * The base cost of this request, excluding any tips
    */
   base: number;
-  /**
-   * A breakdown of the cost factors for this request
-   */
   factors?: null | {
     [key: string]: number;
   };
@@ -14498,48 +12923,27 @@ export type WorkflowCostWritable = {
   };
   tips: WorkflowCostTips;
   /**
-   * Per-resource licensing fees for this request, keyed by resource AIR. The
-   * user is charged the sum of the values; each entry is settled to its
-   * resource's recipient (see `EmitFeeCompensationsAsync`).
+   * Per-resource licensing fees keyed by resource AIR; the user is charged the sum and each entry is settled to its resource's recipient.
    */
   fees?: null | {
     [key: string]: number;
   };
   /**
-   * When true, this price is a cap that may settle lower: at least one step is
-   * post-billed and charged up front at its maximum, with the difference
-   * refunded once the provider reports the actual work delivered.
+   * When true the price is a cap that may settle lower: a post-billed step is charged at its maximum up front and
+   * the difference refunded once the provider reports actual work.
    */
   variable?: null | boolean;
 };
 
-/**
- * Details of a workflow event.
- */
 export type WorkflowEventWritable = {
-  /**
-   * The ID that represents the corresponding workflow.
-   */
   workflowId: string;
   status: WorkflowStatus;
-  /**
-   * A timestamp for when this event got raised
-   */
   timestamp: string;
   details?: WorkflowEventDetails;
 };
 
-/**
- * Details of a workflow step event.
- */
 export type WorkflowStepEventWritable = {
-  /**
-   * The workflow ID.
-   */
   workflowId: string;
-  /**
-   * The workflow step's name.
-   */
   name: string;
   status: WorkflowStatus;
   details?: WorkflowStepEventDetails;
@@ -14549,21 +12953,9 @@ export type WorkflowStepEventWritable = {
   preparation?: null | Array<WorkflowStepPreparationResource>;
 };
 
-/**
- * Details of a workflow step job event.
- */
 export type WorkflowStepJobEventWritable = {
-  /**
-   * The workflow ID.
-   */
   workflowId: string;
-  /**
-   * The step's name.
-   */
   stepName: string;
-  /**
-   * The job's ID.
-   */
   jobId: string;
   status: WorkflowStatus;
   progress?: null | number;
@@ -14639,9 +13031,6 @@ export type YuE2AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Z Image Turbo models
- */
 export type ZImageBaseAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -14654,9 +13043,6 @@ export type ZImageBaseAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * AI Toolkit training for Z Image Turbo models
- */
 export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -14669,9 +13055,6 @@ export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-/**
- * Input for a training step.
- */
 export type TrainingInputWritable2 = {
   engine: string;
   trainingData: TrainingData;
@@ -14680,23 +13063,13 @@ export type TrainingInputWritable2 = {
    * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
    */
   readonly usesStepPricing: boolean;
-  /**
-   * Whether age classification should run on this training type's dataset.
-   */
   readonly requiresAgeClassification: boolean;
 };
 
-/**
- * Base type for chat messages, discriminated by the "role" property.
- * Uses ChatCompletionMessageJsonConverter to handle polymorphism and user message content flexibility.
- */
 export type ChatCompletionMessageWritable = {
   role: string;
 };
 
-/**
- * Details of a workflow step.
- */
 export type WorkflowStepWritable = {
   $type: string;
   /**
@@ -14704,34 +13077,16 @@ export type WorkflowStepWritable = {
    */
   name: string;
   priority: Priority;
-  /**
-   * The maximum time to wait for this step to complete.
-   */
   timeout?: null | string;
-  /**
-   * The maximum number of times this step should be retried.
-   */
   retries?: null | number;
   status: WorkflowStatus;
-  /**
-   * The date / time the step was started. Null if not yet started.
-   */
   startedAt?: null | string;
-  /**
-   * The date / time the step was completed. Null if not yet completed.
-   */
   completedAt?: null | string;
-  /**
-   * A collection of user defined metadata for the workflow step.
-   */
   metadata: {
     [key: string]: unknown;
   };
   /**
-   * An estimation on the current progression of this step, or null if there is no estimation.
-   * Computed by the step's handler (see `WorkflowStepHandler.GetEstimatedProgressRate`)
-   * and refreshed by `WorkflowStepManager` on each job event. Cleared to null once the
-   * step reaches a final status.
+   * Estimated progress of this step, or null when there is no estimate (including once the step reaches a final status).
    */
   estimatedProgressRate?: null | number;
   /**
@@ -14761,30 +13116,15 @@ export type VideoGenInputWritable = {
   prompt: string;
 };
 
-/**
- * Input for an image resource training step.
- */
 export type ImageResourceTrainingInputWritable = {
   engine: string;
-  /**
-   * The primary model to train upon.
-   */
   model: string;
-  /**
-   * A url referring data to use in training.
-   */
   trainingData: string;
   /**
    * The number of images embedded in this training data. This is used to calculate the cost of training.
    */
   trainingDataImagesCount: number;
-  /**
-   * The desired lora name.
-   */
   loraName?: string;
-  /**
-   * A selection of sample prompts.
-   */
   samplePrompts?: Array<string>;
   /**
    * An optional negative prompt that will get applied when generating samples
@@ -14799,16 +13139,9 @@ export type PreprocessImageInputWritable2 = {
    */
   image: string;
   resolution?: number;
-  /**
-   * Gets the preprocessor type identifier used to map to ComfyUI nodes.
-   * This is derived from the JsonDerivedType discriminator.
-   */
   readonly preprocessorType: string;
 };
 
-/**
- * Details of a workflow step template.
- */
 export type WorkflowStepTemplateWritable = {
   $type: string;
   /**
@@ -14816,17 +13149,8 @@ export type WorkflowStepTemplateWritable = {
    */
   name?: null | string;
   priority?: Priority;
-  /**
-   * The maximum time to wait for this step to complete.
-   */
   timeout?: null | string;
-  /**
-   * The maximum number of times this step should be retried.
-   */
   retries?: null | number;
-  /**
-   * A collection of user defined metadata for the workflow step.
-   */
   metadata?: null | {
     [key: string]: unknown;
   };
@@ -14845,22 +13169,16 @@ export type PreprocessVideoInputWritable2 = {
 export type GetBlobData = {
   body?: never;
   path: {
-    /**
-     * The blob ID to retrieve.
-     */
     blobId: string;
   };
   query?: {
-    /**
-     * The id of the workflow to obtain
-     */
     workflowId?: string;
     /**
-     * A maximum nsfw level. If this is specified and the blob does not have a NSFW level specified or the NSFW level exceeds our max then we'll return an error
+     * Maximum NSFW level. When set, a blob with no level or a level above it is an error.
      */
     nsfwLevel?: NsfwLevel;
     /**
-     * Optional filename to use in the Content-Disposition header when the blob is served. Path components and control characters are stripped.
+     * Optional filename for the Content-Disposition header. Path components and control characters are stripped.
      */
     filename?: string;
     /**
@@ -14891,9 +13209,6 @@ export type GetBlobError = GetBlobErrors[keyof GetBlobErrors];
 export type HeadBlobData = {
   body?: never;
   path: {
-    /**
-     * Identifies the specific blob to check for existence and NSFW level.
-     */
     blobId: string;
   };
   query?: never;
@@ -15058,9 +13373,6 @@ export type IngestConsumerBlobResponse =
 export type GetBlobContentData = {
   body?: never;
   path: {
-    /**
-     * The encrypted token containing blob access parameters
-     */
     encryptedToken: string;
   };
   query?: never;
@@ -15098,9 +13410,6 @@ export type GetBlobContentResponses = {
 export type GetBlockedContentData = {
   body?: never;
   path: {
-    /**
-     * The encrypted token containing blocked content parameters
-     */
     encryptedToken: string;
   };
   query?: never;
@@ -15123,9 +13432,6 @@ export type GetBlockedContentError = GetBlockedContentErrors[keyof GetBlockedCon
 export type GetBlobArchiveData = {
   body?: never;
   path: {
-    /**
-     * The signed token containing the archive manifest.
-     */
     encryptedToken: string;
   };
   query?: never;
@@ -15155,9 +13461,6 @@ export type GetBlobArchiveResponses = {
 export type RefreshBlobData = {
   body?: never;
   path: {
-    /**
-     * The blob ID to refresh.
-     */
     blobId: string;
   };
   query?: never;
@@ -16156,6 +14459,50 @@ export type InvokeImageUpscalerStepTemplateResponses = {
 export type InvokeImageUpscalerStepTemplateResponse =
   InvokeImageUpscalerStepTemplateResponses[keyof InvokeImageUpscalerStepTemplateResponses];
 
+export type InvokeLiveTextToSpeechStepTemplateData = {
+  body?: LiveTextToSpeechInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+  };
+  url: '/v2/consumer/recipes/liveTextToSpeech';
+};
+
+export type InvokeLiveTextToSpeechStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeLiveTextToSpeechStepTemplateError =
+  InvokeLiveTextToSpeechStepTemplateErrors[keyof InvokeLiveTextToSpeechStepTemplateErrors];
+
+export type InvokeLiveTextToSpeechStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: LiveTextToSpeechOutput;
+};
+
+export type InvokeLiveTextToSpeechStepTemplateResponse =
+  InvokeLiveTextToSpeechStepTemplateResponses[keyof InvokeLiveTextToSpeechStepTemplateResponses];
+
 export type InvokeLiveTranscriptionStepTemplateData = {
   body?: LiveTranscriptionInput;
   path?: never;
@@ -16859,6 +15206,50 @@ export type InvokePromptEnhancementStepTemplateResponses = {
 
 export type InvokePromptEnhancementStepTemplateResponse =
   InvokePromptEnhancementStepTemplateResponses[keyof InvokePromptEnhancementStepTemplateResponses];
+
+export type InvokePromptModerationStepTemplateData = {
+  body?: PromptModerationInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+  };
+  url: '/v2/consumer/recipes/promptModeration';
+};
+
+export type InvokePromptModerationStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokePromptModerationStepTemplateError =
+  InvokePromptModerationStepTemplateErrors[keyof InvokePromptModerationStepTemplateErrors];
+
+export type InvokePromptModerationStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: PromptModerationOutput;
+};
+
+export type InvokePromptModerationStepTemplateResponse =
+  InvokePromptModerationStepTemplateResponses[keyof InvokePromptModerationStepTemplateResponses];
 
 export type InvokeQwenImageBenchStepTemplateData = {
   body?: QwenImageBenchInput;
@@ -17840,9 +16231,8 @@ export type QueryResourcesData = {
     cursor?: string;
     take?: number;
     /**
-     * Repeatable, OR'd. Matches the AIR's type segment literally, with no alias expansion: that
-     * segment names the model's type rather than the file's, so `checkpoint` does not cover
-     * base weights arriving as `diffusion_model`, `diffusionmodel` or `unet`.
+     * Repeatable, OR'd. Matches the AIR's type segment literally with no alias expansion, so `checkpoint`
+     * does not cover base weights arriving as `diffusion_model`, `diffusionmodel` or `unet`.
      */
     type?: Array<string>;
     /**
@@ -18111,13 +16501,7 @@ export type QueryWorkflowsData = {
      * An optional cursor to continue querying workflows from a previous query.
      */
     cursor?: string;
-    /**
-     * How many workflows to return
-     */
     take?: number;
-    /**
-     * An optional list of tags to query by
-     */
     tags?: Array<string>;
     /**
      * An optional list of tags; workflows with any of these tags are excluded
@@ -18174,9 +16558,8 @@ export type SubmitWorkflowData = {
   path?: never;
   query?: {
     /**
-     * Whether to wait for the workflow to complete before returning or to return immediately
-     * The request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout.
-     * In which case the client should use the token to query the status of the workflow.
+     * Seconds to wait for the workflow to complete before returning. If it has not completed by then a 202 is
+     * returned and the client should query the workflow by its id.
      */
     wait?: number;
     /**
@@ -18228,9 +16611,6 @@ export type SubmitWorkflowResponse = SubmitWorkflowResponses[keyof SubmitWorkflo
 export type DeleteWorkflowData = {
   body?: never;
   path: {
-    /**
-     * The ID of the workflow to delete.
-     */
     workflowId: string;
   };
   query?: never;
@@ -18262,16 +16642,12 @@ export type DeleteWorkflowResponse = DeleteWorkflowResponses[keyof DeleteWorkflo
 export type GetWorkflowData = {
   body?: never;
   path: {
-    /**
-     * The ID of the workflow to get status for
-     */
     workflowId: string;
   };
   query?: {
     /**
-     * Whether to wait for the workflow to complete before returning or to return immediately
-     * The request may return a 202 if the clients waits for the workflow to complete and the workflow does not complete within the requested timeout.
-     * In which case the client should use the token to query the status of the workflow.
+     * Seconds to wait for the workflow to complete before returning. If it has not completed by then a 202 is
+     * returned and the client should query the workflow by its id.
      */
     wait?: number;
     /**
@@ -18314,14 +16690,8 @@ export type GetWorkflowResponses = {
 export type GetWorkflowResponse = GetWorkflowResponses[keyof GetWorkflowResponses];
 
 export type PatchWorkflowData = {
-  /**
-   * A valid PATCH document
-   */
   body?: JsonPatchDocument;
   path: {
-    /**
-     * The ID of the workflow to patch
-     */
     workflowId: string;
   };
   query?: never;
@@ -18359,14 +16729,8 @@ export type PatchWorkflowResponses = {
 export type PatchWorkflowResponse = PatchWorkflowResponses[keyof PatchWorkflowResponses];
 
 export type UpdateWorkflowData = {
-  /**
-   * The details to update on the workflow.
-   */
   body?: UpdateWorkflowRequest;
   path: {
-    /**
-     * The ID of the worfklow to update.
-     */
     workflowId: string;
   };
   query?: {
@@ -18411,9 +16775,6 @@ export type UpdateWorkflowResponse = UpdateWorkflowResponses[keyof UpdateWorkflo
 export type RemoveAllWorkflowTagsData = {
   body?: never;
   path: {
-    /**
-     * The ID of the worfklow to update.
-     */
     workflowId: string;
   };
   query?: never;
@@ -18449,14 +16810,8 @@ export type RemoveAllWorkflowTagsResponse =
   RemoveAllWorkflowTagsResponses[keyof RemoveAllWorkflowTagsResponses];
 
 export type AddWorkflowTagData = {
-  /**
-   * The the tag to add to the workflow.
-   */
   body?: string;
   path: {
-    /**
-     * The ID of the worfklow to update.
-     */
     workflowId: string;
   };
   query?: never;
@@ -18492,13 +16847,7 @@ export type AddWorkflowTagResponse = AddWorkflowTagResponses[keyof AddWorkflowTa
 export type RemoveWorkflowTagData = {
   body?: never;
   path: {
-    /**
-     * The ID of the worfklow to update.
-     */
     workflowId: string;
-    /**
-     * The the tag to remove from the workflow.
-     */
     tag: string;
   };
   query?: never;
@@ -18535,13 +16884,7 @@ export type RemoveWorkflowTagResponse =
 export type GetWorkflowStepData = {
   body?: never;
   path: {
-    /**
-     * The id of the workflow to get status for
-     */
     workflowId: string;
-    /**
-     * The name of the step within the workflow to get status for
-     */
     stepName: string;
   };
   query?: never;
@@ -18604,18 +16947,9 @@ export type PatchWorkflowStepResponse =
   PatchWorkflowStepResponses[keyof PatchWorkflowStepResponses];
 
 export type UpdateWorkflowStepData = {
-  /**
-   * The details to update on the workflow step.
-   */
   body?: UpdateWorkflowStepRequest;
   path: {
-    /**
-     * The id of the workflow to update.
-     */
     workflowId: string;
-    /**
-     * The name of the step to update.
-     */
     stepName: string;
   };
   query?: never;
