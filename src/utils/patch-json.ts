@@ -1,5 +1,5 @@
 import { applyPatch, createPatch } from 'rfc6902';
-import { JsonPatchOperation } from 'src/generated';
+import { JsonPatchOperation } from '../generated/index.js';
 
 type IsAny<T> = 0 extends 1 & T ? true : false;
 type IsEqual<T1, T2> = T1 extends T2

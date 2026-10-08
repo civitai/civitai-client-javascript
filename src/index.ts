@@ -1,3 +1,3 @@
-export * from './generated';
-export * from './utils';
-export * from './client/CivitaiClient';
+export * from './generated/index.js';
+export * from './utils/index.js';
+export * from './client/CivitaiClient.js';
