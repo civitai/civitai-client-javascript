@@ -55,6 +55,9 @@
           }
         ],
         "responses": {
+          "308": {
+            "description": "Permanent Redirect"
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -65,11 +68,8 @@
               }
             }
           },
-          "308": {
-            "description": "Permanent Redirect"
-          },
-          "404": {
-            "description": "Not Found",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -78,8 +78,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -107,6 +107,9 @@
           }
         ],
         "responses": {
+          "204": {
+            "description": "No Content"
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -116,9 +119,6 @@
                 }
               }
             }
-          },
-          "204": {
-            "description": "No Content"
           },
           "404": {
             "description": "Not Found",
@@ -141,22 +141,22 @@
         "summary": "Get a presigned URL for browser uploads.\nThe returned URL points to POST /v2/consumer/blobs with a signature for authentication.",
         "operationId": "GetConsumerBlobUploadUrl",
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ConsumerBlobPresignResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -182,16 +182,6 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "201": {
             "description": "Created",
             "content": {
@@ -204,6 +194,16 @@
           },
           "400": {
             "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -271,16 +271,6 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -303,6 +293,16 @@
           },
           "400": {
             "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -345,7 +345,7 @@
             "description": "Bad Gateway"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -366,6 +366,19 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -376,21 +389,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -403,7 +403,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -445,7 +445,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -466,6 +466,9 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -475,9 +478,6 @@
                 }
               }
             }
-          },
-          "200": {
-            "description": "OK"
           },
           "410": {
             "description": "Gone",
@@ -490,7 +490,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -511,22 +511,22 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Blob"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -562,8 +562,8 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
+          "default": {
+            "description": "Error",
             "content": {
               "application/json": {
                 "schema": {
@@ -575,8 +575,8 @@
           "204": {
             "description": "No Content"
           },
-          "default": {
-            "description": "Error",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -606,8 +606,8 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
+          "default": {
+            "description": "Error",
             "content": {
               "application/json": {
                 "schema": {
@@ -619,8 +619,8 @@
           "204": {
             "description": "No Content"
           },
-          "default": {
-            "description": "Error",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -640,6 +640,76 @@
         "summary": "Get the free-tier models and the caller's remaining quota. Use them with `tier: \"free\"` on a workflow,\n`?tier=free` on a recipe, or `X-Civitai-Tier: free` on the OpenAI-compatible chat endpoint.",
         "operationId": "GetFreeTier",
         "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreeTierResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/funds": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "The id is the only way to reach the fund, so keep it secret, in your app's state.",
+        "operationId": "CreateFund",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundTemplate"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundTemplate"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundTemplate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -650,12 +720,255 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/funds/{fundId}": {
+      "patch": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Sets the fund to expire `ttl` from now, so a long-running session can keep rolling it over.",
+        "operationId": "UpdateFund",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonPatchDocument"
+              }
+            }
+          }
+        },
+        "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FreeTierResponse"
+                  "$ref": "#/components/schemas/FundResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "operationId": "GetFund",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Whatever is left goes to Civitai, not back to the depositors. A fund is also deleted on its own at `expiresAt`.",
+        "operationId": "DeleteFund",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/funds/{fundId}/deposits": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "operationId": "DepositIntoFund",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundDeposit"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundDeposit"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundDeposit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -728,8 +1041,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AceStepAudioOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -748,18 +1071,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AceStepAudioOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -837,8 +1150,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgeClassificationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -857,18 +1180,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgeClassificationOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -946,8 +1259,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioCaptioningOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -966,18 +1289,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AudioCaptioningOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1053,8 +1366,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchOCRSafetyClassificationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1073,18 +1396,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BatchOCRSafetyClassificationOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1161,8 +1474,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlobArchiveOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1181,18 +1504,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BlobArchiveOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1270,8 +1583,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatCompletionOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1290,18 +1613,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChatCompletionOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1379,8 +1692,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComfyOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1399,18 +1722,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ComfyOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1486,8 +1799,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComfyNodepackSnapshotOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1506,18 +1829,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ComfyNodepackSnapshotOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1595,8 +1908,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComposeMediaOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1615,18 +1938,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ComposeMediaOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1703,8 +2016,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConvertImageOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1723,18 +2046,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConvertImageOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1812,8 +2125,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomComfyOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1832,18 +2155,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CustomComfyOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -1921,8 +2234,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EchoOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -1941,18 +2264,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EchoOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2028,8 +2341,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanoidImageMaskOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2048,18 +2371,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HumanoidImageMaskOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2136,8 +2449,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageBackgroundRemovalOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2156,18 +2479,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImageBackgroundRemovalOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2245,8 +2558,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2265,18 +2588,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImageGenOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2354,8 +2667,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageResourceTrainingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2374,18 +2697,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImageResourceTrainingOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2463,8 +2776,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageScanningOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2483,18 +2806,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImageScanningOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2571,8 +2884,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageToSvgOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2591,18 +2914,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImageToSvgOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2680,8 +2993,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUploadOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2700,18 +3023,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImageUploadOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2787,8 +3100,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUpscalerOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2807,18 +3130,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ImageUpscalerOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -2896,8 +3209,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveTextToSpeechOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -2916,18 +3239,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LiveTextToSpeechOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3005,8 +3318,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveTranscriptionOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3025,18 +3348,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LiveTranscriptionOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3114,8 +3427,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaCaptioningOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3134,18 +3457,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MediaCaptioningOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3223,8 +3536,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaHashOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3243,18 +3566,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MediaHashOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3332,8 +3645,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaRatingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3352,18 +3675,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MediaRatingOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3441,8 +3754,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3461,18 +3784,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MergeOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3549,8 +3862,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiniMaxMusic3Output"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3569,18 +3892,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MiniMaxMusic3Output"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3658,8 +3971,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Model3DPreviewOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3678,18 +4001,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Model3DPreviewOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3767,8 +4080,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelClamScanOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3787,18 +4110,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModelClamScanOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3876,8 +4189,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelHashOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -3896,18 +4219,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModelHashOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -3985,8 +4298,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelParseMetadataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4005,18 +4328,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModelParseMetadataOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4094,8 +4407,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelPickleScanOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4114,18 +4437,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModelPickleScanOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4203,8 +4516,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolyGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4223,18 +4546,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolyGenOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4312,8 +4625,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrepareResourceOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4332,18 +4655,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PrepareResourceOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4419,8 +4732,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreprocessImageOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4439,18 +4762,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PreprocessImageOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4526,8 +4839,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreprocessVideoOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4546,18 +4869,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PreprocessVideoOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4635,8 +4948,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromptEnhancementOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4655,18 +4978,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PromptEnhancementOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4744,8 +5057,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromptModerationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4764,18 +5087,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PromptModerationOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4853,8 +5166,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QwenImageBenchOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4873,18 +5196,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QwenImageBenchOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -4961,8 +5274,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepeatOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -4981,18 +5304,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RepeatOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5070,8 +5383,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShieldstralModerationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5090,18 +5413,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShieldstralModerationOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5178,8 +5491,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoniloAudioGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5198,18 +5521,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SoniloAudioGenOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5287,8 +5600,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextToImageOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5307,18 +5630,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TextToImageOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5396,8 +5709,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextToSpeechOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5416,18 +5739,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TextToSpeechOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5505,8 +5818,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5525,18 +5848,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrainingOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5613,8 +5926,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscodeOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5633,18 +5956,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TranscodeOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5722,8 +6035,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptionOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5742,18 +6065,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TranscriptionOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5829,8 +6142,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TryOnUOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5849,18 +6172,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TryOnUOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -5937,8 +6250,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoBackgroundRemovalOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -5957,18 +6280,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoBackgroundRemovalOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6045,8 +6358,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoEnhancementOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6065,18 +6388,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoEnhancementOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6154,8 +6467,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoFrameExtractionOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6174,18 +6497,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoFrameExtractionOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6263,8 +6576,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoGenOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6283,18 +6606,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoGenOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6371,8 +6684,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoInterpolationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6391,18 +6714,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoInterpolationOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6479,8 +6792,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoMetadataOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6499,18 +6822,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoMetadataOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6587,8 +6900,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoUpscalerOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6607,18 +6930,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoUpscalerOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6696,8 +7009,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WDTaggingOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6716,18 +7039,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WDTaggingOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6805,8 +7118,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebScrapeOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6825,18 +7148,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WebScrapeOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -6914,8 +7227,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebSearchOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -6934,18 +7257,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WebSearchOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -7023,8 +7336,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/XGuardModerationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -7043,18 +7366,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/XGuardModerationOutput"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -7131,8 +7444,18 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YuE2Output"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -7151,18 +7474,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/YuE2Output"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -7442,7 +7755,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/services/{serviceId}": {
@@ -7513,7 +7826,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -7550,16 +7863,6 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -7570,12 +7873,12 @@
               }
             }
           },
-          "409": {
-            "description": "Conflict",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StreamingBlobAppendResponse"
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -7586,6 +7889,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamingBlobAppendResponse"
                 }
               }
             }
@@ -7601,7 +7914,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       },
       "get": {
         "tags": [
@@ -7619,6 +7932,9 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -7628,9 +7944,6 @@
                 }
               }
             }
-          },
-          "200": {
-            "description": "OK"
           },
           "404": {
             "description": "Not Found",
@@ -7643,7 +7956,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/workflows": {
@@ -7707,7 +8020,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -7736,7 +8049,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -7764,7 +8077,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -7781,7 +8094,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -7894,7 +8207,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -7921,7 +8234,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -7950,7 +8263,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -7978,7 +8291,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -7995,7 +8308,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -8108,7 +8421,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -8135,7 +8448,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -8164,7 +8477,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -8192,7 +8505,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -8209,7 +8522,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -8322,7 +8635,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -8330,16 +8643,6 @@
           }
         },
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -8370,8 +8673,8 @@
               }
             }
           },
-          "429": {
-            "description": "Too Many Requests",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -8386,6 +8689,16 @@
               "application/json": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -8499,16 +8812,6 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -8521,6 +8824,16 @@
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -8573,16 +8886,6 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -8599,6 +8902,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Workflow"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -8661,16 +8974,6 @@
           }
         },
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -8691,8 +8994,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not Found",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -8703,6 +9006,16 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -8740,28 +9053,8 @@
           }
         },
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "204": {
             "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
           },
           "400": {
             "description": "Bad Request",
@@ -8773,8 +9066,28 @@
               }
             }
           },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -8803,6 +9116,9 @@
           }
         ],
         "responses": {
+          "204": {
+            "description": "No Content"
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -8812,9 +9128,6 @@
                 }
               }
             }
-          },
-          "204": {
-            "description": "No Content"
           },
           "404": {
             "description": "Not Found",
@@ -8866,16 +9179,6 @@
           }
         },
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "204": {
             "description": "No Content"
           },
@@ -8885,6 +9188,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -8918,16 +9231,6 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "204": {
             "description": "No Content"
           },
@@ -8937,6 +9240,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -8980,16 +9293,6 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "204": {
             "description": "No Content"
           },
@@ -8999,6 +9302,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -9042,22 +9355,22 @@
           }
         ],
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WorkflowStep"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -9118,8 +9431,11 @@
           }
         },
         "responses": {
-          "401": {
-            "description": "Unauthorized",
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -9128,11 +9444,8 @@
               }
             }
           },
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -9186,6 +9499,9 @@
           }
         },
         "responses": {
+          "204": {
+            "description": "No Content"
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -9195,9 +9511,6 @@
                 }
               }
             }
-          },
-          "204": {
-            "description": "No Content"
           },
           "404": {
             "description": "Not Found",
@@ -12059,7 +12372,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
@@ -12112,7 +12425,7 @@
               "string"
             ]
           },
-          "schema": {},
+          "schema": { },
           "strict": {
             "type": [
               "null",
@@ -18586,20 +18899,35 @@
           {
             "required": [
               "engine",
-              "images",
               "operation"
             ],
             "type": "object",
             "properties": {
               "images": {
                 "maxItems": 9,
-                "minItems": 1,
                 "type": "array",
                 "items": {
                   "type": "string",
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 }
+              },
+              "referenceAudios": {
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                  "type": "string"
+                },
+                "description": "Up to three voice reference AIRs or AIR-compatible URLs, each 2–15 seconds. Upload other sources to orchestrator blob storage first. Refer to them as <Audio 1>, etc. in the prompt."
+              },
+              "firstFrame": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Optional first frame to anchor the video while using image or voice references.",
+                "format": "source-image"
               },
               "operation": {
                 "enum": [
@@ -18617,7 +18945,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Reference-image-to-video using the REF2VA weights."
+        "description": "Reference-image/audio-to-video using the REF2VA weights."
       },
       "ComfyMiniMaxH3VideoGenInput": {
         "allOf": [
@@ -19672,6 +20000,244 @@
           }
         ]
       },
+      "ComfyQwen21TurboCreateImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwen21TurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "2.1-turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyQwen21TurboEditImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwen21TurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "height",
+              "images",
+              "model",
+              "operation",
+              "width"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "resolution": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "description": "Reference pixel budget as resolution squared; preserves each image's aspect ratio.",
+                "format": "int32",
+                "default": 1024
+              },
+              "width": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "height": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "2.1-turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyQwen21TurboImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyQwenImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "sampler": {
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "steps": {
+                "maximum": 8,
+                "minimum": 8,
+                "type": "integer",
+                "description": "Turbo uses the checkpoint's fixed eight-step sigma schedule.",
+                "format": "int32",
+                "default": 8
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 0,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 12,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "model": {
+                "enum": [
+                  "2.1-turbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyQwen21TurboCreateImageGenInput",
+                "editImage": "#/components/schemas/ComfyQwen21TurboEditImageGenInput"
+              }
+            }
+          }
+        ]
+      },
       "ComfyQwenImageGenInput": {
         "allOf": [
           {
@@ -19710,7 +20276,8 @@
               "propertyName": "model",
               "mapping": {
                 "20b": "#/components/schemas/ComfyQwen20bImageGenInput",
-                "2.1": "#/components/schemas/ComfyQwen21ImageGenInput"
+                "2.1": "#/components/schemas/ComfyQwen21ImageGenInput",
+                "2.1-turbo": "#/components/schemas/ComfyQwen21TurboImageGenInput"
               }
             }
           }
@@ -20061,7 +20628,6 @@
             "required": [
               "ecosystem",
               "engine",
-              "model",
               "operation",
               "prompt"
             ],
@@ -20119,7 +20685,8 @@
               },
               "model": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string"
+                "type": "string",
+                "default": "urn:air:sdxl:checkpoint:civitai:101055@128078+92696"
               },
               "vaeModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
@@ -25120,6 +25687,118 @@
         },
         "additionalProperties": false
       },
+      "FundDeposit": {
+        "required": [
+          "amount"
+        ],
+        "type": "object",
+        "properties": {
+          "amount": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "currencies": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/BuzzClientAccount"
+            },
+            "description": "Which of the caller's currencies to draw from, in order. Defaults to all."
+          }
+        },
+        "additionalProperties": false
+      },
+      "FundResponse": {
+        "required": [
+          "allowMatureContent",
+          "balance",
+          "balances",
+          "createdAt",
+          "expiresAt",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "allowMatureContent": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "balance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "balances": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Balance per currency (`yellow`, `blue`, `green`, `fakeRed`)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "FundTemplate": {
+        "type": "object",
+        "properties": {
+          "ttl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "How long until the fund is deleted on its own. Defaults to 24 hours, at most 7 days.",
+            "format": "date-span"
+          },
+          "allowMatureContent": {
+            "type": "boolean",
+            "description": "Whether workflows billed to this fund may return mature content. Deposits are then limited to Yellow, and Blue from members.",
+            "default": false
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Shown on each deposit in the depositor's Buzz history, e.g. \"Game pot deposit\"."
+          }
+        },
+        "additionalProperties": false
+      },
+      "FundUpdate": {
+        "required": [
+          "ttl"
+        ],
+        "type": "object",
+        "properties": {
+          "ttl": {
+            "type": "string",
+            "description": "How long from now until the fund is deleted on its own, at most 7 days.",
+            "format": "date-span"
+          }
+        },
+        "additionalProperties": false
+      },
       "Gemini25FlashCreateImageGenInput": {
         "allOf": [
           {
@@ -28048,7 +28727,8 @@
             "grok": "#/components/schemas/GrokImageGenInput",
             "fal": "#/components/schemas/FalImageGenInput",
             "qwen": "#/components/schemas/QwenApiImageGenInput",
-            "krea": "#/components/schemas/KreaImageGenInput"
+            "krea": "#/components/schemas/KreaImageGenInput",
+            "krea3": "#/components/schemas/Krea3ImageGenInput"
           }
         }
       },
@@ -28754,6 +29434,13 @@
               "null",
               "boolean"
             ]
+          },
+          "blockedReason": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Why the image would be refused as input to other workflows; null when it passes."
           }
         },
         "additionalProperties": false
@@ -30272,6 +30959,89 @@
         },
         "additionalProperties": false
       },
+      "Krea3ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "maxLength": 5000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "thinkingMode": {
+                "enum": [
+                  "instant",
+                  "medium"
+                ],
+                "type": "string",
+                "default": "instant"
+              },
+              "images": {
+                "maxItems": 6,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                },
+                "description": "Omit for text-to-image, or provide up to six images to edit."
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "resolution": {
+                "enum": [
+                  "1k",
+                  "2k"
+                ],
+                "type": "string",
+                "default": "2k"
+              },
+              "aspectRatio": {
+                "enum": [
+                  null,
+                  "1:1",
+                  "4:5",
+                  "3:4",
+                  "2:3",
+                  "9:16",
+                  "5:4",
+                  "4:3",
+                  "3:2",
+                  "16:9",
+                  "21:9"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Omit to let Krea choose, e.g. to follow the reference images."
+              },
+              "engine": {
+                "enum": [
+                  "krea3"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Krea 3 generation and editing at 1K or 2K."
+      },
       "KreaCreateImageGenInput": {
         "allOf": [
           {
@@ -30731,6 +31501,14 @@
           "audioSeconds": {
             "type": "number",
             "format": "double"
+          },
+          "socketUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "One WebSocket in place of `inputUrl` and `audioUrl`, avoiding a request per text chunk.",
+            "format": "uri"
           }
         },
         "additionalProperties": false
@@ -30824,6 +31602,11 @@
             "description": "The input is treated as closed when no audio arrives for this many seconds, so a client that\ndisappears does not hold the session open.",
             "format": "int32",
             "default": 10
+          },
+          "turnDetection": {
+            "type": "boolean",
+            "description": "Sends a `turn` event shortly after each pause in speech with the probability that the\nspeaker has finished, so a voice agent can answer sooner than a fixed silence timeout.",
+            "default": true
           }
         },
         "additionalProperties": false
@@ -30862,6 +31645,14 @@
             "type": "number",
             "description": "Seconds of audio received so far; the session is billed on this.",
             "format": "double"
+          },
+          "socketUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "One WebSocket in place of `inputUrl` and `transcriptUrl`, avoiding a request per audio chunk.",
+            "format": "uri"
           }
         },
         "additionalProperties": false
@@ -37893,7 +38684,7 @@
             ]
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "PromptEnhancementInput": {
         "required": [
@@ -40579,7 +41370,6 @@
             "required": [
               "ecosystem",
               "engine",
-              "model",
               "operation",
               "prompt"
             ],
@@ -40637,7 +41427,8 @@
               },
               "model": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string"
+                "type": "string",
+                "default": "urn:air:sdxl:checkpoint:civitai:101055@128078+92696"
               },
               "vaeModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
@@ -43340,7 +44131,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "tags": {
             "type": [
@@ -43378,7 +44169,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           }
         },
         "additionalProperties": false
@@ -43569,7 +44360,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -48027,7 +48818,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
@@ -48055,7 +48846,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "steps": {
             "type": "array",
@@ -48140,6 +48931,13 @@
           },
           "tier": {
             "$ref": "#/components/schemas/WorkflowTier"
+          },
+          "fund": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false
@@ -48483,7 +49281,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "estimatedProgressRate": {
             "type": [
@@ -48870,7 +49668,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           }
         },
         "additionalProperties": false,
@@ -48992,7 +49790,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "tags": {
             "maxItems": 10,
@@ -49030,7 +49828,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "nsfwLevel": {
             "$ref": "#/components/schemas/NSFWLevel"
@@ -49064,6 +49862,14 @@
               "$ref": "#/components/schemas/BuzzClientAccount"
             },
             "description": "Limit the currencies that can be used to pay for this workflow."
+          },
+          "fund": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Bill this workflow to a fund (see `POST /v2/consumer/funds`) instead of the caller's Buzz. Implies the paid tier;\nCivitai.Orchestration.Grains.Workflows.WorkflowTemplate.Currencies then limits which of the fund's currencies are spent.",
+            "format": "uuid"
           },
           "ephemeral": {
             "type": [
@@ -50380,7 +51186,7 @@
     }
   },
   "security": [
-    {}
+    { }
   ],
   "tags": [
     {
@@ -50391,6 +51197,9 @@
     },
     {
       "name": "Free tier"
+    },
+    {
+      "name": "Funds"
     },
     {
       "name": "Recipes"

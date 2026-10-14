@@ -9,9 +9,18 @@ import type {
   AppendStreamingBlobData,
   AppendStreamingBlobErrors,
   AppendStreamingBlobResponses,
+  CreateFundData,
+  CreateFundErrors,
+  CreateFundResponses,
+  DeleteFundData,
+  DeleteFundErrors,
+  DeleteFundResponses,
   DeleteWorkflowData,
   DeleteWorkflowErrors,
   DeleteWorkflowResponses,
+  DepositIntoFundData,
+  DepositIntoFundErrors,
+  DepositIntoFundResponses,
   GetBlobArchiveData,
   GetBlobArchiveErrors,
   GetBlobArchiveResponses,
@@ -28,6 +37,9 @@ import type {
   GetFreeTierData,
   GetFreeTierErrors,
   GetFreeTierResponses,
+  GetFundData,
+  GetFundErrors,
+  GetFundResponses,
   GetResourceData,
   GetResourceErrors,
   GetResourceResponses,
@@ -262,6 +274,9 @@ import type {
   SubmitWorkflowData,
   SubmitWorkflowErrors,
   SubmitWorkflowResponses,
+  UpdateFundData,
+  UpdateFundErrors,
+  UpdateFundResponses,
   UpdateWorkflowData,
   UpdateWorkflowErrors,
   UpdateWorkflowResponses,
@@ -425,6 +440,67 @@ export const getFreeTier = <ThrowOnError extends boolean = false>(
   (options?.client ?? client).get<GetFreeTierResponses, GetFreeTierErrors, ThrowOnError>({
     url: '/v2/consumer/free-tier',
     ...options,
+  });
+
+/**
+ * The id is the only way to reach the fund, so keep it secret, in your app's state.
+ */
+export const createFund = <ThrowOnError extends boolean = false>(
+  options?: Options<CreateFundData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<CreateFundResponses, CreateFundErrors, ThrowOnError>({
+    url: '/v2/consumer/funds',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Whatever is left goes to Civitai, not back to the depositors. A fund is also deleted on its own at `expiresAt`.
+ */
+export const deleteFund = <ThrowOnError extends boolean = false>(
+  options: Options<DeleteFundData, ThrowOnError>
+) =>
+  (options.client ?? client).delete<DeleteFundResponses, DeleteFundErrors, ThrowOnError>({
+    url: '/v2/consumer/funds/{fundId}',
+    ...options,
+  });
+
+export const getFund = <ThrowOnError extends boolean = false>(
+  options: Options<GetFundData, ThrowOnError>
+) =>
+  (options.client ?? client).get<GetFundResponses, GetFundErrors, ThrowOnError>({
+    url: '/v2/consumer/funds/{fundId}',
+    ...options,
+  });
+
+/**
+ * Sets the fund to expire `ttl` from now, so a long-running session can keep rolling it over.
+ */
+export const updateFund = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateFundData, ThrowOnError>
+) =>
+  (options.client ?? client).patch<UpdateFundResponses, UpdateFundErrors, ThrowOnError>({
+    url: '/v2/consumer/funds/{fundId}',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json-patch+json',
+      ...options.headers,
+    },
+  });
+
+export const depositIntoFund = <ThrowOnError extends boolean = false>(
+  options: Options<DepositIntoFundData, ThrowOnError>
+) =>
+  (options.client ?? client).post<DepositIntoFundResponses, DepositIntoFundErrors, ThrowOnError>({
+    url: '/v2/consumer/funds/{fundId}/deposits',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
   });
 
 /**

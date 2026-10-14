@@ -2529,13 +2529,21 @@ export type ComfyMiniMaxH3ImageToVideoInput = Omit<
 };
 
 /**
- * Reference-image-to-video using the REF2VA weights.
+ * Reference-image/audio-to-video using the REF2VA weights.
  */
 export type ComfyMiniMaxH3ReferenceToVideoInput = Omit<
   ComfyMiniMaxH3VideoGenInput,
   'engine' | 'operation'
 > & {
-  images: Array<string>;
+  images?: Array<string>;
+  /**
+   * Up to three voice reference AIRs or AIR-compatible URLs, each 2–15 seconds. Upload other sources to orchestrator blob storage first. Refer to them as <Audio 1>, etc. in the prompt.
+   */
+  referenceAudios?: Array<string>;
+  /**
+   * Optional first frame to anchor the video while using image or voice references.
+   */
+  firstFrame?: null | string;
   operation: 'referenceToVideo';
   engine: 'minimax-h3-comfy';
 };
@@ -2784,6 +2792,59 @@ export type ComfyQwen21ImageGenInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyQwen21TurboCreateImageGenInput = Omit<
+  ComfyQwen21TurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  width?: number;
+  height?: number;
+  operation: 'createImage';
+  model: '2.1-turbo';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21TurboEditImageGenInput = Omit<
+  ComfyQwen21TurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared; preserves each image's aspect ratio.
+   */
+  resolution?: number;
+  readonly width: number;
+  readonly height: number;
+  operation: 'editImage';
+  model: '2.1-turbo';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21TurboImageGenInput = Omit<
+  ComfyQwenImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: string;
+  prompt: string;
+  negativePrompt?: null | string;
+  sampler?: ComfySampler;
+  /**
+   * Turbo uses the checkpoint's fixed eight-step sigma schedule.
+   */
+  steps?: number;
+  cfgScale?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  diffusionModel?: null | string;
+  model: '2.1-turbo';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
 export type ComfyQwenImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: null | string;
   ecosystem: 'qwen';
@@ -2908,7 +2969,7 @@ export type ComfySdxlImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosys
   cfgScale?: number;
   seed?: null | number;
   quantity?: number;
-  model: string;
+  model?: string;
   vaeModel?: null | string;
   loras?: {
     [key: string]: number;
@@ -4359,6 +4420,51 @@ export type FreeTierWindowResponse = {
   resetAt?: null | string;
 };
 
+export type FundDeposit = {
+  amount: number;
+  /**
+   * Which of the caller's currencies to draw from, in order. Defaults to all.
+   */
+  currencies?: null | Array<BuzzClientAccount>;
+};
+
+export type FundResponse = {
+  id: string;
+  allowMatureContent: boolean;
+  description?: null | string;
+  createdAt: string;
+  expiresAt: string;
+  balance: number;
+  /**
+   * Balance per currency (`yellow`, `blue`, `green`, `fakeRed`).
+   */
+  balances: {
+    [key: string]: number;
+  };
+};
+
+export type FundTemplate = {
+  /**
+   * How long until the fund is deleted on its own. Defaults to 24 hours, at most 7 days.
+   */
+  ttl?: null | string;
+  /**
+   * Whether workflows billed to this fund may return mature content. Deposits are then limited to Yellow, and Blue from members.
+   */
+  allowMatureContent?: boolean;
+  /**
+   * Shown on each deposit in the depositor's Buzz history, e.g. "Game pot deposit".
+   */
+  description?: null | string;
+};
+
+export type FundUpdate = {
+  /**
+   * How long from now until the fund is deleted on its own, at most 7 days.
+   */
+  ttl: string;
+};
+
 export type Gemini25FlashCreateImageGenInput = Omit<
   Gemini25FlashImageGenInput,
   'engine' | 'model' | 'operation'
@@ -5363,6 +5469,10 @@ export type ImageScanningOutput = {
   humanRecognition: ImageScanningHumanRecognition;
   jointAgeClassification: ImageScanningJointAgeClassification;
   csam?: null | boolean;
+  /**
+   * Why the image would be refused as input to other workflows; null when it passes.
+   */
+  blockedReason?: null | string;
 };
 
 export type ImageScanningPersonMask = {
@@ -5872,6 +5982,36 @@ export type Krea2StyleReference = {
 };
 
 /**
+ * Krea 3 generation and editing at 1K or 2K.
+ */
+export type Krea3ImageGenInput = Omit<ImageGenInput, 'engine'> & {
+  prompt: string;
+  thinkingMode?: 'instant' | 'medium';
+  /**
+   * Omit for text-to-image, or provide up to six images to edit.
+   */
+  images: Array<string>;
+  quantity?: number;
+  resolution?: '1k' | '2k';
+  /**
+   * Omit to let Krea choose, e.g. to follow the reference images.
+   */
+  aspectRatio?:
+    | null
+    | '1:1'
+    | '4:5'
+    | '3:4'
+    | '2:3'
+    | '9:16'
+    | '5:4'
+    | '4:3'
+    | '3:2'
+    | '16:9'
+    | '21:9';
+  engine: 'krea3';
+};
+
+/**
  * Text-to-image, or image-to-image when Civitai.Orchestration.Grains.Workflows.Steps.ImageGen.Krea.KreaCreateImageGenInput.Image is supplied.
  */
 export type KreaCreateImageGenInput = Omit<KreaImageGenInput, 'engine' | 'operation'> & {
@@ -6031,6 +6171,10 @@ export type LiveTextToSpeechOutput = {
    */
   characters: number;
   audioSeconds: number;
+  /**
+   * One WebSocket in place of `inputUrl` and `audioUrl`, avoiding a request per text chunk.
+   */
+  socketUrl?: null | string;
 };
 
 /**
@@ -6069,6 +6213,11 @@ export type LiveTranscriptionInput = {
    * disappears does not hold the session open.
    */
   idleTimeoutSeconds?: number;
+  /**
+   * Sends a `turn` event shortly after each pause in speech with the probability that the
+   * speaker has finished, so a voice agent can answer sooner than a fixed silence timeout.
+   */
+  turnDetection?: boolean;
 };
 
 export type LiveTranscriptionOutput = {
@@ -6090,6 +6239,10 @@ export type LiveTranscriptionOutput = {
    * Seconds of audio received so far; the session is billed on this.
    */
   audioSeconds: number;
+  /**
+   * One WebSocket in place of `inputUrl` and `transcriptUrl`, avoiding a request per audio chunk.
+   */
+  socketUrl?: null | string;
 };
 
 /**
@@ -8833,7 +8986,7 @@ export type SdxlImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
   cfgScale?: number;
   seed?: null | number;
   quantity?: number;
-  model: string;
+  model?: string;
   vaeModel?: null | string;
   loras?: {
     [key: string]: number;
@@ -10877,6 +11030,7 @@ export type Workflow = {
   deletedAt?: null | string;
   downloadPriority?: Priority;
   tier: WorkflowTier;
+  fund?: null | string;
 };
 
 export type WorkflowCallback = {
@@ -11176,6 +11330,11 @@ export type WorkflowTemplate = {
    * Limit the currencies that can be used to pay for this workflow.
    */
   currencies: Array<BuzzClientAccount>;
+  /**
+   * Bill this workflow to a fund (see `POST /v2/consumer/funds`) instead of the caller's Buzz. Implies the paid tier;
+   * Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.Currencies then limits which of the fund's currencies are spent.
+   */
+  fund?: null | string;
   /**
    * Never persisted: results are available only via callbacks or the synchronous `wait` parameter, and GET returns 404 once terminal.
    * Requires at least one callback or `wait > 0` on submission.
@@ -11880,6 +12039,21 @@ export type ComfyQwen21EditImageGenInputWritable = Omit<
   resolution?: number;
   operation: 'ComfyQwen21EditImageGenInputWritable';
   model: '2.1';
+  ecosystem: 'qwen';
+  engine: 'comfy';
+};
+
+export type ComfyQwen21TurboEditImageGenInputWritable = Omit<
+  ComfyQwen21TurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * Reference pixel budget as resolution squared; preserves each image's aspect ratio.
+   */
+  resolution?: number;
+  operation: 'ComfyQwen21TurboEditImageGenInputWritable';
+  model: '2.1-turbo';
   ecosystem: 'qwen';
   engine: 'comfy';
 };
@@ -12905,6 +13079,7 @@ export type WorkflowWritable = {
   deletedAt?: null | string;
   downloadPriority?: Priority;
   tier: WorkflowTier;
+  fund?: null | string;
 };
 
 export type WorkflowCostWritable = {
@@ -13578,6 +13753,171 @@ export type GetFreeTierResponses = {
 };
 
 export type GetFreeTierResponse = GetFreeTierResponses[keyof GetFreeTierResponses];
+
+export type CreateFundData = {
+  body?: FundTemplate;
+  path?: never;
+  query?: never;
+  url: '/v2/consumer/funds';
+};
+
+export type CreateFundErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: string;
+};
+
+export type CreateFundError = CreateFundErrors[keyof CreateFundErrors];
+
+export type CreateFundResponses = {
+  /**
+   * Created
+   */
+  201: FundResponse;
+};
+
+export type CreateFundResponse = CreateFundResponses[keyof CreateFundResponses];
+
+export type DeleteFundData = {
+  body?: never;
+  path: {
+    fundId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/funds/{fundId}';
+};
+
+export type DeleteFundErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type DeleteFundError = DeleteFundErrors[keyof DeleteFundErrors];
+
+export type DeleteFundResponses = {
+  /**
+   * No Content
+   */
+  204: void;
+};
+
+export type DeleteFundResponse = DeleteFundResponses[keyof DeleteFundResponses];
+
+export type GetFundData = {
+  body?: never;
+  path: {
+    fundId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/funds/{fundId}';
+};
+
+export type GetFundErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type GetFundError = GetFundErrors[keyof GetFundErrors];
+
+export type GetFundResponses = {
+  /**
+   * OK
+   */
+  200: FundResponse;
+};
+
+export type GetFundResponse = GetFundResponses[keyof GetFundResponses];
+
+export type UpdateFundData = {
+  body?: JsonPatchDocument;
+  path: {
+    fundId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/funds/{fundId}';
+};
+
+export type UpdateFundErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type UpdateFundError = UpdateFundErrors[keyof UpdateFundErrors];
+
+export type UpdateFundResponses = {
+  /**
+   * OK
+   */
+  200: FundResponse;
+};
+
+export type UpdateFundResponse = UpdateFundResponses[keyof UpdateFundResponses];
+
+export type DepositIntoFundData = {
+  body?: FundDeposit;
+  path: {
+    fundId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/funds/{fundId}/deposits';
+};
+
+export type DepositIntoFundErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Payment Required
+   */
+  402: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+};
+
+export type DepositIntoFundError = DepositIntoFundErrors[keyof DepositIntoFundErrors];
+
+export type DepositIntoFundResponses = {
+  /**
+   * OK
+   */
+  200: FundResponse;
+};
+
+export type DepositIntoFundResponse = DepositIntoFundResponses[keyof DepositIntoFundResponses];
 
 export type InvokeAceStepAudioStepTemplateData = {
   body?: AceStepAudioInput;
