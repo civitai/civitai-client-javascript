@@ -1650,6 +1650,93 @@ export type ComfyFlux2KleinVariantImageGenInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyFlux3KleinBaseCreateImageInput = Omit<
+  ComfyFlux3KleinBaseImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'base';
+  ecosystem: 'flux3Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux3KleinBaseEditImageInput = Omit<
+  ComfyFlux3KleinBaseImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'base';
+  ecosystem: 'flux3Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux3KleinBaseImageGenInput = Omit<
+  ComfyFlux3KleinImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  steps?: number;
+  cfgScale?: number;
+  model: 'base';
+  ecosystem: 'flux3Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux3KleinDistilledCreateImageInput = Omit<
+  ComfyFlux3KleinDistilledImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'distilled';
+  ecosystem: 'flux3Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux3KleinDistilledEditImageInput = Omit<
+  ComfyFlux3KleinDistilledImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'distilled';
+  ecosystem: 'flux3Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux3KleinDistilledImageGenInput = Omit<
+  ComfyFlux3KleinImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  model: 'distilled';
+  ecosystem: 'flux3Klein';
+  engine: 'comfy';
+};
+
+export type ComfyFlux3KleinImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  steps?: number;
+  cfgScale?: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Compatible FLUX.3 Klein diffusion checkpoint AIR. Omit or set null to use the selected model's int8 checkpoint; the int8 text encoder and VAE remain unchanged.
+   */
+  diffusionModel?: null | string;
+  ecosystem: 'flux3Klein';
+  engine: 'comfy';
+};
+
 export type ComfyHiDreamI1CreateImageGenInput = Omit<
   ComfyHiDreamI1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
@@ -4206,6 +4293,19 @@ export type Flux3Keyframe = {
    * keyframes and no greater than the duration in seconds × 24.
    */
   frameIndex: number;
+};
+
+export type Flux3KleinAiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  readonly defaultSteps: number;
+  ecosystem: 'flux3klein';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 /**
@@ -12321,6 +12421,18 @@ export type Flux2KleinAiToolkitTrainingInputWritable = Omit<
   isEditTraining?: boolean;
   ecosystem: 'flux2klein';
   engine: 'ai-toolkit';
+};
+
+export type Flux3KleinAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'flux3klein';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export type GeminiOmniVideoGenInputWritable = Omit<VideoGenInputWritable, 'engine'> & {
