@@ -183,9 +183,10 @@ export type AceStepAudioCover = {
 
 export type AceStepAudioInput = {
   /**
-   * Music style/genre description (e.g., "Neo-Soul: A warm, organic neo-soul track...")
+   * What the track should sound like: genre, mood, instruments, tempo
+   * (e.g., "Neo-Soul: A warm, organic neo-soul track..."). The words to sing go in lyrics.
    */
-  musicDescription: string;
+  prompt: string;
   /**
    * Structured lyrics with section markers like [Verse], [Chorus], [Bridge], etc.
    */
@@ -303,7 +304,7 @@ export type AceStepAudioInput = {
    * Classifier-free guidance scale. Turbo variants run CFG-off at 1.0;
    * non-turbo base / sft variants expect CFG on (around 4).
    */
-  cfg?: number;
+  cfgScale?: number;
   /**
    * LoRAs to apply; each strength applies to both the diffusion model and the dual CLIP.
    * Compatibility with non-default base models is the caller's responsibility.
@@ -496,7 +497,7 @@ export type AnimaImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'
   loras?: {
     [key: string]: number;
   };
-  diffuserModel?: string;
+  diffusionModel?: string;
   ecosystem: 'anima';
   engine: 'sdcpp';
 };
@@ -1206,10 +1207,10 @@ export type ComfyAnimaImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosy
   loras?: {
     [key: string]: number;
   };
-  diffuserModel?: string;
+  diffusionModel?: string;
+  ecosystem: 'anima';
   controlNets?: Array<ImageJobControlNet>;
   vaeModel?: string;
-  ecosystem: 'anima';
   engine: 'comfy';
 };
 
@@ -1223,7 +1224,7 @@ export type ComfyAnimaVariantImageGenInput = Omit<
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  denoiseStrength?: number;
+  strength?: number;
   operation: 'createVariant';
   ecosystem: 'anima';
   engine: 'comfy';
@@ -1535,7 +1536,7 @@ export type ComfyFlux1VariantImageGenInput = Omit<
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  denoiseStrength?: number;
+  strength?: number;
   operation: 'createVariant';
   ecosystem: 'flux1';
   engine: 'comfy';
@@ -2101,7 +2102,8 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   height?: number;
   fps?: number;
   generateAudio?: boolean;
-  guidanceScale?: number;
+  cfgScale?: number;
+  engine: 'ltx2.3';
   steps?: number;
   model?: '22b-dev' | '22b-distilled';
   loras?: {
@@ -2117,7 +2119,6 @@ export type ComfyLtx23VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    * (Seed + slotIndex) and is produced by re-running the Comfy workflow.
    */
   quantity?: number;
-  engine: 'ltx2.3';
 };
 
 /**
@@ -2214,7 +2215,8 @@ export type ComfyLtx25VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   height?: number;
   fps?: number;
   generateAudio?: boolean;
-  guidanceScale?: number;
+  cfgScale?: number;
+  engine: 'ltx2.5';
   steps?: number;
   model?: '22b-dev' | '22b-distilled';
   loras?: {
@@ -2230,7 +2232,6 @@ export type ComfyLtx25VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    * (Seed + slotIndex) and is produced by re-running the Comfy workflow.
    */
   quantity?: number;
-  engine: 'ltx2.5';
 };
 
 /**
@@ -2306,13 +2307,13 @@ export type ComfyLtx2VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   height?: number;
   fps?: number;
   generateAudio?: boolean;
-  guidanceScale?: number;
+  cfgScale?: number;
   steps?: number;
+  engine: 'ltx2';
   model?: '19b-dev' | '19b-distilled';
   loras?: {
     [key: string]: number;
   };
-  engine: 'ltx2';
 };
 
 export type ComfyMageFlow4bCreateImageGenInput = Omit<
@@ -2920,7 +2921,8 @@ export type ComfySd1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosyst
   cfgScale?: number;
   seed?: null | number;
   quantity?: number;
-  model: string;
+  checkpointModel: string;
+  ecosystem: 'sd1';
   vaeModel?: null | string;
   loras?: {
     [key: string]: number;
@@ -2928,7 +2930,6 @@ export type ComfySd1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosyst
   embeddings?: Array<string>;
   clipSkip?: number;
   controlNets?: Array<ImageJobControlNet>;
-  ecosystem: 'sd1';
   engine: 'comfy';
 };
 
@@ -2942,7 +2943,7 @@ export type ComfySd1VariantImageGenInput = Omit<
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  denoiseStrength?: number;
+  strength?: number;
   operation: 'createVariant';
   ecosystem: 'sd1';
   engine: 'comfy';
@@ -2969,7 +2970,8 @@ export type ComfySdxlImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosys
   cfgScale?: number;
   seed?: null | number;
   quantity?: number;
-  model?: string;
+  checkpointModel?: string;
+  ecosystem: 'sdxl';
   vaeModel?: null | string;
   loras?: {
     [key: string]: number;
@@ -2977,7 +2979,6 @@ export type ComfySdxlImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosys
   embeddings?: Array<string>;
   clipSkip?: number;
   controlNets?: Array<ImageJobControlNet>;
-  ecosystem: 'sdxl';
   engine: 'comfy';
 };
 
@@ -2991,7 +2992,7 @@ export type ComfySdxlVariantImageGenInput = Omit<
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
-  denoiseStrength?: number;
+  strength?: number;
   operation: 'createVariant';
   ecosystem: 'sdxl';
   engine: 'comfy';
@@ -3184,7 +3185,7 @@ export type ComfyZImageBaseImageGenInput = Omit<
 
 export type ComfyZImageImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
   model: null | string;
-  diffuserModel?: string;
+  diffusionModel?: string;
   ecosystem: 'zImage';
   engine: 'comfy';
 };
@@ -3685,6 +3686,9 @@ export type Flux1KontextImageGenInput = Omit<ImageGenInput, 'engine'> & {
   prompt: string;
   images?: Array<string>;
   aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+  /**
+   * Model/provider guidance strength. This is not a portable classifier-free guidance scale.
+   */
   guidanceScale?: number;
   quantity?: number;
   seed?: null | number;
@@ -3779,11 +3783,11 @@ export type Flux1SdCppImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosy
   loras?: {
     [key: string]: number;
   };
-  diffuserModel: string;
+  diffusionModel: string;
+  ecosystem: 'flux1';
   vaeModel: string;
   clipLModel: string;
   t5XXLModel: string;
-  ecosystem: 'flux1';
   engine: 'sdcpp';
 };
 
@@ -3840,10 +3844,13 @@ export type Flux2DevEditImageResourceTrainingInput = Omit<ImageResourceTrainingI
 
 export type Flux2DevImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'> & {
   operation: string;
+  /**
+   * Embedded guidance strength passed to the guidance-distilled model; not sampling-time classifier-free guidance.
+   */
   guidanceScale?: number;
-  numInferenceSteps?: number;
-  loras?: Array<ImageGenInputLora>;
+  steps?: number;
   model: 'dev';
+  loras?: Array<ImageGenInputLora>;
   engine: 'flux2';
 };
 
@@ -3933,8 +3940,11 @@ export type Flux2FlexEditImageInput = Omit<
 
 export type Flux2FlexImageGenInput = Omit<Flux2ImageGenInput, 'engine' | 'model'> & {
   operation: string;
+  /**
+   * Model/provider guidance strength. This is not a portable classifier-free guidance scale.
+   */
   guidanceScale?: number;
-  numInferenceSteps?: number;
+  steps?: number;
   model: 'flex';
   engine: 'flux2';
 };
@@ -3946,7 +3956,7 @@ export type Flux2ImageGenInput = Omit<ImageGenInput, 'engine'> & {
   height?: number;
   seed?: null | number;
   quantity?: number;
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
   engine: 'flux2';
 };
 
@@ -4177,9 +4187,9 @@ export type Flux3FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> &
     | '2:3'
     | '9:16'
     | '1:2';
-  enablePromptExpansion?: boolean;
-  safetyTolerance?: number;
+  enhancePrompt?: boolean;
   model: 'flux3';
+  safetyTolerance?: number;
   engine: 'fal';
 };
 
@@ -4796,12 +4806,12 @@ export type HaiperVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   aspectRatio?: HaiperVideoGenAspectRatio;
   model?: HaiperVideoGenModel;
   resolution?: 720 | 1080 | 2160;
-  enablePromptEnhancer?: boolean;
+  enhancePrompt?: boolean;
+  engine: 'haiper';
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: null | string;
-  engine: 'haiper';
 };
 
 export const HaiperVideoGenModel = { V1_5: 'v1_5', V2: 'v2' } as const;
@@ -5122,14 +5132,14 @@ export type Hunyuan3dTexGenComfyPolyGenInput = Omit<
 
 export type HunyuanVdeoGenInput = Omit<VideoGenInput, 'engine'> & {
   cfgScale: number;
-  frameRate?: number;
+  fps?: number;
   duration?: number;
   seed?: null | number;
   steps?: number;
   width: number;
   height: number;
   loras?: Array<VideoGenInputLora>;
-  model?: null | string;
+  checkpointModel?: null | string;
   engine: 'hunyuan';
 };
 
@@ -5145,7 +5155,7 @@ export type Ideogram45CreateFalImageGenInput = Omit<
     | 'portrait_16_9'
     | 'landscape_4_3'
     | 'landscape_16_9';
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
   operation: 'createImage';
   model: 'ideogram45';
   engine: 'fal';
@@ -5171,9 +5181,9 @@ export type Ideogram45EditFalImageGenInput = Omit<
   /**
    * Black edits, white preserves. Must match the source dimensions and contain both regions.
    */
-  maskImage?: null | string;
-  editPrecision?: 'regular' | 'high';
+  mask?: null | string;
   operation: 'editImage';
+  editPrecision?: 'regular' | 'high';
   model: 'ideogram45';
   engine: 'fal';
 };
@@ -5652,9 +5662,9 @@ export type Imagen4ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'>
   prompt: string;
   negativePrompt?: string;
   aspectRatio?: '1:1' | '16:9' | '9:16' | '3:4' | '4:3';
-  numImages?: number;
-  seed?: null | number;
+  quantity?: number;
   model: 'imagen4';
+  seed?: null | number;
   engine: 'google';
 };
 
@@ -5831,9 +5841,9 @@ export type KlingV3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   elements?: Array<KlingV3ElementInput>;
   generateAudio?: boolean;
   voiceIds?: null | Array<string>;
-  keepAudio?: boolean;
-  multiPrompt?: null | Array<KlingV3MultiPrompt>;
+  keepSourceAudio?: boolean;
   engine: 'kling-v3';
+  multiPrompt?: null | Array<KlingV3MultiPrompt>;
 };
 
 export const KlingVideoGenAspectRatio = {
@@ -6076,7 +6086,7 @@ export type LightricksAspectRatio =
 export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
   cfgScale: number;
-  frameRate?: number;
+  fps?: number;
   duration?: number;
   seed?: null | number;
   steps?: number;
@@ -6085,7 +6095,7 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: null | string;
-  expandPrompt?: boolean;
+  enhancePrompt?: boolean;
   engine: 'lightricks';
 };
 
@@ -7034,10 +7044,10 @@ export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
 
 export type MiniMaxMusic3Input = {
   /**
-   * Structured music description. For best results use Global Metadata, Vocal Details,
-   * and Arrangement sections.
+   * What the track should sound like, as a structured description. For best results use Global
+   * Metadata, Vocal Details, and Arrangement sections. The words to sing go in lyrics.
    */
-  caption: string;
+  prompt: string;
   /**
    * Lyrics with section markers such as [Intro], [Verse], [Chorus], and [Outro].
    */
@@ -7052,7 +7062,7 @@ export type MiniMaxMusic3Input = {
   /**
    * Classifier-free guidance scale used by both text encoding and sampling.
    */
-  cfg?: number;
+  cfgScale?: number;
   /**
    * Top-k sampling limit used by the MiniMax music text encoder.
    */
@@ -7092,12 +7102,12 @@ export type MiniMaxMusic3StepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 
 export type MiniMaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   model?: MiniMaxVideoGenModel;
-  enablePromptEnhancer?: boolean;
+  enhancePrompt?: boolean;
+  engine: 'minimax';
   /**
    * Either A URL, A DataURL or a Base64 string
    */
   sourceImage?: null | string;
-  engine: 'minimax';
 };
 
 export const MiniMaxVideoGenModel = { HAILOU: 'hailou' } as const;
@@ -7106,7 +7116,7 @@ export type MiniMaxVideoGenModel = (typeof MiniMaxVideoGenModel)[keyof typeof Mi
 
 export type MochiVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed: number;
-  enablePromptEnhancer?: boolean;
+  enhancePrompt?: boolean;
   engine: 'mochi';
 };
 
@@ -7369,6 +7379,7 @@ export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 
    * Maximum of 20 epochs can be specified.
    */
   epochs?: number;
+  engine: 'musubi';
   /**
    * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
    */
@@ -7403,7 +7414,6 @@ export type MusubiImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 
    */
   optimizerType?: null | string;
   readonly targetSteps?: null | number;
-  engine: 'musubi';
 };
 
 export const NsfwLevel = {
@@ -7435,43 +7445,43 @@ export type NanoBanana21ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'mo
     | '1:8'
     | '8:1'
     | '9:21';
-  numImages?: number;
+  quantity?: number;
+  model: 'nano-banana-2.1';
   resolution?: '1K' | '2K' | '4K';
   images?: Array<string>;
-  model: 'nano-banana-2.1';
   engine: 'google';
 };
 
 export type NanoBanana2ImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
   aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
-  numImages?: number;
+  quantity?: number;
+  model: 'nano-banana-2';
   resolution?: '1K' | '2K' | '4K';
   images?: Array<string>;
   seed?: null | number;
   enableWebSearch?: boolean;
   enableGoogleSearch?: boolean;
-  model: 'nano-banana-2';
   engine: 'google';
 };
 
 export type NanoBanana2LiteImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
   aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
-  numImages?: number;
+  quantity?: number;
+  model: 'nano-banana-2-lite';
   images?: Array<string>;
   seed?: null | number;
-  model: 'nano-banana-2-lite';
   engine: 'google';
 };
 
 export type NanoBananaProImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'model'> & {
   prompt: string;
   aspectRatio?: '21:9' | '16:9' | '3:2' | '4:3' | '5:4' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16';
-  numImages?: number;
+  quantity?: number;
+  model: 'nano-banana-pro';
   resolution?: '1K' | '2K' | '4K';
   images?: Array<string>;
-  model: 'nano-banana-pro';
   engine: 'google';
 };
 
@@ -7644,7 +7654,8 @@ export type OpenAiGpt25FlareEditImageInput = Omit<
   /**
    * Either A URL, A DataURL or a Base64 string
    */
-  maskImage?: null | string;
+  mask?: null | string;
+  operation: 'editImage';
   /**
    * When null, fal infers output size from the input images (image_size: "auto").
    * Both Width and Height must be set together, or both null.
@@ -7655,7 +7666,6 @@ export type OpenAiGpt25FlareEditImageInput = Omit<
    * Both Width and Height must be set together, or both null.
    */
   height?: null | number;
-  operation: 'editImage';
   model: 'gpt-image-2.5-flare';
   engine: 'openai';
 };
@@ -7692,7 +7702,8 @@ export type OpenAiGpt25SunburstEditImageInput = Omit<
   /**
    * Either A URL, A DataURL or a Base64 string
    */
-  maskImage?: null | string;
+  mask?: null | string;
+  operation: 'editImage';
   /**
    * When null, fal infers output size from the input images (image_size: "auto").
    * Both Width and Height must be set together, or both null.
@@ -7703,7 +7714,6 @@ export type OpenAiGpt25SunburstEditImageInput = Omit<
    * Both Width and Height must be set together, or both null.
    */
   height?: null | number;
-  operation: 'editImage';
   model: 'gpt-image-2.5-sunburst';
   engine: 'openai';
 };
@@ -7740,7 +7750,8 @@ export type OpenAiGpt2EditImageInput = Omit<
   /**
    * Either A URL, A DataURL or a Base64 string
    */
-  maskImage?: null | string;
+  mask?: null | string;
+  operation: 'editImage';
   /**
    * When null, fal infers the output size from the input images (image_size: "auto").
    * Width and Height must be set together, or both null.
@@ -7751,7 +7762,6 @@ export type OpenAiGpt2EditImageInput = Omit<
    * Width and Height must be set together, or both null.
    */
   height?: null | number;
-  operation: 'editImage';
   model: 'gpt-image-2';
   engine: 'openai';
 };
@@ -8399,9 +8409,9 @@ export type Qwen2FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> &
     | 'landscape_4_3'
     | 'landscape_16_9';
   seed?: null | number;
-  enablePromptExpansion?: boolean;
-  enableSafetyChecker?: boolean;
+  enhancePrompt?: boolean;
   model: 'qwen2';
+  enableSafetyChecker?: boolean;
   engine: 'fal';
 };
 
@@ -8532,9 +8542,9 @@ export type QwenApiImageGenInput = Omit<ImageGenInput, 'engine'> & {
   width: number;
   height: number;
   seed?: null | number;
-  promptExtend?: boolean;
-  watermark?: boolean;
+  enhancePrompt?: boolean;
   engine: 'qwen';
+  watermark?: boolean;
 };
 
 export type QwenImageBenchInput = {
@@ -8877,7 +8887,8 @@ export type Sd1ImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> 
   cfgScale?: number;
   seed?: null | number;
   quantity?: number;
-  model: string;
+  checkpointModel: string;
+  ecosystem: 'sd1';
   vaeModel?: null | string;
   loras?: {
     [key: string]: number;
@@ -8885,7 +8896,6 @@ export type Sd1ImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> 
   embeddings?: Array<string>;
   clipSkip?: number;
   uCache?: SdCppUCacheMode;
-  ecosystem: 'sd1';
   engine: 'sdcpp';
 };
 
@@ -8986,7 +8996,8 @@ export type SdxlImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
   cfgScale?: number;
   seed?: null | number;
   quantity?: number;
-  model?: string;
+  checkpointModel?: string;
+  ecosystem: 'sdxl';
   vaeModel?: null | string;
   loras?: {
     [key: string]: number;
@@ -8994,7 +9005,6 @@ export type SdxlImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
   embeddings?: Array<string>;
   clipSkip?: number;
   uCache?: SdCppUCacheMode;
-  ecosystem: 'sdxl';
   engine: 'sdcpp';
 };
 
@@ -9068,6 +9078,9 @@ export type SeedreamImageGenInput = Omit<ImageGenInput, 'engine'> & {
   quantity?: number;
   width?: number;
   height?: number;
+  /**
+   * Model/provider guidance strength. This is not a portable classifier-free guidance scale.
+   */
   guidanceScale?: number;
   seed?: null | number;
   enableSafetyChecker?: boolean;
@@ -9917,7 +9930,8 @@ export type Veo3Version = (typeof Veo3Version)[keyof typeof Veo3Version];
 
 export type Veo3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
-  enablePromptEnhancer?: boolean;
+  enhancePrompt?: boolean;
+  engine: 'veo3';
   aspectRatio?: Veo3AspectRatio;
   duration?: 4 | 6 | 8;
   generateAudio: boolean;
@@ -9926,7 +9940,6 @@ export type Veo3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   images?: Array<string>;
   version?: Veo3Version;
   mode?: Veo3GenerationMode;
-  engine: 'veo3';
 };
 
 export type VideoBackgroundRemovalInput = {
@@ -10188,10 +10201,10 @@ export type ViduQ3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   duration?: number;
   resolution?: '360p' | '540p' | '720p' | '1080p';
   turbo?: boolean;
-  enableAudio?: boolean;
+  generateAudio?: boolean;
+  engine: 'vidu-q3';
   aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
   images?: Array<string>;
-  engine: 'vidu-q3';
 };
 
 /**
@@ -10216,7 +10229,7 @@ export type ViduQ4ReferenceToVideoInput = Omit<ViduQ4VideoGenInput, 'engine' | '
    */
   referenceAudios?: Array<string>;
   aspectRatio?: '16:9' | '9:16' | '4:3' | '3:4' | '1:1';
-  enableAudio?: boolean;
+  generateAudio?: boolean;
   operation: 'referenceToVideo';
   engine: 'vidu-q4';
 };
@@ -10230,7 +10243,8 @@ export type ViduQ4VideoGenInput = Omit<VideoGenInput, 'engine'> & {
 };
 
 export type ViduVideoGenInput = Omit<VideoGenInput, 'engine'> & {
-  enablePromptEnhancer?: boolean;
+  enhancePrompt?: boolean;
+  engine: 'vidu';
   seed?: null | number;
   /**
    * Either A URL, A DataURL or a Base64 string
@@ -10247,7 +10261,6 @@ export type ViduVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   movementAmplitude?: 'auto' | 'small' | 'medium' | 'large';
   images?: Array<string>;
   enableBackgroundMusic?: boolean;
-  engine: 'vidu';
 };
 
 export const ViduVideoGenModel = {
@@ -10333,16 +10346,16 @@ export type Wan21CivitaiVideoGenInput = Omit<
 > & {
   width?: number;
   height?: number;
-  model?: null | string;
-  images?: Array<string>;
+  diffusionModel?: null | string;
   provider: 'civitai';
+  images?: Array<string>;
   version: 'v2.1';
   engine: 'wan';
 };
 
 export type Wan21FalVideoGenInput = Omit<Wan21VideoGenInput, 'engine' | 'version' | 'provider'> & {
   aspectRatio?: '1:1' | '16:9' | '9:16';
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
   provider: 'fal';
   version: 'v2.1';
   engine: 'wan';
@@ -10391,14 +10404,14 @@ export type Wan225bFalVideoGenInput = Omit<
   operation: null | string;
   resolution?: '480p' | '580p' | '720p';
   aspectRatio?: '1:1' | '16:9' | '9:16' | 'auto';
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
+  provider: 'fal';
   useDistill?: boolean;
   useFastWan?: boolean;
   interpolatorModel?: 'none' | 'film' | 'rife';
   negativePrompt?: null | string;
   enableSafetyChecker?: boolean;
   numInferenceSteps?: number;
-  provider: 'fal';
   version: 'v2.2-5b';
   engine: 'wan';
 };
@@ -10423,7 +10436,8 @@ export type Wan22ComfyVideoGenInput = Omit<
 > & {
   width?: number;
   height?: number;
-  model?: null | string;
+  diffusionModel?: null | string;
+  provider: 'comfy';
   images?: Array<string>;
   negativePrompt?: null | string;
   sampler?:
@@ -10454,7 +10468,6 @@ export type Wan22ComfyVideoGenInput = Omit<
     | 'ddim_uniform'
     | 'beta';
   shift?: number;
-  provider: 'comfy';
   version: 'v2.2';
   engine: 'wan';
 };
@@ -10491,13 +10504,13 @@ export type Wan22FalVideoGenInput = Omit<Wan22VideoGenInput, 'engine' | 'version
   operation: null | string;
   resolution?: '480p' | '720p';
   aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '4:5' | '5:4';
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
+  provider: 'fal';
   shift?: number;
   interpolatorModel?: 'film' | 'rife';
   useTurbo?: boolean;
   negativePrompt?: null | string;
   enableSafetyChecker?: boolean;
-  provider: 'fal';
   version: 'v2.2';
   engine: 'wan';
 };
@@ -10568,9 +10581,9 @@ export type Wan25FalVideoGenInput = Omit<Wan25VideoGenInput, 'engine' | 'version
   operation: null | string;
   resolution?: '480p' | '720p' | '1080p';
   aspectRatio?: '16:9' | '9:16' | '1:1';
-  enablePromptExpansion?: boolean;
-  negativePrompt?: null | string;
+  enhancePrompt?: boolean;
   provider: 'fal';
+  negativePrompt?: null | string;
   version: 'v2.5';
   engine: 'wan';
 };
@@ -10633,7 +10646,8 @@ export type Wan26FalVideoGenInput = Omit<Wan26VideoGenInput, 'engine' | 'version
   operation: null | string;
   resolution?: '720p' | '1080p';
   negativePrompt?: null | string;
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
+  provider: 'fal';
   multiShots?: boolean;
   enableSafetyChecker?: boolean;
   /**
@@ -10641,7 +10655,6 @@ export type Wan26FalVideoGenInput = Omit<Wan26VideoGenInput, 'engine' | 'version
    * Supported for text-to-video and image-to-video only
    */
   audioUrl?: null | string;
-  provider: 'fal';
   version: 'v2.6';
   engine: 'wan';
 };
@@ -10717,12 +10730,12 @@ export type Wan27FalImageToVideoInput = Omit<
    */
   videoUrl?: null | string;
   negativePrompt?: null | string;
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
+  operation: 'image-to-video';
   /**
    * URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)
    */
   audioUrl?: null | string;
-  operation: 'image-to-video';
   provider: 'fal';
   version: 'v2.7';
   engine: 'wan';
@@ -10766,12 +10779,12 @@ export type Wan27FalTextToVideoInput = Omit<
 > & {
   aspectRatio?: '16:9' | '9:16' | '1:1' | '4:3' | '3:4';
   negativePrompt?: null | string;
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
+  operation: 'text-to-video';
   /**
    * URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)
    */
   audioUrl?: null | string;
-  operation: 'text-to-video';
   provider: 'fal';
   version: 'v2.7';
   engine: 'wan';
@@ -10830,12 +10843,12 @@ export type Wan30VideoGenInput = Omit<WanVideoGenInput, 'engine' | 'version'> & 
    * Prompt rewriting. Disabling saves 20-60s of latency but may reduce generation quality —
    * follow Alibaba's prompting guide when turning it off.
    */
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
+  version: 'v3.0';
   /**
    * Run on wan3.0-video-prime: same output quality, lower latency, higher price.
    */
   usePrime?: boolean;
-  version: 'v3.0';
   engine: 'wan';
 };
 
@@ -10843,14 +10856,14 @@ export type WanImageGenInput = Omit<ImageGenInput, 'engine'> & {
   version: null | string;
   prompt: string;
   negativePrompt?: null | string;
-  guidanceScale?: number;
+  cfgScale?: number;
   seed?: null | number;
   quantity?: number;
   imageSize?: string;
-  enablePromptExpansion?: boolean;
+  enhancePrompt?: boolean;
+  engine: 'wan';
   enableSafetyChecker?: boolean;
   loras?: Array<ImageGenInputLora>;
-  engine: 'wan';
 };
 
 export type WanVideoGenInput = Omit<VideoGenInput, 'engine'> & {
@@ -10860,12 +10873,12 @@ export type WanVideoGenInput = Omit<VideoGenInput, 'engine'> & {
    */
   sourceImage?: null | string;
   cfgScale: number;
-  frameRate?: number;
+  fps?: number;
+  engine: 'wan';
   duration?: number;
   seed?: null | number;
   steps?: number;
   loras?: Array<VideoGenInputLora>;
-  engine: 'wan';
 };
 
 export type WebScrapeInput = {
@@ -11295,7 +11308,10 @@ export type WorkflowStepWarning = {
   replacement?: null | string;
 };
 
-export const WorkflowStepWarningCode = { MODEL_DEPRECATED: 'modelDeprecated' } as const;
+export const WorkflowStepWarningCode = {
+  MODEL_DEPRECATED: 'modelDeprecated',
+  FIELD_DEPRECATED: 'fieldDeprecated',
+} as const;
 
 export type WorkflowStepWarningCode =
   (typeof WorkflowStepWarningCode)[keyof typeof WorkflowStepWarningCode];
@@ -11586,7 +11602,7 @@ export type YuE2Input = {
   /**
    * Optional YuE2 checkpoint override containing the model, text encoder, and audio VAE.
    */
-  model?: null | string;
+  checkpointModel?: null | string;
   /**
    * Optional LoRAs for both YuE2 experts.
    */
@@ -11676,7 +11692,7 @@ export type ZImageBaseImageGenInput = Omit<
 
 export type ZImageImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'> & {
   model: string;
-  diffuserModel?: string;
+  diffusionModel?: string;
   ecosystem: 'zImage';
   engine: 'sdcpp';
 };
@@ -12229,6 +12245,9 @@ export type Flux1KontextImageGenInputWritable = Omit<ImageGenInputWritable, 'eng
   prompt: string;
   images?: Array<string>;
   aspectRatio?: '21:9' | '16:9' | '4:3' | '3:2' | '1:1' | '2:3' | '3:4' | '9:16' | '9:21';
+  /**
+   * Model/provider guidance strength. This is not a portable classifier-free guidance scale.
+   */
   guidanceScale?: number;
   quantity?: number;
   seed?: null | number;
@@ -12509,6 +12528,7 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
    * Maximum of 20 epochs can be specified.
    */
   epochs?: number;
+  engine: 'musubi';
   /**
    * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
    */
@@ -12542,7 +12562,6 @@ export type MusubiImageResourceTrainingInputWritable = Omit<
    * Optimizer that updates the weights during training; "AdamW8bit" is the common choice, "Adafactor" for SDXL.
    */
   optimizerType?: null | string;
-  engine: 'musubi';
 };
 
 export type PreprocessImageAnimalPoseInputWritable = Omit<PreprocessImageInputWritable2, 'kind'> & {

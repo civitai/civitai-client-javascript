@@ -345,7 +345,7 @@
             "description": "Bad Gateway"
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/content/{encryptedToken}": {
@@ -403,7 +403,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -445,7 +445,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -490,7 +490,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -7755,7 +7755,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/services/{serviceId}": {
@@ -7826,7 +7826,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -7914,7 +7914,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       },
       "get": {
         "tags": [
@@ -7956,7 +7956,7 @@
             }
           }
         },
-        "security": [ ]
+        "security": []
       }
     },
     "/v2/consumer/workflows": {
@@ -8020,7 +8020,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -8049,7 +8049,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -8077,7 +8077,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -8094,7 +8094,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -8207,7 +8207,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -8234,7 +8234,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -8263,7 +8263,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -8291,7 +8291,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -8308,7 +8308,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -8421,7 +8421,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -8448,7 +8448,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [ ],
+                          "controlNets": [],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -8477,7 +8477,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "LORA training": {
@@ -8505,7 +8505,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": [ ]
+                          "samplePrompts": []
                         },
                         "priority": "normal",
                         "retries": 1
@@ -8522,7 +8522,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 },
                 "Comfy job": {
@@ -8635,7 +8635,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": [ ]
+                    "currencies": []
                   }
                 }
               }
@@ -9986,14 +9986,14 @@
       "AceStepAudioInput": {
         "required": [
           "lyrics",
-          "musicDescription",
+          "prompt",
           "seed"
         ],
         "type": "object",
         "properties": {
-          "musicDescription": {
+          "prompt": {
             "type": "string",
-            "description": "Music style/genre description (e.g., \"Neo-Soul: A warm, organic neo-soul track...\")"
+            "description": "What the track should sound like: genre, mood, instruments, tempo\n(e.g., \"Neo-Soul: A warm, organic neo-soul track...\"). The words to sing go in lyrics."
           },
           "lyrics": {
             "type": "string",
@@ -10156,7 +10156,7 @@
             "format": "int32",
             "default": 8
           },
-          "cfg": {
+          "cfgScale": {
             "maximum": 30,
             "minimum": 0,
             "type": "number",
@@ -10786,7 +10786,7 @@
                   "format": "double"
                 }
               },
-              "diffuserModel": {
+              "diffusionModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
@@ -12372,7 +12372,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { },
+            "additionalProperties": {},
             "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
@@ -12425,7 +12425,7 @@
               "string"
             ]
           },
-          "schema": { },
+          "schema": {},
           "strict": {
             "type": [
               "null",
@@ -12828,8 +12828,14 @@
                   "format": "double"
                 }
               },
-              "diffuserModel": {
+              "diffusionModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "anima"
+                ],
                 "type": "string"
               },
               "controlNets": {
@@ -12840,12 +12846,6 @@
               },
               "vaeModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string"
-              },
-              "ecosystem": {
-                "enum": [
-                  "anima"
-                ],
                 "type": "string"
               },
               "engine": {
@@ -12899,7 +12899,7 @@
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
               },
-              "denoiseStrength": {
+              "strength": {
                 "maximum": 1,
                 "minimum": 0,
                 "type": "number",
@@ -14426,7 +14426,7 @@
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
               },
-              "denoiseStrength": {
+              "strength": {
                 "maximum": 1,
                 "minimum": 0,
                 "type": "number",
@@ -17052,12 +17052,18 @@
                 "type": "boolean",
                 "default": true
               },
-              "guidanceScale": {
+              "cfgScale": {
                 "maximum": 10,
                 "minimum": 1,
                 "type": "number",
                 "format": "float",
                 "default": 4
+              },
+              "engine": {
+                "enum": [
+                  "ltx2.3"
+                ],
+                "type": "string"
               },
               "steps": {
                 "maximum": 50,
@@ -17096,12 +17102,6 @@
                 "description": "Number of videos to generate in this single job. Each video uses a distinct seed\n(Seed + slotIndex) and is produced by re-running the Comfy workflow.",
                 "format": "int32",
                 "default": 1
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.3"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false,
@@ -17457,12 +17457,18 @@
                 "type": "boolean",
                 "default": true
               },
-              "guidanceScale": {
+              "cfgScale": {
                 "maximum": 10,
                 "minimum": 1,
                 "type": "number",
                 "format": "float",
                 "default": 4
+              },
+              "engine": {
+                "enum": [
+                  "ltx2.5"
+                ],
+                "type": "string"
               },
               "steps": {
                 "maximum": 50,
@@ -17501,12 +17507,6 @@
                 "description": "Number of videos to generate in this single job. Each video uses a distinct seed\n(Seed + slotIndex) and is produced by re-running the Comfy workflow.",
                 "format": "int32",
                 "default": 1
-              },
-              "engine": {
-                "enum": [
-                  "ltx2.5"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false,
@@ -17819,7 +17819,7 @@
                 "type": "boolean",
                 "default": true
               },
-              "guidanceScale": {
+              "cfgScale": {
                 "maximum": 10,
                 "minimum": 1,
                 "type": "number",
@@ -17832,6 +17832,12 @@
                 "type": "integer",
                 "format": "int32",
                 "default": 20
+              },
+              "engine": {
+                "enum": [
+                  "ltx2"
+                ],
+                "type": "string"
               },
               "model": {
                 "enum": [
@@ -17847,12 +17853,6 @@
                   "type": "number",
                   "format": "double"
                 }
-              },
-              "engine": {
-                "enum": [
-                  "ltx2"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false,
@@ -20388,9 +20388,9 @@
           },
           {
             "required": [
+              "checkpointModel",
               "ecosystem",
               "engine",
-              "model",
               "operation",
               "prompt"
             ],
@@ -20446,8 +20446,14 @@
                 "format": "int32",
                 "default": 1
               },
-              "model": {
+              "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "sd1"
+                ],
                 "type": "string"
               },
               "vaeModel": {
@@ -20481,12 +20487,6 @@
                 "items": {
                   "$ref": "#/components/schemas/ImageJobControlNet"
                 }
-              },
-              "ecosystem": {
-                "enum": [
-                  "sd1"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -20539,7 +20539,7 @@
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
               },
-              "denoiseStrength": {
+              "strength": {
                 "maximum": 1,
                 "minimum": 0,
                 "type": "number",
@@ -20683,10 +20683,16 @@
                 "format": "int32",
                 "default": 1
               },
-              "model": {
+              "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "default": "urn:air:sdxl:checkpoint:civitai:101055@128078+92696"
+              },
+              "ecosystem": {
+                "enum": [
+                  "sdxl"
+                ],
+                "type": "string"
               },
               "vaeModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
@@ -20719,12 +20725,6 @@
                 "items": {
                   "$ref": "#/components/schemas/ImageJobControlNet"
                 }
-              },
-              "ecosystem": {
-                "enum": [
-                  "sdxl"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -20777,7 +20777,7 @@
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
               },
-              "denoiseStrength": {
+              "strength": {
                 "maximum": 1,
                 "minimum": 0,
                 "type": "number",
@@ -21390,7 +21390,7 @@
                 ],
                 "default": "turbo"
               },
-              "diffuserModel": {
+              "diffusionModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
@@ -22816,6 +22816,7 @@
                 "maximum": 20,
                 "minimum": 1,
                 "type": "number",
+                "description": "Model/provider guidance strength. This is not a portable classifier-free guidance scale.",
                 "format": "double",
                 "default": 3.5
               },
@@ -23190,7 +23191,7 @@
           {
             "required": [
               "clipLModel",
-              "diffuserModel",
+              "diffusionModel",
               "ecosystem",
               "engine",
               "operation",
@@ -23269,8 +23270,14 @@
                   "format": "double"
                 }
               },
-              "diffuserModel": {
+              "diffusionModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "flux1"
+                ],
                 "type": "string"
               },
               "vaeModel": {
@@ -23283,12 +23290,6 @@
               },
               "t5XXLModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
-                "type": "string"
-              },
-              "ecosystem": {
-                "enum": [
-                  "flux1"
-                ],
                 "type": "string"
               },
               "engine": {
@@ -23509,27 +23510,28 @@
                 "maximum": 20,
                 "minimum": 0,
                 "type": "number",
+                "description": "Embedded guidance strength passed to the guidance-distilled model; not sampling-time classifier-free guidance.",
                 "format": "double",
                 "default": 2.5
               },
-              "numInferenceSteps": {
+              "steps": {
                 "maximum": 50,
                 "minimum": 4,
                 "type": "integer",
                 "format": "int32",
                 "default": 28
               },
-              "loras": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ImageGenInputLora"
-                }
-              },
               "model": {
                 "enum": [
                   "dev"
                 ],
                 "type": "string"
+              },
+              "loras": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ImageGenInputLora"
+                }
               },
               "engine": {
                 "enum": [
@@ -23929,10 +23931,11 @@
                 "maximum": 100,
                 "minimum": 1.5,
                 "type": "number",
+                "description": "Model/provider guidance strength. This is not a portable classifier-free guidance scale.",
                 "format": "double",
                 "default": 3.5
               },
-              "numInferenceSteps": {
+              "steps": {
                 "maximum": 50,
                 "minimum": 2,
                 "type": "integer",
@@ -24009,7 +24012,7 @@
                 "format": "int32",
                 "default": 1
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": false
               },
@@ -24975,9 +24978,15 @@
                 "description": "Auto follows the first reference image, or uses a square for generation.",
                 "default": "auto"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": false
+              },
+              "model": {
+                "enum": [
+                  "flux3"
+                ],
+                "type": "string"
               },
               "safetyTolerance": {
                 "maximum": 4,
@@ -24985,12 +24994,6 @@
                 "type": "integer",
                 "format": "int32",
                 "default": 2
-              },
-              "model": {
-                "enum": [
-                  "flux3"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -27061,9 +27064,15 @@
                 "format": "int32",
                 "default": 1080
               },
-              "enablePromptEnhancer": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
+              },
+              "engine": {
+                "enum": [
+                  "haiper"
+                ],
+                "type": "string"
               },
               "sourceImage": {
                 "type": [
@@ -27072,12 +27081,6 @@
                 ],
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
-              },
-              "engine": {
-                "enum": [
-                  "haiper"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false
@@ -28212,7 +28215,7 @@
                 "format": "double",
                 "default": 4
               },
-              "frameRate": {
+              "fps": {
                 "type": "integer",
                 "format": "int32",
                 "default": 25
@@ -28252,7 +28255,7 @@
                   "$ref": "#/components/schemas/VideoGenInputLora"
                 }
               },
-              "model": {
+              "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
@@ -28304,7 +28307,7 @@
                 "type": "string",
                 "default": "square_hd"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
               },
@@ -28379,13 +28382,19 @@
                 },
                 "description": "The first image is the source; the remaining images are references."
               },
-              "maskImage": {
+              "mask": {
                 "type": [
                   "null",
                   "string"
                 ],
                 "description": "Black edits, white preserves. Must match the source dimensions and contain both regions.",
                 "format": "source-image"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
               },
               "editPrecision": {
                 "enum": [
@@ -28394,12 +28403,6 @@
                 ],
                 "type": "string",
                 "default": "regular"
-              },
-              "operation": {
-                "enum": [
-                  "editImage"
-                ],
-                "type": "string"
               },
               "model": {
                 "enum": [
@@ -29979,12 +29982,18 @@
                 "type": "string",
                 "default": "1:1"
               },
-              "numImages": {
+              "quantity": {
                 "maximum": 4,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
                 "default": 1
+              },
+              "model": {
+                "enum": [
+                  "imagen4"
+                ],
+                "type": "string"
               },
               "seed": {
                 "type": [
@@ -29992,12 +30001,6 @@
                   "integer"
                 ],
                 "format": "int64"
-              },
-              "model": {
-                "enum": [
-                  "imagen4"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -30473,9 +30476,15 @@
                   "type": "string"
                 }
               },
-              "keepAudio": {
+              "keepSourceAudio": {
                 "type": "boolean",
                 "default": true
+              },
+              "engine": {
+                "enum": [
+                  "kling-v3"
+                ],
+                "type": "string"
               },
               "multiPrompt": {
                 "type": [
@@ -30485,12 +30494,6 @@
                 "items": {
                   "$ref": "#/components/schemas/KlingV3MultiPrompt"
                 }
-              },
-              "engine": {
-                "enum": [
-                  "kling-v3"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false
@@ -31253,7 +31256,7 @@
                 "format": "double",
                 "default": 4
               },
-              "frameRate": {
+              "fps": {
                 "type": "integer",
                 "format": "int32",
                 "default": 25
@@ -31290,7 +31293,7 @@
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
               },
-              "expandPrompt": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
               },
@@ -33860,15 +33863,15 @@
       },
       "MiniMaxMusic3Input": {
         "required": [
-          "caption",
           "lyrics",
+          "prompt",
           "seed"
         ],
         "type": "object",
         "properties": {
-          "caption": {
+          "prompt": {
             "type": "string",
-            "description": "Structured music description. For best results use Global Metadata, Vocal Details,\nand Arrangement sections."
+            "description": "What the track should sound like, as a structured description. For best results use Global\nMetadata, Vocal Details, and Arrangement sections. The words to sing go in lyrics."
           },
           "lyrics": {
             "type": "string",
@@ -33893,7 +33896,7 @@
             "format": "int32",
             "default": 30
           },
-          "cfg": {
+          "cfgScale": {
             "maximum": 100,
             "minimum": 0,
             "type": "number",
@@ -34024,9 +34027,15 @@
               "model": {
                 "$ref": "#/components/schemas/MiniMaxVideoGenModel"
               },
-              "enablePromptEnhancer": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
+              },
+              "engine": {
+                "enum": [
+                  "minimax"
+                ],
+                "type": "string"
               },
               "sourceImage": {
                 "type": [
@@ -34035,12 +34044,6 @@
                 ],
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
-              },
-              "engine": {
-                "enum": [
-                  "minimax"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false
@@ -34071,7 +34074,7 @@
                 "type": "integer",
                 "format": "int64"
               },
-              "enablePromptEnhancer": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
               },
@@ -34946,6 +34949,12 @@
                 "format": "int32",
                 "default": 5
               },
+              "engine": {
+                "enum": [
+                  "musubi"
+                ],
+                "type": "string"
+              },
               "resolution": {
                 "maximum": 1024,
                 "minimum": 512,
@@ -35024,12 +35033,6 @@
                 ],
                 "format": "int32",
                 "readOnly": true
-              },
-              "engine": {
-                "enum": [
-                  "musubi"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false
@@ -35086,12 +35089,18 @@
                 "type": "string",
                 "default": "1:1"
               },
-              "numImages": {
+              "quantity": {
                 "maximum": 4,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
                 "default": 1
+              },
+              "model": {
+                "enum": [
+                  "nano-banana-2.1"
+                ],
+                "type": "string"
               },
               "resolution": {
                 "enum": [
@@ -35110,12 +35119,6 @@
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 }
-              },
-              "model": {
-                "enum": [
-                  "nano-banana-2.1"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -35162,12 +35165,18 @@
                 "type": "string",
                 "default": "1:1"
               },
-              "numImages": {
+              "quantity": {
                 "maximum": 4,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
                 "default": 1
+              },
+              "model": {
+                "enum": [
+                  "nano-banana-2"
+                ],
+                "type": "string"
               },
               "resolution": {
                 "enum": [
@@ -35201,12 +35210,6 @@
               "enableGoogleSearch": {
                 "type": "boolean",
                 "default": false
-              },
-              "model": {
-                "enum": [
-                  "nano-banana-2"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -35253,12 +35256,18 @@
                 "type": "string",
                 "default": "1:1"
               },
-              "numImages": {
+              "quantity": {
                 "maximum": 4,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
                 "default": 1
+              },
+              "model": {
+                "enum": [
+                  "nano-banana-2-lite"
+                ],
+                "type": "string"
               },
               "images": {
                 "maxItems": 10,
@@ -35275,12 +35284,6 @@
                   "integer"
                 ],
                 "format": "int32"
-              },
-              "model": {
-                "enum": [
-                  "nano-banana-2-lite"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -35327,12 +35330,18 @@
                 "type": "string",
                 "default": "1:1"
               },
-              "numImages": {
+              "quantity": {
                 "maximum": 4,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
                 "default": 1
+              },
+              "model": {
+                "enum": [
+                  "nano-banana-pro"
+                ],
+                "type": "string"
               },
               "resolution": {
                 "enum": [
@@ -35351,12 +35360,6 @@
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 }
-              },
-              "model": {
-                "enum": [
-                  "nano-banana-pro"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -36192,13 +36195,19 @@
                   "format": "source-image"
                 }
               },
-              "maskImage": {
+              "mask": {
                 "type": [
                   "null",
                   "string"
                 ],
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
               },
               "width": {
                 "type": [
@@ -36215,12 +36224,6 @@
                 ],
                 "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nBoth Width and Height must be set together, or both null.",
                 "format": "int32"
-              },
-              "operation": {
-                "enum": [
-                  "editImage"
-                ],
-                "type": "string"
               },
               "model": {
                 "enum": [
@@ -36382,13 +36385,19 @@
                   "format": "source-image"
                 }
               },
-              "maskImage": {
+              "mask": {
                 "type": [
                   "null",
                   "string"
                 ],
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
               },
               "width": {
                 "type": [
@@ -36405,12 +36414,6 @@
                 ],
                 "description": "When null, fal infers output size from the input images (image_size: \"auto\").\nBoth Width and Height must be set together, or both null.",
                 "format": "int32"
-              },
-              "operation": {
-                "enum": [
-                  "editImage"
-                ],
-                "type": "string"
               },
               "model": {
                 "enum": [
@@ -36572,13 +36575,19 @@
                   "format": "source-image"
                 }
               },
-              "maskImage": {
+              "mask": {
                 "type": [
                   "null",
                   "string"
                 ],
                 "description": "Either A URL, A DataURL or a Base64 string",
                 "format": "source-image"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
               },
               "width": {
                 "type": [
@@ -36595,12 +36604,6 @@
                 ],
                 "description": "When null, fal infers the output size from the input images (image_size: \"auto\").\nWidth and Height must be set together, or both null.",
                 "format": "int32"
-              },
-              "operation": {
-                "enum": [
-                  "editImage"
-                ],
-                "type": "string"
               },
               "model": {
                 "enum": [
@@ -38684,7 +38687,7 @@
             ]
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "PromptEnhancementInput": {
         "required": [
@@ -39550,19 +39553,19 @@
                 ],
                 "format": "int32"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
-              },
-              "enableSafetyChecker": {
-                "type": "boolean",
-                "default": false
               },
               "model": {
                 "enum": [
                   "qwen2"
                 ],
                 "type": "string"
+              },
+              "enableSafetyChecker": {
+                "type": "boolean",
+                "default": false
               },
               "engine": {
                 "enum": [
@@ -40073,19 +40076,19 @@
                 ],
                 "format": "int32"
               },
-              "promptExtend": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
-              },
-              "watermark": {
-                "type": "boolean",
-                "default": false
               },
               "engine": {
                 "enum": [
                   "qwen"
                 ],
                 "type": "string"
+              },
+              "watermark": {
+                "type": "boolean",
+                "default": false
               }
             },
             "additionalProperties": false,
@@ -40991,9 +40994,9 @@
           },
           {
             "required": [
+              "checkpointModel",
               "ecosystem",
               "engine",
-              "model",
               "operation",
               "prompt"
             ],
@@ -41049,8 +41052,14 @@
                 "format": "int32",
                 "default": 1
               },
-              "model": {
+              "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "sd1"
+                ],
                 "type": "string"
               },
               "vaeModel": {
@@ -41081,12 +41090,6 @@
               },
               "uCache": {
                 "$ref": "#/components/schemas/SdCppUCacheMode"
-              },
-              "ecosystem": {
-                "enum": [
-                  "sd1"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -41425,10 +41428,16 @@
                 "format": "int32",
                 "default": 1
               },
-              "model": {
+              "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
                 "default": "urn:air:sdxl:checkpoint:civitai:101055@128078+92696"
+              },
+              "ecosystem": {
+                "enum": [
+                  "sdxl"
+                ],
+                "type": "string"
               },
               "vaeModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
@@ -41458,12 +41467,6 @@
               },
               "uCache": {
                 "$ref": "#/components/schemas/SdCppUCacheMode"
-              },
-              "ecosystem": {
-                "enum": [
-                  "sdxl"
-                ],
-                "type": "string"
               },
               "engine": {
                 "enum": [
@@ -41710,6 +41713,7 @@
                 "maximum": 20,
                 "minimum": 1,
                 "type": "number",
+                "description": "Model/provider guidance strength. This is not a portable classifier-free guidance scale.",
                 "format": "double",
                 "default": 2.5
               },
@@ -44131,7 +44135,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { }
+            "additionalProperties": {}
           },
           "tags": {
             "type": [
@@ -44169,7 +44173,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": { }
+            "additionalProperties": {}
           }
         },
         "additionalProperties": false
@@ -44360,7 +44364,7 @@
             }
           }
         },
-        "additionalProperties": { }
+        "additionalProperties": {}
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -44412,9 +44416,15 @@
                   "string"
                 ]
               },
-              "enablePromptEnhancer": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
+              },
+              "engine": {
+                "enum": [
+                  "veo3"
+                ],
+                "type": "string"
               },
               "aspectRatio": {
                 "$ref": "#/components/schemas/Veo3AspectRatio"
@@ -44456,12 +44466,6 @@
               },
               "mode": {
                 "$ref": "#/components/schemas/Veo3GenerationMode"
-              },
-              "engine": {
-                "enum": [
-                  "veo3"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false
@@ -45374,9 +45378,15 @@
                 "type": "boolean",
                 "default": false
               },
-              "enableAudio": {
+              "generateAudio": {
                 "type": "boolean",
                 "default": true
+              },
+              "engine": {
+                "enum": [
+                  "vidu-q3"
+                ],
+                "type": "string"
               },
               "aspectRatio": {
                 "enum": [
@@ -45398,12 +45408,6 @@
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 }
-              },
-              "engine": {
-                "enum": [
-                  "vidu-q3"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false
@@ -45487,7 +45491,7 @@
                 "type": "string",
                 "default": "16:9"
               },
-              "enableAudio": {
+              "generateAudio": {
                 "type": "boolean",
                 "default": false
               },
@@ -45584,9 +45588,15 @@
             ],
             "type": "object",
             "properties": {
-              "enablePromptEnhancer": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
+              },
+              "engine": {
+                "enum": [
+                  "vidu"
+                ],
+                "type": "string"
               },
               "seed": {
                 "type": [
@@ -45660,12 +45670,6 @@
               "enableBackgroundMusic": {
                 "type": "boolean",
                 "default": false
-              },
-              "engine": {
-                "enum": [
-                  "vidu"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false
@@ -45892,12 +45896,18 @@
                 "format": "int32",
                 "default": 480
               },
-              "model": {
+              "diffusionModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
                 ]
+              },
+              "provider": {
+                "enum": [
+                  "civitai"
+                ],
+                "type": "string"
               },
               "images": {
                 "type": "array",
@@ -45906,12 +45916,6 @@
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 }
-              },
-              "provider": {
-                "enum": [
-                  "civitai"
-                ],
-                "type": "string"
               },
               "version": {
                 "enum": [
@@ -45952,7 +45956,7 @@
                 "type": "string",
                 "default": "16:9"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": false
               },
@@ -46193,9 +46197,15 @@
                 "type": "string",
                 "default": "16:9"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": false
+              },
+              "provider": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
               },
               "useDistill": {
                 "type": "boolean",
@@ -46230,12 +46240,6 @@
                 "type": "integer",
                 "format": "int32",
                 "default": 20
-              },
-              "provider": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
               },
               "version": {
                 "enum": [
@@ -46388,12 +46392,18 @@
                 "format": "int32",
                 "default": 720
               },
-              "model": {
+              "diffusionModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": [
                   "null",
                   "string"
                 ]
+              },
+              "provider": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
               },
               "images": {
                 "type": "array",
@@ -46452,12 +46462,6 @@
                 "type": "number",
                 "format": "double",
                 "default": 8
-              },
-              "provider": {
-                "enum": [
-                  "comfy"
-                ],
-                "type": "string"
               },
               "version": {
                 "enum": [
@@ -46657,9 +46661,15 @@
                 "type": "string",
                 "default": "16:9"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": false
+              },
+              "provider": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
               },
               "shift": {
                 "maximum": 10,
@@ -46689,12 +46699,6 @@
               "enableSafetyChecker": {
                 "type": "boolean",
                 "default": false
-              },
-              "provider": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
               },
               "version": {
                 "enum": [
@@ -47092,21 +47096,21 @@
                 "type": "string",
                 "default": "16:9"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
-              },
-              "negativePrompt": {
-                "type": [
-                  "null",
-                  "string"
-                ]
               },
               "provider": {
                 "enum": [
                   "fal"
                 ],
                 "type": "string"
+              },
+              "negativePrompt": {
+                "type": [
+                  "null",
+                  "string"
+                ]
               },
               "version": {
                 "enum": [
@@ -47427,9 +47431,15 @@
                   "string"
                 ]
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
+              },
+              "provider": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
               },
               "multiShots": {
                 "type": "boolean",
@@ -47445,12 +47455,6 @@
                   "string"
                 ],
                 "description": "URL of audio file for background music (3-30 seconds, up to 15 MB)\nSupported for text-to-video and image-to-video only"
-              },
-              "provider": {
-                "enum": [
-                  "fal"
-                ],
-                "type": "string"
               },
               "version": {
                 "enum": [
@@ -47751,9 +47755,15 @@
                   "string"
                 ]
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
+              },
+              "operation": {
+                "enum": [
+                  "image-to-video"
+                ],
+                "type": "string"
               },
               "audioUrl": {
                 "type": [
@@ -47761,12 +47771,6 @@
                   "string"
                 ],
                 "description": "URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)"
-              },
-              "operation": {
-                "enum": [
-                  "image-to-video"
-                ],
-                "type": "string"
               },
               "provider": {
                 "enum": [
@@ -47945,9 +47949,15 @@
                   "string"
                 ]
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": true
+              },
+              "operation": {
+                "enum": [
+                  "text-to-video"
+                ],
+                "type": "string"
               },
               "audioUrl": {
                 "type": [
@@ -47955,12 +47965,6 @@
                   "string"
                 ],
                 "description": "URL of audio file (WAV/MP3, 3-30 seconds, up to 15 MB)"
-              },
-              "operation": {
-                "enum": [
-                  "text-to-video"
-                ],
-                "type": "string"
               },
               "provider": {
                 "enum": [
@@ -48270,21 +48274,21 @@
                   "string"
                 ]
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "description": "Prompt rewriting. Disabling saves 20-60s of latency but may reduce generation quality —\nfollow Alibaba's prompting guide when turning it off.",
                 "default": true
-              },
-              "usePrime": {
-                "type": "boolean",
-                "description": "Run on wan3.0-video-prime: same output quality, lower latency, higher price.",
-                "default": false
               },
               "version": {
                 "enum": [
                   "v3.0"
                 ],
                 "type": "string"
+              },
+              "usePrime": {
+                "type": "boolean",
+                "description": "Run on wan3.0-video-prime: same output quality, lower latency, higher price.",
+                "default": false
               },
               "engine": {
                 "enum": [
@@ -48334,7 +48338,7 @@
                   "string"
                 ]
               },
-              "guidanceScale": {
+              "cfgScale": {
                 "maximum": 10,
                 "minimum": 1,
                 "type": "number",
@@ -48359,9 +48363,15 @@
                 "type": "string",
                 "default": "square_hd"
               },
-              "enablePromptExpansion": {
+              "enhancePrompt": {
                 "type": "boolean",
                 "default": false
+              },
+              "engine": {
+                "enum": [
+                  "wan"
+                ],
+                "type": "string"
               },
               "enableSafetyChecker": {
                 "type": "boolean",
@@ -48372,12 +48382,6 @@
                 "items": {
                   "$ref": "#/components/schemas/ImageGenInputLora"
                 }
-              },
-              "engine": {
-                "enum": [
-                  "wan"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false,
@@ -48428,10 +48432,16 @@
                 "format": "double",
                 "default": 4
               },
-              "frameRate": {
+              "fps": {
                 "type": "integer",
                 "format": "int32",
                 "default": 24
+              },
+              "engine": {
+                "enum": [
+                  "wan"
+                ],
+                "type": "string"
               },
               "duration": {
                 "maximum": 30,
@@ -48459,12 +48469,6 @@
                 "items": {
                   "$ref": "#/components/schemas/VideoGenInputLora"
                 }
-              },
-              "engine": {
-                "enum": [
-                  "wan"
-                ],
-                "type": "string"
               }
             },
             "additionalProperties": false,
@@ -48818,7 +48822,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { }
+            "additionalProperties": {}
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
@@ -48846,7 +48850,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": { }
+            "additionalProperties": {}
           },
           "steps": {
             "type": "array",
@@ -49281,7 +49285,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": { }
+            "additionalProperties": {}
           },
           "estimatedProgressRate": {
             "type": [
@@ -49668,7 +49672,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { }
+            "additionalProperties": {}
           }
         },
         "additionalProperties": false,
@@ -49774,7 +49778,8 @@
       },
       "WorkflowStepWarningCode": {
         "enum": [
-          "modelDeprecated"
+          "modelDeprecated",
+          "fieldDeprecated"
         ],
         "type": "string"
       },
@@ -49790,7 +49795,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { }
+            "additionalProperties": {}
           },
           "tags": {
             "maxItems": 10,
@@ -49828,7 +49833,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": { }
+            "additionalProperties": {}
           },
           "nsfwLevel": {
             "$ref": "#/components/schemas/NSFWLevel"
@@ -50540,7 +50545,7 @@
             ],
             "description": "Optional ABC score to use instead of generating a score. Ignored in off mode."
           },
-          "model": {
+          "checkpointModel": {
             "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
             "type": [
               "null",
@@ -50898,7 +50903,7 @@
               "model": {
                 "type": "string"
               },
-              "diffuserModel": {
+              "diffusionModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string"
               },
@@ -51186,7 +51191,7 @@
     }
   },
   "security": [
-    { }
+    {}
   ],
   "tags": [
     {
