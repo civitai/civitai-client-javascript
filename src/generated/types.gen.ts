@@ -2655,6 +2655,69 @@ export type ComfyMiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'minimax-h3-comfy';
 };
 
+export type ComfyMossImageBaseCreateImageInput = Omit<
+  ComfyMossImageBaseImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'base';
+  ecosystem: 'mossImage';
+  engine: 'comfy';
+};
+
+export type ComfyMossImageBaseImageGenInput = Omit<
+  ComfyMossImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  model: 'base';
+  ecosystem: 'mossImage';
+  engine: 'comfy';
+};
+
+export type ComfyMossImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  steps?: number;
+  cfgScale?: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Compatible MOSS-Image diffusion checkpoint AIR. Omit or set null to use the selected model's int8 checkpoint; the int8 text encoder and VAE remain unchanged.
+   */
+  diffusionModel?: null | string;
+  ecosystem: 'mossImage';
+  engine: 'comfy';
+};
+
+export type ComfyMossImageSftCreateImageInput = Omit<
+  ComfyMossImageSftImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'sft';
+  ecosystem: 'mossImage';
+  engine: 'comfy';
+};
+
+export type ComfyMossImageSftImageGenInput = Omit<
+  ComfyMossImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  model: 'sft';
+  ecosystem: 'mossImage';
+  engine: 'comfy';
+};
+
 export type ComfyNode = {
   classType: string;
   meta?: null | {
@@ -7445,6 +7508,42 @@ export type ModelPickleScanStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
   $type: 'modelPickleScan';
 };
 
+export type MossImageAiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  modelVariant: null | string;
+  readonly defaultSteps: number;
+  ecosystem: 'mossImage';
+  engine: 'ai-toolkit';
+};
+
+export type MossImageBaseAiToolkitTrainingInput = Omit<
+  MossImageAiToolkitTrainingInput,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'base';
+  ecosystem: 'mossImage';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+export type MossImageSftAiToolkitTrainingInput = Omit<
+  MossImageAiToolkitTrainingInput,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'sft';
+  ecosystem: 'mossImage';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type MuseImageCreateFalImageGenInput = Omit<
   MuseImageFalImageGenInput,
   'engine' | 'model' | 'operation'
@@ -7913,7 +8012,7 @@ export type PolyGenInput = {
 };
 
 export type PolyGenOutput = {
-  model: Model3dBlob;
+  model?: Model3dBlob;
   fbxModel?: Model3dBlob;
   thumbnail?: ImageBlob;
   riggedModel?: Model3dBlob;
@@ -9604,7 +9703,6 @@ export type TrainingInput = {
    * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
    */
   readonly usesStepPricing: boolean;
-  readonly requiresAgeClassification: boolean;
 };
 
 export type TrainingInputSamples = {
@@ -9729,6 +9827,14 @@ export type TranscodeInput = {
    * Removes the source's container tags and chapters; the video and audio streams are untouched.
    */
   hideMetadata?: null | boolean;
+  /**
+   * Cuts the output after this many seconds.
+   */
+  maxDuration?: null | number;
+  /**
+   * An image repeated across the whole output, burned into every frame.
+   */
+  watermark?: Watermark;
 };
 
 export type TranscodeOutput = {
@@ -10979,6 +11085,33 @@ export type WanVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed?: null | number;
   steps?: number;
   loras?: Array<VideoGenInputLora>;
+};
+
+/**
+ * An image repeated across the whole output, burned into every frame.
+ */
+export type Watermark = {
+  /**
+   * The tile, typically a PNG with transparency. It is imported and moderated like any other input image.
+   */
+  image: string;
+  opacity?: number;
+  /**
+   * Width of one tile as a fraction of the output width.
+   */
+  scale?: number;
+  /**
+   * Counter-clockwise rotation of the tiled pattern, in degrees.
+   */
+  angle?: number;
+};
+
+export type WatermarkTransform = Omit<ImageTransform, 'type'> & {
+  /**
+   * An image repeated across the whole output, burned into every frame.
+   */
+  watermark: Watermark;
+  type: 'watermark';
 };
 
 export type WebScrapeInput = {
@@ -12631,6 +12764,41 @@ export type MiniMaxH3AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
+export type MossImageAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  modelVariant: null | string;
+  ecosystem: 'mossImage';
+  engine: 'ai-toolkit';
+};
+
+export type MossImageBaseAiToolkitTrainingInputWritable = Omit<
+  MossImageAiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'base';
+  ecosystem: 'mossImage';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+export type MossImageSftAiToolkitTrainingInputWritable = Omit<
+  MossImageAiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem' | 'modelVariant'
+> & {
+  modelVariant: 'sft';
+  ecosystem: 'mossImage';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type MusubiImageResourceTrainingInputWritable = Omit<
   ImageResourceTrainingInputWritable,
   'engine'
@@ -13369,7 +13537,6 @@ export type TrainingInputWritable2 = {
    * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
    */
   readonly usesStepPricing: boolean;
-  readonly requiresAgeClassification: boolean;
 };
 
 export type ChatCompletionMessageWritable = {
