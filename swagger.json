@@ -26365,7 +26365,8 @@
             "discriminator": {
               "propertyName": "version",
               "mapping": {
-                "v3.0": "#/components/schemas/Flux3V3VideoGenInput"
+                "v3.0": "#/components/schemas/Flux3V3VideoGenInput",
+                "v3.0-max": "#/components/schemas/Flux3MaxVideoGenInput"
               }
             }
           }
@@ -52180,6 +52181,230 @@
           "outdoor"
         ],
         "type": "string"
+      },
+      "Flux3MaxImageToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "image",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "endImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "operation": {
+                "enum": [
+                  "imageToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3MaxKeyframesToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "keyframes",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "keyframes": {
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "description": "An image pinned to a frame position in the generated video.",
+                  "$ref": "#/components/schemas/Flux3Keyframe"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "keyframesToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3MaxTextToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "textToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3MaxVideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "default": true
+              },
+              "reasoningLevel": {
+                "enum": [
+                  "low",
+                  "high"
+                ],
+                "type": "string",
+                "description": "Higher reasoning effort increases generation time.",
+                "default": "high"
+              },
+              "seed": {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textToVideo": "#/components/schemas/Flux3MaxTextToVideoInput",
+                "imageToVideo": "#/components/schemas/Flux3MaxImageToVideoInput",
+                "keyframesToVideo": "#/components/schemas/Flux3MaxKeyframesToVideoInput"
+              }
+            }
+          }
+        ]
       }
     },
     "securitySchemes": {

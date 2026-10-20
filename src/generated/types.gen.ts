@@ -11990,6 +11990,57 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
+export type Flux3MaxImageToVideoInput = Omit<
+  Flux3MaxVideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  endImage?: null | string;
+  operation: 'imageToVideo';
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
+export type Flux3MaxKeyframesToVideoInput = Omit<
+  Flux3MaxVideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  keyframes: Array<Flux3Keyframe>;
+  operation: 'keyframesToVideo';
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
+export type Flux3MaxTextToVideoInput = Omit<
+  Flux3MaxVideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  operation: 'textToVideo';
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
+export type Flux3MaxVideoGenInput = Omit<Flux3VideoGenInput, 'engine' | 'version'> & {
+  operation: string;
+  duration?: number;
+  resolution?: '720p' | '1080p';
+  aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  generateAudio?: boolean;
+  /**
+   * Higher reasoning effort increases generation time.
+   */
+  reasoningLevel?: 'low' | 'high';
+  seed?: null | number;
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
 export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem: string;
   /**
