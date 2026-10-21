@@ -76,6 +76,15 @@ import type {
   InvokeAudioCaptioningStepTemplateData,
   InvokeAudioCaptioningStepTemplateErrors,
   InvokeAudioCaptioningStepTemplateResponses,
+  InvokeAudioClassificationStepTemplateData,
+  InvokeAudioClassificationStepTemplateErrors,
+  InvokeAudioClassificationStepTemplateResponses,
+  InvokeAudioModerationStepTemplateData,
+  InvokeAudioModerationStepTemplateErrors,
+  InvokeAudioModerationStepTemplateResponses,
+  InvokeAudioTextModerationStepTemplateData,
+  InvokeAudioTextModerationStepTemplateErrors,
+  InvokeAudioTextModerationStepTemplateResponses,
   InvokeBatchOcrSafetyClassificationStepTemplateData,
   InvokeBatchOcrSafetyClassificationStepTemplateErrors,
   InvokeBatchOcrSafetyClassificationStepTemplateResponses,
@@ -557,6 +566,60 @@ export const invokeAudioCaptioningStepTemplate = <ThrowOnError extends boolean =
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/audioCaptioning',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+export const invokeAudioClassificationStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeAudioClassificationStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeAudioClassificationStepTemplateResponses,
+    InvokeAudioClassificationStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/audioClassification',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Transcribe every audio track and classify the lyrics for sexualized minors.
+ */
+export const invokeAudioModerationStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeAudioModerationStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeAudioModerationStepTemplateResponses,
+    InvokeAudioModerationStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/audioModeration',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Classify transcribed lyrics for sexualized minors.
+ */
+export const invokeAudioTextModerationStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeAudioTextModerationStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeAudioTextModerationStepTemplateResponses,
+    InvokeAudioTextModerationStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/audioTextModeration',
     ...options,
     headers: {
       'Content-Type': 'application/json',

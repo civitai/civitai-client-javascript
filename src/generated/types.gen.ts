@@ -101,6 +101,10 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  /**
+   * What each epoch job records to its trace stream (`output.epochs[].traceUrl`): `none` (default), `logs` (plain-text console output)
+   * or `events` (NDJSON of console lines, step progress, phases and epoch checkpoints).
+   */
   trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz) for the delivered checkpoint and its preview samples, billed on top of the per-step cost. Override where per-epoch samples are expensive (e.g. video).
@@ -282,6 +286,10 @@ export type AceStepAudioInput = {
    * Optional diffusion model (unet) override. Defaults to ACE-Step 1.5 turbo 2B.
    */
   diffusionModel?: null | string;
+  /**
+   * Optional cover image. When provided, the output is a WebM video
+   * with this image as the visual; otherwise, output is audio-only (MP3).
+   */
   cover?: AceStepAudioCover;
   /**
    * Optional text encoder (CLIP) override. Defaults to qwen_4b_ace15.
@@ -315,6 +323,9 @@ export type AceStepAudioInput = {
 };
 
 export type AceStepAudioOutput = {
+  /**
+   * The generated output blob — VideoBlob (with background image) or AudioBlob (audio only).
+   */
   blob: Blob;
 };
 
@@ -331,6 +342,9 @@ export type AceStepAudioStep = Omit<WorkflowStep, '$type'> & {
  * Generates full songs from text descriptions and structured lyrics with ACE Step 1.5.
  */
 export type AceStepAudioStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the AceStepAudioStep step.
+   */
   input: AceStepAudioInput;
   $type: 'aceStepAudio';
 };
@@ -420,6 +434,9 @@ export type AgeClassificationStep = Omit<WorkflowStep, '$type'> & {
  * Age classification
  */
 export type AgeClassificationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the AgeClassificationStep step.
+   */
   input: AgeClassificationInput;
   $type: 'ageClassification';
 };
@@ -629,12 +646,15 @@ export type AudioCaptioningInput = {
    * Maximum number of tokens to generate for each ACE-Step request.
    */
   maxNewTokens: number;
+  includeCaption: boolean;
+  prepareForModeration: boolean;
 };
 
 export type AudioCaptioningOutput = {
   results: {
     [key: string]: AudioCaptioningOutputItem;
   };
+  hasAudio?: null | boolean;
 };
 
 export type AudioCaptioningOutputItem = {
@@ -646,6 +666,7 @@ export type AudioCaptioningOutputItem = {
   timeSignature?: null | string;
   duration?: null | string;
   language?: null | string;
+  finishReason?: null | string;
 };
 
 /**
@@ -661,8 +682,33 @@ export type AudioCaptioningStep = Omit<WorkflowStep, '$type'> & {
  * Audio Captioning
  */
 export type AudioCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the AudioCaptioningStep step.
+   */
   input: AudioCaptioningInput;
   $type: 'audioCaptioning';
+};
+
+export type AudioClassificationInput = {
+  mediaUrl: string;
+};
+
+export type AudioClassificationOutput = {
+  hasAudio: boolean;
+  model: string;
+  segments: Array<AudioClassificationSegment>;
+  classificationMilliseconds: number;
+};
+
+export type AudioClassificationSegment = {
+  blobKey: string;
+  name: string;
+  kind: string;
+  durationSeconds: number;
+  speechScore: number;
+  musicScore: number;
+  singingScore: number;
+  speechFraction: number;
 };
 
 /**
@@ -671,6 +717,63 @@ export type AudioCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & 
 export type AudioComposeMediaOutput = Omit<ComposeMediaOutput, 'type'> & {
   audioBlob: AudioBlob;
   type: 'audio';
+};
+
+export type AudioModerationInput = {
+  mediaUrl: string;
+  /**
+   * auto classifies each segment on CPU and sends speech to ASR when the language is supported, everything else to ACE-Step.
+   */
+  transcriber: 'auto' | 'aceStep' | 'asr';
+  language?: null | string;
+};
+
+export type AudioModerationOutput = {
+  lyrics: string;
+  sexualizedMinors: boolean;
+  score: null | number;
+  model: null | string;
+  policyHash: null | string;
+  hasAudio?: null | boolean;
+  skippedReason?: null | string;
+  readonly blocked: boolean;
+};
+
+/**
+ * Transcribe every audio track and classify the lyrics for sexualized minors.
+ */
+export type AudioModerationStep = Omit<WorkflowStep, '$type'> & {
+  input: AudioModerationInput;
+  output?: AudioModerationOutput;
+  $type: 'audioModeration';
+};
+
+/**
+ * Transcribe every audio track and classify the lyrics for sexualized minors.
+ */
+export type AudioModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the AudioModerationStep step.
+   */
+  input: AudioModerationInput;
+  $type: 'audioModeration';
+};
+
+export type AudioTextModerationInput = {
+  lyrics?: null | string;
+  audioCaptioning?: AudioCaptioningOutput;
+  transcription?: TranscriptionOutput;
+};
+
+export type AudioTextModerationOutput = {
+  lyrics: string;
+  sexualizedMinors: boolean;
+  score: null | number;
+  model: null | string;
+  policyHash: null | string;
+  hasAudio?: null | boolean;
+  skippedReason?: null | string;
+  readonly blocked: boolean;
 };
 
 export type AvailableResourceAvailability = Omit<ResourceAvailability, 'status'> & {
@@ -695,6 +798,10 @@ export type AvifOutputFormat = Omit<ImageOutputFormat, 'format'> & {
  * are kept. Video only; needs an alpha-capable container (webp) and a transparent canvas background to carry the transparency.
  */
 export type BackgroundRemovalTransformer = Omit<MediaTransformer, 'type'> & {
+  /**
+   * Shadow handling. Sources with painted soft drop shadows need Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ShadowRemoval.Gentle
+   * (the default) or Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ShadowRemoval.Aggressive.
+   */
   shadowRemoval?: ShadowRemoval;
   /**
    * Also seed the fill from the frame centre, for artwork with an enclosed background-coloured
@@ -799,6 +906,9 @@ export type BlobArchiveStep = Omit<WorkflowStep, '$type'> & {
  * Runs in-process in the orchestrator; no worker job is dispatched.
  */
 export type BlobArchiveStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the BlobArchiveStep step.
+   */
   input: BlobArchiveInput;
   $type: 'blobArchive';
 };
@@ -921,6 +1031,9 @@ export type BucketResponse = {
   successRate?: null | number;
   canceledRate: number;
   userErrorRate: number;
+  /**
+   * Per-request spend over succeeded steps — see Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.MetricsResponse.CostBuzz.
+   */
   costBuzz?: PercentilesResponse;
   latencySeconds?: PercentilesResponse;
 };
@@ -936,9 +1049,12 @@ export type BuzzClientAccount = (typeof BuzzClientAccount)[keyof typeof BuzzClie
 
 export type ChatCompletionChoice = {
   index: number;
+  /**
+   * An assistant message representing a prior response.
+   */
   message: AssistantMessage;
   finishReason?: null | string;
-  logprobs?: null;
+  logprobs?: unknown;
 };
 
 /**
@@ -953,7 +1069,7 @@ export type ChatCompletionContentPart = {
 export type ChatCompletionFunction = {
   name: string;
   description?: null | string;
-  parameters?: null;
+  parameters?: unknown;
   strict?: null | boolean;
 };
 
@@ -968,6 +1084,9 @@ export type ChatCompletionFunctionCall = {
  */
 export type ChatCompletionGeneratedImage = {
   type?: string;
+  /**
+   * Currently always a base64 data URI.
+   */
   image_url: ChatCompletionGeneratedImageUrl;
 };
 
@@ -1070,13 +1189,20 @@ export type ChatCompletionInput = {
    * Controls which (if any) tool is called by the model.
    * Can be "auto", "none", "required", or an object specifying a particular function.
    */
-  tool_choice?: null;
+  tool_choice?: unknown;
   /**
    * Output modalities, "text" and/or "image"; defaults to text-only. Including "image" routes the request to the
    * image generation pipeline and returns generated images on the assistant message.
    */
   modalities?: null | Array<string>;
+  /**
+   * Image-generation parameters. Only consulted when Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities contains "image".
+   */
   image_config?: ChatCompletionImageConfig;
+  /**
+   * OpenAI-compatible response_format (`json_object` or `json_schema`). When set, the parsed content is exposed on
+   * Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionOutput.Parsed so later steps can reference fields via `$ref` paths such as `output.parsed.lyrics`.
+   */
   responseFormat?: ChatCompletionResponseFormat;
 };
 
@@ -1109,7 +1235,7 @@ export type ChatCompletionOutput = {
    * Parsed JSON of `Choices[0].Message.Content`, populated when the request used a JSON `response_format`
    * and the content parsed. Reachable from later steps via `$ref` paths like `output.parsed.<field>`.
    */
-  parsed?: null;
+  parsed?: unknown;
 };
 
 /**
@@ -1121,6 +1247,9 @@ export type ChatCompletionResponseFormat = {
    * OpenAI-compatible value: `text`, `json_object`, or `json_schema`.
    */
   type: string;
+  /**
+   * Required when Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionResponseFormat.Type is `json_schema`. Ignored otherwise.
+   */
   jsonSchema?: ChatCompletionJsonSchema;
 };
 
@@ -1128,6 +1257,9 @@ export type ChatCompletionResponseFormat = {
  * ChatCompletion
  */
 export type ChatCompletionStep = Omit<WorkflowStep, '$type'> & {
+  /**
+   * Input for a chat completion step, compatible with OpenAI Chat Completions API.
+   */
   input: ChatCompletionInput;
   output?: ChatCompletionOutput;
   $type: 'chatCompletion';
@@ -1137,6 +1269,9 @@ export type ChatCompletionStep = Omit<WorkflowStep, '$type'> & {
  * ChatCompletion
  */
 export type ChatCompletionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ChatCompletionStep step.
+   */
   input: ChatCompletionInput;
   $type: 'chatCompletion';
 };
@@ -1154,7 +1289,7 @@ export type ChatCompletionTool = {
   /**
    * Server-tool parameters for providers such as OpenRouter.
    */
-  parameters?: null;
+  parameters?: unknown;
 };
 
 export type ChatCompletionToolCall = {
@@ -1167,6 +1302,9 @@ export type ChatCompletionUsage = {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
+  /**
+   * Breakdown of Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionUsage.CompletionTokens, present when the provider reports one.
+   */
   completionTokensDetails?: ChatCompletionTokensDetails;
 };
 
@@ -1753,7 +1891,13 @@ export type ComfyHiDreamI1ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'e
   prompt: string;
   negativePrompt?: null | string;
   variant?: HiDreamI1Variant;
+  /**
+   * Defaults to fp8, except for the full variant which is only available in fp16.
+   */
   precision?: HiDreamI1Precision;
+  /**
+   * Defaults to lcm for fast and dev, uni_pc for full.
+   */
   sampler?: ComfySampler;
   /**
    * Defaults to 16 for fast, 28 for dev and 50 for full.
@@ -2561,6 +2705,9 @@ export type ComfyMingDesignImageGenInput = Omit<
   operation: null | string;
   prompt: string;
   negativePrompt?: null | string;
+  /**
+   * Defaults to Euler for generation, LCM for editing.
+   */
   sampler?: ComfySampler;
   scheduler?: ComfyScheduler;
   steps?: number;
@@ -2773,18 +2920,38 @@ export type ComfyNodepackSnapshotResult = {
    * Declare this, not the bare pack URN, on a customComfy step's `resources`.
    */
   layerAir: string;
+  /**
+   * Tar of the pack's site-packages + custom_nodes install delta; mounted by spine workers to skip pip.
+   */
   layer: Blob;
+  /**
+   * The full ComfyUI /object_info with the pack installed; ComfyCloud diffs it against its baseline for the editor.
+   */
   objectInfo: Blob;
+  /**
+   * Tar of the pack's WEB_DIRECTORY (extension JS) for the editor.
+   */
   web: Blob;
 };
 
 export type ComfyNodepackSnapshotStep = Omit<WorkflowStep, '$type'> & {
+  /**
+   * Installs ComfyUI custom nodepacks on a comfy image and captures the resolved install and editor metadata as
+   * reusable blobs. Runs on a real worker so compiled deps match the fleet the consumer will run on.
+   */
   input: ComfyNodepackSnapshotInput;
+  /**
+   * One result per installed pack, each carrying the captured install layer, full /object_info and web assets as
+   * blobs that consumers read directly from orchestrator blob storage.
+   */
   output?: ComfyNodepackSnapshotOutput;
   $type: 'comfyNodepackSnapshot';
 };
 
 export type ComfyNodepackSnapshotStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ComfyNodepackSnapshotStep step.
+   */
   input: ComfyNodepackSnapshotInput;
   $type: 'comfyNodepackSnapshot';
 };
@@ -3161,6 +3328,9 @@ export type ComfyStep = Omit<WorkflowStep, '$type'> & {
  * Comfy workflows
  */
 export type ComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ComfyStep step.
+   */
   input: ComfyInput;
   $type: 'comfy';
 };
@@ -3246,6 +3416,10 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  /**
+   * What each epoch job records to its trace stream (`output.epochs[].traceUrl`): `none` (default), `logs` (plain-text console output)
+   * or `events` (NDJSON of console lines, step progress, phases and epoch checkpoints).
+   */
   trace: TrainingTraceMode;
   /**
    * Per-epoch surcharge (buzz) for the delivered checkpoint and its preview samples, billed on top of the per-step cost. Override where per-epoch samples are expensive (e.g. video).
@@ -3393,6 +3567,10 @@ export type ComposeMediaElementInput = {
    * Ignored when Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaElementInput.At is set.
    */
   offset?: number;
+  /**
+   * Spatial placement of this element on the output canvas. Ignored for audio elements and for
+   * all-audio compositions.
+   */
   layout?: MediaLayout;
   /**
    * Ordered per-element transformers (fades, volume, ...) applied in array order.
@@ -3406,7 +3584,15 @@ export type ComposeMediaInput = {
    * `zOrder` then array order. To stitch videos end-to-end, list them with no `at`/`offset`.
    */
   elements: Array<ComposeMediaElementInput>;
+  /**
+   * Output geometry for video output; when omitted, derived from the elements (largest video, fastest frame rate).
+   * Supplying a canvas does not by itself force video output — see Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaInput.Output.
+   */
   canvas?: MediaCanvas;
+  /**
+   * Desired output kind and container. When omitted, the kind is derived from the elements and
+   * the container defaults to MP4 (video) or Ogg (audio).
+   */
   output?: ComposeMediaOutputSpec;
   /**
    * Divide the audio mix by the number of overlapping elements to avoid clipping. Defaults to false.
@@ -3428,7 +3614,14 @@ export type ComposeMediaOutput = {
  * Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaOutputSpec.Type unset to derive the kind from the elements.
  */
 export type ComposeMediaOutputSpec = {
+  /**
+   * Forces the output kind. When null, it is derived from the elements: video if any element is
+   * video or a canvas is supplied, otherwise audio.
+   */
   type?: MediaOutputType;
+  /**
+   * Output container. Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.MediaContainer.Auto selects MP4 for video and Ogg for audio.
+   */
   container?: MediaContainer;
 };
 
@@ -3456,6 +3649,9 @@ export type ComposeMediaStep = Omit<WorkflowStep, '$type'> & {
  * Compose Media
  */
 export type ComposeMediaStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ComposeMediaStep step.
+   */
   input: ComposeMediaInput;
   $type: 'composeMedia';
 };
@@ -3503,6 +3699,9 @@ export type ConvertImageStep = Omit<WorkflowStep, '$type'> & {
  * A workflow step that converts images to different formats and applies optional transforms.
  */
 export type ConvertImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ConvertImageStep step.
+   */
   input: ConvertImageInput;
   $type: 'convertImage';
 };
@@ -3528,6 +3727,10 @@ export type CustomComfyInput = {
    * the orchestrator does not inspect or validate node contents.
    */
   workflow: unknown;
+  /**
+   * How much of the ComfyUI `/ws` activity the worker records to a streaming blob the consumer can tail
+   * live (URL on `output.traceUrl`). Civitai.Orchestration.Grains.Workflows.Steps.CustomComfy.TraceMode.None (default) records nothing.
+   */
   trace: TraceMode;
   /**
    * When set, the scheduler prefers a worker that already holds this session's ComfyUI container.
@@ -3578,6 +3781,9 @@ export type CustomComfyStep = Omit<WorkflowStep, '$type'> & {
  * CustomComfy
  */
 export type CustomComfyStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the CustomComfyStep step.
+   */
   input: CustomComfyInput;
   $type: 'customComfy';
 };
@@ -3705,6 +3911,9 @@ export type EchoStep = Omit<WorkflowStep, '$type'> & {
  * Echo
  */
 export type EchoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the EchoStep step.
+   */
   input: EchoInput;
   $type: 'echo';
 };
@@ -4371,6 +4580,57 @@ export type Flux3KleinAiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
+export type Flux3MaxImageToVideoInput = Omit<
+  Flux3MaxVideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  image: string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  endImage?: null | string;
+  operation: 'imageToVideo';
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
+export type Flux3MaxKeyframesToVideoInput = Omit<
+  Flux3MaxVideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  keyframes: Array<Flux3Keyframe>;
+  operation: 'keyframesToVideo';
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
+export type Flux3MaxTextToVideoInput = Omit<
+  Flux3MaxVideoGenInput,
+  'engine' | 'version' | 'operation'
+> & {
+  operation: 'textToVideo';
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
+export type Flux3MaxVideoGenInput = Omit<Flux3VideoGenInput, 'engine' | 'version'> & {
+  operation: string;
+  duration?: number;
+  resolution?: '720p' | '1080p';
+  aspectRatio?: 'auto' | '21:9' | '2:1' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
+  generateAudio?: boolean;
+  /**
+   * Higher reasoning effort increases generation time.
+   */
+  reasoningLevel?: 'low' | 'high';
+  seed?: null | number;
+  version: 'v3.0-max';
+  engine: 'flux';
+};
+
 /**
  * Re-render a previously generated draft at full-quality 1080p with audio.
  */
@@ -4963,6 +5223,9 @@ export type HaiperVideoGenCameraMovement =
 
 export type HaiperVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   negativePrompt?: null | string;
+  /**
+   * Get or set camera movement. This is only available when targeting the v1.5 Model
+   */
   cameraMovement?: HaiperVideoGenCameraMovement;
   seed?: number;
   duration?: 2 | 4 | 8;
@@ -5390,6 +5653,9 @@ export type ImageBackgroundRemovalInput = {
    * Either A URL, A DataURL or a Base64 string
    */
   image: string;
+  /**
+   * The output image format. Defaults to PNG, which preserves transparency.
+   */
   format?: ImageBackgroundRemovalFormat;
 };
 
@@ -5410,6 +5676,9 @@ export type ImageBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
  * Removes the background from an image using BiRefNet.
  */
 export type ImageBackgroundRemovalStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ImageBackgroundRemovalStep step.
+   */
   input: ImageBackgroundRemovalInput;
   $type: 'imageBackgroundRemoval';
 };
@@ -5465,6 +5734,9 @@ export type ImageGenStep = Omit<WorkflowStep, '$type'> & {
  * Image Generation
  */
 export type ImageGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ImageGenStep step.
+   */
   input: ImageGenInput;
   $type: 'imageGen';
 };
@@ -5535,6 +5807,9 @@ export type ImageResourceTrainingInput = {
 };
 
 export type ImageResourceTrainingOutput = {
+  /**
+   * The status of age classification
+   */
   moderationStatus: ImageResouceTrainingModerationStatus;
   epochs: Array<EpochResult>;
   sampleImagesPrompts: Array<string>;
@@ -5562,6 +5837,9 @@ export type ImageResourceTrainingStep = Omit<WorkflowStep, '$type'> & {
  * LORA Training
  */
 export type ImageResourceTrainingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ImageResourceTrainingStep step.
+   */
   input: ImageResourceTrainingInput;
   $type: 'imageResourceTraining';
 };
@@ -5676,6 +5954,9 @@ export type ImageScanningStep = Omit<WorkflowStep, '$type'> & {
  * Image scanning
  */
 export type ImageScanningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ImageScanningStep step.
+   */
   input: ImageScanningInput;
   $type: 'imageScanning';
 };
@@ -5721,6 +6002,9 @@ export type ImageToSvgStep = Omit<WorkflowStep, '$type'> & {
  * Converts a raster image to an SVG using a local StarVector or OmniSVG model.
  */
 export type ImageToSvgStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ImageToSvgStep step.
+   */
   input: ImageToSvgInput;
   $type: 'imageToSvg';
 };
@@ -5817,6 +6101,9 @@ export type ImageUpscalerStep = Omit<WorkflowStep, '$type'> & {
 };
 
 export type ImageUpscalerStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ImageUpscalerStep step.
+   */
   input: ImageUpscalerInput;
   $type: 'imageUpscaler';
 };
@@ -6159,7 +6446,7 @@ export type Krea2StyleReference = {
  */
 export type Krea3ImageGenInput = Omit<ImageGenInput, 'engine'> & {
   prompt: string;
-  thinkingMode?: 'instant' | 'medium';
+  thinkingMode?: 'instant' | 'medium' | 'ultra';
   /**
    * Omit for text-to-image, or provide up to six images to edit.
    */
@@ -6262,6 +6549,33 @@ export type LightricksVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'lightricks';
 };
 
+/**
+ * Qwen3 Base: speaks in a voice cloned from Civitai.Orchestration.Grains.Workflows.Steps.LiveTextToSpeech.LiveQwen3BaseTTSInput.RefAudioUrl, like `textToSpeech`'s `base` operation.
+ */
+export type LiveQwen3BaseTtsInput = Omit<
+  LiveQwen3TextToSpeechInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  /**
+   * Reference audio AIR URN or external URL for voice cloning.
+   * Accepts AIR URNs (existing resources) or HTTP(S) URLs.
+   */
+  refAudioUrl: string;
+  /**
+   * Transcript of the reference audio.
+   * Required unless XVectorOnlyMode is true.
+   */
+  refText?: null | string;
+  /**
+   * If true, clones from the speaker embedding alone and ignores refText.
+   * Defaults to true on live: in-context mode has been seen generating to the token cap on short sentences.
+   */
+  xVectorOnlyMode?: boolean;
+  operation: 'base';
+  ecosystem: 'qwen3';
+  engine: 'vllm-omni';
+};
+
 export type LiveQwen3CustomVoiceTtsInput = Omit<
   LiveQwen3TextToSpeechInput,
   'engine' | 'ecosystem' | 'operation'
@@ -6354,6 +6668,9 @@ export type LiveTextToSpeechOutput = {
  * Live text to speech
  */
 export type LiveTextToSpeechStep = Omit<WorkflowStep, '$type'> & {
+  /**
+   * Mirrors `textToSpeech` inputs, but only for voices proven to stream with low first-audio latency.
+   */
   input: LiveTextToSpeechInput;
   output?: LiveTextToSpeechOutput;
   $type: 'liveTextToSpeech';
@@ -6363,6 +6680,9 @@ export type LiveTextToSpeechStep = Omit<WorkflowStep, '$type'> & {
  * Live text to speech
  */
 export type LiveTextToSpeechStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the LiveTextToSpeechStep step.
+   */
   input: LiveTextToSpeechInput;
   $type: 'liveTextToSpeech';
 };
@@ -6431,6 +6751,9 @@ export type LiveTranscriptionStep = Omit<WorkflowStep, '$type'> & {
  * Live transcription
  */
 export type LiveTranscriptionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the LiveTranscriptionStep step.
+   */
   input: LiveTranscriptionInput;
   $type: 'liveTranscription';
 };
@@ -6610,6 +6933,9 @@ export type MediaCaptioningStep = Omit<WorkflowStep, '$type'> & {
  * Media Captioning
  */
 export type MediaCaptioningStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the MediaCaptioningStep step.
+   */
   input: MediaCaptioningInput;
   $type: 'mediaCaptioning';
 };
@@ -6669,6 +6995,9 @@ export type MediaHashStep = Omit<WorkflowStep, '$type'> & {
  * MediaHash
  */
 export type MediaHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the MediaHashStep step.
+   */
   input: MediaHashInput;
   $type: 'mediaHash';
 };
@@ -6702,6 +7031,9 @@ export type MediaLayout = {
    * Uniform scale applied to the element before placement. `1.0` keeps the fitted size.
    */
   scale?: number;
+  /**
+   * How a video element is fitted into the output canvas when its aspect ratio differs.
+   */
   fit?: MediaFit;
 };
 
@@ -6767,16 +7099,34 @@ export type MediaRatingOutput = {
   labels?: null | Array<string>;
   ageClassification?: AgeClassificationResult;
   faceRecognition?: FaceRecognitionResult;
+  /**
+   * Represents AI vs real image recognition results.
+   */
   aiRecognition?: AiRecognitionResult;
+  /**
+   * Represents anime vs real image recognition results.
+   */
   animeRecognition?: AnimeRecognitionResult;
   /**
    * Potential CSAM signal from conditional age classification on R-or-higher content.
    * Null means the image was below R or age classification failed.
    */
   csam?: null | boolean;
+  /**
+   * Represents human vs non-human image recognition results.
+   */
   humanRecognition?: HumanRecognitionResult;
+  /**
+   * Body-only apparent-age and child-risk results (if requested).
+   */
   bodyAgeClassification?: BodyAgeClassificationResult;
+  /**
+   * Anime apparent-age and child-risk results (if requested).
+   */
   animeBodyAgeClassification?: AnimeBodyAgeClassificationResult;
+  /**
+   * Joint face-and-body apparent-age results for photo and anime content (if requested).
+   */
   jointAgeClassification?: JointAgeClassificationResult;
 };
 
@@ -6793,6 +7143,9 @@ export type MediaRatingStep = Omit<WorkflowStep, '$type'> & {
  * MediaRating
  */
 export type MediaRatingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the MediaRatingStep step.
+   */
   input: MediaRatingInput;
   $type: 'mediaRating';
 };
@@ -6817,6 +7170,9 @@ export type MergeField = {
    * from every item of a list; nested `[*]` flatten into one list.
    */
   path: string;
+  /**
+   * How a merge field combines its values. Null values are skipped, except by `any` and `all`, which count them as false.
+   */
   reduce: MergeReducer;
   /**
    * For `group`: the property of each item to group by.
@@ -6836,6 +7192,9 @@ export type MergeField = {
 };
 
 export type MergeInput = {
+  /**
+   * What to do when a source item selected by a `[*]` has no output, e.g. a repeat iteration that failed.
+   */
   onMissing: MergeMissingBehavior;
   /**
    * The fields of the merged result, keyed by the name each appears under in the output.
@@ -6860,7 +7219,7 @@ export type MergeOutput = {
    * The merged values, keyed by the field names of the input. Their shape follows the requested reducers.
    */
   fields: {
-    [key: string]: null;
+    [key: string]: unknown;
   };
   /**
    * The number of source items selected by the first `[*]` of the fields' paths.
@@ -6913,6 +7272,9 @@ export type MergeStep = Omit<WorkflowStep, '$type'> & {
  * Merge
  */
 export type MergeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the MergeStep step.
+   */
   input: MergeInput;
   $type: 'merge';
 };
@@ -7066,7 +7428,14 @@ export type MetricsResponse = {
    * rejection. Kept out of the success rate so refusing disallowed requests does not mark a service unhealthy.
    */
   userErrorRate: number;
+  /**
+   * What callers actually paid per request, over succeeded requests only. Not a unit price and not comparable
+   * between services; use Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceResponse.Estimate for an exact quote.
+   */
   costBuzz?: PercentilesResponse;
+  /**
+   * Null for services that never create a job to time, such as imageUpload.
+   */
   latencySeconds?: PercentilesResponse;
 };
 
@@ -7259,6 +7628,9 @@ export type MiniMaxMusic3Step = Omit<WorkflowStep, '$type'> & {
  * Generate a complete song from a structured caption and lyrics with MiniMax Music 3.
  */
 export type MiniMaxMusic3StepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the MiniMaxMusic3Step step.
+   */
   input: MiniMaxMusic3Input;
   $type: 'miniMaxMusic3';
 };
@@ -7331,6 +7703,9 @@ export type Model3dPreviewStep = Omit<WorkflowStep, '$type'> & {
  * 3D model preview
  */
 export type Model3dPreviewStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the Model3DPreviewStep step.
+   */
   input: Model3dPreviewInput;
   $type: 'model3DPreview';
 };
@@ -7342,6 +7717,9 @@ export type ModelClamScanInput = {
 export type ModelClamScanOutput = {
   exitCode?: null | number;
   output?: null | string;
+  /**
+   * Classified scan result derived from the ClamAV exit code.
+   */
   status?: ModelClamScanStatus;
   /**
    * True when ClamAV reported one or more infected files (exit code 1).
@@ -7373,6 +7751,9 @@ export type ModelClamScanStep = Omit<WorkflowStep, '$type'> & {
  * ModelClamScan
  */
 export type ModelClamScanStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ModelClamScanStep step.
+   */
   input: ModelClamScanInput;
   $type: 'modelClamScan';
 };
@@ -7421,6 +7802,9 @@ export type ModelHashStep = Omit<WorkflowStep, '$type'> & {
  * ModelHash
  */
 export type ModelHashStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ModelHashStep step.
+   */
   input: ModelHashInput;
   $type: 'modelHash';
 };
@@ -7450,6 +7834,9 @@ export type ModelParseMetadataStep = Omit<WorkflowStep, '$type'> & {
  * ModelParseMetadata
  */
 export type ModelParseMetadataStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ModelParseMetadataStep step.
+   */
   input: ModelParseMetadataInput;
   $type: 'modelParseMetadata';
 };
@@ -7504,6 +7891,9 @@ export type ModelPickleScanStep = Omit<WorkflowStep, '$type'> & {
  * ModelPickleScan
  */
 export type ModelPickleScanStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ModelPickleScanStep step.
+   */
   input: ModelPickleScanInput;
   $type: 'modelPickleScan';
 };
@@ -8012,13 +8402,37 @@ export type PolyGenInput = {
 };
 
 export type PolyGenOutput = {
+  /**
+   * Generated 3D model in GLB format. Null when the engine only produces FBX (Tripo with quad enabled).
+   */
   model?: Model3dBlob;
+  /**
+   * Generated 3D model in FBX format, when the engine produces one.
+   */
   fbxModel?: Model3dBlob;
+  /**
+   * Preview thumbnail image of the generated model, when the engine produces one.
+   */
   thumbnail?: ImageBlob;
+  /**
+   * Rigged character in GLB format, when rigging is enabled.
+   */
   riggedModel?: Model3dBlob;
+  /**
+   * Rigged character in FBX format, when rigging is enabled.
+   */
   riggedFbxModel?: Model3dBlob;
+  /**
+   * Animated 3D model in GLB format, when animation is enabled.
+   */
   animatedModel?: Model3dBlob;
+  /**
+   * Animated 3D model in FBX format, when animation is enabled.
+   */
   animatedFbxModel?: Model3dBlob;
+  /**
+   * Basic walking and running animations, when rigging is enabled.
+   */
   basicAnimations?: BasicAnimationsBlobs;
 };
 
@@ -8035,6 +8449,9 @@ export type PolyGenStep = Omit<WorkflowStep, '$type'> & {
  * 3D model generation
  */
 export type PolyGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the PolyGenStep step.
+   */
   input: PolyGenInput;
   $type: 'polyGen';
 };
@@ -8258,6 +8675,9 @@ export type PreprocessImageStep = Omit<WorkflowStep, '$type'> & {
 };
 
 export type PreprocessImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the PreprocessImageStep step.
+   */
   input: PreprocessImageInput;
   $type: 'preprocessImage';
 };
@@ -8363,6 +8783,9 @@ export type PreprocessVideoStep = Omit<WorkflowStep, '$type'> & {
 };
 
 export type PreprocessVideoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the PreprocessVideoStep step.
+   */
   input: PreprocessVideoInput;
   $type: 'preprocessVideo';
 };
@@ -8427,6 +8850,9 @@ export type PromptEnhancementStep = Omit<WorkflowStep, '$type'> & {
  * PromptEnhancement
  */
 export type PromptEnhancementStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the PromptEnhancementStep step.
+   */
   input: PromptEnhancementInput;
   $type: 'promptEnhancement';
 };
@@ -8481,6 +8907,9 @@ export type PromptModerationStep = Omit<WorkflowStep, '$type'> & {
  * PromptModeration
  */
 export type PromptModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the PromptModerationStep step.
+   */
   input: PromptModerationInput;
   $type: 'promptModeration';
 };
@@ -8827,6 +9256,9 @@ export type QwenImageBenchStep = Omit<WorkflowStep, '$type'> & {
  * Qwen Image Bench
  */
 export type QwenImageBenchStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the QwenImageBenchStep step.
+   */
   input: QwenImageBenchInput;
   $type: 'qwenImageBench';
 };
@@ -8853,7 +9285,13 @@ export type RepeatForClause = {
 };
 
 export type RepeatInput = {
+  /**
+   * The "for" clause that specifies what array to iterate over and how to reference items.
+   */
   for: RepeatForClause;
+  /**
+   * The template of the workflow step to execute for each item in the iteration.
+   */
   template: WorkflowStepTemplate;
 };
 
@@ -8926,6 +9364,9 @@ export type ResourceInfo = {
    * NSFW covers X and XXX, whereas mature content also includes R.
    */
   hasNSFWContentRestriction: boolean;
+  /**
+   * License fee charged per use.
+   */
   fee?: ResourceFee;
   /**
    * False makes the resource ineligible for compensation.
@@ -8940,6 +9381,9 @@ export type ResourceInfo = {
    * attribution follows ownership transfers instead of being resolved retroactively.
    */
   userId?: null | number;
+  /**
+   * Whether this resource can be generated with right now, across the whole fleet.
+   */
   availability?: ResourceAvailability;
   /**
    * Promoted resources download in the High lane for free, whatever lane the job asked for.
@@ -9347,9 +9791,24 @@ export type ServiceResponse = {
   strengths?: null | string;
   weaknesses?: null | string;
   releasedAt?: null | string;
+  /**
+   * What this consumes and produces. Independent of Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceResponse.Category, and null for
+   * services with no meaningful modality.
+   */
   modalities?: ModalitiesResponse;
+  /**
+   * Health over the requested window. Always present: a service with no traffic reports
+   * "unknown" rather than nothing, so callers never have to distinguish absent from healthy.
+   */
   status: ServiceStatus;
+  /**
+   * Null when nothing ran in the window.
+   */
   metrics?: MetricsResponse;
+  /**
+   * The metric time series over the window. Only present when a single service is requested —
+   * the list omits it to stay cheap.
+   */
   history?: ServiceHistory;
 };
 
@@ -9412,6 +9871,9 @@ export type ShieldstralModerationStep = Omit<WorkflowStep, '$type'> & {
  * ShieldstralModeration
  */
 export type ShieldstralModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ShieldstralModerationStep step.
+   */
   input: ShieldstralModerationInput;
   $type: 'shieldstralModeration';
 };
@@ -9473,6 +9935,9 @@ export type SoniloAudioGenOutput = {
  * Generate music or a standalone sound effect from a text prompt with Sonilo.
  */
 export type SoniloAudioGenStep = Omit<WorkflowStep, '$type'> & {
+  /**
+   * Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.
+   */
   input: SoniloAudioGenInput;
   output?: SoniloAudioGenOutput;
   $type: 'soniloAudioGen';
@@ -9482,6 +9947,9 @@ export type SoniloAudioGenStep = Omit<WorkflowStep, '$type'> & {
  * Generate music or a standalone sound effect from a text prompt with Sonilo.
  */
 export type SoniloAudioGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the SoniloAudioGenStep step.
+   */
   input: SoniloAudioGenInput;
   $type: 'soniloAudioGen';
 };
@@ -9596,6 +10064,9 @@ export type TextToImageInput = {
    */
   imageMetadata?: null | string;
   engine?: null | string;
+  /**
+   * The format in which to output images, Png and WebP may charge an additional cost
+   */
   outputFormat?: OutputFormat;
   /**
    * An optional source image to trigger img-to-img
@@ -9624,6 +10095,9 @@ export type TextToImageStep = Omit<WorkflowStep, '$type'> & {
  * TextToImage
  */
 export type TextToImageStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the TextToImageStep step.
+   */
   input: TextToImageInput;
   $type: 'textToImage';
 };
@@ -9662,6 +10136,9 @@ export type TextToSpeechStep = Omit<WorkflowStep, '$type'> & {
  * Text-to-Speech
  */
 export type TextToSpeechStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the TextToSpeechStep step.
+   */
   input: TextToSpeechInput;
   $type: 'textToSpeech';
 };
@@ -9698,6 +10175,9 @@ export type TrainingData = {
 export type TrainingInput = {
   engine: string;
   trainingData: TrainingData;
+  /**
+   * Sample generation configuration for preview outputs during training
+   */
   samples?: TrainingInputSamples;
   /**
    * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
@@ -9749,6 +10229,10 @@ export type TrainingOutputEpochResult = {
    * The epoch number (1-based)
    */
   epochNumber: number;
+  /**
+   * The trained model blob for this epoch. `available` is false (and there is no URL) while the
+   * epoch is still pending or training.
+   */
   model: Blob;
   /**
    * Sample outputs (images/videos/audio) generated with this epoch's model
@@ -9774,6 +10258,9 @@ export type TrainingStep = Omit<WorkflowStep, '$type'> & {
  * Training
  */
 export type TrainingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the TrainingStep step.
+   */
   input: TrainingInput;
   $type: 'training';
 };
@@ -9871,6 +10358,9 @@ export type TranscodeStep = Omit<WorkflowStep, '$type'> & {
  * Transcoding
  */
 export type TranscodeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the TranscodeStep step.
+   */
   input: TranscodeInput;
   $type: 'transcode';
 };
@@ -9899,6 +10389,10 @@ export type TranscriptionOutput = {
    */
   timeStamps: Array<TranscriptionTimeStamp>;
   elapsedSeconds: number;
+  /**
+   * False when the media has no audio track; null when the worker did not check.
+   */
+  hasAudio?: null | boolean;
 };
 
 /**
@@ -9914,6 +10408,9 @@ export type TranscriptionStep = Omit<WorkflowStep, '$type'> & {
  * Transcription
  */
 export type TranscriptionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the TranscriptionStep step.
+   */
   input: TranscriptionInput;
   $type: 'transcription';
 };
@@ -10048,6 +10545,11 @@ export type UpdateWorkflowRequest = {
    * Set to true to remove the mature content restriction on the workflow.
    */
   allowMatureContent?: null | boolean;
+  /**
+   * Raise the download priority for resources this workflow needs but the fleet does not hold.
+   * Only Civitai.Orchestration.Grains.Workflows.Priority.High may be requested, and it carries a Buzz charge for each cold
+   * resource above the free size threshold.
+   */
   downloadPriority?: Priority;
 };
 
@@ -10144,6 +10646,9 @@ export type Veo3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   seed?: null | number;
   fastMode?: boolean;
   images?: Array<string>;
+  /**
+   * Google retired the Veo 3.0 endpoints on 2026-08-28; requests with `3.0` are rejected with 400. Use `3.1`.
+   */
   version?: Veo3Version;
   mode?: Veo3GenerationMode;
 };
@@ -10178,6 +10683,9 @@ export type VideoBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
  * Tracks a prompted foreground object across a video and returns a lossless animated WebP with transparency.
  */
 export type VideoBackgroundRemovalStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the VideoBackgroundRemovalStep step.
+   */
   input: VideoBackgroundRemovalInput;
   $type: 'videoBackgroundRemoval';
 };
@@ -10233,6 +10741,9 @@ export type VideoEnhancementStep = Omit<WorkflowStep, '$type'> & {
  * Upscale videos and/or interpolate frames
  */
 export type VideoEnhancementStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the VideoEnhancementStep step.
+   */
   input: VideoEnhancementInput;
   $type: 'videoEnhancement';
 };
@@ -10280,6 +10791,9 @@ export type VideoFrameExtractionStep = Omit<WorkflowStep, '$type'> & {
  * Video Frame Extraction
  */
 export type VideoFrameExtractionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the VideoFrameExtractionStep step.
+   */
   input: VideoFrameExtractionInput;
   $type: 'videoFrameExtraction';
 };
@@ -10301,6 +10815,10 @@ export type VideoGenOutput = {
    * Civitai.Orchestration.Grains.Workflows.Steps.VideoGen.VideoGenOutput.Video is always the primary slot. Null/empty for single-output engines.
    */
   additionalVideos?: null | Array<VideoBlob>;
+  /**
+   * Encrypted draft cache produced by a FLUX-3 draft generation. Pass its url as the draftCache
+   * input of a later draftEnhance step to re-render the draft at full quality.
+   */
   draftCache?: Blob;
 };
 
@@ -10317,6 +10835,9 @@ export type VideoGenStep = Omit<WorkflowStep, '$type'> & {
  * Video generation
  */
 export type VideoGenStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the VideoGenStep step.
+   */
   input: VideoGenInput;
   $type: 'videoGen';
 };
@@ -10344,6 +10865,9 @@ export type VideoInterpolationStep = Omit<WorkflowStep, '$type'> & {
  * Interpolate videos using VFI Mamba
  */
 export type VideoInterpolationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the VideoInterpolationStep step.
+   */
   input: VideoInterpolationInput;
   $type: 'videoInterpolation';
 };
@@ -10372,6 +10896,9 @@ export type VideoMetadataStep = Omit<WorkflowStep, '$type'> & {
  * Extract metadata from videos including width, height, FPS, and duration
  */
 export type VideoMetadataStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the VideoMetadataStep step.
+   */
   input: VideoMetadataInput;
   $type: 'videoMetadata';
 };
@@ -10398,6 +10925,9 @@ export type VideoUpscalerStep = Omit<WorkflowStep, '$type'> & {
  * Upscale videos using FlashVSR
  */
 export type VideoUpscalerStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the VideoUpscalerStep step.
+   */
   input: VideoUpscalerInput;
   $type: 'videoUpscaler';
 };
@@ -10542,6 +11072,9 @@ export type WdTaggingStep = Omit<WorkflowStep, '$type'> & {
  * WDTagging
  */
 export type WdTaggingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the WDTaggingStep step.
+   */
   input: WdTaggingInput;
   $type: 'wdTagging';
 };
@@ -11153,6 +11686,9 @@ export type WebScrapeStep = Omit<WorkflowStep, '$type'> & {
  * WebScrape
  */
 export type WebScrapeStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the WebScrapeStep step.
+   */
   input: WebScrapeInput;
   $type: 'webScrape';
 };
@@ -11204,6 +11740,9 @@ export type WebSearchStep = Omit<WorkflowStep, '$type'> & {
  * WebSearch
  */
 export type WebSearchStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the WebSearchStep step.
+   */
   input: WebSearchInput;
   $type: 'webSearch';
 };
@@ -11241,14 +11780,27 @@ export type Workflow = {
   };
   readonly steps: Array<WorkflowStep>;
   callbacks: Array<WorkflowCallback>;
+  /**
+   * Optional tips for either civitai or the creators involved in this workflow.
+   */
   tips: WorkflowTips;
+  /**
+   * Get a summary of the actual cost consumed by this workflow.
+   * On dry-run requests, this will contain the estimated cost.
+   */
   cost: WorkflowCost;
+  /**
+   * An optional limit in what content is safe to return
+   */
   nsfwLevel?: NsfwLevel;
   /**
    * Opts the workflow in to new features or behaviours that are not yet stable.
    */
   experimental?: null | boolean;
   allowMatureContent?: null | boolean;
+  /**
+   * Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.
+   */
   upgradeMode: WorkflowUpgradeMode;
   currencies: Array<BuzzClientAccount>;
   /**
@@ -11274,7 +11826,14 @@ export type Workflow = {
    * Soft delete: the telemetry document is kept until its TTL for operators, but consumer reads treat the workflow as gone.
    */
   deletedAt?: null | string;
+  /**
+   * Download lane for resources this workflow needs but the fleet does not hold. Resolved from
+   * membership at submission unless the consumer paid to pin it to Civitai.Orchestration.Grains.Workflows.Priority.High.
+   */
   downloadPriority?: Priority;
+  /**
+   * How a workflow is paid for.
+   */
   tier: WorkflowTier;
   fund?: null | string;
 };
@@ -11358,6 +11917,9 @@ export type WorkflowEvent = {
   status: WorkflowStatus;
   timestamp: string;
   readonly $type: string;
+  /**
+   * Only present when the callback requests detailed events.
+   */
   details?: WorkflowEventDetails;
 };
 
@@ -11366,10 +11928,10 @@ export type WorkflowEvent = {
  */
 export type WorkflowEventDetails = {
   metadata?: null | {
-    [key: string]: null;
+    [key: string]: unknown;
   };
   arguments?: null | {
-    [key: string]: null;
+    [key: string]: unknown;
   };
   createdAt: string;
   completedAt?: null | string;
@@ -11383,10 +11945,10 @@ export type WorkflowEventStepDetails = {
   startedAt?: null | string;
   completedAt?: null | string;
   metadata?: null | {
-    [key: string]: null;
+    [key: string]: unknown;
   };
-  input?: null;
-  output?: null;
+  input?: unknown;
+  output?: unknown;
   cost?: null | number;
 };
 
@@ -11427,6 +11989,10 @@ export type WorkflowStep = {
    * the step is preparing.
    */
   preparation?: null | Array<WorkflowStepPreparationResource>;
+  /**
+   * The step's queue position, aggregated across its jobs (worst support, fewest preceding jobs,
+   * earliest estimated start, latest estimated completion). Null once the step starts processing.
+   */
   queuePosition?: WorkflowStepQueuePosition;
   /**
    * Non-fatal warnings about this step, such as a requested model that is scheduled for retirement.
@@ -11440,6 +12006,9 @@ export type WorkflowStepEvent = {
   name: string;
   status: WorkflowStatus;
   readonly $type: string;
+  /**
+   * Only present when the callback requests detailed events.
+   */
   details?: WorkflowStepEventDetails;
   /**
    * Every resource download this step is waiting on, gating resource first. Only set while preparing.
@@ -11459,10 +12028,10 @@ export type WorkflowStepEventDetails = {
   estimatedProgressRate?: null | number;
   retries: number;
   metadata?: null | {
-    [key: string]: null;
+    [key: string]: unknown;
   };
-  input?: null;
-  output?: null;
+  input?: unknown;
+  output?: unknown;
   /**
    * Every resource download this step is waiting on, gating resource first. Only set while preparing.
    */
@@ -11559,12 +12128,26 @@ export type WorkflowTemplate = {
   tags?: null | Array<string>;
   steps: Array<WorkflowStepTemplate>;
   callbacks?: null | Array<WorkflowCallback>;
+  /**
+   * Optional tips for either civitai or the creators involved in this workflow.
+   */
   tips?: WorkflowTips;
   arguments?: null | {
     [key: string]: unknown;
   };
+  /**
+   * An optional limit in what content is safe to return
+   */
   nsfwLevel?: NsfwLevel;
+  /**
+   * Download urgency for resources the fleet does not hold; omit to derive it from membership.
+   * Only Civitai.Orchestration.Grains.Workflows.Priority.High may be requested, and it carries a Buzz charge per cold resource above the free size threshold.
+   */
   downloadPriority?: Priority;
+  /**
+   * Run this workflow on the free tier. Only steps using a model offered on the free tier are
+   * accepted; they cost no Buzz, count against a per-user quota and run behind all paid work.
+   */
   tier?: WorkflowTier;
   /**
    * Opts the workflow in to new features or behaviours that are not yet stable.
@@ -11574,6 +12157,9 @@ export type WorkflowTemplate = {
    * When false, no content marked as mature is returned; additional payment options are available for such workflows.
    */
   allowMatureContent?: null | boolean;
+  /**
+   * Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.
+   */
   upgradeMode?: WorkflowUpgradeMode;
   /**
    * Limit the currencies that can be used to pay for this workflow.
@@ -11727,6 +12313,9 @@ export type XGuardModerationStep = Omit<WorkflowStep, '$type'> & {
  * XGuardModeration
  */
 export type XGuardModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the XGuardModerationStep step.
+   */
   input: XGuardModerationInput;
   $type: 'xGuardModeration';
 };
@@ -11738,6 +12327,10 @@ export type XGuardPromptModerationInput = Omit<XGuardModerationInput, 'mode'> & 
    * Additional instructions are unsupported by the fixed Civitai Scan contract.
    */
   instructions?: null | string;
+  /**
+   * Only Combined is supported: both prompts are sent as JSON, negative terms act as exclusions (excluding adulthood is an age-down cue).
+   * For positive-only input use Combined with an empty negative prompt.
+   */
   scope: XGuardPromptScope;
   mode: 'prompt';
 };
@@ -11863,6 +12456,9 @@ export type YuE2SampleOverride = {
  * Generate a song from style and lyrics with YuE2.
  */
 export type YuE2Step = Omit<WorkflowStep, '$type'> & {
+  /**
+   * YuE2 text-to-music generation with optional ABC score planning.
+   */
   input: YuE2Input;
   output?: YuE2Output;
   $type: 'yuE2';
@@ -11872,6 +12468,9 @@ export type YuE2Step = Omit<WorkflowStep, '$type'> & {
  * Generate a song from style and lyrics with YuE2.
  */
 export type YuE2StepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the YuE2Step step.
+   */
   input: YuE2Input;
   $type: 'yuE2';
 };
@@ -12072,6 +12671,10 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  /**
+   * What each epoch job records to its trace stream (`output.epochs[].traceUrl`): `none` (default), `logs` (plain-text console output)
+   * or `events` (NDJSON of console lines, step progress, phases and epoch checkpoints).
+   */
   trace: TrainingTraceMode;
   engine: 'ai-toolkit';
 };
@@ -12168,6 +12771,35 @@ export type AssistantMessageWritable = Omit<ChatCompletionMessageWritable, 'role
   role: 'assistant';
 };
 
+export type AudioModerationOutputWritable = {
+  lyrics: string;
+  sexualizedMinors: boolean;
+  score: null | number;
+  model: null | string;
+  policyHash: null | string;
+  hasAudio?: null | boolean;
+  skippedReason?: null | string;
+};
+
+/**
+ * Transcribe every audio track and classify the lyrics for sexualized minors.
+ */
+export type AudioModerationStepWritable = Omit<WorkflowStepWritable, '$type'> & {
+  input: AudioModerationInput;
+  output?: AudioModerationOutputWritable;
+  $type: 'audioModeration';
+};
+
+export type AudioTextModerationOutputWritable = {
+  lyrics: string;
+  sexualizedMinors: boolean;
+  score: null | number;
+  model: null | string;
+  policyHash: null | string;
+  hasAudio?: null | boolean;
+  skippedReason?: null | string;
+};
+
 export type BooguAiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -12182,9 +12814,12 @@ export type BooguAiToolkitTrainingInputWritable = Omit<
 
 export type ChatCompletionChoiceWritable = {
   index: number;
+  /**
+   * An assistant message representing a prior response.
+   */
   message: AssistantMessageWritable;
   finishReason?: null | string;
-  logprobs?: null;
+  logprobs?: unknown;
 };
 
 /**
@@ -12210,13 +12845,16 @@ export type ChatCompletionOutputWritable = {
    * Parsed JSON of `Choices[0].Message.Content`, populated when the request used a JSON `response_format`
    * and the content parsed. Reachable from later steps via `$ref` paths like `output.parsed.<field>`.
    */
-  parsed?: null;
+  parsed?: unknown;
 };
 
 /**
  * ChatCompletion
  */
 export type ChatCompletionStepWritable = Omit<WorkflowStepWritable, '$type'> & {
+  /**
+   * Input for a chat completion step, compatible with OpenAI Chat Completions API.
+   */
   input: ChatCompletionInput;
   output?: ChatCompletionOutputWritable;
   $type: 'chatCompletion';
@@ -12388,6 +13026,10 @@ export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    * epoch resumes from this model instead of the base model, and the new epochs build on top of it.
    */
   continueFrom?: null | string;
+  /**
+   * What each epoch job records to its trace stream (`output.epochs[].traceUrl`): `none` (default), `logs` (plain-text console output)
+   * or `events` (NDJSON of console lines, step progress, phases and epoch checkpoints).
+   */
   trace: TrainingTraceMode;
   resolution?: number;
   noHalfVae?: boolean;
@@ -13093,6 +13735,9 @@ export type PreprocessImageStepWritable = Omit<WorkflowStepWritable, '$type'> & 
 };
 
 export type PreprocessImageStepTemplateWritable = Omit<WorkflowStepTemplateWritable, '$type'> & {
+  /**
+   * Input for the PreprocessImageStep step.
+   */
   input: PreprocessImageInputWritable;
   $type: 'preprocessImage';
 };
@@ -13199,6 +13844,9 @@ export type PreprocessVideoStepWritable = Omit<WorkflowStepWritable, '$type'> & 
 };
 
 export type PreprocessVideoStepTemplateWritable = Omit<WorkflowStepTemplateWritable, '$type'> & {
+  /**
+   * Input for the PreprocessVideoStep step.
+   */
   input: PreprocessVideoInputWritable;
   $type: 'preprocessVideo';
 };
@@ -13293,6 +13941,9 @@ export type SdxlAiToolkitTrainingInputWritable = Omit<
 export type TrainingInputWritable = {
   engine: string;
   trainingData: TrainingData;
+  /**
+   * Sample generation configuration for preview outputs during training
+   */
   samples?: TrainingInputSamples;
 };
 
@@ -13309,6 +13960,9 @@ export type TrainingStepWritable = Omit<WorkflowStepWritable, '$type'> & {
  * Training
  */
 export type TrainingStepTemplateWritable = Omit<WorkflowStepTemplateWritable, '$type'> & {
+  /**
+   * Input for the TrainingStep step.
+   */
   input: TrainingInputWritable;
   $type: 'training';
 };
@@ -13343,14 +13997,27 @@ export type WorkflowWritable = {
     [key: string]: unknown;
   };
   callbacks: Array<WorkflowCallback>;
+  /**
+   * Optional tips for either civitai or the creators involved in this workflow.
+   */
   tips: WorkflowTips;
+  /**
+   * Get a summary of the actual cost consumed by this workflow.
+   * On dry-run requests, this will contain the estimated cost.
+   */
   cost: WorkflowCostWritable;
+  /**
+   * An optional limit in what content is safe to return
+   */
   nsfwLevel?: NsfwLevel;
   /**
    * Opts the workflow in to new features or behaviours that are not yet stable.
    */
   experimental?: null | boolean;
   allowMatureContent?: null | boolean;
+  /**
+   * Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.
+   */
   upgradeMode: WorkflowUpgradeMode;
   currencies: Array<BuzzClientAccount>;
   /**
@@ -13376,7 +14043,14 @@ export type WorkflowWritable = {
    * Soft delete: the telemetry document is kept until its TTL for operators, but consumer reads treat the workflow as gone.
    */
   deletedAt?: null | string;
+  /**
+   * Download lane for resources this workflow needs but the fleet does not hold. Resolved from
+   * membership at submission unless the consumer paid to pin it to Civitai.Orchestration.Grains.Workflows.Priority.High.
+   */
   downloadPriority?: Priority;
+  /**
+   * How a workflow is paid for.
+   */
   tier: WorkflowTier;
   fund?: null | string;
 };
@@ -13413,6 +14087,9 @@ export type WorkflowEventWritable = {
   workflowId: string;
   status: WorkflowStatus;
   timestamp: string;
+  /**
+   * Only present when the callback requests detailed events.
+   */
   details?: WorkflowEventDetails;
 };
 
@@ -13420,6 +14097,9 @@ export type WorkflowStepEventWritable = {
   workflowId: string;
   name: string;
   status: WorkflowStatus;
+  /**
+   * Only present when the callback requests detailed events.
+   */
   details?: WorkflowStepEventDetails;
   /**
    * Every resource download this step is waiting on, gating resource first. Only set while preparing.
@@ -13532,6 +14212,9 @@ export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
 export type TrainingInputWritable2 = {
   engine: string;
   trainingData: TrainingData;
+  /**
+   * Sample generation configuration for preview outputs during training
+   */
   samples?: TrainingInputSamples;
   /**
    * Whether this run uses step-based pricing rather than the legacy flat per-epoch price.
@@ -13567,6 +14250,10 @@ export type WorkflowStepWritable = {
    * the step is preparing.
    */
   preparation?: null | Array<WorkflowStepPreparationResource>;
+  /**
+   * The step's queue position, aggregated across its jobs (worst support, fewest preceding jobs,
+   * earliest estimated start, latest estimated completion). Null once the step starts processing.
+   */
   queuePosition?: WorkflowStepQueuePosition;
   /**
    * Non-fatal warnings about this step, such as a requested model that is scheduled for retirement.
@@ -14349,6 +15036,138 @@ export type InvokeAudioCaptioningStepTemplateResponses = {
 export type InvokeAudioCaptioningStepTemplateResponse =
   InvokeAudioCaptioningStepTemplateResponses[keyof InvokeAudioCaptioningStepTemplateResponses];
 
+export type InvokeAudioClassificationStepTemplateData = {
+  body?: AudioClassificationInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+  };
+  url: '/v2/consumer/recipes/audioClassification';
+};
+
+export type InvokeAudioClassificationStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeAudioClassificationStepTemplateError =
+  InvokeAudioClassificationStepTemplateErrors[keyof InvokeAudioClassificationStepTemplateErrors];
+
+export type InvokeAudioClassificationStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: AudioClassificationOutput;
+};
+
+export type InvokeAudioClassificationStepTemplateResponse =
+  InvokeAudioClassificationStepTemplateResponses[keyof InvokeAudioClassificationStepTemplateResponses];
+
+export type InvokeAudioModerationStepTemplateData = {
+  body?: AudioModerationInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+  };
+  url: '/v2/consumer/recipes/audioModeration';
+};
+
+export type InvokeAudioModerationStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeAudioModerationStepTemplateError =
+  InvokeAudioModerationStepTemplateErrors[keyof InvokeAudioModerationStepTemplateErrors];
+
+export type InvokeAudioModerationStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: AudioModerationOutput;
+};
+
+export type InvokeAudioModerationStepTemplateResponse =
+  InvokeAudioModerationStepTemplateResponses[keyof InvokeAudioModerationStepTemplateResponses];
+
+export type InvokeAudioTextModerationStepTemplateData = {
+  body?: AudioTextModerationInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+  };
+  url: '/v2/consumer/recipes/audioTextModeration';
+};
+
+export type InvokeAudioTextModerationStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeAudioTextModerationStepTemplateError =
+  InvokeAudioTextModerationStepTemplateErrors[keyof InvokeAudioTextModerationStepTemplateErrors];
+
+export type InvokeAudioTextModerationStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: AudioTextModerationOutput;
+};
+
+export type InvokeAudioTextModerationStepTemplateResponse =
+  InvokeAudioTextModerationStepTemplateResponses[keyof InvokeAudioTextModerationStepTemplateResponses];
+
 export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
   body?: BatchOcrSafetyClassificationInput;
   path?: never;
@@ -14438,6 +15257,9 @@ export type InvokeBlobArchiveStepTemplateResponse =
   InvokeBlobArchiveStepTemplateResponses[keyof InvokeBlobArchiveStepTemplateResponses];
 
 export type InvokeChatCompletionStepTemplateData = {
+  /**
+   * Input for a chat completion step, compatible with OpenAI Chat Completions API.
+   */
   body?: ChatCompletionInput;
   path?: never;
   query?: {
@@ -14526,6 +15348,10 @@ export type InvokeComfyStepTemplateResponse =
   InvokeComfyStepTemplateResponses[keyof InvokeComfyStepTemplateResponses];
 
 export type InvokeComfyNodepackSnapshotStepTemplateData = {
+  /**
+   * Installs ComfyUI custom nodepacks on a comfy image and captures the resolved install and editor metadata as
+   * reusable blobs. Runs on a real worker so compiled deps match the fleet the consumer will run on.
+   */
   body?: ComfyNodepackSnapshotInput;
   path?: never;
   query?: {
@@ -14561,7 +15387,8 @@ export type InvokeComfyNodepackSnapshotStepTemplateError =
 
 export type InvokeComfyNodepackSnapshotStepTemplateResponses = {
   /**
-   * OK
+   * One result per installed pack, each carrying the captured install layer, full /object_info and web assets as
+   * blobs that consumers read directly from orchestrator blob storage.
    */
   200: ComfyNodepackSnapshotOutput;
 };
@@ -15098,6 +15925,9 @@ export type InvokeImageUpscalerStepTemplateResponse =
   InvokeImageUpscalerStepTemplateResponses[keyof InvokeImageUpscalerStepTemplateResponses];
 
 export type InvokeLiveTextToSpeechStepTemplateData = {
+  /**
+   * Mirrors `textToSpeech` inputs, but only for voices proven to stream with low first-audio latency.
+   */
   body?: LiveTextToSpeechInput;
   path?: never;
   query?: {
@@ -16022,6 +16852,9 @@ export type InvokeShieldstralModerationStepTemplateResponse =
   InvokeShieldstralModerationStepTemplateResponses[keyof InvokeShieldstralModerationStepTemplateResponses];
 
 export type InvokeSoniloAudioGenStepTemplateData = {
+  /**
+   * Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.
+   */
   body?: SoniloAudioGenInput;
   path?: never;
   query?: {
@@ -16814,6 +17647,9 @@ export type InvokeXGuardModerationStepTemplateResponse =
   InvokeXGuardModerationStepTemplateResponses[keyof InvokeXGuardModerationStepTemplateResponses];
 
 export type InvokeYuE2StepTemplateData = {
+  /**
+   * YuE2 text-to-music generation with optional ABC score planning.
+   */
   body?: YuE2Input;
   path?: never;
   query?: {
@@ -17046,7 +17882,7 @@ export type GetServiceError = GetServiceErrors[keyof GetServiceErrors];
 
 export type GetServiceResponses = {
   /**
-   * OK
+   * A service we offer.
    */
   200: ServiceResponse;
 };
@@ -17289,8 +18125,7 @@ export type GetWorkflowData = {
      */
     wait?: number;
     /**
-     * What wait waits for: `completion` (the default) returns once the workflow reaches a
-     * final status, `change` as soon as its status or any of its steps changes.
+     * What a held read of a workflow waits for before it returns.
      */
     until?: WorkflowWaitUntil;
     /**

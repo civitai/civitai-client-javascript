@@ -562,8 +562,11 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": "Error",
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -572,11 +575,8 @@
               }
             }
           },
-          "204": {
-            "description": "No Content"
-          },
-          "401": {
-            "description": "Unauthorized",
+          "default": {
+            "description": "Error",
             "content": {
               "application/json": {
                 "schema": {
@@ -606,8 +606,11 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": "Error",
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -616,11 +619,8 @@
               }
             }
           },
-          "204": {
-            "description": "No Content"
-          },
-          "401": {
-            "description": "Unauthorized",
+          "default": {
+            "description": "Error",
             "content": {
               "application/json": {
                 "schema": {
@@ -1017,6 +1017,7 @@
             "in": "query",
             "description": "How a workflow is paid for.",
             "schema": {
+              "description": "How a workflow is paid for.",
               "$ref": "#/components/schemas/WorkflowTier"
             }
           }
@@ -1265,6 +1266,329 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AudioCaptioningOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/audioClassification": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "operationId": "InvokeAudioClassificationStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "description": "How a workflow is paid for.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowTier"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioClassificationInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioClassificationInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioClassificationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioClassificationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/audioModeration": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Transcribe every audio track and classify the lyrics for sexualized minors.",
+        "operationId": "InvokeAudioModerationStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "description": "How a workflow is paid for.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowTier"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioModerationInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioModerationInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioModerationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioModerationOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/audioTextModeration": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Classify transcribed lyrics for sexualized minors.",
+        "operationId": "InvokeAudioTextModerationStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "description": "How a workflow is paid for.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowTier"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioTextModerationInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioTextModerationInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioTextModerationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioTextModerationOutput"
                 }
               }
             }
@@ -1567,16 +1891,19 @@
           "content": {
             "application/json": {
               "schema": {
+                "description": "Input for a chat completion step, compatible with OpenAI Chat Completions API.",
                 "$ref": "#/components/schemas/ChatCompletionInput"
               }
             },
             "text/json": {
               "schema": {
+                "description": "Input for a chat completion step, compatible with OpenAI Chat Completions API.",
                 "$ref": "#/components/schemas/ChatCompletionInput"
               }
             },
             "application/*+json": {
               "schema": {
+                "description": "Input for a chat completion step, compatible with OpenAI Chat Completions API.",
                 "$ref": "#/components/schemas/ChatCompletionInput"
               }
             }
@@ -1783,16 +2110,19 @@
           "content": {
             "application/json": {
               "schema": {
+                "description": "Installs ComfyUI custom nodepacks on a comfy image and captures the resolved install and editor metadata as\nreusable blobs. Runs on a real worker so compiled deps match the fleet the consumer will run on.",
                 "$ref": "#/components/schemas/ComfyNodepackSnapshotInput"
               }
             },
             "text/json": {
               "schema": {
+                "description": "Installs ComfyUI custom nodepacks on a comfy image and captures the resolved install and editor metadata as\nreusable blobs. Runs on a real worker so compiled deps match the fleet the consumer will run on.",
                 "$ref": "#/components/schemas/ComfyNodepackSnapshotInput"
               }
             },
             "application/*+json": {
               "schema": {
+                "description": "Installs ComfyUI custom nodepacks on a comfy image and captures the resolved install and editor metadata as\nreusable blobs. Runs on a real worker so compiled deps match the fleet the consumer will run on.",
                 "$ref": "#/components/schemas/ComfyNodepackSnapshotInput"
               }
             }
@@ -1804,6 +2134,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "One result per installed pack, each carrying the captured install layer, full /object_info and web assets as\nblobs that consumers read directly from orchestrator blob storage.",
                   "$ref": "#/components/schemas/ComfyNodepackSnapshotOutput"
                 }
               }
@@ -3193,16 +3524,19 @@
           "content": {
             "application/json": {
               "schema": {
+                "description": "Mirrors `textToSpeech` inputs, but only for voices proven to stream with low first-audio latency.",
                 "$ref": "#/components/schemas/LiveTextToSpeechInput"
               }
             },
             "text/json": {
               "schema": {
+                "description": "Mirrors `textToSpeech` inputs, but only for voices proven to stream with low first-audio latency.",
                 "$ref": "#/components/schemas/LiveTextToSpeechInput"
               }
             },
             "application/*+json": {
               "schema": {
+                "description": "Mirrors `textToSpeech` inputs, but only for voices proven to stream with low first-audio latency.",
                 "$ref": "#/components/schemas/LiveTextToSpeechInput"
               }
             }
@@ -5475,16 +5809,19 @@
           "content": {
             "application/json": {
               "schema": {
+                "description": "Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.",
                 "$ref": "#/components/schemas/SoniloAudioGenInput"
               }
             },
             "text/json": {
               "schema": {
+                "description": "Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.",
                 "$ref": "#/components/schemas/SoniloAudioGenInput"
               }
             },
             "application/*+json": {
               "schema": {
+                "description": "Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.",
                 "$ref": "#/components/schemas/SoniloAudioGenInput"
               }
             }
@@ -7428,16 +7765,19 @@
           "content": {
             "application/json": {
               "schema": {
+                "description": "YuE2 text-to-music generation with optional ABC score planning.",
                 "$ref": "#/components/schemas/YuE2Input"
               }
             },
             "text/json": {
               "schema": {
+                "description": "YuE2 text-to-music generation with optional ABC score planning.",
                 "$ref": "#/components/schemas/YuE2Input"
               }
             },
             "application/*+json": {
               "schema": {
+                "description": "YuE2 text-to-music generation with optional ABC score planning.",
                 "$ref": "#/components/schemas/YuE2Input"
               }
             }
@@ -7501,6 +7841,7 @@
             "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them.",
             "required": true,
             "schema": {
+              "description": "A projection of the resource collection. There is no view that lists every known resource — resources\nare addressed by AIR and only materialise once something asks for them.",
               "$ref": "#/components/schemas/ResourceView"
             }
           },
@@ -7800,6 +8141,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "A service we offer.",
                   "$ref": "#/components/schemas/ServiceResponse"
                 }
               }
@@ -8872,6 +9214,8 @@
             "in": "query",
             "description": "What wait waits for: `completion` (the default) returns once the workflow reaches a\nfinal status, `change` as soon as its status or any of its steps changes.",
             "schema": {
+              "description": "What a held read of a workflow waits for before it returns.",
+              "default": "completion",
               "$ref": "#/components/schemas/WorkflowWaitUntil"
             }
           },
@@ -9720,6 +10064,7 @@
                 "description": "Optional previously-trained LoRA to continue training from (\"train further\"). When set, the first\nepoch resumes from this model instead of the base model, and the new epochs build on top of it."
               },
               "trace": {
+                "description": "What each epoch job records to its trace stream (`output.epochs[].traceUrl`): `none` (default), `logs` (plain-text console output)\nor `events` (NDJSON of console lines, step progress, phases and epoch checkpoints).",
                 "$ref": "#/components/schemas/TrainingTraceMode"
               },
               "storageBuzzPerEpoch": {
@@ -9802,6 +10147,7 @@
               "samplesOverrides": {
                 "type": "array",
                 "items": {
+                  "description": "Per-prompt overrides for AceStep training samples, index-aligned with `Samples.Prompts`;\nnull fields fall back to the hardcoded sample default.",
                   "$ref": "#/components/schemas/AceStepSampleOverride"
                 }
               },
@@ -9851,6 +10197,7 @@
               "samplesOverrides": {
                 "type": "array",
                 "items": {
+                  "description": "Per-prompt overrides for AceStep training samples, index-aligned with `Samples.Prompts`;\nnull fields fall back to the hardcoded sample default.",
                   "$ref": "#/components/schemas/AceStepSampleOverride"
                 }
               },
@@ -10124,6 +10471,7 @@
             "description": "Optional diffusion model (unet) override. Defaults to ACE-Step 1.5 turbo 2B."
           },
           "cover": {
+            "description": "Optional cover image. When provided, the output is a WebM video\nwith this image as the visual; otherwise, output is audio-only (MP3).",
             "$ref": "#/components/schemas/AceStepAudioCover"
           },
           "clipModel": {
@@ -10184,6 +10532,7 @@
         "type": "object",
         "properties": {
           "blob": {
+            "description": "The generated output blob — VideoBlob (with background image) or AudioBlob (audio only).",
             "$ref": "#/components/schemas/Blob"
           }
         },
@@ -10232,6 +10581,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the AceStepAudioStep step.",
                 "$ref": "#/components/schemas/AceStepAudioInput"
               },
               "$type": {
@@ -10511,6 +10861,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the AgeClassificationStep step.",
                 "$ref": "#/components/schemas/AgeClassificationInput"
               },
               "$type": {
@@ -10748,9 +11099,11 @@
                 ]
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "steps": {
@@ -11054,6 +11407,7 @@
                   "array"
                 ],
                 "items": {
+                  "description": "A generated image attached to an assistant message when \"image\" is included in\nCivitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities. Matches the OpenRouter wire shape.",
                   "$ref": "#/components/schemas/ChatCompletionGeneratedImage"
                 },
                 "description": "Generated images attached to this assistant message, populated when the request\nincluded \"image\" in its modalities. Each entry is a base64 data URI."
@@ -11117,8 +11471,10 @@
       },
       "AudioCaptioningInput": {
         "required": [
+          "includeCaption",
           "maxNewTokens",
           "mediaUrl",
+          "prepareForModeration",
           "temperature"
         ],
         "type": "object",
@@ -11137,6 +11493,12 @@
             "type": "integer",
             "description": "Maximum number of tokens to generate for each ACE-Step request.",
             "format": "int32"
+          },
+          "includeCaption": {
+            "type": "boolean"
+          },
+          "prepareForModeration": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -11152,6 +11514,12 @@
             "additionalProperties": {
               "$ref": "#/components/schemas/AudioCaptioningOutputItem"
             }
+          },
+          "hasAudio": {
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         },
         "additionalProperties": false
@@ -11206,6 +11574,12 @@
               "null",
               "string"
             ]
+          },
+          "finishReason": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "additionalProperties": false
@@ -11253,6 +11627,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the AudioCaptioningStep step.",
                 "$ref": "#/components/schemas/AudioCaptioningInput"
               },
               "$type": {
@@ -11266,6 +11641,92 @@
           }
         ],
         "description": "Audio Captioning"
+      },
+      "AudioClassificationInput": {
+        "required": [
+          "mediaUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioClassificationOutput": {
+        "required": [
+          "classificationMilliseconds",
+          "hasAudio",
+          "model",
+          "segments"
+        ],
+        "type": "object",
+        "properties": {
+          "hasAudio": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string"
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudioClassificationSegment"
+            }
+          },
+          "classificationMilliseconds": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioClassificationSegment": {
+        "required": [
+          "blobKey",
+          "durationSeconds",
+          "kind",
+          "musicScore",
+          "name",
+          "singingScore",
+          "speechFraction",
+          "speechScore"
+        ],
+        "type": "object",
+        "properties": {
+          "blobKey": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "durationSeconds": {
+            "type": "number",
+            "format": "double"
+          },
+          "speechScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "musicScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "singingScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "speechFraction": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
       },
       "AudioComposeMediaOutput": {
         "allOf": [
@@ -11293,6 +11754,221 @@
           }
         ],
         "description": "An audio mixdown produced when the composition has no video."
+      },
+      "AudioModerationInput": {
+        "required": [
+          "mediaUrl",
+          "transcriber"
+        ],
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "transcriber": {
+            "enum": [
+              "auto",
+              "aceStep",
+              "asr"
+            ],
+            "type": "string",
+            "description": "auto classifies each segment on CPU and sends speech to ASR when the language is supported, everything else to ACE-Step."
+          },
+          "language": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioModerationOutput": {
+        "required": [
+          "blocked",
+          "lyrics",
+          "model",
+          "policyHash",
+          "score",
+          "sexualizedMinors"
+        ],
+        "type": "object",
+        "properties": {
+          "lyrics": {
+            "type": "string"
+          },
+          "sexualizedMinors": {
+            "type": "boolean"
+          },
+          "score": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "model": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyHash": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasAudio": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "skippedReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blocked": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioModerationStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/AudioModerationInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/AudioModerationOutput"
+              },
+              "$type": {
+                "enum": [
+                  "audioModeration"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Transcribe every audio track and classify the lyrics for sexualized minors."
+      },
+      "AudioModerationStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "description": "Input for the AudioModerationStep step.",
+                "$ref": "#/components/schemas/AudioModerationInput"
+              },
+              "$type": {
+                "enum": [
+                  "audioModeration"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Transcribe every audio track and classify the lyrics for sexualized minors."
+      },
+      "AudioTextModerationInput": {
+        "type": "object",
+        "properties": {
+          "lyrics": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "audioCaptioning": {
+            "$ref": "#/components/schemas/AudioCaptioningOutput"
+          },
+          "transcription": {
+            "$ref": "#/components/schemas/TranscriptionOutput"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AudioTextModerationOutput": {
+        "required": [
+          "blocked",
+          "lyrics",
+          "model",
+          "policyHash",
+          "score",
+          "sexualizedMinors"
+        ],
+        "type": "object",
+        "properties": {
+          "lyrics": {
+            "type": "string"
+          },
+          "sexualizedMinors": {
+            "type": "boolean"
+          },
+          "score": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "model": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyHash": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasAudio": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "skippedReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blocked": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
       },
       "AvailableResourceAvailability": {
         "allOf": [
@@ -11368,6 +12044,8 @@
             "type": "object",
             "properties": {
               "shadowRemoval": {
+                "description": "Shadow handling. Sources with painted soft drop shadows need Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ShadowRemoval.Gentle\n(the default) or Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ShadowRemoval.Aggressive.",
+                "default": "gentle",
                 "$ref": "#/components/schemas/ShadowRemoval"
               },
               "fromCenter": {
@@ -11579,6 +12257,7 @@
             "description": "Optional filename for the archive itself (used in the Content-Disposition header).\nDefaults to \"archive.zip\" or \"archive.tar\" based on Civitai.Orchestration.Grains.Workflows.Steps.BlobArchive.BlobArchiveInput.Format."
           },
           "format": {
+            "default": "zip",
             "$ref": "#/components/schemas/ArchiveFormat"
           }
         },
@@ -11656,6 +12335,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the BlobArchiveStep step.",
                 "$ref": "#/components/schemas/BlobArchiveInput"
               },
               "$type": {
@@ -11786,6 +12466,7 @@
               "regions": {
                 "type": "array",
                 "items": {
+                  "description": "A rectangular region defined by pixel coordinates.",
                   "$ref": "#/components/schemas/BlurRegion"
                 }
               },
@@ -11810,6 +12491,7 @@
           "detections": {
             "type": "array",
             "items": {
+              "description": "Represents one body-only age estimate for a detected person.",
               "$ref": "#/components/schemas/BodyAgeDetection"
             }
           },
@@ -12039,6 +12721,7 @@
             "format": "double"
           },
           "costBuzz": {
+            "description": "Per-request spend over succeeded steps — see Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.MetricsResponse.CostBuzz.",
             "$ref": "#/components/schemas/PercentilesResponse"
           },
           "latencySeconds": {
@@ -12068,6 +12751,7 @@
             "format": "int32"
           },
           "message": {
+            "description": "An assistant message representing a prior response.",
             "$ref": "#/components/schemas/AssistantMessage"
           },
           "finishReason": {
@@ -12076,9 +12760,7 @@
               "string"
             ]
           },
-          "logprobs": {
-            "type": "null"
-          }
+          "logprobs": {}
         },
         "additionalProperties": false
       },
@@ -12120,9 +12802,7 @@
               "string"
             ]
           },
-          "parameters": {
-            "type": "null"
-          },
+          "parameters": {},
           "strict": {
             "type": [
               "null",
@@ -12159,6 +12839,7 @@
             "default": "image_url"
           },
           "image_url": {
+            "description": "Currently always a base64 data URI.",
             "$ref": "#/components/schemas/ChatCompletionGeneratedImageUrl"
           }
         },
@@ -12387,7 +13068,6 @@
             }
           },
           "tool_choice": {
-            "type": "null",
             "description": "Controls which (if any) tool is called by the model.\nCan be \"auto\", \"none\", \"required\", or an object specifying a particular function."
           },
           "modalities": {
@@ -12401,9 +13081,11 @@
             "description": "Output modalities, \"text\" and/or \"image\"; defaults to text-only. Including \"image\" routes the request to the\nimage generation pipeline and returns generated images on the assistant message."
           },
           "image_config": {
+            "description": "Image-generation parameters. Only consulted when Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionInput.Modalities contains \"image\".",
             "$ref": "#/components/schemas/ChatCompletionImageConfig"
           },
           "responseFormat": {
+            "description": "OpenAI-compatible response_format (`json_object` or `json_schema`). When set, the parsed content is exposed on\nCivitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionOutput.Parsed so later steps can reference fields via `$ref` paths such as `output.parsed.lyrics`.",
             "$ref": "#/components/schemas/ChatCompletionResponseFormat"
           }
         },
@@ -12499,7 +13181,6 @@
             ]
           },
           "parsed": {
-            "type": "null",
             "description": "Parsed JSON of `Choices[0].Message.Content`, populated when the request used a JSON `response_format`\nand the content parsed. Reachable from later steps via `$ref` paths like `output.parsed.<field>`."
           }
         },
@@ -12517,6 +13198,7 @@
             "description": "OpenAI-compatible value: `text`, `json_object`, or `json_schema`."
           },
           "jsonSchema": {
+            "description": "Required when Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionResponseFormat.Type is `json_schema`. Ignored otherwise.",
             "$ref": "#/components/schemas/ChatCompletionJsonSchema"
           }
         },
@@ -12536,6 +13218,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for a chat completion step, compatible with OpenAI Chat Completions API.",
                 "$ref": "#/components/schemas/ChatCompletionInput"
               },
               "output": {
@@ -12566,6 +13249,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ChatCompletionStep step.",
                 "$ref": "#/components/schemas/ChatCompletionInput"
               },
               "$type": {
@@ -12607,7 +13291,6 @@
             "$ref": "#/components/schemas/ChatCompletionFunction"
           },
           "parameters": {
-            "type": "null",
             "description": "Server-tool parameters for providers such as OpenRouter."
           }
         },
@@ -12654,6 +13337,7 @@
             "format": "int32"
           },
           "completionTokensDetails": {
+            "description": "Breakdown of Civitai.Orchestration.Grains.Workflows.Steps.ChatCompletion.ChatCompletionUsage.CompletionTokens, present when the provider reports one.",
             "$ref": "#/components/schemas/ChatCompletionTokensDetails"
           }
         },
@@ -12790,9 +13474,11 @@
                 ]
               },
               "sampler": {
+                "default": "er_sde",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -13020,9 +13706,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -13128,9 +13816,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -13303,9 +13993,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -13577,9 +14269,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -13735,6 +14429,7 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "steps": {
@@ -13928,9 +14623,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -14093,9 +14790,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -14313,9 +15012,11 @@
                 "type": "string"
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -14604,9 +15305,11 @@
                 "default": 20
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "negativePrompt": {
@@ -14842,9 +15545,11 @@
                 "default": 20
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "negativePrompt": {
@@ -15333,9 +16038,11 @@
                 "default": 1
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "loras": {
@@ -15458,12 +16165,15 @@
                 ]
               },
               "variant": {
+                "default": "fast",
                 "$ref": "#/components/schemas/HiDreamI1Variant"
               },
               "precision": {
+                "description": "Defaults to fp8, except for the full variant which is only available in fp16.",
                 "$ref": "#/components/schemas/HiDreamI1Precision"
               },
               "sampler": {
+                "description": "Defaults to lcm for fast and dev, uni_pc for full.",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "steps": {
@@ -16063,6 +16773,7 @@
                 "type": "string"
               },
               "sampler": {
+                "default": "res_multistep",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "steps": {
@@ -16292,9 +17003,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -16566,9 +17279,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -16731,9 +17446,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -16936,9 +17653,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -17101,9 +17820,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -18873,9 +19594,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "seed": {
@@ -19104,9 +19827,11 @@
                 ]
               },
               "sampler": {
+                "description": "Defaults to Euler for generation, LCM for editing.",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -19648,9 +20373,11 @@
                 "default": 2.5
               },
               "sampler": {
+                "default": "er_sde",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "loras": {
@@ -19913,12 +20640,15 @@
             "description": "The complete install-layer AIR (`urn:air:comfy:nodepacklayer:…@<ver>+<hex(image)>`), the (pack, comfy image) pair.\nDeclare this, not the bare pack URN, on a customComfy step's `resources`."
           },
           "layer": {
+            "description": "Tar of the pack's site-packages + custom_nodes install delta; mounted by spine workers to skip pip.",
             "$ref": "#/components/schemas/Blob"
           },
           "objectInfo": {
+            "description": "The full ComfyUI /object_info with the pack installed; ComfyCloud diffs it against its baseline for the editor.",
             "$ref": "#/components/schemas/Blob"
           },
           "web": {
+            "description": "Tar of the pack's WEB_DIRECTORY (extension JS) for the editor.",
             "$ref": "#/components/schemas/Blob"
           }
         },
@@ -19937,9 +20667,11 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Installs ComfyUI custom nodepacks on a comfy image and captures the resolved install and editor metadata as\nreusable blobs. Runs on a real worker so compiled deps match the fleet the consumer will run on.",
                 "$ref": "#/components/schemas/ComfyNodepackSnapshotInput"
               },
               "output": {
+                "description": "One result per installed pack, each carrying the captured install layer, full /object_info and web assets as\nblobs that consumers read directly from orchestrator blob storage.",
                 "$ref": "#/components/schemas/ComfyNodepackSnapshotOutput"
               },
               "$type": {
@@ -19966,6 +20698,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ComfyNodepackSnapshotStep step.",
                 "$ref": "#/components/schemas/ComfyNodepackSnapshotInput"
               },
               "$type": {
@@ -20109,6 +20842,7 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "steps": {
@@ -20350,9 +21084,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -20665,9 +21401,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -20905,6 +21643,7 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "steps": {
@@ -21155,9 +21894,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler_ancestral",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "normal",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -21392,9 +22133,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler_ancestral",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "normal",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -21428,7 +22171,7 @@
               "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
-                "default": "urn:air:sdxl:checkpoint:civitai:101055@128078+92696"
+                "default": "urn:air:sdxl:checkpoint:civitai:101055@128078"
               },
               "ecosystem": {
                 "enum": [
@@ -21592,6 +22335,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ComfyStep step.",
                 "$ref": "#/components/schemas/ComfyInput"
               },
               "$type": {
@@ -21777,6 +22521,7 @@
                 "description": "Optional previously-trained LoRA to continue training from (\"train further\"). When set, the first\nepoch resumes from this model instead of the base model, and the new epochs build on top of it."
               },
               "trace": {
+                "description": "What each epoch job records to its trace stream (`output.epochs[].traceUrl`): `none` (default), `logs` (plain-text console output)\nor `events` (NDJSON of console lines, step progress, phases and epoch checkpoints).",
                 "$ref": "#/components/schemas/TrainingTraceMode"
               },
               "storageBuzzPerEpoch": {
@@ -22037,9 +22782,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -22253,9 +23000,11 @@
                 ]
               },
               "sampler": {
+                "default": "euler",
                 "$ref": "#/components/schemas/ComfySampler"
               },
               "scheduler": {
+                "default": "simple",
                 "$ref": "#/components/schemas/ComfyScheduler"
               },
               "steps": {
@@ -22354,11 +23103,13 @@
             "default": 0
           },
           "layout": {
+            "description": "Spatial placement of this element on the output canvas. Ignored for audio elements and for\nall-audio compositions.",
             "$ref": "#/components/schemas/MediaLayout"
           },
           "transformers": {
             "type": "array",
             "items": {
+              "description": "Per-element transformer applied to a media element before it is composited; transformers run in array order.",
               "$ref": "#/components/schemas/MediaTransformer"
             },
             "description": "Ordered per-element transformers (fades, volume, ...) applied in array order."
@@ -22376,14 +23127,17 @@
           "elements": {
             "type": "array",
             "items": {
+              "description": "A single audio or video element participating in a composition.",
               "$ref": "#/components/schemas/ComposeMediaElementInput"
             },
             "description": "Elements in implicit sequencing order; overlapping audio is mixed, overlapping video is layered by canvas\n`zOrder` then array order. To stitch videos end-to-end, list them with no `at`/`offset`."
           },
           "canvas": {
+            "description": "Output geometry for video output; when omitted, derived from the elements (largest video, fastest frame rate).\nSupplying a canvas does not by itself force video output — see Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.ComposeMediaInput.Output.",
             "$ref": "#/components/schemas/MediaCanvas"
           },
           "output": {
+            "description": "Desired output kind and container. When omitted, the kind is derived from the elements and\nthe container defaults to MP4 (video) or Ogg (audio).",
             "$ref": "#/components/schemas/ComposeMediaOutputSpec"
           },
           "normalize": {
@@ -22407,6 +23161,7 @@
           "elements": {
             "type": "array",
             "items": {
+              "description": "Resolved timing for a single element in the composed output.",
               "$ref": "#/components/schemas/ComposeMediaResolvedElement"
             },
             "description": "Per-element resolved timing in input order — useful for rendering subtitles, speaker\nhighlights, or chapter markers without re-probing every source clip."
@@ -22425,9 +23180,12 @@
         "type": "object",
         "properties": {
           "type": {
+            "description": "Forces the output kind. When null, it is derived from the elements: video if any element is\nvideo or a canvas is supplied, otherwise audio.",
             "$ref": "#/components/schemas/MediaOutputType"
           },
           "container": {
+            "description": "Output container. Civitai.Orchestration.Grains.Workflows.Steps.ComposeMedia.MediaContainer.Auto selects MP4 for video and Ogg for audio.",
+            "default": "auto",
             "$ref": "#/components/schemas/MediaContainer"
           }
         },
@@ -22497,6 +23255,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ComposeMediaStep step.",
                 "$ref": "#/components/schemas/ComposeMediaInput"
               },
               "$type": {
@@ -22620,6 +23379,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ConvertImageStep step.",
                 "$ref": "#/components/schemas/ConvertImageInput"
               },
               "$type": {
@@ -22695,6 +23455,7 @@
             "description": "The raw ComfyUI workflow graph. Forwarded opaquely to the worker;\nthe orchestrator does not inspect or validate node contents."
           },
           "trace": {
+            "description": "How much of the ComfyUI `/ws` activity the worker records to a streaming blob the consumer can tail\nlive (URL on `output.traceUrl`). Civitai.Orchestration.Grains.Workflows.Steps.CustomComfy.TraceMode.None (default) records nothing.",
             "$ref": "#/components/schemas/TraceMode"
           },
           "sessionId": {
@@ -22814,6 +23575,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the CustomComfyStep step.",
                 "$ref": "#/components/schemas/CustomComfyInput"
               },
               "$type": {
@@ -22886,6 +23648,7 @@
                 "format": "uri"
               },
               "refText": {
+                "maxLength": 1000,
                 "type": [
                   "null",
                   "string"
@@ -22922,6 +23685,8 @@
                 "description": "Optional style instruction for CustomVoice mode."
               },
               "maxNewTokens": {
+                "maximum": 2048,
+                "minimum": 1,
                 "type": [
                   "null",
                   "integer"
@@ -23055,6 +23820,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the EchoStep step.",
                 "$ref": "#/components/schemas/EchoInput"
               },
               "$type": {
@@ -23994,9 +24760,11 @@
                 "default": 28
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "negativePrompt": {
@@ -24481,9 +25249,11 @@
                 "default": 20
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "negativePrompt": {
@@ -25034,9 +25804,11 @@
                 "default": 20
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "negativePrompt": {
@@ -25233,9 +26005,11 @@
                 "default": 20
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "negativePrompt": {
@@ -25823,6 +26597,230 @@
           }
         ]
       },
+      "Flux3MaxImageToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "image",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "endImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "operation": {
+                "enum": [
+                  "imageToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3MaxKeyframesToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "keyframes",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "keyframes": {
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "description": "An image pinned to a frame position in the generated video.",
+                  "$ref": "#/components/schemas/Flux3Keyframe"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "keyframesToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3MaxTextToVideoInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3MaxVideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "textToVideo"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Flux3MaxVideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Flux3VideoGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "duration": {
+                "maximum": 20,
+                "minimum": 5,
+                "type": "integer",
+                "format": "int32",
+                "default": 5
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "720p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  "auto",
+                  "21:9",
+                  "2:1",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "generateAudio": {
+                "type": "boolean",
+                "default": true
+              },
+              "reasoningLevel": {
+                "enum": [
+                  "low",
+                  "high"
+                ],
+                "type": "string",
+                "description": "Higher reasoning effort increases generation time.",
+                "default": "high"
+              },
+              "seed": {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "version": {
+                "enum": [
+                  "v3.0-max"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "flux"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textToVideo": "#/components/schemas/Flux3MaxTextToVideoInput",
+                "imageToVideo": "#/components/schemas/Flux3MaxImageToVideoInput",
+                "keyframesToVideo": "#/components/schemas/Flux3MaxKeyframesToVideoInput"
+              }
+            }
+          }
+        ]
+      },
       "Flux3V3DraftEnhanceInput": {
         "allOf": [
           {
@@ -26186,6 +27184,7 @@
               "keyframes": {
                 "type": "array",
                 "items": {
+                  "description": "An image pinned to a frame position in the generated video.",
                   "$ref": "#/components/schemas/Flux3Keyframe"
                 },
                 "description": "Up to 10 keyframes with unique frame positions."
@@ -26365,7 +27364,8 @@
             "discriminator": {
               "propertyName": "version",
               "mapping": {
-                "v3.0": "#/components/schemas/Flux3V3VideoGenInput"
+                "v3.0": "#/components/schemas/Flux3V3VideoGenInput",
+                "v3.0-max": "#/components/schemas/Flux3MaxVideoGenInput"
               }
             }
           }
@@ -26783,6 +27783,7 @@
             "type": "object",
             "properties": {
               "model": {
+                "default": "1.1-flash",
                 "$ref": "#/components/schemas/GeminiOmniModel"
               },
               "aspectRatio": {
@@ -26794,6 +27795,7 @@
                 "default": "16:9"
               },
               "resolution": {
+                "default": "720p",
                 "$ref": "#/components/schemas/GeminiOmniResolution"
               },
               "images": {
@@ -27816,6 +28818,7 @@
                 ]
               },
               "cameraMovement": {
+                "description": "Get or set camera movement. This is only available when targeting the v1.5 Model",
                 "$ref": "#/components/schemas/HaiperVideoGenCameraMovement"
               },
               "seed": {
@@ -27839,6 +28842,7 @@
                 "$ref": "#/components/schemas/HaiperVideoGenAspectRatio"
               },
               "model": {
+                "default": "v2",
                 "$ref": "#/components/schemas/HaiperVideoGenModel"
               },
               "resolution": {
@@ -29358,6 +30362,8 @@
             "format": "source-image"
           },
           "format": {
+            "description": "The output image format. Defaults to PNG, which preserves transparency.",
+            "default": "png",
             "$ref": "#/components/schemas/ImageBackgroundRemovalFormat"
           }
         },
@@ -29415,6 +30421,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ImageBackgroundRemovalStep step.",
                 "$ref": "#/components/schemas/ImageBackgroundRemovalInput"
               },
               "$type": {
@@ -29490,6 +30497,7 @@
             "type": "string"
           },
           "outputFormat": {
+            "default": "jpeg",
             "$ref": "#/components/schemas/ImageGenOutputFormat"
           },
           "imageMetadata": {
@@ -29617,6 +30625,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ImageGenStep step.",
                 "$ref": "#/components/schemas/ImageGenInput"
               },
               "$type": {
@@ -29802,6 +30811,7 @@
         "type": "object",
         "properties": {
           "moderationStatus": {
+            "description": "The status of age classification",
             "$ref": "#/components/schemas/ImageResouceTrainingModerationStatus"
           },
           "epochs": {
@@ -29887,6 +30897,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ImageResourceTrainingStep step.",
                 "$ref": "#/components/schemas/ImageResourceTrainingInput"
               },
               "$type": {
@@ -30336,6 +31347,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ImageScanningStep step.",
                 "$ref": "#/components/schemas/ImageScanningInput"
               },
               "$type": {
@@ -30492,6 +31504,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ImageToSvgStep step.",
                 "$ref": "#/components/schemas/ImageToSvgInput"
               },
               "$type": {
@@ -30722,6 +31735,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ImageUpscalerStep step.",
                 "$ref": "#/components/schemas/ImageUpscalerInput"
               },
               "$type": {
@@ -30818,6 +31832,7 @@
           "detections": {
             "type": "array",
             "items": {
+              "description": "Represents one photo-or-anime age estimate for a detected person.",
               "$ref": "#/components/schemas/JointAgeDetection"
             }
           },
@@ -31199,9 +32214,11 @@
             "type": "object",
             "properties": {
               "operation": {
+                "default": "text-to-video",
                 "$ref": "#/components/schemas/KlingV3Operation"
               },
               "mode": {
+                "default": "standard",
                 "$ref": "#/components/schemas/KlingMode"
               },
               "duration": {
@@ -31212,6 +32229,7 @@
                 "default": 5
               },
               "aspectRatio": {
+                "default": "16:9",
                 "$ref": "#/components/schemas/KlingVideoGenAspectRatio"
               },
               "sourceImage": {
@@ -31316,6 +32334,7 @@
             "type": "object",
             "properties": {
               "model": {
+                "default": "v1.6",
                 "$ref": "#/components/schemas/KlingModel"
               },
               "negativePrompt": {
@@ -31332,12 +32351,15 @@
                 "default": 0.5
               },
               "mode": {
+                "default": "standard",
                 "$ref": "#/components/schemas/KlingMode"
               },
               "aspectRatio": {
+                "default": "16:9",
                 "$ref": "#/components/schemas/KlingVideoGenAspectRatio"
               },
               "duration": {
+                "default": "5",
                 "$ref": "#/components/schemas/KlingVideoGenDuration"
               },
               "cameraControl": {
@@ -31771,7 +32793,8 @@
               "thinkingMode": {
                 "enum": [
                   "instant",
-                  "medium"
+                  "medium",
+                  "ultra"
                 ],
                 "type": "string",
                 "default": "instant"
@@ -32096,6 +33119,62 @@
           }
         ]
       },
+      "LiveQwen3BaseTTSInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LiveQwen3TextToSpeechInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "operation",
+              "refAudioUrl"
+            ],
+            "type": "object",
+            "properties": {
+              "refAudioUrl": {
+                "type": "string",
+                "description": "Reference audio AIR URN or external URL for voice cloning.\nAccepts AIR URNs (existing resources) or HTTP(S) URLs.",
+                "format": "uri"
+              },
+              "refText": {
+                "maxLength": 1000,
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Transcript of the reference audio.\nRequired unless XVectorOnlyMode is true."
+              },
+              "xVectorOnlyMode": {
+                "type": "boolean",
+                "description": "If true, clones from the speaker embedding alone and ignores refText.\nDefaults to true on live: in-context mode has been seen generating to the token cap on short sentences.",
+                "default": true
+              },
+              "operation": {
+                "enum": [
+                  "base"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "qwen3"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "vllm-omni"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Qwen3 Base: speaks in a voice cloned from Civitai.Orchestration.Grains.Workflows.Steps.LiveTextToSpeech.LiveQwen3BaseTTSInput.RefAudioUrl, like `textToSpeech`'s `base` operation."
+      },
       "LiveQwen3CustomVoiceTTSInput": {
         "allOf": [
           {
@@ -32172,6 +33251,8 @@
                 "type": "string"
               },
               "maxNewTokens": {
+                "maximum": 2048,
+                "minimum": 1,
                 "type": [
                   "null",
                   "integer"
@@ -32196,6 +33277,7 @@
             "discriminator": {
               "propertyName": "operation",
               "mapping": {
+                "base": "#/components/schemas/LiveQwen3BaseTTSInput",
                 "customVoice": "#/components/schemas/LiveQwen3CustomVoiceTTSInput"
               }
             }
@@ -32317,6 +33399,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Mirrors `textToSpeech` inputs, but only for voices proven to stream with low first-audio latency.",
                 "$ref": "#/components/schemas/LiveTextToSpeechInput"
               },
               "output": {
@@ -32347,6 +33430,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the LiveTextToSpeechStep step.",
                 "$ref": "#/components/schemas/LiveTextToSpeechInput"
               },
               "$type": {
@@ -32491,6 +33575,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the LiveTranscriptionStep step.",
                 "$ref": "#/components/schemas/LiveTranscriptionInput"
               },
               "$type": {
@@ -33089,6 +34174,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the MediaCaptioningStep step.",
                 "$ref": "#/components/schemas/MediaCaptioningInput"
               },
               "$type": {
@@ -33203,6 +34289,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the MediaHashStep step.",
                 "$ref": "#/components/schemas/MediaHashInput"
               },
               "$type": {
@@ -33253,6 +34340,8 @@
             "default": 1
           },
           "fit": {
+            "description": "How a video element is fitted into the output canvas when its aspect ratio differs.",
+            "default": "contain",
             "$ref": "#/components/schemas/MediaFit"
           }
         },
@@ -33360,9 +34449,11 @@
             "$ref": "#/components/schemas/FaceRecognitionResult"
           },
           "aiRecognition": {
+            "description": "Represents AI vs real image recognition results.",
             "$ref": "#/components/schemas/AIRecognitionResult"
           },
           "animeRecognition": {
+            "description": "Represents anime vs real image recognition results.",
             "$ref": "#/components/schemas/AnimeRecognitionResult"
           },
           "csam": {
@@ -33373,15 +34464,19 @@
             "description": "Potential CSAM signal from conditional age classification on R-or-higher content.\nNull means the image was below R or age classification failed."
           },
           "humanRecognition": {
+            "description": "Represents human vs non-human image recognition results.",
             "$ref": "#/components/schemas/HumanRecognitionResult"
           },
           "bodyAgeClassification": {
+            "description": "Body-only apparent-age and child-risk results (if requested).",
             "$ref": "#/components/schemas/BodyAgeClassificationResult"
           },
           "animeBodyAgeClassification": {
+            "description": "Anime apparent-age and child-risk results (if requested).",
             "$ref": "#/components/schemas/AnimeBodyAgeClassificationResult"
           },
           "jointAgeClassification": {
+            "description": "Joint face-and-body apparent-age results for photo and anime content (if requested).",
             "$ref": "#/components/schemas/JointAgeClassificationResult"
           }
         },
@@ -33430,6 +34525,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the MediaRatingStep step.",
                 "$ref": "#/components/schemas/MediaRatingInput"
               },
               "$type": {
@@ -33484,6 +34580,7 @@
             "description": "The path to the values, e.g. `output.steps[*].output.nsfwLevel`. `[*]` selects the rest of the path\nfrom every item of a list; nested `[*]` flatten into one list."
           },
           "reduce": {
+            "description": "How a merge field combines its values. Null values are skipped, except by `any` and `all`, which count them as false.",
             "$ref": "#/components/schemas/MergeReducer"
           },
           "by": {
@@ -33520,11 +34617,13 @@
         "type": "object",
         "properties": {
           "onMissing": {
+            "description": "What to do when a source item selected by a `[*]` has no output, e.g. a repeat iteration that failed.",
             "$ref": "#/components/schemas/MergeMissingBehavior"
           },
           "fields": {
             "type": "object",
             "additionalProperties": {
+              "description": "One field of a merge: where its values come from and how they are combined.",
               "$ref": "#/components/schemas/MergeField"
             },
             "description": "The fields of the merged result, keyed by the name each appears under in the output."
@@ -33551,9 +34650,7 @@
         "properties": {
           "fields": {
             "type": "object",
-            "additionalProperties": {
-              "type": "null"
-            },
+            "additionalProperties": {},
             "description": "The merged values, keyed by the field names of the input. Their shape follows the requested reducers."
           },
           "sourceCount": {
@@ -33636,6 +34733,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the MergeStep step.",
                 "$ref": "#/components/schemas/MergeInput"
               },
               "$type": {
@@ -34161,9 +35259,11 @@
             "format": "double"
           },
           "costBuzz": {
+            "description": "What callers actually paid per request, over succeeded requests only. Not a unit price and not comparable\nbetween services; use Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceResponse.Estimate for an exact quote.",
             "$ref": "#/components/schemas/PercentilesResponse"
           },
           "latencySeconds": {
+            "description": "Null for services that never create a job to time, such as imageUpload.",
             "$ref": "#/components/schemas/PercentilesResponse"
           }
         },
@@ -34787,6 +35887,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the MiniMaxMusic3Step step.",
                 "$ref": "#/components/schemas/MiniMaxMusic3Input"
               },
               "$type": {
@@ -34813,6 +35914,7 @@
             "type": "object",
             "properties": {
               "model": {
+                "default": "hailou",
                 "$ref": "#/components/schemas/MiniMaxVideoGenModel"
               },
               "enhancePrompt": {
@@ -34984,6 +36086,7 @@
             "default": 1024
           },
           "outputFormat": {
+            "default": "png",
             "$ref": "#/components/schemas/ImageGenOutputFormat"
           },
           "cameraPoses": {
@@ -35064,6 +36167,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the Model3DPreviewStep step.",
                 "$ref": "#/components/schemas/Model3DPreviewInput"
               },
               "$type": {
@@ -35108,6 +36212,7 @@
             ]
           },
           "status": {
+            "description": "Classified scan result derived from the ClamAV exit code.",
             "$ref": "#/components/schemas/ModelClamScanStatus"
           },
           "infected": {
@@ -35186,6 +36291,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ModelClamScanStep step.",
                 "$ref": "#/components/schemas/ModelClamScanInput"
               },
               "$type": {
@@ -35304,6 +36410,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ModelHashStep step.",
                 "$ref": "#/components/schemas/ModelHashInput"
               },
               "$type": {
@@ -35387,6 +36494,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ModelParseMetadataStep step.",
                 "$ref": "#/components/schemas/ModelParseMetadataInput"
               },
               "$type": {
@@ -35552,6 +36660,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ModelPickleScanStep step.",
                 "$ref": "#/components/schemas/ModelPickleScanInput"
               },
               "$type": {
@@ -37696,6 +38805,7 @@
           "items": {
             "type": "array",
             "items": {
+              "description": "A service we offer.",
               "$ref": "#/components/schemas/ServiceResponse"
             }
           },
@@ -37783,27 +38893,35 @@
         "type": "object",
         "properties": {
           "model": {
+            "description": "Generated 3D model in GLB format. Null when the engine only produces FBX (Tripo with quad enabled).",
             "$ref": "#/components/schemas/Model3DBlob"
           },
           "fbxModel": {
+            "description": "Generated 3D model in FBX format, when the engine produces one.",
             "$ref": "#/components/schemas/Model3DBlob"
           },
           "thumbnail": {
+            "description": "Preview thumbnail image of the generated model, when the engine produces one.",
             "$ref": "#/components/schemas/ImageBlob"
           },
           "riggedModel": {
+            "description": "Rigged character in GLB format, when rigging is enabled.",
             "$ref": "#/components/schemas/Model3DBlob"
           },
           "riggedFbxModel": {
+            "description": "Rigged character in FBX format, when rigging is enabled.",
             "$ref": "#/components/schemas/Model3DBlob"
           },
           "animatedModel": {
+            "description": "Animated 3D model in GLB format, when animation is enabled.",
             "$ref": "#/components/schemas/Model3DBlob"
           },
           "animatedFbxModel": {
+            "description": "Animated 3D model in FBX format, when animation is enabled.",
             "$ref": "#/components/schemas/Model3DBlob"
           },
           "basicAnimations": {
+            "description": "Basic walking and running animations, when rigging is enabled.",
             "$ref": "#/components/schemas/BasicAnimationsBlobs"
           }
         },
@@ -37852,6 +38970,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the PolyGenStep step.",
                 "$ref": "#/components/schemas/PolyGenInput"
               },
               "$type": {
@@ -37918,9 +39037,11 @@
             "type": "object",
             "properties": {
               "bboxDetector": {
+                "default": "yolox_l.torchscript.pt",
                 "$ref": "#/components/schemas/AnimalPoseBboxDetector"
               },
               "poseEstimator": {
+                "default": "rtmpose-m_ap10k_256_bs5.torchscript.pt",
                 "$ref": "#/components/schemas/AnimalPoseEstimator"
               },
               "kind": {
@@ -37968,6 +39089,7 @@
             "type": "object",
             "properties": {
               "mergeWithLineart": {
+                "default": "lineart_standard",
                 "$ref": "#/components/schemas/AnylineMergeWith"
               },
               "lineartLowerBound": {
@@ -38130,9 +39252,11 @@
             "type": "object",
             "properties": {
               "model": {
+                "default": "densepose_r50_fpn_dl.torchscript",
                 "$ref": "#/components/schemas/DensePoseModel"
               },
               "colormap": {
+                "default": "Viridis (MagicAnimate)",
                 "$ref": "#/components/schemas/DensePoseColormap"
               },
               "kind": {
@@ -38158,6 +39282,7 @@
             "type": "object",
             "properties": {
               "checkpoint": {
+                "default": "depth_anything_vitl14.pth",
                 "$ref": "#/components/schemas/DepthAnythingCheckpoint"
               },
               "kind": {
@@ -38183,6 +39308,7 @@
             "type": "object",
             "properties": {
               "checkpoint": {
+                "default": "depth_anything_v2_vitl.pth",
                 "$ref": "#/components/schemas/DepthAnythingV2Checkpoint"
               },
               "kind": {
@@ -38256,9 +39382,11 @@
                 "default": true
               },
               "bboxDetector": {
+                "default": "yolox_l.onnx",
                 "$ref": "#/components/schemas/DwPoseBboxDetector"
               },
               "poseEstimator": {
+                "default": "dw-ll_ucoco_384_bs5.torchscript.pt",
                 "$ref": "#/components/schemas/DwPoseEstimator"
               },
               "kind": {
@@ -38284,6 +39412,7 @@
             "type": "object",
             "properties": {
               "safe": {
+                "default": "enable",
                 "$ref": "#/components/schemas/SafeMode"
               },
               "kind": {
@@ -38309,6 +39438,7 @@
             "type": "object",
             "properties": {
               "safe": {
+                "default": "enable",
                 "$ref": "#/components/schemas/SafeMode"
               },
               "kind": {
@@ -38421,6 +39551,7 @@
                 "default": 0
               },
               "boost": {
+                "default": "disable",
                 "$ref": "#/components/schemas/LeresBoost"
               },
               "kind": {
@@ -38504,6 +39635,7 @@
             "type": "object",
             "properties": {
               "backbone": {
+                "default": "vit-small",
                 "$ref": "#/components/schemas/Metric3dBackbone"
               },
               "fx": {
@@ -38543,6 +39675,7 @@
             "type": "object",
             "properties": {
               "backbone": {
+                "default": "vit-small",
                 "$ref": "#/components/schemas/Metric3dBackbone"
               },
               "fx": {
@@ -38780,6 +39913,7 @@
             "type": "object",
             "properties": {
               "safe": {
+                "default": "enable",
                 "$ref": "#/components/schemas/SafeMode"
               },
               "kind": {
@@ -38805,6 +39939,7 @@
             "type": "object",
             "properties": {
               "coarse": {
+                "default": "disable",
                 "$ref": "#/components/schemas/CoarseMode"
               },
               "kind": {
@@ -38852,6 +39987,7 @@
             "type": "object",
             "properties": {
               "safe": {
+                "default": "enable",
                 "$ref": "#/components/schemas/SafeMode"
               },
               "kind": {
@@ -39035,6 +40171,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the PreprocessImageStep step.",
                 "$ref": "#/components/schemas/PreprocessImageInput"
               },
               "$type": {
@@ -39140,6 +40277,7 @@
             "type": "object",
             "properties": {
               "environment": {
+                "default": "indoor",
                 "$ref": "#/components/schemas/ZoeDepthEnvironment"
               },
               "kind": {
@@ -39223,6 +40361,7 @@
             "type": "object",
             "properties": {
               "checkpoint": {
+                "default": "depth_anything_v2_vitl.pth",
                 "$ref": "#/components/schemas/DepthAnythingV2Checkpoint"
               },
               "kind": {
@@ -39260,9 +40399,11 @@
                 "default": true
               },
               "bboxDetector": {
+                "default": "yolox_l.onnx",
                 "$ref": "#/components/schemas/DwPoseBboxDetector"
               },
               "poseEstimator": {
+                "default": "dw-ll_ucoco_384_bs5.torchscript.pt",
                 "$ref": "#/components/schemas/DwPoseEstimator"
               },
               "kind": {
@@ -39310,6 +40451,7 @@
             "type": "object",
             "properties": {
               "safe": {
+                "default": "enable",
                 "$ref": "#/components/schemas/SafeMode"
               },
               "kind": {
@@ -39557,6 +40699,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the PreprocessVideoStep step.",
                 "$ref": "#/components/schemas/PreprocessVideoInput"
               },
               "$type": {
@@ -39745,6 +40888,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the PromptEnhancementStep step.",
                 "$ref": "#/components/schemas/PromptEnhancementInput"
               },
               "$type": {
@@ -39900,6 +41044,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the PromptModerationStep step.",
                 "$ref": "#/components/schemas/PromptModerationInput"
               },
               "$type": {
@@ -40146,9 +41291,11 @@
                 ]
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "steps": {
@@ -40620,6 +41767,7 @@
                 "format": "uri"
               },
               "refText": {
+                "maxLength": 1000,
                 "type": [
                   "null",
                   "string"
@@ -40729,6 +41877,8 @@
                 "type": "string"
               },
               "maxNewTokens": {
+                "maximum": 2048,
+                "minimum": 1,
                 "type": [
                   "null",
                   "integer"
@@ -41041,6 +42191,7 @@
             "minItems": 1,
             "type": "array",
             "items": {
+              "description": "A single generated image and the prompt it should be judged against.",
               "$ref": "#/components/schemas/QwenImageBenchItem"
             },
             "description": "Prompt/image pairs to score. Each item is evaluated independently."
@@ -41232,6 +42383,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the QwenImageBenchStep step.",
                 "$ref": "#/components/schemas/QwenImageBenchInput"
               },
               "$type": {
@@ -41316,9 +42468,11 @@
         "type": "object",
         "properties": {
           "for": {
+            "description": "The \"for\" clause that specifies what array to iterate over and how to reference items.",
             "$ref": "#/components/schemas/RepeatForClause"
           },
           "template": {
+            "description": "The template of the workflow step to execute for each item in the iteration.",
             "$ref": "#/components/schemas/WorkflowStepTemplate"
           }
         },
@@ -41544,6 +42698,7 @@
             "description": "NSFW covers X and XXX, whereas mature content also includes R."
           },
           "fee": {
+            "description": "License fee charged per use.",
             "$ref": "#/components/schemas/ResourceFee"
           },
           "payoutEnabled": {
@@ -41572,6 +42727,7 @@
             "format": "int32"
           },
           "availability": {
+            "description": "Whether this resource can be generated with right now, across the whole fleet.",
             "$ref": "#/components/schemas/ResourceAvailability"
           },
           "isPromoted": {
@@ -41946,9 +43102,11 @@
                 ]
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "discrete",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "steps": {
@@ -42016,6 +43174,7 @@
                 "default": 2
               },
               "uCache": {
+                "default": "off",
                 "$ref": "#/components/schemas/SdCppUCacheMode"
               },
               "engine": {
@@ -42322,9 +43481,11 @@
                 ]
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "discrete",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "steps": {
@@ -42358,7 +43519,7 @@
               "checkpointModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
-                "default": "urn:air:sdxl:checkpoint:civitai:101055@128078+92696"
+                "default": "urn:air:sdxl:checkpoint:civitai:101055@128078"
               },
               "ecosystem": {
                 "enum": [
@@ -42393,6 +43554,7 @@
                 "default": 2
               },
               "uCache": {
+                "default": "off",
                 "$ref": "#/components/schemas/SdCppUCacheMode"
               },
               "engine": {
@@ -42500,6 +43662,7 @@
             "type": "object",
             "properties": {
               "model": {
+                "default": "v2",
                 "$ref": "#/components/schemas/SeedanceModel"
               },
               "aspectRatio": {
@@ -42656,6 +43819,7 @@
                 "default": false
               },
               "version": {
+                "default": "v4.5",
                 "$ref": "#/components/schemas/SeedreamVersion"
               },
               "images": {
@@ -42793,15 +43957,19 @@
             "format": "date-time"
           },
           "modalities": {
+            "description": "What this consumes and produces. Independent of Civitai.Orchestration.Api.Controllers.v2.Consumers.Services.ServiceResponse.Category, and null for\nservices with no meaningful modality.",
             "$ref": "#/components/schemas/ModalitiesResponse"
           },
           "status": {
+            "description": "Health over the requested window. Always present: a service with no traffic reports\n\"unknown\" rather than nothing, so callers never have to distinguish absent from healthy.",
             "$ref": "#/components/schemas/ServiceStatus"
           },
           "metrics": {
+            "description": "Null when nothing ran in the window.",
             "$ref": "#/components/schemas/MetricsResponse"
           },
           "history": {
+            "description": "The metric time series over the window. Only present when a single service is requested —\nthe list omits it to stay cheap.",
             "$ref": "#/components/schemas/ServiceHistory"
           }
         },
@@ -42858,6 +44026,7 @@
               "array"
             ],
             "items": {
+              "description": "A per-request policy override. For a custom policy, Name and Policy are required; Action defaults to\nScan/Review by mode, Threshold defaults to 0.5, and Query defaults to a mode-appropriate yes/no question.",
               "$ref": "#/components/schemas/ShieldstralPolicyConfiguration"
             },
             "description": "Per-request policy overrides. Existing policies are merged by name and new names create custom policies.\nPolicy is free-form natural language; Query, when supplied, must be a single yes/no question."
@@ -42941,6 +44110,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the ShieldstralModerationStep step.",
                 "$ref": "#/components/schemas/ShieldstralModerationInput"
               },
               "$type": {
@@ -43176,6 +44346,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Text-to-audio via Sonilo; `operation` picks music or a standalone sound effect.",
                 "$ref": "#/components/schemas/SoniloAudioGenInput"
               },
               "output": {
@@ -43206,6 +44377,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the SoniloAudioGenStep step.",
                 "$ref": "#/components/schemas/SoniloAudioGenInput"
               },
               "$type": {
@@ -43574,6 +44746,7 @@
             ]
           },
           "scheduler": {
+            "default": "eulerA",
             "$ref": "#/components/schemas/Scheduler"
           },
           "steps": {
@@ -43630,6 +44803,8 @@
             ]
           },
           "outputFormat": {
+            "description": "The format in which to output images, Png and WebP may charge an additional cost",
+            "default": "jpeg",
             "$ref": "#/components/schemas/OutputFormat"
           },
           "sourceImage": {
@@ -43707,6 +44882,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the TextToImageStep step.",
                 "$ref": "#/components/schemas/TextToImageInput"
               },
               "$type": {
@@ -43824,6 +45000,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the TextToSpeechStep step.",
                 "$ref": "#/components/schemas/TextToSpeechInput"
               },
               "$type": {
@@ -43912,6 +45089,7 @@
             "$ref": "#/components/schemas/TrainingData"
           },
           "samples": {
+            "description": "Sample generation configuration for preview outputs during training",
             "$ref": "#/components/schemas/TrainingInputSamples"
           },
           "usesStepPricing": {
@@ -44016,6 +45194,7 @@
             "format": "int32"
           },
           "model": {
+            "description": "The trained model blob for this epoch. `available` is false (and there is no URL) while the\nepoch is still pending or training.",
             "$ref": "#/components/schemas/Blob"
           },
           "samples": {
@@ -44079,6 +45258,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the TrainingStep step.",
                 "$ref": "#/components/schemas/TrainingInput"
               },
               "$type": {
@@ -44172,6 +45352,7 @@
             "format": "uri"
           },
           "containerFormat": {
+            "default": "mp4",
             "$ref": "#/components/schemas/ContainerFormat"
           },
           "width": {
@@ -44309,6 +45490,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the TranscodeStep step.",
                 "$ref": "#/components/schemas/TranscodeInput"
               },
               "$type": {
@@ -44380,6 +45562,13 @@
           "elapsedSeconds": {
             "type": "number",
             "format": "double"
+          },
+          "hasAudio": {
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "description": "False when the media has no audio track; null when the worker did not check."
           }
         },
         "additionalProperties": false
@@ -44427,6 +45616,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the TranscriptionStep step.",
                 "$ref": "#/components/schemas/TranscriptionInput"
               },
               "$type": {
@@ -45090,6 +46280,7 @@
             "description": "Set to true to remove the mature content restriction on the workflow."
           },
           "downloadPriority": {
+            "description": "Raise the download priority for resources this workflow needs but the fleet does not hold.\nOnly Civitai.Orchestration.Grains.Workflows.Priority.High may be requested, and it carries a Buzz charge for each cold\nresource above the free size threshold.",
             "$ref": "#/components/schemas/Priority"
           }
         },
@@ -45129,6 +46320,7 @@
               "content": {
                 "type": "array",
                 "items": {
+                  "description": "Accepts both camelCase (`imageUrl`) and snake_case (`image_url`) type discriminators.",
                   "$ref": "#/components/schemas/ChatCompletionContentPart"
                 },
                 "description": "A string or an array of content parts; a plain string is accepted as a single text part."
@@ -45363,6 +46555,7 @@
                 "type": "string"
               },
               "aspectRatio": {
+                "default": "16:9",
                 "$ref": "#/components/schemas/Veo3AspectRatio"
               },
               "duration": {
@@ -45398,6 +46591,8 @@
                 }
               },
               "version": {
+                "description": "Google retired the Veo 3.0 endpoints on 2026-08-28; requests with `3.0` are rejected with 400. Use `3.1`.",
+                "default": "3.1",
                 "$ref": "#/components/schemas/Veo3Version"
               },
               "mode": {
@@ -45527,6 +46722,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the VideoBackgroundRemovalStep step.",
                 "$ref": "#/components/schemas/VideoBackgroundRemovalInput"
               },
               "$type": {
@@ -45721,6 +46917,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the VideoEnhancementStep step.",
                 "$ref": "#/components/schemas/VideoEnhancementInput"
               },
               "$type": {
@@ -45844,6 +47041,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the VideoFrameExtractionStep step.",
                 "$ref": "#/components/schemas/VideoFrameExtractionInput"
               },
               "$type": {
@@ -45939,6 +47137,7 @@
             "description": "Extra videos when Quantity > 1, produced by engines that batch multiple videos in one job (e.g. LTX 2.3);\nCivitai.Orchestration.Grains.Workflows.Steps.VideoGen.VideoGenOutput.Video is always the primary slot. Null/empty for single-output engines."
           },
           "draftCache": {
+            "description": "Encrypted draft cache produced by a FLUX-3 draft generation. Pass its url as the draftCache\ninput of a later draftEnhance step to re-render the draft at full quality.",
             "$ref": "#/components/schemas/Blob"
           }
         },
@@ -45987,6 +47186,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the VideoGenStep step.",
                 "$ref": "#/components/schemas/VideoGenInput"
               },
               "$type": {
@@ -46077,6 +47277,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the VideoInterpolationStep step.",
                 "$ref": "#/components/schemas/VideoInterpolationInput"
               },
               "$type": {
@@ -46175,6 +47376,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the VideoMetadataStep step.",
                 "$ref": "#/components/schemas/VideoMetadataInput"
               },
               "$type": {
@@ -46261,6 +47463,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the VideoUpscalerStep step.",
                 "$ref": "#/components/schemas/VideoUpscalerInput"
               },
               "$type": {
@@ -46550,6 +47753,7 @@
                 "format": "source-image"
               },
               "style": {
+                "default": "general",
                 "$ref": "#/components/schemas/ViduVideoGenStyle"
               },
               "duration": {
@@ -46570,6 +47774,7 @@
                 "format": "source-image"
               },
               "model": {
+                "default": "default",
                 "$ref": "#/components/schemas/ViduVideoGenModel"
               },
               "aspectRatio": {
@@ -46795,6 +48000,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the WDTaggingStep step.",
                 "$ref": "#/components/schemas/WDTaggingInput"
               },
               "$type": {
@@ -49601,6 +50807,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the WebScrapeStep step.",
                 "$ref": "#/components/schemas/WebScrapeInput"
               },
               "$type": {
@@ -49734,6 +50941,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the WebSearchStep step.",
                 "$ref": "#/components/schemas/WebSearchInput"
               },
               "$type": {
@@ -49867,12 +51075,15 @@
             }
           },
           "tips": {
+            "description": "Optional tips for either civitai or the creators involved in this workflow.",
             "$ref": "#/components/schemas/WorkflowTips"
           },
           "cost": {
+            "description": "Get a summary of the actual cost consumed by this workflow.\nOn dry-run requests, this will contain the estimated cost.",
             "$ref": "#/components/schemas/WorkflowCost"
           },
           "nsfwLevel": {
+            "description": "An optional limit in what content is safe to return",
             "$ref": "#/components/schemas/NSFWLevel"
           },
           "experimental": {
@@ -49889,6 +51100,7 @@
             ]
           },
           "upgradeMode": {
+            "description": "Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.",
             "$ref": "#/components/schemas/WorkflowUpgradeMode"
           },
           "currencies": {
@@ -49932,9 +51144,11 @@
             "format": "date-time"
           },
           "downloadPriority": {
+            "description": "Download lane for resources this workflow needs but the fleet does not hold. Resolved from\nmembership at submission unless the consumer paid to pin it to Civitai.Orchestration.Grains.Workflows.Priority.High.",
             "$ref": "#/components/schemas/Priority"
           },
           "tier": {
+            "description": "How a workflow is paid for.",
             "$ref": "#/components/schemas/WorkflowTier"
           },
           "fund": {
@@ -50110,6 +51324,7 @@
             "readOnly": true
           },
           "details": {
+            "description": "Only present when the callback requests detailed events.",
             "$ref": "#/components/schemas/WorkflowEventDetails"
           }
         },
@@ -50127,18 +51342,14 @@
               "null",
               "object"
             ],
-            "additionalProperties": {
-              "type": "null"
-            }
+            "additionalProperties": {}
           },
           "arguments": {
             "type": [
               "null",
               "object"
             ],
-            "additionalProperties": {
-              "type": "null"
-            }
+            "additionalProperties": {}
           },
           "createdAt": {
             "type": "string",
@@ -50200,16 +51411,10 @@
               "null",
               "object"
             ],
-            "additionalProperties": {
-              "type": "null"
-            }
+            "additionalProperties": {}
           },
-          "input": {
-            "type": "null"
-          },
-          "output": {
-            "type": "null"
-          },
+          "input": {},
+          "output": {},
           "cost": {
             "type": [
               "null",
@@ -50302,11 +51507,13 @@
               "array"
             ],
             "items": {
+              "description": "One resource a step is waiting on. A queued resource reports a position and no progress; one that\nis transferring reports the reverse.",
               "$ref": "#/components/schemas/WorkflowStepPreparationResource"
             },
             "description": "Every resource download this step is waiting on, the one holding it back first. Only set while\nthe step is preparing."
           },
           "queuePosition": {
+            "description": "The step's queue position, aggregated across its jobs (worst support, fewest preceding jobs,\nearliest estimated start, latest estimated completion). Null once the step starts processing.",
             "$ref": "#/components/schemas/WorkflowStepQueuePosition"
           },
           "warnings": {
@@ -50315,6 +51522,7 @@
               "array"
             ],
             "items": {
+              "description": "A non-fatal notice about a workflow step, e.g. a requested model that is scheduled for retirement.",
               "$ref": "#/components/schemas/WorkflowStepWarning"
             },
             "description": "Non-fatal warnings about this step, such as a requested model that is scheduled for retirement.\nOmitted when there are none."
@@ -50327,6 +51535,7 @@
             "aceStepAudio": "#/components/schemas/AceStepAudioStep",
             "ageClassification": "#/components/schemas/AgeClassificationStep",
             "audioCaptioning": "#/components/schemas/AudioCaptioningStep",
+            "audioModeration": "#/components/schemas/AudioModerationStep",
             "blobArchive": "#/components/schemas/BlobArchiveStep",
             "chatCompletion": "#/components/schemas/ChatCompletionStep",
             "comfy": "#/components/schemas/ComfyStep",
@@ -50405,6 +51614,7 @@
             "readOnly": true
           },
           "details": {
+            "description": "Only present when the callback requests detailed events.",
             "$ref": "#/components/schemas/WorkflowStepEventDetails"
           },
           "preparation": {
@@ -50413,6 +51623,7 @@
               "array"
             ],
             "items": {
+              "description": "One resource a step is waiting on. A queued resource reports a position and no progress; one that\nis transferring reports the reverse.",
               "$ref": "#/components/schemas/WorkflowStepPreparationResource"
             },
             "description": "Every resource download this step is waiting on, gating resource first. Only set while preparing."
@@ -50457,22 +51668,17 @@
               "null",
               "object"
             ],
-            "additionalProperties": {
-              "type": "null"
-            }
+            "additionalProperties": {}
           },
-          "input": {
-            "type": "null"
-          },
-          "output": {
-            "type": "null"
-          },
+          "input": {},
+          "output": {},
           "preparation": {
             "type": [
               "null",
               "array"
             ],
             "items": {
+              "description": "One resource a step is waiting on. A queued resource reports a position and no progress; one that\nis transferring reports the reverse.",
               "$ref": "#/components/schemas/WorkflowStepPreparationResource"
             },
             "description": "Every resource download this step is waiting on, gating resource first. Only set while preparing."
@@ -50683,6 +51889,7 @@
             "aceStepAudio": "#/components/schemas/AceStepAudioStepTemplate",
             "ageClassification": "#/components/schemas/AgeClassificationStepTemplate",
             "audioCaptioning": "#/components/schemas/AudioCaptioningStepTemplate",
+            "audioModeration": "#/components/schemas/AudioModerationStepTemplate",
             "blobArchive": "#/components/schemas/BlobArchiveStepTemplate",
             "chatCompletion": "#/components/schemas/ChatCompletionStepTemplate",
             "comfy": "#/components/schemas/ComfyStepTemplate",
@@ -50827,6 +52034,7 @@
             }
           },
           "tips": {
+            "description": "Optional tips for either civitai or the creators involved in this workflow.",
             "$ref": "#/components/schemas/WorkflowTips"
           },
           "arguments": {
@@ -50837,12 +52045,16 @@
             "additionalProperties": {}
           },
           "nsfwLevel": {
+            "description": "An optional limit in what content is safe to return",
             "$ref": "#/components/schemas/NSFWLevel"
           },
           "downloadPriority": {
+            "description": "Download urgency for resources the fleet does not hold; omit to derive it from membership.\nOnly Civitai.Orchestration.Grains.Workflows.Priority.High may be requested, and it carries a Buzz charge per cold resource above the free size threshold.",
             "$ref": "#/components/schemas/Priority"
           },
           "tier": {
+            "description": "Run this workflow on the free tier. Only steps using a model offered on the free tier are\naccepted; they cost no Buzz, count against a per-user quota and run behind all paid work.",
+            "default": "paid",
             "$ref": "#/components/schemas/WorkflowTier"
           },
           "experimental": {
@@ -50860,6 +52072,8 @@
             "description": "When false, no content marked as mature is returned; additional payment options are available for such workflows."
           },
           "upgradeMode": {
+            "description": "Specifies how a workflow should be upgraded when mature content is detected and green or blue buzz was used for payment.",
+            "default": "automatic",
             "$ref": "#/components/schemas/WorkflowUpgradeMode"
           },
           "currencies": {
@@ -51249,6 +52463,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the XGuardModerationStep step.",
                 "$ref": "#/components/schemas/XGuardModerationInput"
               },
               "$type": {
@@ -51293,6 +52508,7 @@
                 "description": "Additional instructions are unsupported by the fixed Civitai Scan contract."
               },
               "scope": {
+                "description": "Only Combined is supported: both prompts are sent as JSON, negative terms act as exclusions (excluding adulthood is an age-down cue).\nFor positive-only input use Combined with an empty negative prompt.",
                 "$ref": "#/components/schemas/XGuardPromptScope"
               },
               "mode": {
@@ -51456,6 +52672,7 @@
               "samplesOverrides": {
                 "type": "array",
                 "items": {
+                  "description": "Optional overrides aligned with Samples.Prompts.",
                   "$ref": "#/components/schemas/YuE2SampleOverride"
                 }
               },
@@ -51635,6 +52852,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "YuE2 text-to-music generation with optional ABC score planning.",
                 "$ref": "#/components/schemas/YuE2Input"
               },
               "output": {
@@ -51665,6 +52883,7 @@
             "type": "object",
             "properties": {
               "input": {
+                "description": "Input for the YuE2Step step.",
                 "$ref": "#/components/schemas/YuE2Input"
               },
               "$type": {
@@ -51813,9 +53032,11 @@
                 ]
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "steps": {
@@ -52066,9 +53287,11 @@
                 ]
               },
               "sampleMethod": {
+                "default": "euler",
                 "$ref": "#/components/schemas/SdCppSampleMethod"
               },
               "schedule": {
+                "default": "simple",
                 "$ref": "#/components/schemas/SdCppSchedule"
               },
               "steps": {
