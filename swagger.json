@@ -24136,7 +24136,7 @@
               "propertyName": "model",
               "mapping": {
                 "meshy": "#/components/schemas/MeshyFalPolyGenInput",
-                "tripo": "#/components/schemas/TripoFalPolyGenInput"
+                "tripo": "#/components/schemas/TripoVersionedFalPolyGenInput"
               }
             }
           }
@@ -45947,7 +45947,7 @@
           }
         ]
       },
-      "TripoFalPolyGenInput": {
+      "TripoVersionedFalPolyGenInput": {
         "allOf": [
           {
             "$ref": "#/components/schemas/FalPolyGenInput"
@@ -45955,8 +45955,359 @@
           {
             "required": [
               "engine",
+              "model",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "v2.5"
+              },
+              "model": {
+                "enum": [
+                  "tripo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "version",
+              "mapping": {
+                "v2.5": "#/components/schemas/TripoFalPolyGenInput",
+                "h3.1": "#/components/schemas/TripoH31FalPolyGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "TripoH31FalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TripoVersionedFalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "texture": {
+                "type": "boolean",
+                "default": true
+              },
+              "pbr": {
+                "type": "boolean",
+                "description": "PBR enables textures even when texture is false.",
+                "default": true
+              },
+              "faceLimit": {
+                "maximum": 2000000,
+                "minimum": 1000,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "autoSize": {
+                "type": "boolean",
+                "default": false
+              },
+              "quad": {
+                "type": "boolean",
+                "default": false
+              },
+              "geometryQuality": {
+                "enum": [
+                  "standard",
+                  "detailed"
+                ],
+                "type": "string",
+                "default": "standard"
+              },
+              "textureQuality": {
+                "enum": [
+                  "standard",
+                  "detailed"
+                ],
+                "type": "string",
+                "default": "standard"
+              },
+              "seed": {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "textureSeed": {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "version": {
+                "enum": [
+                  "h3.1"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "tripo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "textTo3D": "#/components/schemas/TripoH31TextTo3DFalPolyGenInput",
+                "imageTo3D": "#/components/schemas/TripoH31ImageTo3DFalPolyGenInput",
+                "multiviewTo3D": "#/components/schemas/TripoH31MultiviewTo3DFalPolyGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "TripoH31TextTo3DFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TripoH31FalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "maxLength": 1024,
+                "minLength": 1,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 1024,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "imageSeed": {
+                "maximum": 2147483647,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "operation": {
+                "enum": [
+                  "textTo3D"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "h3.1"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "tripo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TripoH31ImageTo3DFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TripoH31FalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
               "imageUrl",
-              "model"
+              "model",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "textureAlignment": {
+                "enum": [
+                  "original_image",
+                  "geometry"
+                ],
+                "type": "string",
+                "default": "original_image"
+              },
+              "orientation": {
+                "enum": [
+                  "default",
+                  "align_image"
+                ],
+                "type": "string",
+                "default": "default"
+              },
+              "operation": {
+                "enum": [
+                  "imageTo3D"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "h3.1"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "tripo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TripoH31MultiviewTo3DFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TripoH31FalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrls",
+              "model",
+              "operation",
+              "version"
+            ],
+            "type": "object",
+            "properties": {
+              "imageUrls": {
+                "maxItems": 4,
+                "minItems": 2,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "2–4 views of the same object, ordered front, left, back, right."
+              },
+              "textureAlignment": {
+                "enum": [
+                  "original_image",
+                  "geometry"
+                ],
+                "type": "string",
+                "default": "original_image"
+              },
+              "orientation": {
+                "enum": [
+                  "default",
+                  "align_image"
+                ],
+                "type": "string",
+                "default": "default"
+              },
+              "operation": {
+                "enum": [
+                  "multiviewTo3D"
+                ],
+                "type": "string"
+              },
+              "version": {
+                "enum": [
+                  "h3.1"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "tripo"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TripoFalPolyGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TripoVersionedFalPolyGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "imageUrl",
+              "model",
+              "version"
             ],
             "type": "object",
             "properties": {
@@ -46024,6 +46375,12 @@
                   "integer"
                 ],
                 "format": "int32"
+              },
+              "version": {
+                "enum": [
+                  "v2.5"
+                ],
+                "type": "string"
               },
               "model": {
                 "enum": [
