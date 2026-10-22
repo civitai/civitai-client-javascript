@@ -7332,6 +7332,70 @@ export type MeshyV6FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'mode
   engine: 'fal';
 };
 
+export type MeshyV71FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'model' | 'version'> & {
+  operation: string;
+  /**
+   * Defaults to 4,000 for Smart Topology, otherwise 30,000.
+   */
+  targetPolycount?: number;
+  poseMode?: 'none' | 'a-pose' | 't-pose';
+  textureImageUrl?: null | string;
+  riggingHeightMeters?: number;
+  animationActionId?: number;
+  version: 'v7.1';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV71TextTo3dFalPolyGenInput = Omit<
+  MeshyV71FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  prompt: string;
+  mode?: 'preview' | 'full';
+  modelType?: 'standard' | 'smart-topology';
+  /**
+   * 2K and 4K require modelType "standard".
+   */
+  geometryResolution?: 'standard' | '2k' | '4k';
+  seed?: null | number;
+  enablePromptExpansion?: boolean;
+  operation: 'textTo3D';
+  version: 'v7.1';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV71ImageTo3dFalPolyGenInput = Omit<
+  MeshyV71FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  imageUrl: string;
+  shouldTexture?: boolean;
+  modelType?: 'standard' | 'smart-topology';
+  /**
+   * 2K and 4K require modelType "standard".
+   */
+  geometryResolution?: 'standard' | '2k' | '4k';
+  operation: 'imageTo3D';
+  version: 'v7.1';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV71MultiImageTo3dFalPolyGenInput = Omit<
+  MeshyV71FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  imageUrls: Array<string>;
+  shouldTexture?: boolean;
+  geometryResolution?: 'standard' | '2k';
+  operation: 'multiImageTo3D';
+  version: 'v7.1';
+  model: 'meshy';
+  engine: 'fal';
+};
+
 /**
  * Meshy v7. FAL endpoints: meshy/v7/{image-to-3d,multi-image-to-3d}
  */
