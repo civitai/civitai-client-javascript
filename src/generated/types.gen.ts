@@ -10539,7 +10539,80 @@ export type Trellis2TexGenComfyPolyGenInput = Omit<
   engine: 'comfy';
 };
 
-export type TripoFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
+export type TripoVersionedFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
+  version: null | string;
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31FalPolyGenInput = Omit<
+  TripoVersionedFalPolyGenInput,
+  'engine' | 'model' | 'version'
+> & {
+  operation: string;
+  texture?: boolean;
+  /**
+   * PBR enables textures even when texture is false.
+   */
+  pbr?: boolean;
+  faceLimit?: null | number;
+  autoSize?: boolean;
+  quad?: boolean;
+  geometryQuality?: 'standard' | 'detailed';
+  textureQuality?: 'standard' | 'detailed';
+  seed?: null | number;
+  textureSeed?: null | number;
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31TextTo3dFalPolyGenInput = Omit<
+  TripoH31FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  imageSeed?: null | number;
+  operation: 'textTo3D';
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31ImageTo3dFalPolyGenInput = Omit<
+  TripoH31FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  imageUrl: string;
+  textureAlignment?: 'original_image' | 'geometry';
+  orientation?: 'default' | 'align_image';
+  operation: 'imageTo3D';
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31MultiviewTo3dFalPolyGenInput = Omit<
+  TripoH31FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  /**
+   * 2–4 views of the same object, ordered front, left, back, right.
+   */
+  imageUrls: Array<string>;
+  textureAlignment?: 'original_image' | 'geometry';
+  orientation?: 'default' | 'align_image';
+  operation: 'multiviewTo3D';
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoFalPolyGenInput = Omit<
+  TripoVersionedFalPolyGenInput,
+  'engine' | 'model' | 'version'
+> & {
   imageUrl: string;
   texture?: 'no' | 'standard' | 'HD';
   pbr?: boolean;
@@ -10553,6 +10626,7 @@ export type TripoFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
   orientation?: 'default' | 'align_image';
   seed?: null | number;
   textureSeed?: null | number;
+  version: 'v2.5';
   model: 'tripo';
   engine: 'fal';
 };
