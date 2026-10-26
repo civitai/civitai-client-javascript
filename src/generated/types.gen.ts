@@ -12653,6 +12653,65 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
+export type KlingV4ElementInput = {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  frontalImage?: null | string;
+  referenceImages?: Array<string>;
+  /**
+   * Public HTTP(S) video, 3-8 seconds, instead of image views.
+   */
+  videoUrl?: null | string;
+  voiceId?: null | string;
+};
+
+export type KlingV4Shot = {
+  prompt: string;
+  duration?: number;
+};
+
+export type KlingV4VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation?: 'text-to-video' | 'image-to-video' | 'reference-to-video' | 'video-to-video-edit';
+  /**
+   * Defaults to 5 seconds for generation or the source length for edits. MultiPrompt overrides this.
+   */
+  duration?: null | number;
+  resolution?: '720p' | '1080p';
+  /**
+   * Text/reference generation only. Defaults to 16:9; auto requires references.
+   */
+  aspectRatio?: null | 'auto' | '16:9' | '9:16' | '1:1' | '21:9';
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  sourceImage?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  endImage?: null | string;
+  middleImages?: Array<string>;
+  images?: Array<string>;
+  /**
+   * Public HTTP(S) source video for edits, 3-30 seconds.
+   */
+  videoUrl?: null | string;
+  /**
+   * Public HTTP(S) reference videos, 3-30 seconds each. Edits allow four; reference generation allows five.
+   */
+  videos?: Array<string>;
+  elements?: Array<KlingV4ElementInput>;
+  /**
+   * At most three voices, including those bound to elements.
+   */
+  voiceIds?: Array<string>;
+  /**
+   * Generation only. Shot durations must total 3-30 seconds; use an empty prompt for shots only.
+   */
+  multiPrompt?: null | Array<KlingV4Shot>;
+  engine: 'kling-v4';
+};
+
 export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem: string;
   /**
