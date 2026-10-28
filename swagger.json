@@ -53784,13 +53784,13 @@
             "properties": {
               "operation": {
                 "enum": [
-                  "text-to-video",
-                  "image-to-video",
-                  "reference-to-video",
-                  "video-to-video-edit"
+                  "textToVideo",
+                  "imageToVideo",
+                  "referenceToVideo",
+                  "videoToVideoEdit"
                 ],
                 "type": "string",
-                "default": "text-to-video"
+                "default": "textToVideo"
               },
               "duration": {
                 "maximum": 30,

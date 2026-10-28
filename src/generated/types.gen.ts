@@ -12672,7 +12672,7 @@ export type KlingV4Shot = {
 };
 
 export type KlingV4VideoGenInput = Omit<VideoGenInput, 'engine'> & {
-  operation?: 'text-to-video' | 'image-to-video' | 'reference-to-video' | 'video-to-video-edit';
+  operation?: 'textToVideo' | 'imageToVideo' | 'referenceToVideo' | 'videoToVideoEdit';
   /**
    * Defaults to 5 seconds for generation or the source length for edits. MultiPrompt overrides this.
    */
