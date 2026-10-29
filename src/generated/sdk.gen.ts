@@ -58,9 +58,6 @@ import type {
   HeadBlobData,
   HeadBlobErrors,
   HeadBlobResponses,
-  IngestConsumerBlobData,
-  IngestConsumerBlobErrors,
-  IngestConsumerBlobResponses,
   InvalidateUserCacheData,
   InvalidateUserCacheErrors,
   InvalidateUserCacheResponses,
@@ -73,6 +70,9 @@ import type {
   InvokeAgeClassificationStepTemplateData,
   InvokeAgeClassificationStepTemplateErrors,
   InvokeAgeClassificationStepTemplateResponses,
+  InvokeArchiveExtractionStepTemplateData,
+  InvokeArchiveExtractionStepTemplateErrors,
+  InvokeArchiveExtractionStepTemplateResponses,
   InvokeAudioCaptioningStepTemplateData,
   InvokeAudioCaptioningStepTemplateErrors,
   InvokeAudioCaptioningStepTemplateResponses,
@@ -172,6 +172,9 @@ import type {
   InvokeModelPickleScanStepTemplateData,
   InvokeModelPickleScanStepTemplateErrors,
   InvokeModelPickleScanStepTemplateResponses,
+  InvokeMultimodalEmbeddingStepTemplateData,
+  InvokeMultimodalEmbeddingStepTemplateErrors,
+  InvokeMultimodalEmbeddingStepTemplateResponses,
   InvokePolyGenStepTemplateData,
   InvokePolyGenStepTemplateErrors,
   InvokePolyGenStepTemplateResponses,
@@ -274,6 +277,9 @@ import type {
   RefreshBlobData,
   RefreshBlobErrors,
   RefreshBlobResponses,
+  RefundFundData,
+  RefundFundErrors,
+  RefundFundResponses,
   RemoveAllWorkflowTagsData,
   RemoveAllWorkflowTagsErrors,
   RemoveAllWorkflowTagsResponses,
@@ -326,7 +332,8 @@ export const getBlob = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Handles HTTP HEAD requests for a specific blob, checking its existence and NSFW level.
+ * Same as GET, but answers 204 with the redirect target in Location, so a client can read the verdict headers
+ * before loading the content.
  */
 export const headBlob = <ThrowOnError extends boolean = false>(
   options: Options<HeadBlobData, ThrowOnError>
@@ -361,19 +368,6 @@ export const uploadConsumerBlob = <ThrowOnError extends boolean = false>(
     UploadConsumerBlobErrors,
     ThrowOnError
   >({ url: '/v2/consumer/blobs', ...options });
-
-/**
- * Copy a trusted url into a blob named after that source, so the caller can ask for it again
- * without holding the bytes. 200 when it already existed, 201 when copied.
- */
-export const ingestConsumerBlob = <ThrowOnError extends boolean = false>(
-  options?: Options<IngestConsumerBlobData, ThrowOnError>
-) =>
-  (options?.client ?? client).post<
-    IngestConsumerBlobResponses,
-    IngestConsumerBlobErrors,
-    ThrowOnError
-  >({ url: '/v2/consumer/blobs/ingest', ...options });
 
 /**
  * Serves cacheable blob content using a deterministic encrypted token
@@ -467,7 +461,7 @@ export const createFund = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Whatever is left goes to Civitai, not back to the depositors. A fund is also deleted on its own at `expiresAt`.
+ * What is left goes back to the depositor when only one user deposited, else to Civitai. A fund is also deleted on its own at `expiresAt`.
  */
 export const deleteFund = <ThrowOnError extends boolean = false>(
   options: Options<DeleteFundData, ThrowOnError>
@@ -513,6 +507,17 @@ export const depositIntoFund = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Pays what is left back to the depositor now, when only one user deposited. The fund stays open, empty, for new deposits.
+ */
+export const refundFund = <ThrowOnError extends boolean = false>(
+  options: Options<RefundFundData, ThrowOnError>
+) =>
+  (options.client ?? client).post<RefundFundResponses, RefundFundErrors, ThrowOnError>({
+    url: '/v2/consumer/funds/{fundId}/refund',
+    ...options,
+  });
+
+/**
  * Generates full songs from text descriptions and structured lyrics with ACE Step 1.5.
  */
 export const invokeAceStepAudioStepTemplate = <ThrowOnError extends boolean = false>(
@@ -545,6 +550,27 @@ export const invokeAgeClassificationStepTemplate = <ThrowOnError extends boolean
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/ageClassification',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Archive Extraction
+ *
+ * Extracts the media and text files of a zip or tar archive into blobs once each is scanned; fails if any is blocked.
+ */
+export const invokeArchiveExtractionStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeArchiveExtractionStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeArchiveExtractionStepTemplateResponses,
+    InvokeArchiveExtractionStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/archiveExtraction',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1208,6 +1234,27 @@ export const invokeModelPickleScanStepTemplate = <ThrowOnError extends boolean =
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/modelPickleScan',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Multimodal Embedding
+ *
+ * Embeds a batch of images or text into the same vector space.
+ */
+export const invokeMultimodalEmbeddingStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeMultimodalEmbeddingStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeMultimodalEmbeddingStepTemplateResponses,
+    InvokeMultimodalEmbeddingStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/multimodalEmbedding',
     ...options,
     headers: {
       'Content-Type': 'application/json',

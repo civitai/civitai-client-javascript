@@ -598,6 +598,85 @@ export const AnylineMergeWith = {
 
 export type AnylineMergeWith = (typeof AnylineMergeWith)[keyof typeof AnylineMergeWith];
 
+export type ArchiveEntry = {
+  /**
+   * The entry's normalized path inside the archive.
+   */
+  path: string;
+  /**
+   * The blob AIR (urn:air:other:other:orchestrator:blob@{blobKey}).
+   */
+  air: string;
+  mediaType: ArchiveEntryMediaType;
+  size: number;
+  blob: Blob;
+};
+
+export const ArchiveEntryMediaType = {
+  IMAGE: 'image',
+  VIDEO: 'video',
+  AUDIO: 'audio',
+  TEXT: 'text',
+} as const;
+
+export type ArchiveEntryMediaType =
+  (typeof ArchiveEntryMediaType)[keyof typeof ArchiveEntryMediaType];
+
+export const ArchiveEntryRejectionReason = {
+  UNSUPPORTED_TYPE: 'unsupportedType',
+  TOO_LARGE: 'tooLarge',
+  INVALID_PATH: 'invalidPath',
+  NESTED_ARCHIVE: 'nestedArchive',
+  LIMIT_EXCEEDED: 'limitExceeded',
+  BLOCKED: 'blocked',
+} as const;
+
+export type ArchiveEntryRejectionReason =
+  (typeof ArchiveEntryRejectionReason)[keyof typeof ArchiveEntryRejectionReason];
+
+export type ArchiveExtractionInput = {
+  /**
+   * A .zip, .tar or .tar.gz archive.
+   */
+  sourceUrl: string;
+  /**
+   * The kinds of entries to extract; anything else is reported as rejected. Defaults to all.
+   */
+  mediaTypes?: null | Array<ArchiveEntryMediaType>;
+  /**
+   * Extracted entries beyond this many are reported as rejected.
+   */
+  maxEntries?: number;
+};
+
+export type ArchiveExtractionOutput = {
+  /**
+   * The extracted entries, in archive order.
+   */
+  entries: Array<ArchiveEntry>;
+  rejected: Array<RejectedArchiveEntry>;
+};
+
+/**
+ * Archive Extraction
+ */
+export type ArchiveExtractionStep = Omit<WorkflowStep, '$type'> & {
+  input: ArchiveExtractionInput;
+  output?: ArchiveExtractionOutput;
+  $type: 'archiveExtraction';
+};
+
+/**
+ * Archive Extraction
+ */
+export type ArchiveExtractionStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ArchiveExtractionStep step.
+   */
+  input: ArchiveExtractionInput;
+  $type: 'archiveExtraction';
+};
+
 export const ArchiveFormat = { ZIP: 'zip', TAR: 'tar' } as const;
 
 export type ArchiveFormat = (typeof ArchiveFormat)[keyof typeof ArchiveFormat];
@@ -844,14 +923,11 @@ export type Blob = {
   nsfwLevel?: NsfwLevel;
   blockedReason?: null | string;
   /**
-   * Deprecated: use Civitai.Orchestration.Grains.Workflows.Steps.Common.Blob.PublicUrl to tell a public blob. Get the storage tier holding this blob, when
-   * one was declared. Null resolves to the private managed tier, falling back to the classic one for blobs
-   * written before producers moved off it.
+   * Deprecated: a public blob's Civitai.Orchestration.Grains.Workflows.Steps.Common.Blob.Url is its public url. The storage tier holding this blob, when one was declared.
    */
   tier?: null | string;
   /**
-   * The durable, unsigned url of a blob requested public, which a CDN can cache. Set as soon as the blob is
-   * requested, so it may 404 until the workflow that produces it completes; Civitai.Orchestration.Grains.Workflows.Steps.Common.Blob.Url waits instead.
+   * Deprecated and always null: Civitai.Orchestration.Grains.Workflows.Steps.Common.Blob.Url becomes the public url once the blob has passed moderation.
    */
   publicUrl?: null | string;
 };
@@ -923,6 +999,11 @@ export type BlobTrainingDataItem = {
    * Optional caption for this item, written as the trainer's sidecar caption file.
    */
   caption?: null | string;
+  /**
+   * Optional relative file name to stage the blob under. A .txt blob is the caption of the media item whose path
+   * matches it up to the extension, as in a training zip.
+   */
+  path?: null | string;
 };
 
 /**
@@ -1745,6 +1826,9 @@ export type ComfyFlux2KleinEditImageInput = Omit<
   ComfyFlux2KleinImageGenInput,
   'engine' | 'ecosystem' | 'operation'
 > & {
+  /**
+   * Up to seven reference images, or four for the 9b and 9b-kv variants.
+   */
   images?: Array<string>;
   operation: 'editImage';
   ecosystem: 'flux2Klein';
@@ -3684,6 +3768,10 @@ export type ConvertImageInput = {
 
 export type ConvertImageOutput = {
   blob?: ImageBlob;
+  /**
+   * Why the source cannot be converted. Retrying the same source fails the same way.
+   */
+  errors?: null | Array<string>;
 };
 
 /**
@@ -3917,6 +4005,10 @@ export type EchoStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   input: EchoInput;
   $type: 'echo';
 };
+
+export const EmbeddingPrecision = { FLOAT32: 'float32', FLOAT16: 'float16' } as const;
+
+export type EmbeddingPrecision = (typeof EmbeddingPrecision)[keyof typeof EmbeddingPrecision];
 
 export type EpochResult = {
   epochNumber: number;
@@ -4373,6 +4465,9 @@ export type Flux2KleinEditImageInput = Omit<
   Flux2KleinImageGenInput,
   'engine' | 'model' | 'operation'
 > & {
+  /**
+   * Up to seven reference images, or four for the 9b-kv variant.
+   */
   images?: Array<string>;
   operation: 'editImage';
   model: 'klein';
@@ -4865,6 +4960,10 @@ export type FundResponse = {
   id: string;
   allowMatureContent: boolean;
   description?: null | string;
+  /**
+   * Only one user has deposited, so what is left goes back to them when the fund expires or is deleted, or on `POST /funds/{id}/refund`. Otherwise it stays with Civitai.
+   */
+  leftoverRefundable: boolean;
   createdAt: string;
   expiresAt: string;
   balance: number;
@@ -5386,7 +5485,7 @@ export type HappyHorseVideoGenInput = Omit<VideoGenInput, 'engine'> & {
 export type HeyGenVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   operation: 'textToVideo' | 'imageToVideo' | 'referenceToVideo';
   duration: number;
-  resolution: '480p' | '768p';
+  resolution: '480p' | '768p' | '2K';
   /**
    * Ignored for imageToVideo, which follows the first frame's aspect ratio.
    */
@@ -6296,6 +6395,65 @@ export type KlingV3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   multiPrompt?: null | Array<KlingV3MultiPrompt>;
 };
 
+export type KlingV4ElementInput = {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  frontalImage?: null | string;
+  referenceImages?: Array<string>;
+  /**
+   * Public HTTP(S) video, 3-8 seconds, instead of image views.
+   */
+  videoUrl?: null | string;
+  voiceId?: null | string;
+};
+
+export type KlingV4Shot = {
+  prompt: string;
+  duration?: number;
+};
+
+export type KlingV4VideoGenInput = Omit<VideoGenInput, 'engine'> & {
+  operation?: 'textToVideo' | 'imageToVideo' | 'referenceToVideo' | 'videoToVideoEdit';
+  /**
+   * Defaults to 5 seconds for generation or the source length for edits. MultiPrompt overrides this.
+   */
+  duration?: null | number;
+  resolution?: '720p' | '1080p';
+  /**
+   * Text/reference generation only. Defaults to 16:9; auto requires references.
+   */
+  aspectRatio?: null | 'auto' | '16:9' | '9:16' | '1:1' | '21:9';
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  sourceImage?: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  endImage?: null | string;
+  middleImages?: Array<string>;
+  images?: Array<string>;
+  /**
+   * Public HTTP(S) source video for edits, 3-30 seconds.
+   */
+  videoUrl?: null | string;
+  /**
+   * Public HTTP(S) reference videos, 3-30 seconds each. Edits allow four; reference generation allows five.
+   */
+  videos?: Array<string>;
+  elements?: Array<KlingV4ElementInput>;
+  /**
+   * At most three voices, including those bound to elements.
+   */
+  voiceIds?: Array<string>;
+  /**
+   * Generation only. Shot durations must total 3-30 seconds; use an empty prompt for shots only.
+   */
+  multiPrompt?: null | Array<KlingV4Shot>;
+  engine: 'kling-v4';
+};
+
 export const KlingVideoGenAspectRatio = {
   '16_9': '16:9',
   '9_16': '9:16',
@@ -6607,6 +6765,19 @@ export type LiveQwen3TextToSpeechInput = Omit<
   'engine' | 'ecosystem'
 > & {
   operation: string;
+  language?:
+    | null
+    | 'Auto'
+    | 'Chinese'
+    | 'English'
+    | 'French'
+    | 'German'
+    | 'Italian'
+    | 'Japanese'
+    | 'Korean'
+    | 'Portuguese'
+    | 'Russian'
+    | 'Spanish';
   /**
    * Token cap per sentence.
    */
@@ -7347,25 +7518,6 @@ export type MeshyV71FalPolyGenInput = Omit<MeshyFalPolyGenInput, 'engine' | 'mod
   engine: 'fal';
 };
 
-export type MeshyV71TextTo3dFalPolyGenInput = Omit<
-  MeshyV71FalPolyGenInput,
-  'engine' | 'model' | 'version' | 'operation'
-> & {
-  prompt: string;
-  mode?: 'preview' | 'full';
-  modelType?: 'standard' | 'smart-topology';
-  /**
-   * 2K and 4K require modelType "standard".
-   */
-  geometryResolution?: 'standard' | '2k' | '4k';
-  seed?: null | number;
-  enablePromptExpansion?: boolean;
-  operation: 'textTo3D';
-  version: 'v7.1';
-  model: 'meshy';
-  engine: 'fal';
-};
-
 export type MeshyV71ImageTo3dFalPolyGenInput = Omit<
   MeshyV71FalPolyGenInput,
   'engine' | 'model' | 'version' | 'operation'
@@ -7391,6 +7543,25 @@ export type MeshyV71MultiImageTo3dFalPolyGenInput = Omit<
   shouldTexture?: boolean;
   geometryResolution?: 'standard' | '2k';
   operation: 'multiImageTo3D';
+  version: 'v7.1';
+  model: 'meshy';
+  engine: 'fal';
+};
+
+export type MeshyV71TextTo3dFalPolyGenInput = Omit<
+  MeshyV71FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  prompt: string;
+  mode?: 'preview' | 'full';
+  modelType?: 'standard' | 'smart-topology';
+  /**
+   * 2K and 4K require modelType "standard".
+   */
+  geometryResolution?: 'standard' | '2k' | '4k';
+  seed?: null | number;
+  enablePromptExpansion?: boolean;
+  operation: 'textTo3D';
   version: 'v7.1';
   model: 'meshy';
   engine: 'fal';
@@ -7614,10 +7785,18 @@ export type MiniMaxH3MaxVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'minimax-h3-max';
 };
 
+export const MiniMaxH3Model = {
+  STANDARD: 'standard',
+  HIGHSPEED: 'highspeed',
+  LITE: 'lite',
+} as const;
+
+export type MiniMaxH3Model = (typeof MiniMaxH3Model)[keyof typeof MiniMaxH3Model];
+
 export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
   aspectRatio: 'adaptive' | '21:9' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
   duration: number;
-  resolution: '2K';
+  resolution: '2K' | '768P' | '480P';
   /**
    * Either A URL, A DataURL or a Base64 string
    */
@@ -7635,6 +7814,7 @@ export type MiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
    * reference video at the output per-second rate, so it must be known before the estimate is charged.
    */
   referenceVideoSeconds?: number;
+  model?: MiniMaxH3Model;
   engine: 'minimax-h3';
 };
 
@@ -7996,6 +8176,63 @@ export type MossImageSftAiToolkitTrainingInput = Omit<
    * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
+};
+
+/**
+ * Multimodal Embedding
+ */
+export type MultimodalEmbeddingStep = Omit<WorkflowStep, '$type'> & {
+  /**
+   * Exactly one of text, imageUrl or videoUrl.
+   */
+  input: MultimodalEmbeddingStepInput;
+  output?: MultimodalEmbeddingStepOutput;
+  $type: 'multimodalEmbedding';
+};
+
+/**
+ * Exactly one of text, imageUrl or videoUrl.
+ */
+export type MultimodalEmbeddingStepInput = {
+  model?: 'wemm-2b';
+  dimensions?: 64 | 128 | 256 | 512 | 1024 | 2048;
+  text?: null | string;
+  imageUrl?: null | string;
+  /**
+   * At most 60 seconds, 100 MiB and 4096 pixels per side; audio is ignored.
+   */
+  videoUrl?: null | string;
+  /**
+   * Number format of the stored blob; Float16 halves its size.
+   */
+  precision?: EmbeddingPrecision;
+};
+
+export type MultimodalEmbeddingStepOutput = {
+  model: string;
+  modelRevision: string;
+  profile: string;
+  dimensions: number;
+  precision: EmbeddingPrecision;
+  /**
+   * L2-normalized values, exactly representable in the requested precision; empty until the blob is available.
+   */
+  embedding: Array<number>;
+  /**
+   * The same values as raw little-endian bytes in the requested precision.
+   */
+  blob: Blob;
+};
+
+/**
+ * Multimodal Embedding
+ */
+export type MultimodalEmbeddingStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the MultimodalEmbeddingStep step.
+   */
+  input: MultimodalEmbeddingStepInput;
+  $type: 'multimodalEmbedding';
 };
 
 export type MuseImageCreateFalImageGenInput = Omit<
@@ -9177,6 +9414,19 @@ export type Qwen3CustomVoiceTtsInput = Omit<
 
 export type Qwen3TextToSpeechInput = Omit<VllmOmniTextToSpeechInput, 'engine' | 'ecosystem'> & {
   operation: string;
+  language?:
+    | null
+    | 'Auto'
+    | 'Chinese'
+    | 'English'
+    | 'French'
+    | 'German'
+    | 'Italian'
+    | 'Japanese'
+    | 'Korean'
+    | 'Portuguese'
+    | 'Russian'
+    | 'Spanish';
   maxNewTokens?: null | number;
   ecosystem: 'qwen3';
   engine: 'vllm-omni';
@@ -9331,6 +9581,11 @@ export type QwenImageGenInput = Omit<SdCppImageGenInput, 'engine' | 'ecosystem'>
   model: string;
   ecosystem: 'qwen';
   engine: 'sdcpp';
+};
+
+export type RejectedArchiveEntry = {
+  path: string;
+  reason: ArchiveEntryRejectionReason;
 };
 
 export type RepeatForClause = {
@@ -10398,13 +10653,12 @@ export type TranscodeOutput = {
   urlExpiresAt?: null | string;
   jobId: string;
   /**
-   * Deprecated: use Civitai.Orchestration.Grains.Workflows.Steps.Transcode.TranscodeOutput.PublicUrl to tell a public blob. Storage tier holding the blob; null when none
+   * Deprecated: a public blob's Civitai.Orchestration.Grains.Workflows.Steps.Transcode.TranscodeOutput.Url is its public url. Storage tier holding the blob; null when none
    * was declared.
    */
   tier?: null | string;
   /**
-   * The durable, unsigned url of a blob requested public, which a CDN can cache. May 404 until the workflow that
-   * produces it completes; Civitai.Orchestration.Grains.Workflows.Steps.Transcode.TranscodeOutput.Url waits instead.
+   * Deprecated and always null: Civitai.Orchestration.Grains.Workflows.Steps.Transcode.TranscodeOutput.Url becomes the public url once the blob has passed moderation.
    */
   publicUrl?: null | string;
 };
@@ -10539,7 +10793,10 @@ export type Trellis2TexGenComfyPolyGenInput = Omit<
   engine: 'comfy';
 };
 
-export type TripoFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
+export type TripoFalPolyGenInput = Omit<
+  TripoVersionedFalPolyGenInput,
+  'engine' | 'model' | 'version'
+> & {
   imageUrl: string;
   texture?: 'no' | 'standard' | 'HD';
   pbr?: boolean;
@@ -10553,6 +10810,77 @@ export type TripoFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
   orientation?: 'default' | 'align_image';
   seed?: null | number;
   textureSeed?: null | number;
+  version: 'v2.5';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31FalPolyGenInput = Omit<
+  TripoVersionedFalPolyGenInput,
+  'engine' | 'model' | 'version'
+> & {
+  operation: string;
+  texture?: boolean;
+  /**
+   * PBR enables textures even when texture is false.
+   */
+  pbr?: boolean;
+  faceLimit?: null | number;
+  autoSize?: boolean;
+  quad?: boolean;
+  geometryQuality?: 'standard' | 'detailed';
+  textureQuality?: 'standard' | 'detailed';
+  seed?: null | number;
+  textureSeed?: null | number;
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31ImageTo3dFalPolyGenInput = Omit<
+  TripoH31FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  imageUrl: string;
+  textureAlignment?: 'original_image' | 'geometry';
+  orientation?: 'default' | 'align_image';
+  operation: 'imageTo3D';
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31MultiviewTo3dFalPolyGenInput = Omit<
+  TripoH31FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  /**
+   * 2–4 views of the same object, ordered front, left, back, right.
+   */
+  imageUrls: Array<string>;
+  textureAlignment?: 'original_image' | 'geometry';
+  orientation?: 'default' | 'align_image';
+  operation: 'multiviewTo3D';
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoH31TextTo3dFalPolyGenInput = Omit<
+  TripoH31FalPolyGenInput,
+  'engine' | 'model' | 'version' | 'operation'
+> & {
+  prompt: string;
+  negativePrompt?: null | string;
+  imageSeed?: null | number;
+  operation: 'textTo3D';
+  version: 'h3.1';
+  model: 'tripo';
+  engine: 'fal';
+};
+
+export type TripoVersionedFalPolyGenInput = Omit<FalPolyGenInput, 'engine' | 'model'> & {
+  version: null | string;
   model: 'tripo';
   engine: 'fal';
 };
@@ -11166,7 +11494,24 @@ export type Wan21FalVideoGenInput = Omit<Wan21VideoGenInput, 'engine' | 'version
 
 export type Wan21VideoGenInput = Omit<WanVideoGenInput, 'engine' | 'version'> & {
   provider: null | string;
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  sourceImage?: null | string;
   version: 'v2.1';
+  engine: 'wan';
+};
+
+export type Wan225bComfyVideoGenInput = Omit<
+  Wan225bVideoGenInput,
+  'engine' | 'version' | 'provider'
+> & {
+  resolution?: '480p' | '580p' | '720p';
+  aspectRatio?: '1:1' | '16:9' | '9:16' | 'auto';
+  images?: Array<string>;
+  negativePrompt?: null | string;
+  provider: 'comfy';
+  version: 'v2.2-5b';
   engine: 'wan';
 };
 
@@ -11237,6 +11582,10 @@ export type Wan22ComfyVideoGenInput = Omit<
   Wan22VideoGenInput,
   'engine' | 'version' | 'provider'
 > & {
+  /**
+   * Either A URL, A DataURL or a Base64 string
+   */
+  sourceImage?: null | string;
   width?: number;
   height?: number;
   diffusionModel?: null | string;
@@ -11671,10 +12020,6 @@ export type WanImageGenInput = Omit<ImageGenInput, 'engine'> & {
 
 export type WanVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   version: null | string;
-  /**
-   * Either A URL, A DataURL or a Base64 string
-   */
-  sourceImage?: null | string;
   cfgScale: number;
   fps?: number;
   engine: 'wan';
@@ -12228,7 +12573,7 @@ export type WorkflowTemplate = {
   /**
    * Limit the currencies that can be used to pay for this workflow.
    */
-  currencies: Array<BuzzClientAccount>;
+  currencies?: Array<BuzzClientAccount>;
   /**
    * Bill this workflow to a fund (see `POST /v2/consumer/funds`) instead of the caller's Buzz. Implies the paid tier;
    * Civitai.Orchestration.Grains.Workflows.WorkflowTemplate.Currencies then limits which of the fund's currencies are spent.
@@ -14435,7 +14780,12 @@ export type HeadBlobData = {
   path: {
     blobId: string;
   };
-  query?: never;
+  query?: {
+    workflowId?: string;
+    nsfwLevel?: NsfwLevel;
+    filename?: string;
+    download?: boolean;
+  };
   url: '/v2/consumer/blobs/{blobId}';
 };
 
@@ -14448,6 +14798,10 @@ export type HeadBlobErrors = {
    * Not Found
    */
   404: ProblemDetails;
+  /**
+   * Service Unavailable
+   */
+  503: unknown;
 };
 
 export type HeadBlobError = HeadBlobErrors[keyof HeadBlobErrors];
@@ -14534,65 +14888,6 @@ export type UploadConsumerBlobResponses = {
 
 export type UploadConsumerBlobResponse =
   UploadConsumerBlobResponses[keyof UploadConsumerBlobResponses];
-
-export type IngestConsumerBlobData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Object to copy; must resolve to a configured trusted source.
-     */
-    sourceUrl?: string;
-    /**
-     * Store in the public tier and return a durable, unsigned URL.
-     */
-    public?: boolean;
-  };
-  url: '/v2/consumer/blobs/ingest';
-};
-
-export type IngestConsumerBlobErrors = {
-  /**
-   * Bad Request
-   */
-  400: ProblemDetails;
-  /**
-   * Unauthorized
-   */
-  401: ProblemDetails;
-  /**
-   * Forbidden
-   */
-  403: ProblemDetails;
-  /**
-   * Not Found
-   */
-  404: ProblemDetails;
-  /**
-   * Unprocessable Content
-   */
-  422: ProblemDetails;
-  /**
-   * Bad Gateway
-   */
-  502: unknown;
-};
-
-export type IngestConsumerBlobError = IngestConsumerBlobErrors[keyof IngestConsumerBlobErrors];
-
-export type IngestConsumerBlobResponses = {
-  /**
-   * OK
-   */
-  200: Blob;
-  /**
-   * Created
-   */
-  201: Blob;
-};
-
-export type IngestConsumerBlobResponse =
-  IngestConsumerBlobResponses[keyof IngestConsumerBlobResponses];
 
 export type GetBlobContentData = {
   body?: never;
@@ -14822,7 +15117,7 @@ export type CreateFundErrors = {
   /**
    * Forbidden
    */
-  403: string;
+  403: ProblemDetails;
 };
 
 export type CreateFundError = CreateFundErrors[keyof CreateFundErrors];
@@ -14968,6 +15263,41 @@ export type DepositIntoFundResponses = {
 
 export type DepositIntoFundResponse = DepositIntoFundResponses[keyof DepositIntoFundResponses];
 
+export type RefundFundData = {
+  body?: never;
+  path: {
+    fundId: string;
+  };
+  query?: never;
+  url: '/v2/consumer/funds/{fundId}/refund';
+};
+
+export type RefundFundErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Not Found
+   */
+  404: ProblemDetails;
+  /**
+   * Conflict
+   */
+  409: ProblemDetails;
+};
+
+export type RefundFundError = RefundFundErrors[keyof RefundFundErrors];
+
+export type RefundFundResponses = {
+  /**
+   * OK
+   */
+  200: FundResponse;
+};
+
+export type RefundFundResponse = RefundFundResponses[keyof RefundFundResponses];
+
 export type InvokeAceStepAudioStepTemplateData = {
   body?: AceStepAudioInput;
   path?: never;
@@ -14980,6 +15310,7 @@ export type InvokeAceStepAudioStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/aceStepAudio';
 };
@@ -15024,6 +15355,7 @@ export type InvokeAgeClassificationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/ageClassification';
 };
@@ -15056,6 +15388,51 @@ export type InvokeAgeClassificationStepTemplateResponses = {
 export type InvokeAgeClassificationStepTemplateResponse =
   InvokeAgeClassificationStepTemplateResponses[keyof InvokeAgeClassificationStepTemplateResponses];
 
+export type InvokeArchiveExtractionStepTemplateData = {
+  body?: ArchiveExtractionInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+    tags?: Array<string>;
+  };
+  url: '/v2/consumer/recipes/archiveExtraction';
+};
+
+export type InvokeArchiveExtractionStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeArchiveExtractionStepTemplateError =
+  InvokeArchiveExtractionStepTemplateErrors[keyof InvokeArchiveExtractionStepTemplateErrors];
+
+export type InvokeArchiveExtractionStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ArchiveExtractionOutput;
+};
+
+export type InvokeArchiveExtractionStepTemplateResponse =
+  InvokeArchiveExtractionStepTemplateResponses[keyof InvokeArchiveExtractionStepTemplateResponses];
+
 export type InvokeAudioCaptioningStepTemplateData = {
   body?: AudioCaptioningInput;
   path?: never;
@@ -15068,6 +15445,7 @@ export type InvokeAudioCaptioningStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/audioCaptioning';
 };
@@ -15112,6 +15490,7 @@ export type InvokeAudioClassificationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/audioClassification';
 };
@@ -15156,6 +15535,7 @@ export type InvokeAudioModerationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/audioModeration';
 };
@@ -15200,6 +15580,7 @@ export type InvokeAudioTextModerationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/audioTextModeration';
 };
@@ -15244,6 +15625,7 @@ export type InvokeBatchOcrSafetyClassificationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/batchOCRSafetyClassification';
 };
@@ -15288,6 +15670,7 @@ export type InvokeBlobArchiveStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/blobArchive';
 };
@@ -15335,6 +15718,7 @@ export type InvokeChatCompletionStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/chatCompletion';
 };
@@ -15379,6 +15763,7 @@ export type InvokeComfyStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/comfy';
 };
@@ -15427,6 +15812,7 @@ export type InvokeComfyNodepackSnapshotStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/comfyNodepackSnapshot';
 };
@@ -15472,6 +15858,7 @@ export type InvokeComposeMediaStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/composeMedia';
 };
@@ -15516,6 +15903,7 @@ export type InvokeConvertImageStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/convertImage';
 };
@@ -15560,6 +15948,7 @@ export type InvokeCustomComfyStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/customComfy';
 };
@@ -15604,6 +15993,7 @@ export type InvokeEchoStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/echo';
 };
@@ -15648,6 +16038,7 @@ export type InvokeHumanoidImageMaskStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/humanoidImageMask';
 };
@@ -15692,6 +16083,7 @@ export type InvokeImageBackgroundRemovalStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/imageBackgroundRemoval';
 };
@@ -15736,6 +16128,7 @@ export type InvokeImageGenStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/imageGen';
 };
@@ -15780,6 +16173,7 @@ export type InvokeImageResourceTrainingStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/imageResourceTraining';
 };
@@ -15824,6 +16218,7 @@ export type InvokeImageScanningStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/imageScanning';
 };
@@ -15868,6 +16263,7 @@ export type InvokeImageToSvgStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/imageToSvg';
 };
@@ -15912,6 +16308,7 @@ export type InvokeImageUploadStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/imageUpload';
 };
@@ -15956,6 +16353,7 @@ export type InvokeImageUpscalerStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/imageUpscaler';
 };
@@ -16003,6 +16401,7 @@ export type InvokeLiveTextToSpeechStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/liveTextToSpeech';
 };
@@ -16047,6 +16446,7 @@ export type InvokeLiveTranscriptionStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/liveTranscription';
 };
@@ -16091,6 +16491,7 @@ export type InvokeMediaCaptioningStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/mediaCaptioning';
 };
@@ -16135,6 +16536,7 @@ export type InvokeMediaHashStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/mediaHash';
 };
@@ -16179,6 +16581,7 @@ export type InvokeMediaRatingStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/mediaRating';
 };
@@ -16223,6 +16626,7 @@ export type InvokeMergeStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/merge';
 };
@@ -16267,6 +16671,7 @@ export type InvokeMiniMaxMusic3StepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/miniMaxMusic3';
 };
@@ -16311,6 +16716,7 @@ export type InvokeModel3dPreviewStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/model3DPreview';
 };
@@ -16355,6 +16761,7 @@ export type InvokeModelClamScanStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/modelClamScan';
 };
@@ -16399,6 +16806,7 @@ export type InvokeModelHashStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/modelHash';
 };
@@ -16443,6 +16851,7 @@ export type InvokeModelParseMetadataStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/modelParseMetadata';
 };
@@ -16487,6 +16896,7 @@ export type InvokeModelPickleScanStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/modelPickleScan';
 };
@@ -16519,6 +16929,54 @@ export type InvokeModelPickleScanStepTemplateResponses = {
 export type InvokeModelPickleScanStepTemplateResponse =
   InvokeModelPickleScanStepTemplateResponses[keyof InvokeModelPickleScanStepTemplateResponses];
 
+export type InvokeMultimodalEmbeddingStepTemplateData = {
+  /**
+   * Exactly one of text, imageUrl or videoUrl.
+   */
+  body?: MultimodalEmbeddingStepInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+    tags?: Array<string>;
+  };
+  url: '/v2/consumer/recipes/multimodalEmbedding';
+};
+
+export type InvokeMultimodalEmbeddingStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeMultimodalEmbeddingStepTemplateError =
+  InvokeMultimodalEmbeddingStepTemplateErrors[keyof InvokeMultimodalEmbeddingStepTemplateErrors];
+
+export type InvokeMultimodalEmbeddingStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: MultimodalEmbeddingStepOutput;
+};
+
+export type InvokeMultimodalEmbeddingStepTemplateResponse =
+  InvokeMultimodalEmbeddingStepTemplateResponses[keyof InvokeMultimodalEmbeddingStepTemplateResponses];
+
 export type InvokePolyGenStepTemplateData = {
   body?: PolyGenInput;
   path?: never;
@@ -16531,6 +16989,7 @@ export type InvokePolyGenStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/polyGen';
 };
@@ -16575,6 +17034,7 @@ export type InvokePrepareResourceStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/prepareResource';
 };
@@ -16619,6 +17079,7 @@ export type InvokePreprocessImageStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/preprocessImage';
 };
@@ -16663,6 +17124,7 @@ export type InvokePreprocessVideoStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/preprocessVideo';
 };
@@ -16707,6 +17169,7 @@ export type InvokePromptEnhancementStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/promptEnhancement';
 };
@@ -16751,6 +17214,7 @@ export type InvokePromptModerationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/promptModeration';
 };
@@ -16795,6 +17259,7 @@ export type InvokeQwenImageBenchStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/qwenImageBench';
 };
@@ -16839,6 +17304,7 @@ export type InvokeRepeatStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/repeat';
 };
@@ -16883,6 +17349,7 @@ export type InvokeShieldstralModerationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/shieldstralModeration';
 };
@@ -16930,6 +17397,7 @@ export type InvokeSoniloAudioGenStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/soniloAudioGen';
 };
@@ -16974,6 +17442,7 @@ export type InvokeTextToImageStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/textToImage';
 };
@@ -17018,6 +17487,7 @@ export type InvokeTextToSpeechStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/textToSpeech';
 };
@@ -17062,6 +17532,7 @@ export type InvokeTrainingStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/training';
 };
@@ -17106,6 +17577,7 @@ export type InvokeTranscodeStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/transcode';
 };
@@ -17150,6 +17622,7 @@ export type InvokeTranscriptionStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/transcription';
 };
@@ -17194,6 +17667,7 @@ export type InvokeTryOnUStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/tryOnU';
 };
@@ -17238,6 +17712,7 @@ export type InvokeVideoBackgroundRemovalStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/videoBackgroundRemoval';
 };
@@ -17282,6 +17757,7 @@ export type InvokeVideoEnhancementStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/videoEnhancement';
 };
@@ -17326,6 +17802,7 @@ export type InvokeVideoFrameExtractionStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/videoFrameExtraction';
 };
@@ -17370,6 +17847,7 @@ export type InvokeVideoGenStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/videoGen';
 };
@@ -17414,6 +17892,7 @@ export type InvokeVideoInterpolationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/videoInterpolation';
 };
@@ -17458,6 +17937,7 @@ export type InvokeVideoMetadataStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/videoMetadata';
 };
@@ -17502,6 +17982,7 @@ export type InvokeVideoUpscalerStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/videoUpscaler';
 };
@@ -17546,6 +18027,7 @@ export type InvokeWdTaggingStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/wdTagging';
 };
@@ -17590,6 +18072,7 @@ export type InvokeWebScrapeStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/webScrape';
 };
@@ -17634,6 +18117,7 @@ export type InvokeWebSearchStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/webSearch';
 };
@@ -17678,6 +18162,7 @@ export type InvokeXGuardModerationStepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/xGuardModeration';
 };
@@ -17725,6 +18210,7 @@ export type InvokeYuE2StepTemplateData = {
      * How a workflow is paid for.
      */
     tier?: WorkflowTier;
+    tags?: Array<string>;
   };
   url: '/v2/consumer/recipes/yuE2';
 };
@@ -18116,7 +18602,7 @@ export type SubmitWorkflowErrors = {
   /**
    * Bad Request
    */
-  400: ProblemDetails;
+  400: ValidationProblemDetails;
   /**
    * Unauthorized
    */
@@ -18124,7 +18610,7 @@ export type SubmitWorkflowErrors = {
   /**
    * Forbidden
    */
-  403: string;
+  403: ProblemDetails;
   /**
    * Too Many Requests
    */
