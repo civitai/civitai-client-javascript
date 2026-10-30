@@ -331,7 +331,7 @@
             "description": "Internal Server Error"
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/blocked/{encryptedToken}": {
@@ -373,7 +373,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/archive/{encryptedToken}": {
@@ -418,7 +418,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/blobs/{blobId}/refresh": {
@@ -8957,7 +8957,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/services/{serviceId}": {
@@ -9029,7 +9029,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/streaming-blobs/{blobKey}": {
@@ -9117,7 +9117,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       },
       "get": {
         "tags": [
@@ -9159,7 +9159,7 @@
             }
           }
         },
-        "security": []
+        "security": [ ]
       }
     },
     "/v2/consumer/workflows": {
@@ -9223,7 +9223,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -9252,7 +9252,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -9280,7 +9280,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -9297,7 +9297,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -9410,7 +9410,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -9437,7 +9437,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -9466,7 +9466,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -9494,7 +9494,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -9511,7 +9511,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -9624,7 +9624,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -9651,7 +9651,7 @@
                               "triggerWord": "easynegative"
                             }
                           },
-                          "controlNets": [],
+                          "controlNets": [ ],
                           "prompt": "A curious cat",
                           "negativePrompt": "nsfw",
                           "scheduler": "eulerA",
@@ -9680,7 +9680,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "LORA training": {
@@ -9708,7 +9708,7 @@
                           "trainingData": "https://example.com/training-data",
                           "trainingDataImagesCount": 10,
                           "loraName": "mylora",
-                          "samplePrompts": []
+                          "samplePrompts": [ ]
                         },
                         "priority": "normal",
                         "retries": 1
@@ -9725,7 +9725,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 },
                 "Comfy job": {
@@ -9838,7 +9838,7 @@
                     ],
                     "tier": "paid",
                     "upgradeMode": "automatic",
-                    "currencies": []
+                    "currencies": [ ]
                   }
                 }
               }
@@ -10974,6 +10974,7 @@
                 "zimageturbo": "#/components/schemas/ZImageTurboAIToolkitTrainingInput",
                 "zimagebase": "#/components/schemas/ZImageBaseAIToolkitTrainingInput",
                 "mossImage": "#/components/schemas/MossImageAIToolkitTrainingInput",
+                "fibo2": "#/components/schemas/Fibo2AIToolkitTrainingInput",
                 "flux3klein": "#/components/schemas/Flux3KleinAIToolkitTrainingInput",
                 "flux2klein": "#/components/schemas/Flux2KleinAIToolkitTrainingInput",
                 "ltx2": "#/components/schemas/Ltx2AIToolkitTrainingInput",
@@ -13794,7 +13795,7 @@
               "string"
             ]
           },
-          "logprobs": {}
+          "logprobs": { }
         },
         "additionalProperties": false
       },
@@ -13836,7 +13837,7 @@
               "string"
             ]
           },
-          "parameters": {},
+          "parameters": { },
           "strict": {
             "type": [
               "null",
@@ -14089,7 +14090,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "Model-specific chat template options, forwarded unchanged to vLLM as chat_template_kwargs.\nPrefer reasoningEffort and thinkingTokenBudget for reasoning control."
           },
           "tools": {
@@ -14143,7 +14144,7 @@
               "string"
             ]
           },
-          "schema": {},
+          "schema": { },
           "strict": {
             "type": [
               "null",
@@ -15897,6 +15898,340 @@
               "propertyName": "operation",
               "mapping": {
                 "createImage": "#/components/schemas/ComfyErnieTurboCreateImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyFibo2DevCreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFibo2DevImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "dev"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "fibo2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyFibo2DevImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFibo2ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "createImage"
+              },
+              "model": {
+                "enum": [
+                  "dev"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "fibo2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/ComfyFibo2DevCreateImageInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyFibo2EditTurboEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFibo2EditTurboImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 16,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "editTurbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "fibo2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ComfyFibo2EditTurboImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyFibo2ImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "editImage"
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 4
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 1
+              },
+              "model": {
+                "enum": [
+                  "editTurbo"
+                ],
+                "type": "string"
+              },
+              "ecosystem": {
+                "enum": [
+                  "fibo2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "editImage": "#/components/schemas/ComfyFibo2EditTurboEditImageInput"
+              }
+            }
+          }
+        ]
+      },
+      "ComfyFibo2ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ComfyImageGenInput"
+          },
+          {
+            "required": [
+              "ecosystem",
+              "engine",
+              "model",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "default": "dev"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": "string"
+              },
+              "negativePrompt": {
+                "maxLength": 10000,
+                "minLength": 0,
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "width": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "height": {
+                "maximum": 2048,
+                "minimum": 64,
+                "type": "integer",
+                "format": "int32",
+                "default": 1024
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int64"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "steps": {
+                "maximum": 150,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 30
+              },
+              "cfgScale": {
+                "maximum": 30,
+                "minimum": 1,
+                "type": "number",
+                "format": "double",
+                "default": 5
+              },
+              "sampler": {
+                "default": "euler",
+                "$ref": "#/components/schemas/ComfySampler"
+              },
+              "scheduler": {
+                "default": "simple",
+                "$ref": "#/components/schemas/ComfyScheduler"
+              },
+              "loras": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "diffusionModel": {
+                "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Compatible Fibo 2.0 diffusion checkpoint AIR. Omit or set null to use the selected model's int8 checkpoint; the int8 text encoder and VAE remain unchanged."
+              },
+              "ecosystem": {
+                "enum": [
+                  "fibo2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "comfy"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "model",
+              "mapping": {
+                "dev": "#/components/schemas/ComfyFibo2DevImageGenInput",
+                "editTurbo": "#/components/schemas/ComfyFibo2EditTurboImageGenInput"
               }
             }
           }
@@ -17912,6 +18247,7 @@
                 "sd1": "#/components/schemas/ComfySd1ImageGenInput",
                 "sdxl": "#/components/schemas/ComfySdxlImageGenInput",
                 "flux1": "#/components/schemas/ComfyFlux1ImageGenInput",
+                "fibo2": "#/components/schemas/ComfyFibo2ImageGenInput",
                 "mossImage": "#/components/schemas/ComfyMossImageGenInput",
                 "flux3Klein": "#/components/schemas/ComfyFlux3KleinImageGenInput",
                 "flux2Dev": "#/components/schemas/ComfyFlux2DevImageGenInput",
@@ -25191,6 +25527,51 @@
                 "tripo": "#/components/schemas/TripoVersionedFalPolyGenInput"
               }
             }
+          }
+        ]
+      },
+      "Fibo2AIToolkitTrainingInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AIToolkitTrainingInput"
+          },
+          {
+            "required": [
+              "defaultSteps",
+              "ecosystem",
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "defaultSteps": {
+                "type": "integer",
+                "format": "int32",
+                "readOnly": true
+              },
+              "ecosystem": {
+                "enum": [
+                  "fibo2"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "ai-toolkit"
+                ],
+                "type": "string"
+              },
+              "batchSize": {
+                "maximum": 1,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Training batch size. Fixed at 1 for this ecosystem.",
+                "default": 1
+              }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -35930,7 +36311,7 @@
         "properties": {
           "fields": {
             "type": "object",
-            "additionalProperties": {},
+            "additionalProperties": { },
             "description": "The merged values, keyed by the field names of the input. Their shape follows the requested reducers."
           },
           "sourceCount": {
@@ -42514,7 +42895,7 @@
             ]
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "PromptEnhancementInput": {
         "required": [
@@ -48411,7 +48792,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "tags": {
             "type": [
@@ -48450,7 +48831,7 @@
         "properties": {
           "metadata": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           }
         },
         "additionalProperties": false
@@ -48642,7 +49023,7 @@
             }
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "ValueTupleOfDoubleAndDouble": {
         "type": "object",
@@ -53260,7 +53641,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "status": {
             "$ref": "#/components/schemas/WorkflowStatus"
@@ -53288,7 +53669,7 @@
           },
           "arguments": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "steps": {
             "type": "array",
@@ -53571,14 +53952,14 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "arguments": {
             "type": [
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "createdAt": {
             "type": "string",
@@ -53640,10 +54021,10 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
-          "input": {},
-          "output": {},
+          "input": { },
+          "output": { },
           "cost": {
             "type": [
               "null",
@@ -53720,7 +54101,7 @@
           },
           "metadata": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "estimatedProgressRate": {
             "type": [
@@ -53899,10 +54280,10 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
-          "input": {},
-          "output": {},
+          "input": { },
+          "output": { },
           "preparation": {
             "type": [
               "null",
@@ -54110,7 +54491,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           }
         },
         "additionalProperties": false,
@@ -54235,7 +54616,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "tags": {
             "maxItems": 10,
@@ -54274,7 +54655,7 @@
               "null",
               "object"
             ],
-            "additionalProperties": {}
+            "additionalProperties": { }
           },
           "nsfwLevel": {
             "description": "An optional limit in what content is safe to return",
@@ -55647,7 +56028,7 @@
     }
   },
   "security": [
-    {}
+    { }
   ],
   "tags": [
     {
