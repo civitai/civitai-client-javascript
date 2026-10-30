@@ -1695,6 +1695,72 @@ export type ComfyErnieTurboImageGenInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyFibo2DevCreateImageInput = Omit<
+  ComfyFibo2DevImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'dev';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2DevImageGenInput = Omit<
+  ComfyFibo2ImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  model: 'dev';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2EditTurboEditImageInput = Omit<
+  ComfyFibo2EditTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'editTurbo';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2EditTurboImageGenInput = Omit<
+  ComfyFibo2ImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  steps?: number;
+  cfgScale?: number;
+  model: 'editTurbo';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  steps?: number;
+  cfgScale?: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Compatible Fibo 2.0 diffusion checkpoint AIR. Omit or set null to use the selected model's int8 checkpoint; the int8 text encoder and VAE remain unchanged.
+   */
+  diffusionModel?: null | string;
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
 export type ComfyFlux1CreateImageGenInput = Omit<
   ComfyFlux1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
@@ -4093,6 +4159,16 @@ export type FalImageGenInput = Omit<ImageGenInput, 'engine'> & {
 export type FalPolyGenInput = Omit<PolyGenInput, 'engine'> & {
   model: string;
   engine: 'fal';
+};
+
+export type Fibo2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  ecosystem: 'fibo2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
 };
 
 export const FileFormat = {
@@ -13491,6 +13567,18 @@ export type ErnieAiToolkitTrainingInputWritable = Omit<
   engine: 'ai-toolkit';
   /**
    * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
+   */
+  batchSize?: null | number;
+};
+
+export type Fibo2AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'fibo2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
 };
