@@ -49249,7 +49249,8 @@
             "minimax-h3-max": "#/components/schemas/MiniMaxH3MaxVideoGenInput",
             "minimax-h3": "#/components/schemas/MiniMaxH3VideoGenInput",
             "minimax-h3-comfy": "#/components/schemas/ComfyMiniMaxH3VideoGenInput",
-            "flux": "#/components/schemas/Flux3VideoGenInput"
+            "flux": "#/components/schemas/Flux3VideoGenInput",
+            "kling-v4": "#/components/schemas/KlingV4VideoGenInput"
           }
         }
       },
@@ -55635,6 +55636,207 @@
           "outdoor"
         ],
         "type": "string"
+      },
+      "KlingV4ElementInput": {
+        "type": "object",
+        "properties": {
+          "frontalImage": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Either A URL, A DataURL or a Base64 string",
+            "format": "source-image"
+          },
+          "referenceImages": {
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Either A URL, A DataURL or a Base64 string",
+              "format": "source-image"
+            }
+          },
+          "videoUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Public HTTP(S) video, 3-8 seconds, instead of image views.",
+            "format": "uri"
+          },
+          "voiceId": {
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "KlingV4Shot": {
+        "required": [
+          "prompt"
+        ],
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "duration": {
+            "maximum": 30,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32",
+            "default": 5
+          }
+        },
+        "additionalProperties": false
+      },
+      "KlingV4VideoGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/VideoGenInput"
+          },
+          {
+            "required": [
+              "engine"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "text-to-video",
+                  "image-to-video",
+                  "reference-to-video",
+                  "video-to-video-edit"
+                ],
+                "type": "string",
+                "default": "text-to-video"
+              },
+              "duration": {
+                "maximum": 30,
+                "minimum": 3,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Defaults to 5 seconds for generation or the source length for edits. MultiPrompt overrides this.",
+                "format": "int32"
+              },
+              "resolution": {
+                "enum": [
+                  "720p",
+                  "1080p"
+                ],
+                "type": "string",
+                "default": "1080p"
+              },
+              "aspectRatio": {
+                "enum": [
+                  null,
+                  "auto",
+                  "16:9",
+                  "9:16",
+                  "1:1",
+                  "21:9"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Text/reference generation only. Defaults to 16:9; auto requires references."
+              },
+              "sourceImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "endImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Either A URL, A DataURL or a Base64 string",
+                "format": "source-image"
+              },
+              "middleImages": {
+                "maxItems": 8,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "images": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "videoUrl": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Public HTTP(S) source video for edits, 3-30 seconds.",
+                "format": "uri"
+              },
+              "videos": {
+                "maxItems": 5,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": "Public HTTP(S) reference videos, 3-30 seconds each. Edits allow four; reference generation allows five."
+              },
+              "elements": {
+                "maxItems": 7,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/KlingV4ElementInput"
+                }
+              },
+              "voiceIds": {
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "At most three voices, including those bound to elements."
+              },
+              "multiPrompt": {
+                "minItems": 1,
+                "type": [
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "$ref": "#/components/schemas/KlingV4Shot"
+                },
+                "description": "Generation only. Shot durations must total 3-30 seconds; use an empty prompt for shots only."
+              },
+              "engine": {
+                "enum": [
+                  "kling-v4"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       }
     },
     "securitySchemes": {
