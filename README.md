@@ -30,12 +30,13 @@ To migrate, swap the dependency and update your imports:
 
 ## Releasing
 
-Releases are automated. Bump `version` in `package.json` and push to `main`; the
+Releases are automated. Run `pnpm release`, which typechecks, builds and bumps the patch version
+in `package.json`, then commit and push to `main`; the
 [release workflow](.github/workflows/release.yml) tests, builds, and publishes to npm using
 trusted publishing, then tags the commit.
 
-Prerelease versions (`0.2.0-beta.101`) publish under the `beta` dist-tag; plain versions
-(`0.2.0`) publish under `latest`.
+Plain versions (`0.2.1`) publish under `latest`. A prerelease version (`0.3.0-beta.1`), set by
+hand, publishes under the `beta` dist-tag instead, for testing a change before it reaches everyone.
 
 ## Regenerating the client
 

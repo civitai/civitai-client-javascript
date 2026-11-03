@@ -1,6 +1,6 @@
 {
   "name": "@civitai/orchestration-client",
-  "version": "0.2.0-beta.126",
+  "version": "0.2.0",
   "description": "Civitai's javascript client for generating ai content",
   "packageManager": "pnpm@10.34.4",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
     "prepublishOnly": "pnpm test && pnpm build",
     "prepare": "tsc",
     "typecheck": "tsc --noEmit",
-    "release": "pnpm typecheck && pnpm build && pnpm publish --tag beta"
+    "release": "pnpm typecheck && pnpm build && npm version patch --no-git-tag-version"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.94.0",
