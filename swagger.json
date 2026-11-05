@@ -10731,6 +10731,124 @@
           }
         }
       }
+    },
+    "/v2/consumer/recipes/modelAnalysis": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "Check a checkpoint for evidence of specified merged LoRAs.",
+        "operationId": "InvokeModelAnalysisStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "description": "How a workflow is paid for.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowTier"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelAnalysisInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelAnalysisInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelAnalysisInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelAnalysisOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -53818,7 +53936,8 @@
             "webScrape": "#/components/schemas/WebScrapeStep",
             "webSearch": "#/components/schemas/WebSearchStep",
             "xGuardModeration": "#/components/schemas/XGuardModerationStep",
-            "yuE2": "#/components/schemas/YuE2Step"
+            "yuE2": "#/components/schemas/YuE2Step",
+            "modelAnalysis": "#/components/schemas/ModelAnalysisStep"
           }
         }
       },
@@ -54174,7 +54293,8 @@
             "webScrape": "#/components/schemas/WebScrapeStepTemplate",
             "webSearch": "#/components/schemas/WebSearchStepTemplate",
             "xGuardModeration": "#/components/schemas/XGuardModerationStepTemplate",
-            "yuE2": "#/components/schemas/YuE2StepTemplate"
+            "yuE2": "#/components/schemas/YuE2StepTemplate",
+            "modelAnalysis": "#/components/schemas/ModelAnalysisStepTemplate"
           }
         }
       },
@@ -55635,6 +55755,271 @@
           "outdoor"
         ],
         "type": "string"
+      },
+      "LoraEvidence": {
+        "required": [
+          "expectedStrength",
+          "matchedLayers",
+          "name",
+          "resolvableLayers",
+          "sha256",
+          "supportingLayers",
+          "totalLayers",
+          "unmappedLayers",
+          "verdict"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "verdict": {
+            "type": "string"
+          },
+          "expectedStrength": {
+            "type": "number",
+            "format": "double"
+          },
+          "fittedStrength": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "verificationStrength": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "partialCosine": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "signalToRounding": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "supportingLayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "resolvableLayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matchedLayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalLayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unmappedLayers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "baseSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "adapterKinds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "MergeReport": {
+        "required": [
+          "baseSha256",
+          "candidates",
+          "checkpointSha256",
+          "expectedExplainedFraction",
+          "verificationSamples",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "baseSha256": {
+            "type": "string"
+          },
+          "checkpointSha256": {
+            "type": "string"
+          },
+          "explainedFraction": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "expectedExplainedFraction": {
+            "type": "number",
+            "format": "double"
+          },
+          "verificationSamples": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LoraEvidence"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModelAnalysisInput": {
+        "required": [
+          "baseModel",
+          "checkpoint",
+          "loras"
+        ],
+        "type": "object",
+        "properties": {
+          "baseModel": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string",
+            "description": "The exact original checkpoint, pinned to a safetensors model version/file."
+          },
+          "checkpoint": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string"
+          },
+          "loras": {
+            "maxItems": 8,
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelAnalysisLora"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModelAnalysisLora": {
+        "required": [
+          "model"
+        ],
+        "type": "object",
+        "properties": {
+          "model": {
+            "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
+            "type": "string"
+          },
+          "strength": {
+            "maximum": 10,
+            "minimum": -10,
+            "type": "number",
+            "description": "Optional expected merge strength. The actual strength is fitted independently.",
+            "format": "double",
+            "default": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModelAnalysisOutput": {
+        "required": [
+          "blob",
+          "report"
+        ],
+        "type": "object",
+        "properties": {
+          "report": {
+            "$ref": "#/components/schemas/MergeReport"
+          },
+          "blob": {
+            "$ref": "#/components/schemas/Blob"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModelAnalysisStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ModelAnalysisInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ModelAnalysisOutput"
+              },
+              "$type": {
+                "enum": [
+                  "modelAnalysis"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Check a checkpoint for evidence of specified merged LoRAs."
+      },
+      "ModelAnalysisStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "description": "Input for the ModelAnalysisStep step.",
+                "$ref": "#/components/schemas/ModelAnalysisInput"
+              },
+              "$type": {
+                "enum": [
+                  "modelAnalysis"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Check a checkpoint for evidence of specified merged LoRAs."
       }
     },
     "securitySchemes": {

@@ -12998,6 +12998,76 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
+export type LoraEvidence = {
+  name: string;
+  sha256: string;
+  verdict: string;
+  expectedStrength: number;
+  fittedStrength?: null | number;
+  verificationStrength?: null | number;
+  partialCosine?: null | number;
+  signalToRounding?: null | number;
+  supportingLayers: number;
+  resolvableLayers: number;
+  matchedLayers: number;
+  totalLayers: number;
+  unmappedLayers: Array<string>;
+  baseSha256?: null | string;
+  adapterKinds?: null | Array<string>;
+};
+
+export type MergeReport = {
+  baseSha256: string;
+  checkpointSha256: string;
+  explainedFraction?: null | number;
+  expectedExplainedFraction: number;
+  verificationSamples: number;
+  candidates: Array<LoraEvidence>;
+  warnings: Array<string>;
+};
+
+export type ModelAnalysisInput = {
+  /**
+   * The exact original checkpoint, pinned to a safetensors model version/file.
+   */
+  baseModel: string;
+  checkpoint: string;
+  loras: Array<ModelAnalysisLora>;
+};
+
+export type ModelAnalysisLora = {
+  model: string;
+  /**
+   * Optional expected merge strength. The actual strength is fitted independently.
+   */
+  strength?: number;
+};
+
+export type ModelAnalysisOutput = {
+  report: MergeReport;
+  blob: Blob;
+};
+
+/**
+ * Check a checkpoint for evidence of specified merged LoRAs.
+ */
+export type ModelAnalysisStep = Omit<WorkflowStep, '$type'> & {
+  input: ModelAnalysisInput;
+  output?: ModelAnalysisOutput;
+  $type: 'modelAnalysis';
+};
+
+/**
+ * Check a checkpoint for evidence of specified merged LoRAs.
+ */
+export type ModelAnalysisStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ModelAnalysisStep step.
+   */
+  input: ModelAnalysisInput;
+  $type: 'modelAnalysis';
+};
+
 export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem: string;
   /**
@@ -19005,3 +19075,48 @@ export type UpdateWorkflowStepResponses = {
 
 export type UpdateWorkflowStepResponse =
   UpdateWorkflowStepResponses[keyof UpdateWorkflowStepResponses];
+
+export type InvokeModelAnalysisStepTemplateData = {
+  body?: ModelAnalysisInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+    tags?: Array<string>;
+  };
+  url: '/v2/consumer/recipes/modelAnalysis';
+};
+
+export type InvokeModelAnalysisStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeModelAnalysisStepTemplateError =
+  InvokeModelAnalysisStepTemplateErrors[keyof InvokeModelAnalysisStepTemplateErrors];
+
+export type InvokeModelAnalysisStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ModelAnalysisOutput;
+};
+
+export type InvokeModelAnalysisStepTemplateResponse =
+  InvokeModelAnalysisStepTemplateResponses[keyof InvokeModelAnalysisStepTemplateResponses];

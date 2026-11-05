@@ -160,6 +160,9 @@ import type {
   InvokeModel3dPreviewStepTemplateData,
   InvokeModel3dPreviewStepTemplateErrors,
   InvokeModel3dPreviewStepTemplateResponses,
+  InvokeModelAnalysisStepTemplateData,
+  InvokeModelAnalysisStepTemplateErrors,
+  InvokeModelAnalysisStepTemplateResponses,
   InvokeModelClamScanStepTemplateData,
   InvokeModelClamScanStepTemplateErrors,
   InvokeModelClamScanStepTemplateResponses,
@@ -2053,5 +2056,24 @@ export const updateWorkflowStep = <ThrowOnError extends boolean = false>(
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
+    },
+  });
+
+/**
+ * Check a checkpoint for evidence of specified merged LoRAs.
+ */
+export const invokeModelAnalysisStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeModelAnalysisStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeModelAnalysisStepTemplateResponses,
+    InvokeModelAnalysisStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/modelAnalysis',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
     },
   });
