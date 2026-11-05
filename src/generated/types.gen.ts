@@ -4,6 +4,122 @@ export type ClientOptions = {
   baseUrl: `${string}://swagger.json` | (string & {});
 };
 
+export type OpenAiGpt26FlareCreateImageInput = Omit<
+  OpenAiGpt26FlareImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'gpt-image-2.6-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26FlareEditImageInput = Omit<
+  OpenAiGpt26FlareImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * White marks regions to edit; black marks regions to keep.
+   */
+  mask?: null | string;
+  /**
+   * Transparent PNG annotations matching the first image. Cannot be combined with mask.
+   */
+  markupImage?: null | string;
+  /**
+   * Set both dimensions or leave both null to infer the output size.
+   */
+  width?: null | number;
+  height?: null | number;
+  operation: 'editImage';
+  model: 'gpt-image-2.6-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26FlareImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  width?: null | number;
+  height?: null | number;
+  quantity?: number;
+  quality?: 'auto' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+  reasoningEffort?: 'low' | 'medium' | 'high';
+  background?: 'auto' | 'transparent' | 'opaque';
+  outputCompression?: null | number;
+  /**
+   * GIF frames, from 2 to 16. Defaults to 9; all frames share the 8,294,400-pixel budget.
+   */
+  frameCount?: null | number;
+  /**
+   * GIF frame duration in milliseconds, rounded to 10 ms. Defaults to 200.
+   */
+  frameDurationMs?: null | number;
+  /**
+   * Vector conversion model for SVG generation. Defaults to gpt-6-astra.
+   */
+  svgModel?: null | 'gpt-6-astra' | 'gpt-5.5' | 'gpt-5.4' | 'gpt-5.6-terra' | 'gpt-6-luna';
+  model: 'gpt-image-2.6-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26SunburstCreateImageInput = Omit<
+  OpenAiGpt26SunburstImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'gpt-image-2.6-sunburst';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26SunburstEditImageInput = Omit<
+  OpenAiGpt26SunburstImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * White marks regions to edit; black marks regions to keep.
+   */
+  mask?: null | string;
+  /**
+   * Transparent PNG annotations matching the first image. Cannot be combined with mask.
+   */
+  markupImage?: null | string;
+  /**
+   * Set both dimensions or leave both null to infer the output size.
+   */
+  width?: null | number;
+  height?: null | number;
+  operation: 'editImage';
+  model: 'gpt-image-2.6-sunburst';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26SunburstImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  width?: null | number;
+  height?: null | number;
+  quantity?: number;
+  quality?: 'auto' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+  reasoningEffort?: 'low' | 'medium' | 'high';
+  background?: 'auto' | 'transparent' | 'opaque';
+  outputCompression?: null | number;
+  /**
+   * GIF frames, from 2 to 16. Defaults to 9; all frames share the 8,294,400-pixel budget.
+   */
+  frameCount?: null | number;
+  /**
+   * GIF frame duration in milliseconds, rounded to 10 ms. Defaults to 200.
+   */
+  frameDurationMs?: null | number;
+  /**
+   * Vector conversion model for SVG generation. Defaults to gpt-6-astra.
+   */
+  svgModel?: null | 'gpt-6-astra' | 'gpt-5.5' | 'gpt-5.4' | 'gpt-5.6-terra' | 'gpt-6-luna';
+  model: 'gpt-image-2.6-sunburst';
+  engine: 'openai';
+};
+
 /**
  * Represents AI vs real image recognition results.
  */
@@ -5816,6 +5932,8 @@ export const ImageGenOutputFormat = {
   JPEG: 'jpeg',
   PNG: 'png',
   WEB_P: 'webP',
+  GIF: 'gif',
+  SVG: 'svg',
 } as const;
 
 export type ImageGenOutputFormat = (typeof ImageGenOutputFormat)[keyof typeof ImageGenOutputFormat];
