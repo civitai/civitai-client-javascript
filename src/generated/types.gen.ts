@@ -5029,7 +5029,7 @@ export type GeminiImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'gemini';
 };
 
-export const GeminiOmniModel = { '1_1_FLASH': '1.1-flash' } as const;
+export const GeminiOmniModel = { '1_1_FLASH': '1.1-flash', '1_2_FLASH': '1.2-flash' } as const;
 
 export type GeminiOmniModel = (typeof GeminiOmniModel)[keyof typeof GeminiOmniModel];
 
@@ -5047,6 +5047,10 @@ export type GeminiOmniVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   aspectRatio?: '16:9' | '9:16';
   resolution?: GeminiOmniResolution;
   images?: Array<string>;
+  /**
+   * Output length in seconds for 1.2 Flash; defaults to 10. First/last-frame generation supports at most 10 seconds.
+   */
+  duration?: null | number;
   readonly maxBillableSeconds: number;
   engine: 'gemini-omni';
 };
@@ -13624,6 +13628,10 @@ export type GeminiOmniVideoGenInputWritable = Omit<VideoGenInputWritable, 'engin
   aspectRatio?: '16:9' | '9:16';
   resolution?: GeminiOmniResolution;
   images?: Array<string>;
+  /**
+   * Output length in seconds for 1.2 Flash; defaults to 10. First/last-frame generation supports at most 10 seconds.
+   */
+  duration?: null | number;
   engine: 'gemini-omni';
 };
 

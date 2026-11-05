@@ -28815,7 +28815,8 @@
       },
       "GeminiOmniModel": {
         "enum": [
-          "1.1-flash"
+          "1.1-flash",
+          "1.2-flash"
         ],
         "type": "string"
       },
@@ -28864,6 +28865,16 @@
                   "description": "Either A URL, A DataURL or a Base64 string",
                   "format": "source-image"
                 }
+              },
+              "duration": {
+                "maximum": 15,
+                "minimum": 3,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Output length in seconds for 1.2 Flash; defaults to 10. First/last-frame generation supports at most 10 seconds.",
+                "format": "int32"
               },
               "maxBillableSeconds": {
                 "type": "integer",
