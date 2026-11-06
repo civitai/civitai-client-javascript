@@ -10735,6 +10735,524 @@
   },
   "components": {
     "schemas": {
+      "OpenAIGpt26FlareCreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt26FlareImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.6-flare"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt26FlareEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt26FlareImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 16,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "mask": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "White marks regions to edit; black marks regions to keep.",
+                "format": "source-image"
+              },
+              "markupImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Transparent PNG annotations matching the first image. Cannot be combined with mask.",
+                "format": "source-image"
+              },
+              "width": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Set both dimensions or leave both null to infer the output size.",
+                "format": "int32"
+              },
+              "height": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.6-flare"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt26FlareImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 32000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 3840,
+                "minimum": 16,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 3840,
+                "minimum": 16,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "quality": {
+                "enum": [
+                  "auto",
+                  "low",
+                  "medium",
+                  "high",
+                  "xhigh",
+                  "max"
+                ],
+                "type": "string",
+                "default": "high"
+              },
+              "reasoningEffort": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "high"
+              },
+              "background": {
+                "enum": [
+                  "auto",
+                  "transparent",
+                  "opaque"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "outputCompression": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "frameCount": {
+                "maximum": 16,
+                "minimum": 2,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "GIF frames, from 2 to 16. Defaults to 9; all frames share the 8,294,400-pixel budget.",
+                "format": "int32"
+              },
+              "frameDurationMs": {
+                "maximum": 2000,
+                "minimum": 20,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "GIF frame duration in milliseconds, rounded to 10 ms. Defaults to 200.",
+                "format": "int32"
+              },
+              "svgModel": {
+                "enum": [
+                  null,
+                  "gpt-6-astra",
+                  "gpt-5.5",
+                  "gpt-5.4",
+                  "gpt-5.6-terra",
+                  "gpt-6-luna"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Vector conversion model for SVG generation. Defaults to gpt-6-astra."
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.6-flare"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIGpt26FlareCreateImageInput",
+                "editImage": "#/components/schemas/OpenAIGpt26FlareEditImageInput"
+              }
+            }
+          }
+        ]
+      },
+      "OpenAIGpt26SunburstCreateImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt26SunburstImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.6-sunburst"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt26SunburstEditImageInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenAIGpt26SunburstImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 16,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "mask": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "White marks regions to edit; black marks regions to keep.",
+                "format": "source-image"
+              },
+              "markupImage": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Transparent PNG annotations matching the first image. Cannot be combined with mask.",
+                "format": "source-image"
+              },
+              "width": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Set both dimensions or leave both null to infer the output size.",
+                "format": "int32"
+              },
+              "height": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.6-sunburst"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OpenAIGpt26SunburstImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OpenApiImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 32000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "width": {
+                "maximum": 3840,
+                "minimum": 16,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 3840,
+                "minimum": 16,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "quality": {
+                "enum": [
+                  "auto",
+                  "low",
+                  "medium",
+                  "high",
+                  "xhigh",
+                  "max"
+                ],
+                "type": "string",
+                "default": "high"
+              },
+              "reasoningEffort": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "high"
+              },
+              "background": {
+                "enum": [
+                  "auto",
+                  "transparent",
+                  "opaque"
+                ],
+                "type": "string",
+                "default": "auto"
+              },
+              "outputCompression": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "frameCount": {
+                "maximum": 16,
+                "minimum": 2,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "GIF frames, from 2 to 16. Defaults to 9; all frames share the 8,294,400-pixel budget.",
+                "format": "int32"
+              },
+              "frameDurationMs": {
+                "maximum": 2000,
+                "minimum": 20,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "GIF frame duration in milliseconds, rounded to 10 ms. Defaults to 200.",
+                "format": "int32"
+              },
+              "svgModel": {
+                "enum": [
+                  null,
+                  "gpt-6-astra",
+                  "gpt-5.5",
+                  "gpt-5.4",
+                  "gpt-5.6-terra",
+                  "gpt-6-luna"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Vector conversion model for SVG generation. Defaults to gpt-6-astra."
+              },
+              "model": {
+                "enum": [
+                  "gpt-image-2.6-sunburst"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "openai"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/OpenAIGpt26SunburstCreateImageInput",
+                "editImage": "#/components/schemas/OpenAIGpt26SunburstEditImageInput"
+              }
+            }
+          }
+        ]
+      },
       "AIRecognitionResult": {
         "required": [
           "confidence",
@@ -31637,7 +32155,9 @@
         "enum": [
           "jpeg",
           "png",
-          "webP"
+          "webP",
+          "gif",
+          "svg"
         ],
         "type": "string"
       },
@@ -40533,6 +41053,8 @@
                 "gpt-image-1": "#/components/schemas/OpenAIGpt1ImageGenInput",
                 "gpt-image-1.5": "#/components/schemas/OpenAIGpt15ImageGenInput",
                 "gpt-image-2": "#/components/schemas/OpenAIGpt2ImageGenInput",
+                "gpt-image-2.6-flare": "#/components/schemas/OpenAIGpt26FlareImageGenInput",
+                "gpt-image-2.6-sunburst": "#/components/schemas/OpenAIGpt26SunburstImageGenInput",
                 "gpt-image-2.5-flare": "#/components/schemas/OpenAIGpt25FlareImageGenInput",
                 "gpt-image-2.5-sunburst": "#/components/schemas/OpenAIGpt25SunburstImageGenInput",
                 "dall-e-2": "#/components/schemas/OpenAIDallE2ImageGenInput",
