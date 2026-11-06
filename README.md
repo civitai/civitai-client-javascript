@@ -12,6 +12,32 @@ import { createCivitaiClient } from '@civitai/orchestration-client';
 const client = createCivitaiClient({ auth: process.env.CIVITAI_API_TOKEN });
 ```
 
+## Model merge analysis
+
+Moderator and internal Manager tokens can submit `modelAnalysis` workflows. The step prepares missing fingerprints on CPU workers and returns a report in `steps[0].output.report` plus a downloadable report blob.
+
+```ts
+import {
+  createCivitaiClient,
+  submitWorkflow,
+  type ModelAnalysisStepTemplate,
+} from '@civitai/orchestration-client';
+
+const client = createCivitaiClient({ auth: process.env.CIVITAI_API_TOKEN! });
+const step: ModelAnalysisStepTemplate = {
+  $type: 'modelAnalysis',
+  name: 'analysis',
+  input: {
+    baseModel: 'urn:air:krea2:checkpoint:civitai:2726029@3064584+2943406',
+    checkpoint: 'urn:air:krea2:checkpoint:civitai:2729631@3107962+2992026',
+    loras: [{ model: 'urn:air:krea2:lora:civitai:2688234@3070702+2949534' }],
+  },
+};
+const { data: workflow } = await submitWorkflow({ client, body: { steps: [step] }, throwOnError: true });
+```
+
+Use `getWorkflow` with the returned ID or a detailed completion callback to receive the result. `invokeModelAnalysisStepTemplate` provides the synchronous convenience endpoint. See the [model analysis recipe](https://developer.civitai.com/orchestration/recipes/model-analysis) for access requirements, cache behavior and verdicts.
+
 ## Renamed from `@civitai/client`
 
 This package was previously published as `@civitai/client`. Publishing to that name has been
