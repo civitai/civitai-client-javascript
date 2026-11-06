@@ -16,17 +16,27 @@ const client = createCivitaiClient({ auth: process.env.CIVITAI_API_TOKEN });
 
 This package was previously published as `@civitai/client`. Publishing to that name has been
 blocked by a registry-side failure since 2026-09-02 — every publish returns a 503 while every
-other operation on the package succeeds — so development continues here. The API is unchanged;
-only the package name differs.
+other operation on the package succeeds — so development continues here.
 
-To migrate, swap the dependency and update your imports:
+Releases continue under `@civitai/orchestration-client`; the old `@civitai/client` name is frozen
+and will not be updated. Which migration you need depends on the version you have installed —
+check with `npm ls @civitai/client`:
+
+| Installed `@civitai/client` | How you got it | API | Migration |
+| --- | --- | --- | --- |
+| `0.2.0-beta.*` | `@civitai/client@beta` or a pinned beta | `createCivitaiClient` factory | Package name only |
+| `0.1.x` | `npm install @civitai/client` (the `latest` tag) | `CivitaiClient` class | Package name **and** API |
+
+**From the `0.2.0` betas** the API is unchanged; swap the dependency and update your imports:
 
 ```diff
 -import { createCivitaiClient } from '@civitai/client';
 +import { createCivitaiClient } from '@civitai/orchestration-client';
 ```
 
-`@civitai/client` remains installable at `0.2.0-beta.98` but will not receive further releases.
+**From `0.1.x`** (what an unversioned `npm install @civitai/client` still resolves to), changing
+only the package name is not enough: the `CivitaiClient` class does not exist in this package.
+Replace it with the `createCivitaiClient` factory shown at the top of this README.
 
 ## Releasing
 
