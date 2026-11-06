@@ -18,8 +18,9 @@ This package was previously published as `@civitai/client`. Publishing to that n
 blocked by a registry-side failure since 2026-09-02 — every publish returns a 503 while every
 other operation on the package succeeds — so development continues here.
 
-`@civitai/client` will not receive further releases. Which migration you need depends on the
-version you have installed — check with `npm ls @civitai/client`:
+Releases continue under `@civitai/orchestration-client`; the old `@civitai/client` name is frozen
+and will not be updated. Which migration you need depends on the version you have installed —
+check with `npm ls @civitai/client`:
 
 | Installed `@civitai/client` | How you got it | API | Migration |
 | --- | --- | --- | --- |
