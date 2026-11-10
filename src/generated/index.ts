@@ -1128,6 +1128,8 @@ export {
   type MingAiToolkitTrainingInputWritable,
   type MiniMaxH3AiToolkitTrainingInput,
   type MiniMaxH3AiToolkitTrainingInputWritable,
+  type MiniMaxH3ImageGenInput,
+  MiniMaxH3ImageModel,
   type MiniMaxH3MaxImageToVideoInput,
   type MiniMaxH3MaxReferenceToVideoInput,
   type MiniMaxH3MaxTextToVideoInput,

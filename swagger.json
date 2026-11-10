@@ -10735,6 +10735,104 @@
   },
   "components": {
     "schemas": {
+      "MiniMaxH3ImageModel": {
+        "enum": [
+          "standard",
+          "highspeed"
+        ],
+        "type": "string"
+      },
+      "MiniMaxH3ImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "prompt": {
+                "minLength": 1,
+                "type": "string",
+                "description": "Up to 32,000 Unicode characters, excluding leading and trailing whitespace."
+              },
+              "model": {
+                "default": "standard",
+                "$ref": "#/components/schemas/MiniMaxH3ImageModel"
+              },
+              "quantity": {
+                "maximum": 10,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "images": {
+                "maxItems": 16,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "resolution": {
+                "enum": [
+                  null,
+                  "1K",
+                  "2K",
+                  "4K"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "1K, 2K or 4K target area; defaults to 4K. Omit when specifying width and height."
+              },
+              "aspectRatio": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Auto, or X:Y with integers 1–300 and a ratio between 1:3 and 3:1. Omit with width and height."
+              },
+              "width": {
+                "maximum": 7745,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 7745,
+                "minimum": 1,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "disablePromptEnhancement": {
+                "type": "boolean",
+                "description": "Text-to-image only; requires explicit dimensions or a fixed aspect ratio.",
+                "default": false
+              },
+              "engine": {
+                "enum": [
+                  "minimax-h3-image"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "AIRecognitionResult": {
         "required": [
           "confidence",
@@ -31585,7 +31683,8 @@
             "fal": "#/components/schemas/FalImageGenInput",
             "qwen": "#/components/schemas/QwenApiImageGenInput",
             "krea": "#/components/schemas/KreaImageGenInput",
-            "krea3": "#/components/schemas/Krea3ImageGenInput"
+            "krea3": "#/components/schemas/Krea3ImageGenInput",
+            "minimax-h3-image": "#/components/schemas/MiniMaxH3ImageGenInput"
           }
         }
       },
