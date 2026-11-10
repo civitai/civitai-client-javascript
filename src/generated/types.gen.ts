@@ -12998,6 +12998,142 @@ export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as c
 
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
 
+export type KohyaTrainingInput = Omit<TrainingInput, 'engine'> & {
+  /**
+   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
+   */
+  model: string;
+  /**
+   * Number of saved checkpoints across the training run.
+   */
+  maxTrainEpochs: number;
+  /**
+   * Number of times each training image is repeated per dataset epoch.
+   */
+  numRepeats: number;
+  /**
+   * Images per optimizer step.
+   */
+  trainBatchSize: number;
+  /**
+   * Training resolution; defaults to 512 for SD1.5 and 1024 for other families.
+   */
+  resolution?: null | number;
+  /**
+   * Group images into aspect-ratio buckets.
+   */
+  enableBucket: boolean;
+  /**
+   * Shuffle comma-separated caption tokens during training.
+   */
+  shuffleCaption: boolean;
+  /**
+   * Leading caption tokens kept in place while shuffling.
+   */
+  keepTokens: number;
+  /**
+   * CLIP layer skip for SD1.5; other families use 1.
+   */
+  clipSkip: number;
+  /**
+   * Random horizontal image flips.
+   */
+  flipAugmentation: boolean;
+  /**
+   * Learning rate for the diffusion model LoRA.
+   */
+  unetLR: number;
+  /**
+   * Learning rate for text encoder LoRA modules.
+   */
+  textEncoderLR: number;
+  /**
+   * Learning-rate schedule over the total optimizer-step budget.
+   */
+  lrScheduler:
+    | 'constant'
+    | 'constant_with_warmup'
+    | 'cosine'
+    | 'cosine_with_restarts'
+    | 'linear'
+    | 'polynomial';
+  /**
+   * Number of cycles used by cosine_with_restarts; ignored by other schedulers.
+   */
+  lrSchedulerNumCycles: number;
+  /**
+   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
+   */
+  minSnrGamma?: null | number;
+  /**
+   * LoRA rank; must match ContinueFrom weights.
+   */
+  networkDim: number;
+  /**
+   * LoRA alpha; must match ContinueFrom weights.
+   */
+  networkAlpha: number;
+  /**
+   * Noise offset for SD training; flow models require 0.
+   */
+  noiseOffset: number;
+  /**
+   * Optimizer used for the LoRA parameters; names are case-insensitive.
+   */
+  optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
+  /**
+   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
+   */
+  trainTextEncoder?: null | boolean;
+  /**
+   * Total optimizer steps; otherwise derived from epochs, repeats, declared image count and batch size. Supply an accurate count or explicit steps.
+   */
+  steps?: null | number;
+  /**
+   * Starts a new schedule from these LoRA weights. Worker handoffs restore full state automatically.
+   */
+  continueFrom?: null | string;
+  /**
+   * Optional FLUX CLIP-L resource override.
+   */
+  clipLModel?: null | string;
+  /**
+   * Optional FLUX or Chroma T5 text encoder resource override.
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Optional VAE resource override.
+   */
+  vaeModel?: null | string;
+  /**
+   * Use FP8 base weights for FLUX or Chroma; defaults to true for these families.
+   */
+  fp8Base?: null | boolean;
+  /**
+   * Transformer blocks swapped to CPU for FLUX or Chroma; defaults to 18.
+   */
+  blocksToSwap?: null | number;
+  /**
+   * Random seed for training and generated samples.
+   */
+  seed: number;
+  /**
+   * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
+   * while the job runs.
+   */
+  trace: TrainingTraceMode;
+  /**
+   * Training objective override: true trains with v-prediction. Omit to detect checkpoint markers; unmarked checkpoints default to epsilon. Previews use their own checkpoint detection.
+   */
+  vParameterization?: null | boolean;
+  /**
+   * Training schedule override: true trains with zero terminal SNR. Omit to detect the checkpoint ztsnr marker. Previews use their own checkpoint detection.
+   */
+  zeroTerminalSnr?: null | boolean;
+  readonly usesStepPricing: boolean;
+  engine: 'kohya';
+};
+
 export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem: string;
   /**
@@ -14616,6 +14752,141 @@ export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
    * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
    */
   batchSize?: null | number;
+};
+
+export type KohyaTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
+  /**
+   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
+   */
+  model: string;
+  /**
+   * Number of saved checkpoints across the training run.
+   */
+  maxTrainEpochs: number;
+  /**
+   * Number of times each training image is repeated per dataset epoch.
+   */
+  numRepeats: number;
+  /**
+   * Images per optimizer step.
+   */
+  trainBatchSize: number;
+  /**
+   * Training resolution; defaults to 512 for SD1.5 and 1024 for other families.
+   */
+  resolution?: null | number;
+  /**
+   * Group images into aspect-ratio buckets.
+   */
+  enableBucket: boolean;
+  /**
+   * Shuffle comma-separated caption tokens during training.
+   */
+  shuffleCaption: boolean;
+  /**
+   * Leading caption tokens kept in place while shuffling.
+   */
+  keepTokens: number;
+  /**
+   * CLIP layer skip for SD1.5; other families use 1.
+   */
+  clipSkip: number;
+  /**
+   * Random horizontal image flips.
+   */
+  flipAugmentation: boolean;
+  /**
+   * Learning rate for the diffusion model LoRA.
+   */
+  unetLR: number;
+  /**
+   * Learning rate for text encoder LoRA modules.
+   */
+  textEncoderLR: number;
+  /**
+   * Learning-rate schedule over the total optimizer-step budget.
+   */
+  lrScheduler:
+    | 'constant'
+    | 'constant_with_warmup'
+    | 'cosine'
+    | 'cosine_with_restarts'
+    | 'linear'
+    | 'polynomial';
+  /**
+   * Number of cycles used by cosine_with_restarts; ignored by other schedulers.
+   */
+  lrSchedulerNumCycles: number;
+  /**
+   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
+   */
+  minSnrGamma?: null | number;
+  /**
+   * LoRA rank; must match ContinueFrom weights.
+   */
+  networkDim: number;
+  /**
+   * LoRA alpha; must match ContinueFrom weights.
+   */
+  networkAlpha: number;
+  /**
+   * Noise offset for SD training; flow models require 0.
+   */
+  noiseOffset: number;
+  /**
+   * Optimizer used for the LoRA parameters; names are case-insensitive.
+   */
+  optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
+  /**
+   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
+   */
+  trainTextEncoder?: null | boolean;
+  /**
+   * Total optimizer steps; otherwise derived from epochs, repeats, declared image count and batch size. Supply an accurate count or explicit steps.
+   */
+  steps?: null | number;
+  /**
+   * Starts a new schedule from these LoRA weights. Worker handoffs restore full state automatically.
+   */
+  continueFrom?: null | string;
+  /**
+   * Optional FLUX CLIP-L resource override.
+   */
+  clipLModel?: null | string;
+  /**
+   * Optional FLUX or Chroma T5 text encoder resource override.
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Optional VAE resource override.
+   */
+  vaeModel?: null | string;
+  /**
+   * Use FP8 base weights for FLUX or Chroma; defaults to true for these families.
+   */
+  fp8Base?: null | boolean;
+  /**
+   * Transformer blocks swapped to CPU for FLUX or Chroma; defaults to 18.
+   */
+  blocksToSwap?: null | number;
+  /**
+   * Random seed for training and generated samples.
+   */
+  seed: number;
+  /**
+   * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
+   * while the job runs.
+   */
+  trace: TrainingTraceMode;
+  /**
+   * Training objective override: true trains with v-prediction. Omit to detect checkpoint markers; unmarked checkpoints default to epsilon. Previews use their own checkpoint detection.
+   */
+  vParameterization?: null | boolean;
+  /**
+   * Training schedule override: true trains with zero terminal SNR. Omit to detect the checkpoint ztsnr marker. Previews use their own checkpoint detection.
+   */
+  zeroTerminalSnr?: null | boolean;
+  engine: 'kohya';
 };
 
 export type TrainingInputWritable2 = {
