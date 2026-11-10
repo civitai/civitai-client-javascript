@@ -1045,6 +1045,8 @@ export {
   type KlingVideoGenInput,
   type KohyaImageResourceTrainingInput,
   type KohyaImageResourceTrainingInputWritable,
+  type KohyaTrainingInput,
+  type KohyaTrainingInputWritable,
   type Krea2AiToolkitTrainingInput,
   type Krea2AiToolkitTrainingInputWritable,
   type Krea2CreateFalImageGenInput,
