@@ -4,6 +4,35 @@ export type ClientOptions = {
   baseUrl: `${string}://swagger.json` | (string & {});
 };
 
+export const MiniMaxH3ImageModel = { STANDARD: 'standard', HIGHSPEED: 'highspeed' } as const;
+
+export type MiniMaxH3ImageModel = (typeof MiniMaxH3ImageModel)[keyof typeof MiniMaxH3ImageModel];
+
+export type MiniMaxH3ImageGenInput = Omit<ImageGenInput, 'engine'> & {
+  /**
+   * Up to 32,000 Unicode characters, excluding leading and trailing whitespace.
+   */
+  prompt: string;
+  model?: MiniMaxH3ImageModel;
+  quantity?: number;
+  images?: Array<string>;
+  /**
+   * 1K, 2K or 4K target area; defaults to 4K. Omit when specifying width and height.
+   */
+  resolution?: null | '1K' | '2K' | '4K';
+  /**
+   * Auto, or X:Y with integers 1–300 and a ratio between 1:3 and 3:1. Omit with width and height.
+   */
+  aspectRatio?: null | string;
+  width?: null | number;
+  height?: null | number;
+  /**
+   * Text-to-image only; requires explicit dimensions or a fixed aspect ratio.
+   */
+  disablePromptEnhancement?: boolean;
+  engine: 'minimax-h3-image';
+};
+
 /**
  * Represents AI vs real image recognition results.
  */
