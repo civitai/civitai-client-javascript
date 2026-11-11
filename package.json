@@ -1,6 +1,6 @@
 {
   "name": "@civitai/orchestration-client",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Civitai's javascript client for generating ai content",
   "packageManager": "pnpm@10.34.4",
   "main": "dist/index.js",
@@ -25,7 +25,7 @@
     "yarn": ">=1.7.0"
   },
   "scripts": {
-    "generate": "openapi-ts && node scripts/fix-discriminators.mjs",
+    "generate": "openapi-ts && node scripts/fix-discriminators.mjs && node scripts/generate-services.mjs",
     "build": "tsc && eslint --fix dist",
     "test": "jest",
     "prepublishOnly": "pnpm test && pnpm build",

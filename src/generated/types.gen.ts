@@ -1695,6 +1695,72 @@ export type ComfyErnieTurboImageGenInput = Omit<
   engine: 'comfy';
 };
 
+export type ComfyFibo2DevCreateImageInput = Omit<
+  ComfyFibo2DevImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'dev';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2DevImageGenInput = Omit<
+  ComfyFibo2ImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  model: 'dev';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2EditTurboEditImageInput = Omit<
+  ComfyFibo2EditTurboImageGenInput,
+  'engine' | 'ecosystem' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'editTurbo';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2EditTurboImageGenInput = Omit<
+  ComfyFibo2ImageGenInput,
+  'engine' | 'ecosystem' | 'model'
+> & {
+  operation: null | string;
+  steps?: number;
+  cfgScale?: number;
+  model: 'editTurbo';
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
+export type ComfyFibo2ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  model: null | string;
+  prompt: string;
+  negativePrompt?: null | string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  steps?: number;
+  cfgScale?: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Compatible Fibo 2.0 diffusion checkpoint AIR. Omit or set null to use the selected model's int8 checkpoint; the int8 text encoder and VAE remain unchanged.
+   */
+  diffusionModel?: null | string;
+  ecosystem: 'fibo2';
+  engine: 'comfy';
+};
+
 export type ComfyFlux1CreateImageGenInput = Omit<
   ComfyFlux1ImageGenInput,
   'engine' | 'ecosystem' | 'operation'
@@ -2828,6 +2894,47 @@ export type ComfyMiniMaxH3ControlVideoInput = Omit<
   engine: 'minimax-h3-comfy';
 };
 
+export type ComfyMiniMaxH3CreateImageInput = Omit<
+  ComfyMiniMaxH3ImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  operation: 'createImage';
+  ecosystem: 'h3-image';
+  engine: 'comfy';
+};
+
+export type ComfyMiniMaxH3EditImageInput = Omit<
+  ComfyMiniMaxH3ImageGenInput,
+  'engine' | 'ecosystem' | 'operation'
+> & {
+  images: Array<string>;
+  operation: 'editImage';
+  ecosystem: 'h3-image';
+  engine: 'comfy';
+};
+
+export type ComfyMiniMaxH3ImageGenInput = Omit<ComfyImageGenInput, 'engine' | 'ecosystem'> & {
+  operation: null | string;
+  prompt: string;
+  width?: number;
+  height?: number;
+  seed?: null | number;
+  quantity?: number;
+  loras?: {
+    [key: string]: number;
+  };
+  /**
+   * Compatible six-step MiniMax H3 Image checkpoint AIR. Omit or set null for pruned INT8; the NVFP4 text encoder and image VAE are unchanged.
+   */
+  diffusionModel?: null | string;
+  steps?: number;
+  cfgScale?: number;
+  sampler?: ComfySampler;
+  scheduler?: ComfyScheduler;
+  ecosystem: 'h3-image';
+  engine: 'comfy';
+};
+
 /**
  * Text-to-video or first/last-frame video using the FL2VA weights.
  */
@@ -2883,6 +2990,10 @@ export type ComfyMiniMaxH3VideoGenInput = Omit<VideoGenInput, 'engine'> & {
     [key: string]: number;
   };
   turbo?: boolean;
+  /**
+   * Refine draft latents in three steps to a 2560-pixel long edge (2560x1440 for widescreen), preserving draft audio. Width and height describe the draft.
+   */
+  upscale?: boolean;
   engine: 'minimax-h3-comfy';
 };
 
@@ -4095,6 +4206,16 @@ export type FalPolyGenInput = Omit<PolyGenInput, 'engine'> & {
   engine: 'fal';
 };
 
+export type Fibo2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
+  readonly defaultSteps: number;
+  ecosystem: 'fibo2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export const FileFormat = {
   UNKNOWN: 'unknown',
   SAFE_TENSOR: 'safeTensor',
@@ -5029,7 +5150,7 @@ export type GeminiImageGenInput = Omit<ImageGenInput, 'engine'> & {
   engine: 'gemini';
 };
 
-export const GeminiOmniModel = { '1_1_FLASH': '1.1-flash' } as const;
+export const GeminiOmniModel = { '1_1_FLASH': '1.1-flash', '1_2_FLASH': '1.2-flash' } as const;
 
 export type GeminiOmniModel = (typeof GeminiOmniModel)[keyof typeof GeminiOmniModel];
 
@@ -5047,6 +5168,10 @@ export type GeminiOmniVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   aspectRatio?: '16:9' | '9:16';
   resolution?: GeminiOmniResolution;
   images?: Array<string>;
+  /**
+   * Output length in seconds for 1.2 Flash; defaults to 10. First/last-frame generation supports at most 10 seconds.
+   */
+  duration?: null | number;
   readonly maxBillableSeconds: number;
   engine: 'gemini-omni';
 };
@@ -5742,6 +5867,20 @@ export type Ideogram4AiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
+export type IdolComfyPolyGenInput = Omit<ComfyPolyGenInput, 'engine' | 'model'> & {
+  imageUrl: string;
+  diffusionModel?: null | string;
+  seed?: null | number;
+  steps?: number;
+  cfgScale?: number;
+  mode?: 'synthetic' | 'real';
+  numGaussians?: number;
+  minOpacity?: number;
+  removeBackground?: boolean;
+  model: 'idol';
+  engine: 'comfy';
+};
+
 export const ImageBackgroundRemovalFormat = { PNG: 'png', WEBP: 'webp' } as const;
 
 export type ImageBackgroundRemovalFormat =
@@ -5816,6 +5955,8 @@ export const ImageGenOutputFormat = {
   JPEG: 'jpeg',
   PNG: 'png',
   WEB_P: 'webP',
+  GIF: 'gif',
+  SVG: 'svg',
 } as const;
 
 export type ImageGenOutputFormat = (typeof ImageGenOutputFormat)[keyof typeof ImageGenOutputFormat];
@@ -5967,6 +6108,10 @@ export type ImageScanningInput = {
    * Image to scan. URLs are imported into orchestrator blob storage before the job is queued.
    */
   image: string;
+  /**
+   * Omit for SigLIP PG–XXX ratings. radio-alpha returns experimental S/V axes without changing the image's stored moderation verdict.
+   */
+  'rater-model'?: 'siglip' | 'radio-alpha';
 };
 
 export type ImageScanningJointAgeClassification = {
@@ -6010,6 +6155,9 @@ export type ImageScanningLabelScore = {
 };
 
 export type ImageScanningOutput = {
+  /**
+   * Legacy PG–XXX rating. NA for RADIO; use RatingV2 instead.
+   */
   nsfwLevel: NsfwLevel;
   score: number;
   topK: Array<ImageScanningLabelScore>;
@@ -6023,12 +6171,38 @@ export type ImageScanningOutput = {
    * Why the image would be refused as input to other workflows; null when it passes.
    */
   blockedReason?: null | string;
+  /**
+   * Experimental RADIO axes and routing decision; independent of the legacy NSFW scale.
+   */
+  ratingV2?: ImageScanningRatingV2;
 };
 
 export type ImageScanningPersonMask = {
   width: number;
   height: number;
   pngBase64: string;
+};
+
+export type ImageScanningRatingAxis = {
+  label: string;
+  score: number;
+  scores: {
+    [key: string]: number;
+  };
+  topK?: null | Array<ImageScanningLabelScore>;
+  logits?: null | Array<number>;
+};
+
+export type ImageScanningRatingV2 = {
+  status: string;
+  modelRef: string;
+  checkpointSha256: string;
+  sexual: ImageScanningRatingAxis;
+  violence: ImageScanningRatingAxis;
+  restricted: boolean;
+  restrictedScore: number;
+  restrictedThreshold: number;
+  routingRule: string;
 };
 
 export type ImageScanningRecognition = {
@@ -6484,81 +6658,139 @@ export type KlingVideoGenInput = Omit<VideoGenInput, 'engine'> & {
   engine: 'kling';
 };
 
-export type KohyaImageResourceTrainingInput = Omit<ImageResourceTrainingInput, 'engine'> & {
+export type KohyaTrainingInput = Omit<TrainingInput, 'engine'> & {
   /**
-   * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
+   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
    */
-  maxTrainEpochs?: number;
+  model: string;
   /**
-   * Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.
+   * Number of saved checkpoints across the training run.
    */
-  numRepeats?: number;
+  maxTrainEpochs: number;
   /**
-   * Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.
+   * Number of times each training image is repeated per dataset epoch.
    */
-  trainBatchSize?: null | number;
+  numRepeats: number;
   /**
-   * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
+   * Images per optimizer step.
+   */
+  trainBatchSize: number;
+  /**
+   * Training resolution; defaults to 512 for SD1.5 and 1024 for other families.
    */
   resolution?: null | number;
   /**
-   * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
+   * Group images into aspect-ratio buckets.
    */
-  enableBucket?: boolean;
+  enableBucket: boolean;
   /**
-   * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
+   * Shuffle comma-separated caption tokens during training.
    */
-  shuffleCaption?: boolean;
+  shuffleCaption: boolean;
   /**
-   * Keeps this many leading tags in place when shuffling captions. Does nothing when Shuffle Tags is off.
+   * Leading caption tokens kept in place while shuffling.
    */
-  keepTokens?: number;
+  keepTokens: number;
   /**
-   * Determines which layer's vector output will be used. There are 12 layers, and setting the skip will select "xth from the end" of the total layers. For anime, we use 2. For everything else, 1.
+   * CLIP layer skip for SD1.5; other families use 1.
    */
-  clipSkip?: number;
+  clipSkip: number;
   /**
-   * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
+   * Random horizontal image flips.
    */
-  flipAugmentation?: boolean;
+  flipAugmentation: boolean;
   /**
-   * Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net
+   * Learning rate for the diffusion model LoRA.
    */
-  unetLR?: number;
+  unetLR: number;
   /**
-   * Sets the learning rate for the text encoder. The effect of additional training on text encoders affects the entire U-Net.
+   * Learning rate for text encoder LoRA modules.
    */
-  textEncoderLR?: number;
+  textEncoderLR: number;
   /**
-   * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+   * Learning-rate schedule over the total optimizer-step budget.
    */
-  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear';
+  lrScheduler:
+    | 'constant'
+    | 'constant_with_warmup'
+    | 'cosine'
+    | 'cosine_with_restarts'
+    | 'linear'
+    | 'polynomial';
   /**
-   * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
+   * Number of cycles used by cosine_with_restarts; ignored by other schedulers.
    */
-  lrSchedulerNumCycles?: number;
+  lrSchedulerNumCycles: number;
   /**
-   * Compensates for unstable learning across noise strengths by suppressing large deviations when training images carry little noise.
+   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
    */
   minSnrGamma?: null | number;
   /**
-   * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
+   * LoRA rank; must match ContinueFrom weights.
    */
-  networkDim?: null | number;
+  networkDim: number;
   /**
-   * Scales the stored LoRA weights relative to Dim: alpha 16 with dim 32 applies the learning rate at half strength;
-   * equal values leave it unchanged.
+   * LoRA alpha; must match ContinueFrom weights.
    */
-  networkAlpha?: null | number;
+  networkAlpha: number;
   /**
-   * Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.
+   * Noise offset for SD training; flow models require 0.
    */
-  noiseOffset?: null | number;
+  noiseOffset: number;
   /**
-   * Optimizer that updates the weights during training; "AdamW8bit" is the common choice, "Adafactor" for SDXL.
+   * Optimizer used for the LoRA parameters; names are case-insensitive.
    */
-  optimizerType?: null | string;
-  readonly targetSteps?: null | number;
+  optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
+  /**
+   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
+   */
+  trainTextEncoder?: null | boolean;
+  /**
+   * Total optimizer steps; otherwise derived from epochs, repeats, declared image count and batch size. Supply an accurate count or explicit steps.
+   */
+  steps?: null | number;
+  /**
+   * Starts a new schedule from these LoRA weights. Worker handoffs restore full state automatically.
+   */
+  continueFrom?: null | string;
+  /**
+   * Optional FLUX CLIP-L resource override.
+   */
+  clipLModel?: null | string;
+  /**
+   * Optional FLUX or Chroma T5 text encoder resource override.
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Optional VAE resource override.
+   */
+  vaeModel?: null | string;
+  /**
+   * Use FP8 base weights for FLUX or Chroma; defaults to true for these families.
+   */
+  fp8Base?: null | boolean;
+  /**
+   * Transformer blocks swapped to CPU for FLUX or Chroma; defaults to 18.
+   */
+  blocksToSwap?: null | number;
+  /**
+   * Random seed for training and generated samples.
+   */
+  seed: number;
+  /**
+   * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
+   * while the job runs.
+   */
+  trace: TrainingTraceMode;
+  /**
+   * Training objective override: true trains with v-prediction. Omit to detect checkpoint markers; unmarked checkpoints default to epsilon. Previews use their own checkpoint detection.
+   */
+  vParameterization?: null | boolean;
+  /**
+   * Training schedule override: true trains with zero terminal SNR. Omit to detect the checkpoint ztsnr marker. Previews use their own checkpoint detection.
+   */
+  zeroTerminalSnr?: null | boolean;
+  readonly usesStepPricing: boolean;
   engine: 'kohya';
 };
 
@@ -6953,6 +7185,24 @@ export type LoadingResourceAvailability = Omit<ResourceAvailability, 'status'> &
    */
   rateLimitBytesPerSecond?: null | number;
   status: 'loading';
+};
+
+export type LoraEvidence = {
+  name: string;
+  sha256: string;
+  verdict: string;
+  expectedStrength: number;
+  fittedStrength?: null | number;
+  verificationStrength?: null | number;
+  partialCosine?: null | number;
+  signalToRounding?: null | number;
+  supportingLayers: number;
+  resolvableLayers: number;
+  matchedLayers: number;
+  totalLayers: number;
+  unmappedLayers: Array<string>;
+  baseSha256?: null | string;
+  adapterKinds?: null | Array<string>;
 };
 
 export type Ltx23AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' | 'ecosystem'> & {
@@ -7430,6 +7680,16 @@ export const MergeReducer = {
  */
 export type MergeReducer = (typeof MergeReducer)[keyof typeof MergeReducer];
 
+export type MergeReport = {
+  baseSha256: string;
+  checkpointSha256: string;
+  explainedFraction?: null | number;
+  expectedExplainedFraction: number;
+  verificationSamples: number;
+  candidates: Array<LoraEvidence>;
+  warnings: Array<string>;
+};
+
 /**
  * Merge
  */
@@ -7698,6 +7958,19 @@ export type MiniMaxH3AiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
+export type MiniMaxH3ImageAiToolkitTrainingInput = Omit<
+  AiToolkitTrainingInput,
+  'engine' | 'ecosystem'
+> & {
+  readonly defaultSteps: number;
+  ecosystem: 'minimaxh3image';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type MiniMaxH3MaxImageToVideoInput = Omit<
   MiniMaxH3MaxVideoGenInput,
   'engine' | 'operation'
@@ -7954,6 +8227,48 @@ export type Model3dPreviewStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   $type: 'model3DPreview';
 };
 
+export type ModelAnalysisInput = {
+  /**
+   * The exact original checkpoint, pinned to a safetensors model version/file.
+   */
+  baseModel: string;
+  checkpoint: string;
+  loras: Array<ModelAnalysisLora>;
+};
+
+export type ModelAnalysisLora = {
+  model: string;
+  /**
+   * Optional expected merge strength. The actual strength is fitted independently.
+   */
+  strength?: number;
+};
+
+export type ModelAnalysisOutput = {
+  report: MergeReport;
+  blob: Blob;
+};
+
+/**
+ * Check a checkpoint for evidence of specified merged LoRAs.
+ */
+export type ModelAnalysisStep = Omit<WorkflowStep, '$type'> & {
+  input: ModelAnalysisInput;
+  output?: ModelAnalysisOutput;
+  $type: 'modelAnalysis';
+};
+
+/**
+ * Check a checkpoint for evidence of specified merged LoRAs.
+ */
+export type ModelAnalysisStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the ModelAnalysisStep step.
+   */
+  input: ModelAnalysisInput;
+  $type: 'modelAnalysis';
+};
+
 export type ModelClamScanInput = {
   model: string;
 };
@@ -7978,6 +8293,8 @@ export const ModelClamScanStatus = {
   INFECTED: 'infected',
   TIMEOUT: 'timeout',
   ERROR: 'error',
+  ENCRYPTED: 'encrypted',
+  LIMITS_EXCEEDED: 'limitsExceeded',
 } as const;
 
 export type ModelClamScanStatus = (typeof ModelClamScanStatus)[keyof typeof ModelClamScanStatus];
@@ -8623,6 +8940,122 @@ export type OpenAiGpt25SunburstImageGenInput = Omit<OpenApiImageGenInput, 'engin
   engine: 'openai';
 };
 
+export type OpenAiGpt26FlareCreateImageInput = Omit<
+  OpenAiGpt26FlareImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'gpt-image-2.6-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26FlareEditImageInput = Omit<
+  OpenAiGpt26FlareImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * White marks regions to edit; black marks regions to keep.
+   */
+  mask?: null | string;
+  /**
+   * Transparent PNG annotations matching the first image. Cannot be combined with mask.
+   */
+  markupImage?: null | string;
+  /**
+   * Set both dimensions or leave both null to infer the output size.
+   */
+  width?: null | number;
+  height?: null | number;
+  operation: 'editImage';
+  model: 'gpt-image-2.6-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26FlareImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  width?: null | number;
+  height?: null | number;
+  quantity?: number;
+  quality?: 'auto' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+  reasoningEffort?: 'low' | 'medium' | 'high';
+  background?: 'auto' | 'transparent' | 'opaque';
+  outputCompression?: null | number;
+  /**
+   * GIF frames, from 2 to 16. Defaults to 9; all frames share the 8,294,400-pixel budget.
+   */
+  frameCount?: null | number;
+  /**
+   * GIF frame duration in milliseconds, rounded to 10 ms. Defaults to 200.
+   */
+  frameDurationMs?: null | number;
+  /**
+   * Vector conversion model for SVG generation. Defaults to gpt-6-astra.
+   */
+  svgModel?: null | 'gpt-6-astra' | 'gpt-5.5' | 'gpt-5.4' | 'gpt-5.6-terra' | 'gpt-6-luna';
+  model: 'gpt-image-2.6-flare';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26SunburstCreateImageInput = Omit<
+  OpenAiGpt26SunburstImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  operation: 'createImage';
+  model: 'gpt-image-2.6-sunburst';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26SunburstEditImageInput = Omit<
+  OpenAiGpt26SunburstImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  images: Array<string>;
+  /**
+   * White marks regions to edit; black marks regions to keep.
+   */
+  mask?: null | string;
+  /**
+   * Transparent PNG annotations matching the first image. Cannot be combined with mask.
+   */
+  markupImage?: null | string;
+  /**
+   * Set both dimensions or leave both null to infer the output size.
+   */
+  width?: null | number;
+  height?: null | number;
+  operation: 'editImage';
+  model: 'gpt-image-2.6-sunburst';
+  engine: 'openai';
+};
+
+export type OpenAiGpt26SunburstImageGenInput = Omit<OpenApiImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  width?: null | number;
+  height?: null | number;
+  quantity?: number;
+  quality?: 'auto' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+  reasoningEffort?: 'low' | 'medium' | 'high';
+  background?: 'auto' | 'transparent' | 'opaque';
+  outputCompression?: null | number;
+  /**
+   * GIF frames, from 2 to 16. Defaults to 9; all frames share the 8,294,400-pixel budget.
+   */
+  frameCount?: null | number;
+  /**
+   * GIF frame duration in milliseconds, rounded to 10 ms. Defaults to 200.
+   */
+  frameDurationMs?: null | number;
+  /**
+   * Vector conversion model for SVG generation. Defaults to gpt-6-astra.
+   */
+  svgModel?: null | 'gpt-6-astra' | 'gpt-5.5' | 'gpt-5.4' | 'gpt-5.6-terra' | 'gpt-6-luna';
+  model: 'gpt-image-2.6-sunburst';
+  engine: 'openai';
+};
+
 export type OpenAiGpt2CreateImageInput = Omit<
   OpenAiGpt2ImageGenInput,
   'engine' | 'model' | 'operation'
@@ -8704,7 +9137,7 @@ export type PolyGenInput = {
 
 export type PolyGenOutput = {
   /**
-   * Generated 3D model in GLB format. Null when the engine only produces FBX (Tripo with quad enabled).
+   * Generated model in GLB format, or a Gaussian splat in PLY format for Idol. Null for FBX-only output.
    */
   model?: Model3dBlob;
   /**
@@ -10511,7 +10944,7 @@ export type TrainingInputSamples = {
   prompts?: Array<string>;
   negativePrompt?: null | string;
   /**
-   * Source images for edit-LoRA sample generation, passed as reference images when rendering samples.
+   * One source image per edit-LoRA preview, in prompt order. Repeated when there are fewer images than prompts.
    */
   sourceImages?: Array<string>;
   /**
@@ -11298,6 +11731,7 @@ export type VideoMetadataStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
 export type VideoUpscalerInput = {
   video: string;
   scaleFactor?: number;
+  model?: 'flashvsr' | 'relayvsr';
 };
 
 export type VideoUpscalerOutput = {
@@ -11305,7 +11739,7 @@ export type VideoUpscalerOutput = {
 };
 
 /**
- * Upscale videos using FlashVSR
+ * Upscale videos using FlashVSR or RelayVSR.
  */
 export type VideoUpscalerStep = Omit<WorkflowStep, '$type'> & {
   input: VideoUpscalerInput;
@@ -11314,7 +11748,7 @@ export type VideoUpscalerStep = Omit<WorkflowStep, '$type'> & {
 };
 
 /**
- * Upscale videos using FlashVSR
+ * Upscale videos using FlashVSR or RelayVSR.
  */
 export type VideoUpscalerStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   /**
@@ -12814,7 +13248,7 @@ export type YuE2Input = {
    */
   style: string;
   /**
-   * Lyrics with section markers such as [verse] and [chorus].
+   * Lyrics with section markers. Empty lyrics select instrumental generation.
    */
   lyrics: string;
   seed: number;
@@ -12844,6 +13278,10 @@ export type YuE2Input = {
   loras: {
     [key: string]: number;
   };
+  /**
+   * Generate an instrumental score without sung lyrics. Score planning is required.
+   */
+  instrumental?: boolean;
 };
 
 export type YuE2Output = {
@@ -12997,142 +13435,6 @@ export type ZipTrainingData = Omit<TrainingData, 'type'> & {
 export const ZoeDepthEnvironment = { INDOOR: 'indoor', OUTDOOR: 'outdoor' } as const;
 
 export type ZoeDepthEnvironment = (typeof ZoeDepthEnvironment)[keyof typeof ZoeDepthEnvironment];
-
-export type KohyaTrainingInput = Omit<TrainingInput, 'engine'> & {
-  /**
-   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
-   */
-  model: string;
-  /**
-   * Number of saved checkpoints across the training run.
-   */
-  maxTrainEpochs: number;
-  /**
-   * Number of times each training image is repeated per dataset epoch.
-   */
-  numRepeats: number;
-  /**
-   * Images per optimizer step.
-   */
-  trainBatchSize: number;
-  /**
-   * Training resolution; defaults to 512 for SD1.5 and 1024 for other families.
-   */
-  resolution?: null | number;
-  /**
-   * Group images into aspect-ratio buckets.
-   */
-  enableBucket: boolean;
-  /**
-   * Shuffle comma-separated caption tokens during training.
-   */
-  shuffleCaption: boolean;
-  /**
-   * Leading caption tokens kept in place while shuffling.
-   */
-  keepTokens: number;
-  /**
-   * CLIP layer skip for SD1.5; other families use 1.
-   */
-  clipSkip: number;
-  /**
-   * Random horizontal image flips.
-   */
-  flipAugmentation: boolean;
-  /**
-   * Learning rate for the diffusion model LoRA.
-   */
-  unetLR: number;
-  /**
-   * Learning rate for text encoder LoRA modules.
-   */
-  textEncoderLR: number;
-  /**
-   * Learning-rate schedule over the total optimizer-step budget.
-   */
-  lrScheduler:
-    | 'constant'
-    | 'constant_with_warmup'
-    | 'cosine'
-    | 'cosine_with_restarts'
-    | 'linear'
-    | 'polynomial';
-  /**
-   * Number of cycles used by cosine_with_restarts; ignored by other schedulers.
-   */
-  lrSchedulerNumCycles: number;
-  /**
-   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
-   */
-  minSnrGamma?: null | number;
-  /**
-   * LoRA rank; must match ContinueFrom weights.
-   */
-  networkDim: number;
-  /**
-   * LoRA alpha; must match ContinueFrom weights.
-   */
-  networkAlpha: number;
-  /**
-   * Noise offset for SD training; flow models require 0.
-   */
-  noiseOffset: number;
-  /**
-   * Optimizer used for the LoRA parameters; names are case-insensitive.
-   */
-  optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
-  /**
-   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
-   */
-  trainTextEncoder?: null | boolean;
-  /**
-   * Total optimizer steps; otherwise derived from epochs, repeats, declared image count and batch size. Supply an accurate count or explicit steps.
-   */
-  steps?: null | number;
-  /**
-   * Starts a new schedule from these LoRA weights. Worker handoffs restore full state automatically.
-   */
-  continueFrom?: null | string;
-  /**
-   * Optional FLUX CLIP-L resource override.
-   */
-  clipLModel?: null | string;
-  /**
-   * Optional FLUX or Chroma T5 text encoder resource override.
-   */
-  textEncoderModel?: null | string;
-  /**
-   * Optional VAE resource override.
-   */
-  vaeModel?: null | string;
-  /**
-   * Use FP8 base weights for FLUX or Chroma; defaults to true for these families.
-   */
-  fp8Base?: null | boolean;
-  /**
-   * Transformer blocks swapped to CPU for FLUX or Chroma; defaults to 18.
-   */
-  blocksToSwap?: null | number;
-  /**
-   * Random seed for training and generated samples.
-   */
-  seed: number;
-  /**
-   * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
-   * while the job runs.
-   */
-  trace: TrainingTraceMode;
-  /**
-   * Training objective override: true trains with v-prediction. Omit to detect checkpoint markers; unmarked checkpoints default to epsilon. Previews use their own checkpoint detection.
-   */
-  vParameterization?: null | boolean;
-  /**
-   * Training schedule override: true trains with zero terminal SNR. Omit to detect the checkpoint ztsnr marker. Previews use their own checkpoint detection.
-   */
-  zeroTerminalSnr?: null | boolean;
-  readonly usesStepPricing: boolean;
-  engine: 'kohya';
-};
 
 export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   ecosystem: string;
@@ -13631,6 +13933,18 @@ export type ErnieAiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
+export type Fibo2AiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'fibo2';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
 export type Flux1AiToolkitTrainingInputWritable = Omit<
   AiToolkitTrainingInputWritable,
   'engine' | 'ecosystem'
@@ -13760,6 +14074,10 @@ export type GeminiOmniVideoGenInputWritable = Omit<VideoGenInputWritable, 'engin
   aspectRatio?: '16:9' | '9:16';
   resolution?: GeminiOmniResolution;
   images?: Array<string>;
+  /**
+   * Output length in seconds for 1.2 Flash; defaults to 10. First/last-frame generation supports at most 10 seconds.
+   */
+  duration?: null | number;
   engine: 'gemini-omni';
 };
 
@@ -13787,83 +14105,138 @@ export type Ideogram4AiToolkitTrainingInputWritable = Omit<
   batchSize?: null | number;
 };
 
-export type KohyaImageResourceTrainingInputWritable = Omit<
-  ImageResourceTrainingInputWritable,
-  'engine'
-> & {
+export type KohyaTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   /**
-   * An epoch is one set of learning. By default, we will save a maximum of 20 epochs (evenly distributed), and they are all available for download.
+   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
    */
-  maxTrainEpochs?: number;
+  model: string;
   /**
-   * Num Repeats defines how many times each individual image gets put into VRAM. As opposed to batch size, which is how many images are placed into VRAM at once.
+   * Number of saved checkpoints across the training run.
    */
-  numRepeats?: number;
+  maxTrainEpochs: number;
   /**
-   * Batch size is the number of images that will be placed into VRAM at once. A batch size of 2 will train two images at a time, simultaneously.
+   * Number of times each training image is repeated per dataset epoch.
    */
-  trainBatchSize?: null | number;
+  numRepeats: number;
   /**
-   * Specify the maximum resolution of training images. If the training images exceed the resolution specified here, they will be scaled down to this resolution
+   * Images per optimizer step.
+   */
+  trainBatchSize: number;
+  /**
+   * Training resolution; defaults to 512 for SD1.5 and 1024 for other families.
    */
   resolution?: null | number;
   /**
-   * Sorts images into buckets by size for the purposes of training. If your training images are all the same size, you can turn this option off, but leaving it on has no effect.
+   * Group images into aspect-ratio buckets.
    */
-  enableBucket?: boolean;
+  enableBucket: boolean;
   /**
-   * Randomly changes the order of your tags during training. The intent of shuffling is to improve learning. If you are using captions (sentences), this option has no meaning.
+   * Shuffle comma-separated caption tokens during training.
    */
-  shuffleCaption?: boolean;
+  shuffleCaption: boolean;
   /**
-   * Keeps this many leading tags in place when shuffling captions. Does nothing when Shuffle Tags is off.
+   * Leading caption tokens kept in place while shuffling.
    */
-  keepTokens?: number;
+  keepTokens: number;
   /**
-   * Determines which layer's vector output will be used. There are 12 layers, and setting the skip will select "xth from the end" of the total layers. For anime, we use 2. For everything else, 1.
+   * CLIP layer skip for SD1.5; other families use 1.
    */
-  clipSkip?: number;
+  clipSkip: number;
   /**
-   * If this option is turned on, the image will be horizontally flipped randomly. It can learn left and right angles, which is useful when you want to learn symmetrical people and objects.
+   * Random horizontal image flips.
    */
-  flipAugmentation?: boolean;
+  flipAugmentation: boolean;
   /**
-   * Sets the learning rate for U-Net. This is the learning rate when performing additional learning on each attention block (and other blocks depending on the setting) in U-Net
+   * Learning rate for the diffusion model LoRA.
    */
-  unetLR?: number;
+  unetLR: number;
   /**
-   * Sets the learning rate for the text encoder. The effect of additional training on text encoders affects the entire U-Net.
+   * Learning rate for text encoder LoRA modules.
    */
-  textEncoderLR?: number;
+  textEncoderLR: number;
   /**
-   * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
+   * Learning-rate schedule over the total optimizer-step budget.
    */
-  lrScheduler?: 'constant' | 'cosine' | 'cosine_with_restarts' | 'linear';
+  lrScheduler:
+    | 'constant'
+    | 'constant_with_warmup'
+    | 'cosine'
+    | 'cosine_with_restarts'
+    | 'linear'
+    | 'polynomial';
   /**
-   * This option specifies how many cycles the scheduler runs during training. It is only used when "cosine_with_restarts" or "polynomial" is used as the scheduler.
+   * Number of cycles used by cosine_with_restarts; ignored by other schedulers.
    */
-  lrSchedulerNumCycles?: number;
+  lrSchedulerNumCycles: number;
   /**
-   * Compensates for unstable learning across noise strengths by suppressing large deviations when training images carry little noise.
+   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
    */
   minSnrGamma?: null | number;
   /**
-   * The larger the Dim setting, the more learning information can be stored, but the possibility of learning unnecessary information other than the learning target increases. A larger Dim also increases LoRA file size.
+   * LoRA rank; must match ContinueFrom weights.
    */
-  networkDim?: null | number;
+  networkDim: number;
   /**
-   * Scales the stored LoRA weights relative to Dim: alpha 16 with dim 32 applies the learning rate at half strength;
-   * equal values leave it unchanged.
+   * LoRA alpha; must match ContinueFrom weights.
    */
-  networkAlpha?: null | number;
+  networkAlpha: number;
   /**
-   * Adds noise to training images. 0 adds no noise at all. A value of 1 adds strong noise.
+   * Noise offset for SD training; flow models require 0.
    */
-  noiseOffset?: null | number;
+  noiseOffset: number;
   /**
-   * Optimizer that updates the weights during training; "AdamW8bit" is the common choice, "Adafactor" for SDXL.
+   * Optimizer used for the LoRA parameters; names are case-insensitive.
    */
-  optimizerType?: null | string;
+  optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
+  /**
+   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
+   */
+  trainTextEncoder?: null | boolean;
+  /**
+   * Total optimizer steps; otherwise derived from epochs, repeats, declared image count and batch size. Supply an accurate count or explicit steps.
+   */
+  steps?: null | number;
+  /**
+   * Starts a new schedule from these LoRA weights. Worker handoffs restore full state automatically.
+   */
+  continueFrom?: null | string;
+  /**
+   * Optional FLUX CLIP-L resource override.
+   */
+  clipLModel?: null | string;
+  /**
+   * Optional FLUX or Chroma T5 text encoder resource override.
+   */
+  textEncoderModel?: null | string;
+  /**
+   * Optional VAE resource override.
+   */
+  vaeModel?: null | string;
+  /**
+   * Use FP8 base weights for FLUX or Chroma; defaults to true for these families.
+   */
+  fp8Base?: null | boolean;
+  /**
+   * Transformer blocks swapped to CPU for FLUX or Chroma; defaults to 18.
+   */
+  blocksToSwap?: null | number;
+  /**
+   * Random seed for training and generated samples.
+   */
+  seed: number;
+  /**
+   * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
+   * while the job runs.
+   */
+  trace: TrainingTraceMode;
+  /**
+   * Training objective override: true trains with v-prediction. Omit to detect checkpoint markers; unmarked checkpoints default to epsilon. Previews use their own checkpoint detection.
+   */
+  vParameterization?: null | boolean;
+  /**
+   * Training schedule override: true trains with zero terminal SNR. Omit to detect the checkpoint ztsnr marker. Previews use their own checkpoint detection.
+   */
+  zeroTerminalSnr?: null | boolean;
   engine: 'kohya';
 };
 
@@ -13944,6 +14317,18 @@ export type MiniMaxH3AiToolkitTrainingInputWritable = Omit<
   'engine' | 'ecosystem'
 > & {
   ecosystem: 'minimaxh3';
+  engine: 'ai-toolkit';
+  /**
+   * Training batch size. Fixed at 1 for this ecosystem.
+   */
+  batchSize?: null | number;
+};
+
+export type MiniMaxH3ImageAiToolkitTrainingInputWritable = Omit<
+  AiToolkitTrainingInputWritable,
+  'engine' | 'ecosystem'
+> & {
+  ecosystem: 'minimaxh3image';
   engine: 'ai-toolkit';
   /**
    * Training batch size. Fixed at 1 for this ecosystem.
@@ -14752,141 +15137,6 @@ export type ZImageTurboAiToolkitTrainingInputWritable = Omit<
    * Training batch size. Defaults to 1; raise it up to 2 for this ecosystem to train faster at the cost of more GPU memory.
    */
   batchSize?: null | number;
-};
-
-export type KohyaTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
-  /**
-   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
-   */
-  model: string;
-  /**
-   * Number of saved checkpoints across the training run.
-   */
-  maxTrainEpochs: number;
-  /**
-   * Number of times each training image is repeated per dataset epoch.
-   */
-  numRepeats: number;
-  /**
-   * Images per optimizer step.
-   */
-  trainBatchSize: number;
-  /**
-   * Training resolution; defaults to 512 for SD1.5 and 1024 for other families.
-   */
-  resolution?: null | number;
-  /**
-   * Group images into aspect-ratio buckets.
-   */
-  enableBucket: boolean;
-  /**
-   * Shuffle comma-separated caption tokens during training.
-   */
-  shuffleCaption: boolean;
-  /**
-   * Leading caption tokens kept in place while shuffling.
-   */
-  keepTokens: number;
-  /**
-   * CLIP layer skip for SD1.5; other families use 1.
-   */
-  clipSkip: number;
-  /**
-   * Random horizontal image flips.
-   */
-  flipAugmentation: boolean;
-  /**
-   * Learning rate for the diffusion model LoRA.
-   */
-  unetLR: number;
-  /**
-   * Learning rate for text encoder LoRA modules.
-   */
-  textEncoderLR: number;
-  /**
-   * Learning-rate schedule over the total optimizer-step budget.
-   */
-  lrScheduler:
-    | 'constant'
-    | 'constant_with_warmup'
-    | 'cosine'
-    | 'cosine_with_restarts'
-    | 'linear'
-    | 'polynomial';
-  /**
-   * Number of cycles used by cosine_with_restarts; ignored by other schedulers.
-   */
-  lrSchedulerNumCycles: number;
-  /**
-   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
-   */
-  minSnrGamma?: null | number;
-  /**
-   * LoRA rank; must match ContinueFrom weights.
-   */
-  networkDim: number;
-  /**
-   * LoRA alpha; must match ContinueFrom weights.
-   */
-  networkAlpha: number;
-  /**
-   * Noise offset for SD training; flow models require 0.
-   */
-  noiseOffset: number;
-  /**
-   * Optimizer used for the LoRA parameters; names are case-insensitive.
-   */
-  optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
-  /**
-   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
-   */
-  trainTextEncoder?: null | boolean;
-  /**
-   * Total optimizer steps; otherwise derived from epochs, repeats, declared image count and batch size. Supply an accurate count or explicit steps.
-   */
-  steps?: null | number;
-  /**
-   * Starts a new schedule from these LoRA weights. Worker handoffs restore full state automatically.
-   */
-  continueFrom?: null | string;
-  /**
-   * Optional FLUX CLIP-L resource override.
-   */
-  clipLModel?: null | string;
-  /**
-   * Optional FLUX or Chroma T5 text encoder resource override.
-   */
-  textEncoderModel?: null | string;
-  /**
-   * Optional VAE resource override.
-   */
-  vaeModel?: null | string;
-  /**
-   * Use FP8 base weights for FLUX or Chroma; defaults to true for these families.
-   */
-  fp8Base?: null | boolean;
-  /**
-   * Transformer blocks swapped to CPU for FLUX or Chroma; defaults to 18.
-   */
-  blocksToSwap?: null | number;
-  /**
-   * Random seed for training and generated samples.
-   */
-  seed: number;
-  /**
-   * What an epoch job records to its live trace stream (`output.epochs[].traceUrl`), which the consumer can tail
-   * while the job runs.
-   */
-  trace: TrainingTraceMode;
-  /**
-   * Training objective override: true trains with v-prediction. Omit to detect checkpoint markers; unmarked checkpoints default to epsilon. Previews use their own checkpoint detection.
-   */
-  vParameterization?: null | boolean;
-  /**
-   * Training schedule override: true trains with zero terminal SNR. Omit to detect the checkpoint ztsnr marker. Previews use their own checkpoint detection.
-   */
-  zeroTerminalSnr?: null | boolean;
-  engine: 'kohya';
 };
 
 export type TrainingInputWritable2 = {
@@ -17019,6 +17269,51 @@ export type InvokeModel3dPreviewStepTemplateResponses = {
 
 export type InvokeModel3dPreviewStepTemplateResponse =
   InvokeModel3dPreviewStepTemplateResponses[keyof InvokeModel3dPreviewStepTemplateResponses];
+
+export type InvokeModelAnalysisStepTemplateData = {
+  body?: ModelAnalysisInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+    tags?: Array<string>;
+  };
+  url: '/v2/consumer/recipes/modelAnalysis';
+};
+
+export type InvokeModelAnalysisStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeModelAnalysisStepTemplateError =
+  InvokeModelAnalysisStepTemplateErrors[keyof InvokeModelAnalysisStepTemplateErrors];
+
+export type InvokeModelAnalysisStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: ModelAnalysisOutput;
+};
+
+export type InvokeModelAnalysisStepTemplateResponse =
+  InvokeModelAnalysisStepTemplateResponses[keyof InvokeModelAnalysisStepTemplateResponses];
 
 export type InvokeModelClamScanStepTemplateData = {
   body?: ModelClamScanInput;

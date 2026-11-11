@@ -160,6 +160,9 @@ import type {
   InvokeModel3dPreviewStepTemplateData,
   InvokeModel3dPreviewStepTemplateErrors,
   InvokeModel3dPreviewStepTemplateResponses,
+  InvokeModelAnalysisStepTemplateData,
+  InvokeModelAnalysisStepTemplateErrors,
+  InvokeModelAnalysisStepTemplateResponses,
   InvokeModelClamScanStepTemplateData,
   InvokeModelClamScanStepTemplateErrors,
   InvokeModelClamScanStepTemplateResponses,
@@ -1158,6 +1161,25 @@ export const invokeModel3dPreviewStepTemplate = <ThrowOnError extends boolean = 
   });
 
 /**
+ * Check a checkpoint for evidence of specified merged LoRAs.
+ */
+export const invokeModelAnalysisStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeModelAnalysisStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeModelAnalysisStepTemplateResponses,
+    InvokeModelAnalysisStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/modelAnalysis',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
  * ModelClamScan
  *
  * Runs ClamAV malware scanning against a model file.
@@ -1698,7 +1720,7 @@ export const invokeVideoMetadataStepTemplate = <ThrowOnError extends boolean = f
   });
 
 /**
- * Upscale videos using FlashVSR
+ * Upscale videos using FlashVSR or RelayVSR.
  */
 export const invokeVideoUpscalerStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeVideoUpscalerStepTemplateData, ThrowOnError>
