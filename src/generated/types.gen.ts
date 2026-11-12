@@ -10490,6 +10490,7 @@ export const SeedreamVersion = {
   V4_5: 'v4.5',
   V5_0_LITE: 'v5.0-lite',
   V5_0_PRO: 'v5.0-pro',
+  V5_5: 'v5.5',
 } as const;
 
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
