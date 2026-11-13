@@ -53,6 +53,22 @@ export type AiToolkitTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
   /**
+   * Warmup steps for constant learning rate, up to the total training steps. Omit to keep the scheduler default.
+   */
+  lrWarmupSteps?: null | number;
+  /**
+   * Chance of training without a caption, from 0 to 1. Omit to keep the model default.
+   */
+  captionDropoutRate?: null | number;
+  /**
+   * LoRA rank dropout probability, from 0 (off) to less than 1. Defaults to off.
+   */
+  rankDropout?: null | number;
+  /**
+   * Enable AI Toolkit's eligible convolution adapters at rank 16. Omit to keep the model default.
+   */
+  trainConv?: null | boolean;
+  /**
    * The optimizer determines how to update the neural net weights during training.
    * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
    */
@@ -3562,6 +3578,22 @@ export type ComfyTrainingInput = Omit<TrainingInput, 'engine'> & {
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
   lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
+  /**
+   * Warmup steps for constant learning rate, up to the total training steps. Omit to keep the scheduler default.
+   */
+  lrWarmupSteps?: null | number;
+  /**
+   * Chance of training without a caption, from 0 to 1. Omit to keep the model default.
+   */
+  captionDropoutRate?: null | number;
+  /**
+   * LoRA rank dropout probability, from 0 (off) to less than 1. Defaults to off.
+   */
+  rankDropout?: null | number;
+  /**
+   * Enable AI Toolkit's eligible convolution adapters at rank 16. Omit to keep the model default.
+   */
+  trainConv?: null | boolean;
   /**
    * The optimizer determines how to update the neural net weights during training.
    * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
@@ -10490,6 +10522,7 @@ export const SeedreamVersion = {
   V4_5: 'v4.5',
   V5_0_LITE: 'v5.0-lite',
   V5_0_PRO: 'v5.0-pro',
+  V5_5: 'v5.5',
 } as const;
 
 export type SeedreamVersion = (typeof SeedreamVersion)[keyof typeof SeedreamVersion];
@@ -12956,6 +12989,7 @@ export type WorkflowStepWarning = {
 export const WorkflowStepWarningCode = {
   MODEL_DEPRECATED: 'modelDeprecated',
   FIELD_DEPRECATED: 'fieldDeprecated',
+  FIELD_IGNORED: 'fieldIgnored',
 } as const;
 
 export type WorkflowStepWarningCode =
@@ -13470,6 +13504,22 @@ export type AiToolkitTrainingInputWritable = Omit<TrainingInputWritable2, 'engin
    */
   lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
   /**
+   * Warmup steps for constant learning rate, up to the total training steps. Omit to keep the scheduler default.
+   */
+  lrWarmupSteps?: null | number;
+  /**
+   * Chance of training without a caption, from 0 to 1. Omit to keep the model default.
+   */
+  captionDropoutRate?: null | number;
+  /**
+   * LoRA rank dropout probability, from 0 (off) to less than 1. Defaults to off.
+   */
+  rankDropout?: null | number;
+  /**
+   * Enable AI Toolkit's eligible convolution adapters at rank 16. Omit to keep the model default.
+   */
+  trainConv?: null | boolean;
+  /**
    * The optimizer determines how to update the neural net weights during training.
    * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
    */
@@ -13824,6 +13874,22 @@ export type ComfyTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    * You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate.
    */
   lrScheduler?: 'constant' | 'constant_with_warmup' | 'cosine' | 'linear' | 'step';
+  /**
+   * Warmup steps for constant learning rate, up to the total training steps. Omit to keep the scheduler default.
+   */
+  lrWarmupSteps?: null | number;
+  /**
+   * Chance of training without a caption, from 0 to 1. Omit to keep the model default.
+   */
+  captionDropoutRate?: null | number;
+  /**
+   * LoRA rank dropout probability, from 0 (off) to less than 1. Defaults to off.
+   */
+  rankDropout?: null | number;
+  /**
+   * Enable AI Toolkit's eligible convolution adapters at rank 16. Omit to keep the model default.
+   */
+  trainConv?: null | boolean;
   /**
    * The optimizer determines how to update the neural net weights during training.
    * Various methods have been proposed for smart learning, but the most commonly used in LoRA learning is "adamw8bit".
