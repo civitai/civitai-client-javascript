@@ -11004,6 +11004,43 @@
                 ],
                 "description": "You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate."
               },
+              "lrWarmupSteps": {
+                "maximum": 10000,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Warmup steps for constant learning rate, up to the total training steps. Omit to keep the scheduler default.",
+                "format": "int32"
+              },
+              "captionDropoutRate": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "Chance of training without a caption, from 0 to 1. Omit to keep the model default.",
+                "format": "double"
+              },
+              "rankDropout": {
+                "exclusiveMaximum": 1,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "LoRA rank dropout probability, from 0 (off) to less than 1. Defaults to off.",
+                "format": "double"
+              },
+              "trainConv": {
+                "type": [
+                  "null",
+                  "boolean"
+                ],
+                "description": "Enable AI Toolkit's eligible convolution adapters at rank 16. Omit to keep the model default."
+              },
               "optimizerType": {
                 "enum": [
                   "adamw",
@@ -24557,6 +24594,43 @@
                   "string"
                 ],
                 "description": "You can change the learning rate in the middle of learning. A scheduler is a setting for how to change the learning rate."
+              },
+              "lrWarmupSteps": {
+                "maximum": 10000,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Warmup steps for constant learning rate, up to the total training steps. Omit to keep the scheduler default.",
+                "format": "int32"
+              },
+              "captionDropoutRate": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "Chance of training without a caption, from 0 to 1. Omit to keep the model default.",
+                "format": "double"
+              },
+              "rankDropout": {
+                "exclusiveMaximum": 1,
+                "minimum": 0,
+                "type": [
+                  "null",
+                  "number"
+                ],
+                "description": "LoRA rank dropout probability, from 0 (off) to less than 1. Defaults to off.",
+                "format": "double"
+              },
+              "trainConv": {
+                "type": [
+                  "null",
+                  "boolean"
+                ],
+                "description": "Enable AI Toolkit's eligible convolution adapters at rank 16. Omit to keep the model default."
               },
               "optimizerType": {
                 "enum": [
@@ -57689,7 +57763,8 @@
       "WorkflowStepWarningCode": {
         "enum": [
           "modelDeprecated",
-          "fieldDeprecated"
+          "fieldDeprecated",
+          "fieldIgnored"
         ],
         "type": "string"
       },
