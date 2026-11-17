@@ -48725,7 +48725,8 @@
           "v2",
           "v2-fast",
           "v2-mini",
-          "v2.5"
+          "v2.5",
+          "v2.5-flash"
         ],
         "type": "string"
       },
