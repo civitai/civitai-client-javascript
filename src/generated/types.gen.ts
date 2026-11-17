@@ -10456,6 +10456,7 @@ export const SeedanceModel = {
   V2_FAST: 'v2-fast',
   V2_MINI: 'v2-mini',
   V2_5: 'v2.5',
+  V2_5_FLASH: 'v2.5-flash',
 } as const;
 
 export type SeedanceModel = (typeof SeedanceModel)[keyof typeof SeedanceModel];
