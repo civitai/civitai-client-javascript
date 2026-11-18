@@ -26347,6 +26347,7 @@
                 "qwen2": "#/components/schemas/Qwen2FalImageGenInput",
                 "krea2": "#/components/schemas/Krea2FalImageGenInput",
                 "maiImage": "#/components/schemas/MaiImageFalImageGenInput",
+                "maiImage27": "#/components/schemas/MaiImage27FalImageGenInput",
                 "reve": "#/components/schemas/ReveFalImageGenInput",
                 "museImage": "#/components/schemas/MuseImageFalImageGenInput",
                 "ideogram45": "#/components/schemas/Ideogram45FalImageGenInput",
@@ -37198,6 +37199,225 @@
           "category": "model",
           "hosting": "internal"
         }
+      },
+      "MaiImage27CreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MaiImage27FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageSize": {
+                "enum": [
+                  "square_hd",
+                  "portrait_4_3",
+                  "landscape_4_3",
+                  "portrait_3_2",
+                  "landscape_3_2",
+                  "portrait_16_9",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "default": "square_hd"
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "maiImage27"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "MaiImage27EditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MaiImage27FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageSize": {
+                "enum": [
+                  "auto",
+                  "square_hd",
+                  "portrait_4_3",
+                  "landscape_4_3",
+                  "portrait_3_2",
+                  "landscape_3_2",
+                  "portrait_16_9",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "description": "\"auto\" lets the model pick a size close to the first image.",
+                "default": "auto"
+              },
+              "images": {
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "maiImage27"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "MaiImage27FalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 5000,
+                "minLength": 3,
+                "type": "string"
+              },
+              "variant": {
+                "enum": [
+                  "standard",
+                  "flash"
+                ],
+                "type": "string",
+                "default": "standard"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "imageSize": {
+                "type": "string"
+              },
+              "resolution": {
+                "enum": [
+                  "1K",
+                  "2K"
+                ],
+                "type": "string",
+                "description": "Scales the imageSize presets: 2K doubles each side. Ignored for custom dimensions.",
+                "default": "1K"
+              },
+              "width": {
+                "maximum": 5456,
+                "minimum": 768,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Custom dimensions override imageSize. Set width and height together.",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 5456,
+                "minimum": 768,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "background": {
+                "enum": [
+                  "opaque",
+                  "transparent"
+                ],
+                "type": "string",
+                "default": "opaque"
+              },
+              "model": {
+                "enum": [
+                  "maiImage27"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/MaiImage27CreateFalImageGenInput",
+                "editImage": "#/components/schemas/MaiImage27EditFalImageGenInput"
+              }
+            }
+          }
+        ]
       },
       "MaiImageCreateFalImageGenInput": {
         "allOf": [
