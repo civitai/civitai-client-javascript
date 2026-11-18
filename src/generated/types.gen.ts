@@ -5927,14 +5927,23 @@ export type ImageBackgroundRemovalInput = {
    * The output image format. Defaults to PNG, which preserves transparency.
    */
   format?: ImageBackgroundRemovalFormat;
+  /**
+   * BiRefNet, or Bria RMBG 3.0: better on hair, fur and crowded scenes, with a fixed 13 Buzz fee per image.
+   */
+  model?: ImageBackgroundRemovalModel;
 };
+
+export const ImageBackgroundRemovalModel = { BIREFNET: 'birefnet', RMBG3: 'rmbg3' } as const;
+
+export type ImageBackgroundRemovalModel =
+  (typeof ImageBackgroundRemovalModel)[keyof typeof ImageBackgroundRemovalModel];
 
 export type ImageBackgroundRemovalOutput = {
   image?: ImageBlob;
 };
 
 /**
- * Removes the background from an image using BiRefNet.
+ * Removes the background from an image using BiRefNet or Bria RMBG 3.0.
  */
 export type ImageBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
   input: ImageBackgroundRemovalInput;
@@ -5943,7 +5952,7 @@ export type ImageBackgroundRemovalStep = Omit<WorkflowStep, '$type'> & {
 };
 
 /**
- * Removes the background from an image using BiRefNet.
+ * Removes the background from an image using BiRefNet or Bria RMBG 3.0.
  */
 export type ImageBackgroundRemovalStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
   /**
@@ -7270,6 +7279,75 @@ export type Ltx2AiToolkitTrainingInput = Omit<AiToolkitTrainingInput, 'engine' |
   batchSize?: null | number;
 };
 
+export type LyricsAlignmentInput = {
+  /**
+   * The song to align, up to 10 minutes long.
+   */
+  mediaUrl: string;
+  /**
+   * The lyrics as sung, one display line per line. Section labels such as [Verse] and empty lines are kept but not timed.
+   */
+  lyrics: string;
+};
+
+export type LyricsAlignmentLine = {
+  index: number;
+  text: string;
+  status: LyricsAlignmentStatus;
+  /**
+   * Seconds from the start of the song; null for ignored lines.
+   */
+  startTime?: null | number;
+  endTime?: null | number;
+  /**
+   * A heuristic acoustic score between 0 and 1, not a calibrated probability.
+   */
+  confidence?: null | number;
+  words: Array<LyricsAlignmentWord>;
+};
+
+export type LyricsAlignmentOutput = {
+  text: string;
+  /**
+   * Every supplied line in order, with its timing and words.
+   */
+  lines: Array<LyricsAlignmentLine>;
+  audioDurationSeconds: number;
+  lowConfidenceWords: number;
+  elapsedSeconds: number;
+};
+
+export const LyricsAlignmentStatus = {
+  ALIGNED: 'aligned',
+  LOW_CONFIDENCE: 'lowConfidence',
+  IGNORED: 'ignored',
+} as const;
+
+export type LyricsAlignmentStatus =
+  (typeof LyricsAlignmentStatus)[keyof typeof LyricsAlignmentStatus];
+
+export type LyricsAlignmentStep = Omit<WorkflowStep, '$type'> & {
+  input: LyricsAlignmentInput;
+  output?: LyricsAlignmentOutput;
+  $type: 'lyricsAlignment';
+};
+
+export type LyricsAlignmentStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the LyricsAlignmentStep step.
+   */
+  input: LyricsAlignmentInput;
+  $type: 'lyricsAlignment';
+};
+
+export type LyricsAlignmentWord = {
+  text: string;
+  startTime: number;
+  endTime: number;
+  confidence: number;
+  status: LyricsAlignmentStatus;
+};
+
 export type MageFlowAiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'
@@ -7281,6 +7359,65 @@ export type MageFlowAiToolkitTrainingInput = Omit<
    * Training batch size. Fixed at 1 for this ecosystem.
    */
   batchSize?: null | number;
+};
+
+export type MaiImage27CreateFalImageGenInput = Omit<
+  MaiImage27FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageSize?:
+    | 'square_hd'
+    | 'portrait_4_3'
+    | 'landscape_4_3'
+    | 'portrait_3_2'
+    | 'landscape_3_2'
+    | 'portrait_16_9'
+    | 'landscape_16_9';
+  operation: 'createImage';
+  model: 'maiImage27';
+  engine: 'fal';
+};
+
+export type MaiImage27EditFalImageGenInput = Omit<
+  MaiImage27FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  /**
+   * "auto" lets the model pick a size close to the first image.
+   */
+  imageSize?:
+    | 'auto'
+    | 'square_hd'
+    | 'portrait_4_3'
+    | 'landscape_4_3'
+    | 'portrait_3_2'
+    | 'landscape_3_2'
+    | 'portrait_16_9'
+    | 'landscape_16_9';
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'maiImage27';
+  engine: 'fal';
+};
+
+export type MaiImage27FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  variant?: 'standard' | 'flash';
+  quantity?: number;
+  imageSize?: string;
+  /**
+   * Scales the imageSize presets: 2K doubles each side. Ignored for custom dimensions.
+   */
+  resolution?: '1K' | '2K';
+  /**
+   * Custom dimensions override imageSize. Set width and height together.
+   */
+  width?: null | number;
+  height?: null | number;
+  background?: 'opaque' | 'transparent';
+  model: 'maiImage27';
+  engine: 'fal';
 };
 
 export type MaiImageCreateFalImageGenInput = Omit<
@@ -10456,6 +10593,7 @@ export const SeedanceModel = {
   V2_FAST: 'v2-fast',
   V2_MINI: 'v2-mini',
   V2_5: 'v2.5',
+  V2_5_FLASH: 'v2.5-flash',
 } as const;
 
 export type SeedanceModel = (typeof SeedanceModel)[keyof typeof SeedanceModel];
@@ -13150,17 +13288,16 @@ export type XGuardModerationInput = {
   mode: string;
   /**
    * Only the named labels are evaluated; names not in the defaults (or overrides) are silently ignored.
-   * Omitted or empty evaluates all labels.
+   * Omitted or empty evaluates all labels. Profanity mode does not support label selection.
    */
   labels?: null | Array<string>;
   /**
    * Optional label configuration overrides. When provided, these merge with/override the
-   * defaults from the XGuardModerationOptionsGrain for the given mode.
+   * defaults from the XGuardModerationOptionsGrain for the given mode. Unsupported in profanity mode.
    */
   labelOverrides?: null | Array<XGuardLabelConfiguration>;
   /**
-   * Stores the full raw chat completion (including all logprobs) in the destination blob, ~200KB instead of ~2-3KB; debugging only.
-   * Not the reasoning switch (see Civitai.Orchestration.Grains.Workflows.Steps.XGuardModeration.XGuardModerationInput.IncludeReasoning): it only raises the token budget from 1 to 128.
+   * Stores the full raw completion and logprobs for debugging. Fixed Civitai models still emit only one token.
    */
   storeFullResponse: boolean;
   /**
@@ -13171,6 +13308,10 @@ export type XGuardModerationInput = {
 };
 
 export type XGuardModerationOutput = {
+  /**
+   * Profanity mode only: 0 = none, 1 = mild/moderate, 2 = strong. Null if scoring failed.
+   */
+  languageLevel?: null | number;
   results: Array<XGuardLabelResult>;
   signalMetadata?: XGuardSignalMetadata;
   blocked: boolean;
@@ -13195,6 +13336,17 @@ export type XGuardModerationStepTemplate = Omit<WorkflowStepTemplate, '$type'> &
    */
   input: XGuardModerationInput;
   $type: 'xGuardModeration';
+};
+
+/**
+ * Rates complete text L0/L1/L2 with the checkpoint's fixed policies and thresholds.
+ */
+export type XGuardProfanityModerationInput = Omit<XGuardModerationInput, 'mode'> & {
+  /**
+   * Unmodified text. The policy, chat template and text must fit 8191 input tokens; no truncation is performed.
+   */
+  text: string;
+  mode: 'profanity';
 };
 
 export type XGuardPromptModerationInput = Omit<XGuardModerationInput, 'mode'> & {
@@ -15128,6 +15280,10 @@ export type XGuardCustomSignalMetadataWritable = {
 };
 
 export type XGuardModerationOutputWritable = {
+  /**
+   * Profanity mode only: 0 = none, 1 = mild/moderate, 2 = strong. Null if scoring failed.
+   */
+  languageLevel?: null | number;
   results: Array<XGuardLabelResult>;
   signalMetadata?: XGuardSignalMetadataWritable;
   blocked: boolean;
@@ -17065,6 +17221,51 @@ export type InvokeLiveTranscriptionStepTemplateResponses = {
 
 export type InvokeLiveTranscriptionStepTemplateResponse =
   InvokeLiveTranscriptionStepTemplateResponses[keyof InvokeLiveTranscriptionStepTemplateResponses];
+
+export type InvokeLyricsAlignmentStepTemplateData = {
+  body?: LyricsAlignmentInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+    tags?: Array<string>;
+  };
+  url: '/v2/consumer/recipes/lyricsAlignment';
+};
+
+export type InvokeLyricsAlignmentStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeLyricsAlignmentStepTemplateError =
+  InvokeLyricsAlignmentStepTemplateErrors[keyof InvokeLyricsAlignmentStepTemplateErrors];
+
+export type InvokeLyricsAlignmentStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: LyricsAlignmentOutput;
+};
+
+export type InvokeLyricsAlignmentStepTemplateResponse =
+  InvokeLyricsAlignmentStepTemplateResponses[keyof InvokeLyricsAlignmentStepTemplateResponses];
 
 export type InvokeMediaCaptioningStepTemplateData = {
   body?: MediaCaptioningInput;

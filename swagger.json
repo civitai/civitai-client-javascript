@@ -2989,7 +2989,7 @@
         "tags": [
           "Recipes"
         ],
-        "summary": "Removes the background from an image using BiRefNet.",
+        "summary": "Removes the background from an image using BiRefNet or Bria RMBG 3.0.",
         "operationId": "InvokeImageBackgroundRemovalStepTemplate",
         "parameters": [
           {
@@ -4029,6 +4029,124 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LiveTranscriptionOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/lyricsAlignment": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "description": "Aligns known lyrics to a song and returns line- and word-level timestamps, keeping the supplied text unchanged.",
+        "operationId": "InvokeLyricsAlignmentStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "description": "How a workflow is paid for.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowTier"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LyricsAlignmentInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LyricsAlignmentInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LyricsAlignmentInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LyricsAlignmentOutput"
                 }
               }
             }
@@ -16483,7 +16601,7 @@
                 "format": "int64"
               },
               "quantity": {
-                "maximum": 4,
+                "maximum": 100,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
@@ -22021,7 +22139,7 @@
                 "format": "int32"
               },
               "quantity": {
-                "maximum": 4,
+                "maximum": 100,
                 "minimum": 1,
                 "type": "integer",
                 "format": "int32",
@@ -26347,6 +26465,7 @@
                 "qwen2": "#/components/schemas/Qwen2FalImageGenInput",
                 "krea2": "#/components/schemas/Krea2FalImageGenInput",
                 "maiImage": "#/components/schemas/MaiImageFalImageGenInput",
+                "maiImage27": "#/components/schemas/MaiImage27FalImageGenInput",
                 "reve": "#/components/schemas/ReveFalImageGenInput",
                 "museImage": "#/components/schemas/MuseImageFalImageGenInput",
                 "ideogram45": "#/components/schemas/Ideogram45FalImageGenInput",
@@ -33068,6 +33187,11 @@
             "description": "The output image format. Defaults to PNG, which preserves transparency.",
             "default": "png",
             "$ref": "#/components/schemas/ImageBackgroundRemovalFormat"
+          },
+          "model": {
+            "description": "BiRefNet, or Bria RMBG 3.0: better on hair, fur and crowded scenes, with a fixed 13 Buzz fee per image.",
+            "default": "birefnet",
+            "$ref": "#/components/schemas/ImageBackgroundRemovalModel"
           }
         },
         "additionalProperties": false,
@@ -33075,6 +33199,13 @@
           "category": "image",
           "hosting": "internal"
         }
+      },
+      "ImageBackgroundRemovalModel": {
+        "enum": [
+          "birefnet",
+          "rmbg3"
+        ],
+        "type": "string"
       },
       "ImageBackgroundRemovalOutput": {
         "type": "object",
@@ -33113,7 +33244,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Removes the background from an image using BiRefNet."
+        "description": "Removes the background from an image using BiRefNet or Bria RMBG 3.0."
       },
       "ImageBackgroundRemovalStepTemplate": {
         "allOf": [
@@ -33141,7 +33272,7 @@
             "additionalProperties": false
           }
         ],
-        "description": "Removes the background from an image using BiRefNet."
+        "description": "Removes the background from an image using BiRefNet or Bria RMBG 3.0."
       },
       "ImageBlob": {
         "allOf": [
@@ -37150,6 +37281,212 @@
           "hosting": "internal"
         }
       },
+      "LyricsAlignmentInput": {
+        "required": [
+          "lyrics",
+          "mediaUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "description": "The song to align, up to 10 minutes long.",
+            "format": "uri"
+          },
+          "lyrics": {
+            "maxLength": 24000,
+            "minLength": 1,
+            "type": "string",
+            "description": "The lyrics as sung, one display line per line. Section labels such as [Verse] and empty lines are kept but not timed."
+          }
+        },
+        "additionalProperties": false,
+        "x-service": {
+          "category": "audio",
+          "hosting": "internal"
+        }
+      },
+      "LyricsAlignmentLine": {
+        "required": [
+          "index",
+          "status",
+          "text",
+          "words"
+        ],
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LyricsAlignmentStatus"
+          },
+          "startTime": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "Seconds from the start of the song; null for ignored lines.",
+            "format": "double"
+          },
+          "endTime": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "confidence": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "description": "A heuristic acoustic score between 0 and 1, not a calibrated probability.",
+            "format": "double"
+          },
+          "words": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LyricsAlignmentWord"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "LyricsAlignmentOutput": {
+        "required": [
+          "audioDurationSeconds",
+          "elapsedSeconds",
+          "lines",
+          "lowConfidenceWords",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LyricsAlignmentLine"
+            },
+            "description": "Every supplied line in order, with its timing and words."
+          },
+          "audioDurationSeconds": {
+            "type": "number",
+            "format": "double"
+          },
+          "lowConfidenceWords": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "elapsedSeconds": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LyricsAlignmentStatus": {
+        "enum": [
+          "aligned",
+          "lowConfidence",
+          "ignored"
+        ],
+        "type": "string"
+      },
+      "LyricsAlignmentStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/LyricsAlignmentInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/LyricsAlignmentOutput"
+              },
+              "$type": {
+                "enum": [
+                  "lyricsAlignment"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "LyricsAlignmentStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "description": "Input for the LyricsAlignmentStep step.",
+                "$ref": "#/components/schemas/LyricsAlignmentInput"
+              },
+              "$type": {
+                "enum": [
+                  "lyricsAlignment"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "LyricsAlignmentWord": {
+        "required": [
+          "confidence",
+          "endTime",
+          "startTime",
+          "status",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "number",
+            "format": "double"
+          },
+          "endTime": {
+            "type": "number",
+            "format": "double"
+          },
+          "confidence": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LyricsAlignmentStatus"
+          }
+        },
+        "additionalProperties": false
+      },
       "MageFlowAIToolkitTrainingInput": {
         "allOf": [
           {
@@ -37198,6 +37535,225 @@
           "category": "model",
           "hosting": "internal"
         }
+      },
+      "MaiImage27CreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MaiImage27FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageSize": {
+                "enum": [
+                  "square_hd",
+                  "portrait_4_3",
+                  "landscape_4_3",
+                  "portrait_3_2",
+                  "landscape_3_2",
+                  "portrait_16_9",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "default": "square_hd"
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "maiImage27"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "MaiImage27EditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MaiImage27FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "imageSize": {
+                "enum": [
+                  "auto",
+                  "square_hd",
+                  "portrait_4_3",
+                  "landscape_4_3",
+                  "portrait_3_2",
+                  "landscape_3_2",
+                  "portrait_16_9",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "description": "\"auto\" lets the model pick a size close to the first image.",
+                "default": "auto"
+              },
+              "images": {
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                }
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "maiImage27"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "MaiImage27FalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 5000,
+                "minLength": 3,
+                "type": "string"
+              },
+              "variant": {
+                "enum": [
+                  "standard",
+                  "flash"
+                ],
+                "type": "string",
+                "default": "standard"
+              },
+              "quantity": {
+                "maximum": 4,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "imageSize": {
+                "type": "string"
+              },
+              "resolution": {
+                "enum": [
+                  "1K",
+                  "2K"
+                ],
+                "type": "string",
+                "description": "Scales the imageSize presets: 2K doubles each side. Ignored for custom dimensions.",
+                "default": "1K"
+              },
+              "width": {
+                "maximum": 5456,
+                "minimum": 768,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Custom dimensions override imageSize. Set width and height together.",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 5456,
+                "minimum": 768,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "background": {
+                "enum": [
+                  "opaque",
+                  "transparent"
+                ],
+                "type": "string",
+                "default": "opaque"
+              },
+              "model": {
+                "enum": [
+                  "maiImage27"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/MaiImage27CreateFalImageGenInput",
+                "editImage": "#/components/schemas/MaiImage27EditFalImageGenInput"
+              }
+            }
+          }
+        ]
       },
       "MaiImageCreateFalImageGenInput": {
         "allOf": [
@@ -48725,7 +49281,8 @@
           "v2",
           "v2-fast",
           "v2-mini",
-          "v2.5"
+          "v2.5",
+          "v2.5-flash"
         ],
         "type": "string"
       },
@@ -57325,6 +57882,7 @@
             "imageUpscaler": "#/components/schemas/ImageUpscalerStep",
             "liveTextToSpeech": "#/components/schemas/LiveTextToSpeechStep",
             "liveTranscription": "#/components/schemas/LiveTranscriptionStep",
+            "lyricsAlignment": "#/components/schemas/LyricsAlignmentStep",
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStep",
             "mediaHash": "#/components/schemas/MediaHashStep",
             "mediaRating": "#/components/schemas/MediaRatingStep",
@@ -57682,6 +58240,7 @@
             "imageUpscaler": "#/components/schemas/ImageUpscalerStepTemplate",
             "liveTextToSpeech": "#/components/schemas/LiveTextToSpeechStepTemplate",
             "liveTranscription": "#/components/schemas/LiveTranscriptionStepTemplate",
+            "lyricsAlignment": "#/components/schemas/LyricsAlignmentStepTemplate",
             "mediaCaptioning": "#/components/schemas/MediaCaptioningStepTemplate",
             "mediaHash": "#/components/schemas/MediaHashStepTemplate",
             "mediaRating": "#/components/schemas/MediaRatingStepTemplate",
@@ -58138,7 +58697,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Only the named labels are evaluated; names not in the defaults (or overrides) are silently ignored.\nOmitted or empty evaluates all labels."
+            "description": "Only the named labels are evaluated; names not in the defaults (or overrides) are silently ignored.\nOmitted or empty evaluates all labels. Profanity mode does not support label selection."
           },
           "labelOverrides": {
             "type": [
@@ -58148,11 +58707,11 @@
             "items": {
               "$ref": "#/components/schemas/XGuardLabelConfiguration"
             },
-            "description": "Optional label configuration overrides. When provided, these merge with/override the\ndefaults from the XGuardModerationOptionsGrain for the given mode."
+            "description": "Optional label configuration overrides. When provided, these merge with/override the\ndefaults from the XGuardModerationOptionsGrain for the given mode. Unsupported in profanity mode."
           },
           "storeFullResponse": {
             "type": "boolean",
-            "description": "Stores the full raw chat completion (including all logprobs) in the destination blob, ~200KB instead of ~2-3KB; debugging only.\nNot the reasoning switch (see Civitai.Orchestration.Grains.Workflows.Steps.XGuardModeration.XGuardModerationInput.IncludeReasoning): it only raises the token budget from 1 to 128."
+            "description": "Stores the full raw completion and logprobs for debugging. Fixed Civitai models still emit only one token."
           },
           "includeReasoning": {
             "type": "boolean",
@@ -58164,7 +58723,8 @@
           "propertyName": "mode",
           "mapping": {
             "prompt": "#/components/schemas/XGuardPromptModerationInput",
-            "text": "#/components/schemas/XGuardTextModerationInput"
+            "text": "#/components/schemas/XGuardTextModerationInput",
+            "profanity": "#/components/schemas/XGuardProfanityModerationInput"
           }
         }
       },
@@ -58176,6 +58736,14 @@
         ],
         "type": "object",
         "properties": {
+          "languageLevel": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Profanity mode only: 0 = none, 1 = mild/moderate, 2 = strong. Null if scoring failed.",
+            "format": "int32"
+          },
           "results": {
             "type": "array",
             "items": {
@@ -58254,6 +58822,38 @@
           }
         ],
         "description": "XGuardModeration"
+      },
+      "XGuardProfanityModerationInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/XGuardModerationInput"
+          },
+          {
+            "required": [
+              "mode",
+              "text"
+            ],
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "Unmodified text. The policy, chat template and text must fit 8191 input tokens; no truncation is performed."
+              },
+              "mode": {
+                "enum": [
+                  "profanity"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "Rates complete text L0/L1/L2 with the checkpoint's fixed policies and thresholds.",
+        "x-service": {
+          "category": "text",
+          "hosting": "internal"
+        }
       },
       "XGuardPromptModerationInput": {
         "allOf": [

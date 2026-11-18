@@ -142,6 +142,9 @@ import type {
   InvokeLiveTranscriptionStepTemplateData,
   InvokeLiveTranscriptionStepTemplateErrors,
   InvokeLiveTranscriptionStepTemplateResponses,
+  InvokeLyricsAlignmentStepTemplateData,
+  InvokeLyricsAlignmentStepTemplateErrors,
+  InvokeLyricsAlignmentStepTemplateResponses,
   InvokeMediaCaptioningStepTemplateData,
   InvokeMediaCaptioningStepTemplateErrors,
   InvokeMediaCaptioningStepTemplateResponses,
@@ -856,7 +859,7 @@ export const invokeHumanoidImageMaskStepTemplate = <ThrowOnError extends boolean
   });
 
 /**
- * Removes the background from an image using BiRefNet.
+ * Removes the background from an image using BiRefNet or Bria RMBG 3.0.
  */
 export const invokeImageBackgroundRemovalStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeImageBackgroundRemovalStepTemplateData, ThrowOnError>
@@ -1029,6 +1032,25 @@ export const invokeLiveTranscriptionStepTemplate = <ThrowOnError extends boolean
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/liveTranscription',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Aligns known lyrics to a song and returns line- and word-level timestamps, keeping the supplied text unchanged.
+ */
+export const invokeLyricsAlignmentStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeLyricsAlignmentStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeLyricsAlignmentStepTemplateResponses,
+    InvokeLyricsAlignmentStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/lyricsAlignment',
     ...options,
     headers: {
       'Content-Type': 'application/json',
