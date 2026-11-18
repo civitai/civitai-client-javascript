@@ -7283,6 +7283,65 @@ export type MageFlowAiToolkitTrainingInput = Omit<
   batchSize?: null | number;
 };
 
+export type MaiImage27CreateFalImageGenInput = Omit<
+  MaiImage27FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  imageSize?:
+    | 'square_hd'
+    | 'portrait_4_3'
+    | 'landscape_4_3'
+    | 'portrait_3_2'
+    | 'landscape_3_2'
+    | 'portrait_16_9'
+    | 'landscape_16_9';
+  operation: 'createImage';
+  model: 'maiImage27';
+  engine: 'fal';
+};
+
+export type MaiImage27EditFalImageGenInput = Omit<
+  MaiImage27FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  /**
+   * "auto" lets the model pick a size close to the first image.
+   */
+  imageSize?:
+    | 'auto'
+    | 'square_hd'
+    | 'portrait_4_3'
+    | 'landscape_4_3'
+    | 'portrait_3_2'
+    | 'landscape_3_2'
+    | 'portrait_16_9'
+    | 'landscape_16_9';
+  images: Array<string>;
+  operation: 'editImage';
+  model: 'maiImage27';
+  engine: 'fal';
+};
+
+export type MaiImage27FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  variant?: 'standard' | 'flash';
+  quantity?: number;
+  imageSize?: string;
+  /**
+   * Scales the imageSize presets: 2K doubles each side. Ignored for custom dimensions.
+   */
+  resolution?: '1K' | '2K';
+  /**
+   * Custom dimensions override imageSize. Set width and height together.
+   */
+  width?: null | number;
+  height?: null | number;
+  background?: 'opaque' | 'transparent';
+  model: 'maiImage27';
+  engine: 'fal';
+};
+
 export type MaiImageCreateFalImageGenInput = Omit<
   MaiImageFalImageGenInput,
   'engine' | 'model' | 'operation'

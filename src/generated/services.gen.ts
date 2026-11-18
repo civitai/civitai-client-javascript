@@ -212,6 +212,8 @@ export const services = {
   Ltx25AIToolkitTrainingInput: ['model', 'internal', 'training', { engine: 'ai-toolkit', ecosystem: 'ltx25' }],
   Ltx2AIToolkitTrainingInput: ['model', 'internal', 'training', { engine: 'ai-toolkit', ecosystem: 'ltx2' }],
   MageFlowAIToolkitTrainingInput: ['model', 'internal', 'training', { engine: 'ai-toolkit', ecosystem: 'mageflow' }],
+  MaiImage27CreateFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'maiImage27', operation: 'createImage' }],
+  MaiImage27EditFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'maiImage27', operation: 'editImage' }],
   MaiImageCreateFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'maiImage', operation: 'createImage' }],
   MaiImageEditFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'maiImage', operation: 'editImage' }],
   MediaCaptioningInput: ['text', 'internal', 'mediaCaptioning'],
