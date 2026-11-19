@@ -112,6 +112,9 @@ import type {
   InvokeEchoStepTemplateData,
   InvokeEchoStepTemplateErrors,
   InvokeEchoStepTemplateResponses,
+  InvokeGitHubRunnerStepTemplateData,
+  InvokeGitHubRunnerStepTemplateErrors,
+  InvokeGitHubRunnerStepTemplateResponses,
   InvokeHumanoidImageMaskStepTemplateData,
   InvokeHumanoidImageMaskStepTemplateErrors,
   InvokeHumanoidImageMaskStepTemplateResponses,
@@ -181,6 +184,9 @@ import type {
   InvokeMultimodalEmbeddingStepTemplateData,
   InvokeMultimodalEmbeddingStepTemplateErrors,
   InvokeMultimodalEmbeddingStepTemplateResponses,
+  InvokeOcrStepTemplateData,
+  InvokeOcrStepTemplateErrors,
+  InvokeOcrStepTemplateResponses,
   InvokePolyGenStepTemplateData,
   InvokePolyGenStepTemplateErrors,
   InvokePolyGenStepTemplateResponses,
@@ -842,6 +848,27 @@ export const invokeEchoStepTemplate = <ThrowOnError extends boolean = false>(
     },
   });
 
+/**
+ * GitHubRunner
+ *
+ * Runs one GitHub Actions job on a GPU worker. Its input hands over the job and its secrets, so it is restricted to managers and must be in an ephemeral workflow.
+ */
+export const invokeGitHubRunnerStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeGitHubRunnerStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeGitHubRunnerStepTemplateResponses,
+    InvokeGitHubRunnerStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/gitHubRunner',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
 export const invokeHumanoidImageMaskStepTemplate = <ThrowOnError extends boolean = false>(
   options?: Options<InvokeHumanoidImageMaskStepTemplateData, ThrowOnError>
 ) =>
@@ -1299,6 +1326,25 @@ export const invokeMultimodalEmbeddingStepTemplate = <ThrowOnError extends boole
     ThrowOnError
   >({
     url: '/v2/consumer/recipes/multimodalEmbedding',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+/**
+ * Reads the text in an image as plain text, in reading order; the text is empty when the image has none.
+ */
+export const invokeOcrStepTemplate = <ThrowOnError extends boolean = false>(
+  options?: Options<InvokeOcrStepTemplateData, ThrowOnError>
+) =>
+  (options?.client ?? client).post<
+    InvokeOcrStepTemplateResponses,
+    InvokeOcrStepTemplateErrors,
+    ThrowOnError
+  >({
+    url: '/v2/consumer/recipes/ocr',
     ...options,
     headers: {
       'Content-Type': 'application/json',

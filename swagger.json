@@ -2867,6 +2867,125 @@
         }
       }
     },
+    "/v2/consumer/recipes/gitHubRunner": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "summary": "GitHubRunner",
+        "description": "Runs one GitHub Actions job on a GPU worker. Its input hands over the job and its secrets, so it is restricted to managers and must be in an ephemeral workflow.",
+        "operationId": "InvokeGitHubRunnerStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "description": "How a workflow is paid for.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowTier"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubRunnerInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubRunnerInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GitHubRunnerInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GitHubRunnerOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/consumer/recipes/humanoidImageMask": {
       "post": {
         "tags": [
@@ -5576,6 +5695,124 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MultimodalEmbeddingStepOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/consumer/recipes/ocr": {
+      "post": {
+        "tags": [
+          "Recipes"
+        ],
+        "description": "Reads the text in an image as plain text, in reading order; the text is empty when the image has none.",
+        "operationId": "InvokeOCRStepTemplate",
+        "parameters": [
+          {
+            "name": "experimental",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "allowMatureContent",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "whatif",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ephemeral",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "description": "How a workflow is paid for.",
+            "schema": {
+              "$ref": "#/components/schemas/WorkflowTier"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OCRInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OCRInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/OCRInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OCROutput"
                 }
               }
             }
@@ -26469,6 +26706,7 @@
                 "reve": "#/components/schemas/ReveFalImageGenInput",
                 "museImage": "#/components/schemas/MuseImageFalImageGenInput",
                 "ideogram45": "#/components/schemas/Ideogram45FalImageGenInput",
+                "ideogram46": "#/components/schemas/Ideogram46FalImageGenInput",
                 "flux3": "#/components/schemas/Flux3FalImageGenInput"
               }
             }
@@ -30469,6 +30707,90 @@
           }
         ]
       },
+      "GitHubRunnerInput": {
+        "required": [
+          "gpu",
+          "jitConfig"
+        ],
+        "type": "object",
+        "properties": {
+          "jitConfig": {
+            "type": "string",
+            "description": "The single-use runner config from GitHub's generate-jitconfig endpoint."
+          },
+          "gpu": {
+            "type": "boolean",
+            "description": "Whether the runner gets a GPU. A CPU-only runner goes to a worker that has none."
+          }
+        },
+        "additionalProperties": false,
+        "x-service": {
+          "category": "utility",
+          "hosting": "internal"
+        }
+      },
+      "GitHubRunnerOutput": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "GitHubRunnerStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/GitHubRunnerInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/GitHubRunnerOutput"
+              },
+              "$type": {
+                "enum": [
+                  "gitHubRunner"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "GitHubRunner"
+      },
+      "GitHubRunnerStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "description": "Input for the GitHubRunnerStep step.",
+                "$ref": "#/components/schemas/GitHubRunnerInput"
+              },
+              "$type": {
+                "enum": [
+                  "gitHubRunner"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "description": "GitHubRunner"
+      },
       "GoogleImageGenInput": {
         "allOf": [
           {
@@ -33017,6 +33339,275 @@
               "mapping": {
                 "createImage": "#/components/schemas/Ideogram45CreateFalImageGenInput",
                 "editImage": "#/components/schemas/Ideogram45EditFalImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "Ideogram46ContextWindowBox": {
+        "required": [
+          "xMax",
+          "xMin",
+          "yMax",
+          "yMin"
+        ],
+        "type": "object",
+        "properties": {
+          "xMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xMax": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yMax": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Ideogram46CreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Ideogram46FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "enhancePrompt": {
+                "type": "boolean",
+                "default": true
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "ideogram46"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "Ideogram46EditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Ideogram46FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                },
+                "description": "The first image is the source; the remaining images are references."
+              },
+              "mask": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Black edits, white preserves. Must match the source dimensions and contain both regions.",
+                "format": "source-image"
+              },
+              "editPrecision": {
+                "enum": [
+                  "regular",
+                  "high"
+                ],
+                "type": "string",
+                "description": "high restores unchanged pixels.",
+                "default": "regular"
+              },
+              "contextWindow": {
+                "enum": [
+                  "none",
+                  "auto"
+                ],
+                "type": "string",
+                "description": "High-precision edits: auto edits only a region fitted around the mask, at the source resolution.",
+                "default": "none"
+              },
+              "contextWindowBox": {
+                "description": "High-precision edits: the region to edit, in source pixels with exclusive xMax and yMax.",
+                "$ref": "#/components/schemas/Ideogram46ContextWindowBox"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "ideogram46"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "Ideogram46FalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "quantity": {
+                "maximum": 8,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "quality": {
+                "enum": [
+                  "very_low",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "medium"
+              },
+              "imageSize": {
+                "enum": [
+                  "auto",
+                  "square_hd",
+                  "square",
+                  "portrait_4_3",
+                  "portrait_16_9",
+                  "landscape_4_3",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "description": "auto picks about 2K for text-to-image and keeps the source size for edits.",
+                "default": "auto"
+              },
+              "width": {
+                "maximum": 4096,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Custom dimensions override imageSize. Set width and height together.",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 4096,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "background": {
+                "enum": [
+                  null,
+                  "opaque",
+                  "transparent"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Leave unset for the model default."
+              },
+              "model": {
+                "enum": [
+                  "ideogram46"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Ideogram46CreateFalImageGenInput",
+                "editImage": "#/components/schemas/Ideogram46EditFalImageGenInput"
               }
             }
           }
@@ -35601,7 +36192,7 @@
               "model": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
                 "type": "string",
-                "description": "Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR."
+                "description": "Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1, Chroma or Anima checkpoint AIR."
               },
               "maxTrainEpochs": {
                 "maximum": 20,
@@ -35700,7 +36291,7 @@
                   "null",
                   "integer"
                 ],
-                "description": "Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.",
+                "description": "Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models (FLUX.1, Chroma and Anima).",
                 "format": "int32"
               },
               "networkDim": {
@@ -35741,7 +36332,7 @@
                   "null",
                   "boolean"
                 ],
-                "description": "Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option."
+                "description": "Train text encoder LoRAs; must match ContinueFrom coverage. Defaults to off for flow models. FLUX supports CLIP-L and Anima its Qwen3 encoder; Chroma does not support this option."
               },
               "steps": {
                 "maximum": 100000,
@@ -35775,7 +36366,7 @@
                   "null",
                   "string"
                 ],
-                "description": "Optional FLUX or Chroma T5 text encoder resource override."
+                "description": "Optional text encoder resource override: T5 for FLUX or Chroma, Qwen3 for Anima."
               },
               "vaeModel": {
                 "pattern": "^(?:urn:)?(?:air:)?(?:(?<ecosystem>[a-zA-Z0-9_\\-\\/]+):)?(?:(?<type>[a-zA-Z0-9_\\-\\/]+):)?(?<source>[a-zA-Z0-9_\\-\\/]+):(?<id>[a-zA-Z0-9_\\-\\/\\.]+)(?:@(?<version>[a-zA-Z0-9_\\-\\/.=,%+:]+))?(?:\\.(?<format>[a-zA-Z0-9_\\-]+))?$",
@@ -42120,6 +42711,92 @@
           "category": "image",
           "hosting": "partner"
         }
+      },
+      "OCRInput": {
+        "required": [
+          "image"
+        ],
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "description": "Image to read. URLs are imported into orchestrator blob storage before the job is queued.",
+            "format": "source-image"
+          }
+        },
+        "additionalProperties": false,
+        "x-service": {
+          "category": "text",
+          "hosting": "internal"
+        }
+      },
+      "OCROutput": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "OCRStep": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStep"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/OCRInput"
+              },
+              "output": {
+                "$ref": "#/components/schemas/OCROutput"
+              },
+              "$type": {
+                "enum": [
+                  "ocr"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "OCRStepTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WorkflowStepTemplate"
+          },
+          {
+            "required": [
+              "$type",
+              "input"
+            ],
+            "type": "object",
+            "properties": {
+              "input": {
+                "description": "Input for the OCRStep step.",
+                "$ref": "#/components/schemas/OCRInput"
+              },
+              "$type": {
+                "enum": [
+                  "ocr"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "OmniSvgImageToSvgInput": {
         "allOf": [
@@ -57873,6 +58550,7 @@
             "convertImage": "#/components/schemas/ConvertImageStep",
             "customComfy": "#/components/schemas/CustomComfyStep",
             "echo": "#/components/schemas/EchoStep",
+            "gitHubRunner": "#/components/schemas/GitHubRunnerStep",
             "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStep",
             "imageGen": "#/components/schemas/ImageGenStep",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStep",
@@ -57895,6 +58573,7 @@
             "modelParseMetadata": "#/components/schemas/ModelParseMetadataStep",
             "modelPickleScan": "#/components/schemas/ModelPickleScanStep",
             "multimodalEmbedding": "#/components/schemas/MultimodalEmbeddingStep",
+            "ocr": "#/components/schemas/OCRStep",
             "polyGen": "#/components/schemas/PolyGenStep",
             "preprocessImage": "#/components/schemas/PreprocessImageStep",
             "preprocessVideo": "#/components/schemas/PreprocessVideoStep",
@@ -58231,6 +58910,7 @@
             "convertImage": "#/components/schemas/ConvertImageStepTemplate",
             "customComfy": "#/components/schemas/CustomComfyStepTemplate",
             "echo": "#/components/schemas/EchoStepTemplate",
+            "gitHubRunner": "#/components/schemas/GitHubRunnerStepTemplate",
             "imageBackgroundRemoval": "#/components/schemas/ImageBackgroundRemovalStepTemplate",
             "imageGen": "#/components/schemas/ImageGenStepTemplate",
             "imageResourceTraining": "#/components/schemas/ImageResourceTrainingStepTemplate",
@@ -58253,6 +58933,7 @@
             "modelParseMetadata": "#/components/schemas/ModelParseMetadataStepTemplate",
             "modelPickleScan": "#/components/schemas/ModelPickleScanStepTemplate",
             "multimodalEmbedding": "#/components/schemas/MultimodalEmbeddingStepTemplate",
+            "ocr": "#/components/schemas/OCRStepTemplate",
             "polyGen": "#/components/schemas/PolyGenStepTemplate",
             "preprocessImage": "#/components/schemas/PreprocessImageStepTemplate",
             "preprocessVideo": "#/components/schemas/PreprocessVideoStepTemplate",

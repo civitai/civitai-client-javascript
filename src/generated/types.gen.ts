@@ -5217,6 +5217,41 @@ export type GifOutputFormat = Omit<ImageOutputFormat, 'format'> & {
   format: 'gif';
 };
 
+export type GitHubRunnerInput = {
+  /**
+   * The single-use runner config from GitHub's generate-jitconfig endpoint.
+   */
+  jitConfig: string;
+  /**
+   * Whether the runner gets a GPU. A CPU-only runner goes to a worker that has none.
+   */
+  gpu: boolean;
+};
+
+export type GitHubRunnerOutput = {
+  [key: string]: never;
+};
+
+/**
+ * GitHubRunner
+ */
+export type GitHubRunnerStep = Omit<WorkflowStep, '$type'> & {
+  input: GitHubRunnerInput;
+  output?: GitHubRunnerOutput;
+  $type: 'gitHubRunner';
+};
+
+/**
+ * GitHubRunner
+ */
+export type GitHubRunnerStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the GitHubRunnerStep step.
+   */
+  input: GitHubRunnerInput;
+  $type: 'gitHubRunner';
+};
+
 export type GoogleImageGenInput = Omit<ImageGenInput, 'engine'> & {
   model: string;
   prompt: string;
@@ -5883,6 +5918,82 @@ export type Ideogram45FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'mode
   width?: null | number;
   height?: null | number;
   model: 'ideogram45';
+  engine: 'fal';
+};
+
+export type Ideogram46ContextWindowBox = {
+  xMin: number;
+  yMin: number;
+  xMax: number;
+  yMax: number;
+};
+
+export type Ideogram46CreateFalImageGenInput = Omit<
+  Ideogram46FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  enhancePrompt?: boolean;
+  operation: 'createImage';
+  model: 'ideogram46';
+  engine: 'fal';
+};
+
+export type Ideogram46EditFalImageGenInput = Omit<
+  Ideogram46FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  /**
+   * The first image is the source; the remaining images are references.
+   */
+  images: Array<string>;
+  /**
+   * Black edits, white preserves. Must match the source dimensions and contain both regions.
+   */
+  mask?: null | string;
+  /**
+   * high restores unchanged pixels.
+   */
+  editPrecision?: 'regular' | 'high';
+  /**
+   * High-precision edits: auto edits only a region fitted around the mask, at the source resolution.
+   */
+  contextWindow?: 'none' | 'auto';
+  /**
+   * High-precision edits: the region to edit, in source pixels with exclusive xMax and yMax.
+   */
+  contextWindowBox?: Ideogram46ContextWindowBox;
+  operation: 'editImage';
+  model: 'ideogram46';
+  engine: 'fal';
+};
+
+export type Ideogram46FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  quantity?: number;
+  seed?: null | number;
+  quality?: 'very_low' | 'low' | 'medium' | 'high';
+  /**
+   * auto picks about 2K for text-to-image and keeps the source size for edits.
+   */
+  imageSize?:
+    | 'auto'
+    | 'square_hd'
+    | 'square'
+    | 'portrait_4_3'
+    | 'portrait_16_9'
+    | 'landscape_4_3'
+    | 'landscape_16_9';
+  /**
+   * Custom dimensions override imageSize. Set width and height together.
+   */
+  width?: null | number;
+  height?: null | number;
+  /**
+   * Leave unset for the model default.
+   */
+  background?: null | 'opaque' | 'transparent';
+  model: 'ideogram46';
   engine: 'fal';
 };
 
@@ -6701,7 +6812,7 @@ export type KlingVideoGenInput = Omit<VideoGenInput, 'engine'> & {
 
 export type KohyaTrainingInput = Omit<TrainingInput, 'engine'> & {
   /**
-   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
+   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1, Chroma or Anima checkpoint AIR.
    */
   model: string;
   /**
@@ -6763,7 +6874,7 @@ export type KohyaTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   lrSchedulerNumCycles: number;
   /**
-   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
+   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models (FLUX.1, Chroma and Anima).
    */
   minSnrGamma?: null | number;
   /**
@@ -6783,7 +6894,7 @@ export type KohyaTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
   /**
-   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
+   * Train text encoder LoRAs; must match ContinueFrom coverage. Defaults to off for flow models. FLUX supports CLIP-L and Anima its Qwen3 encoder; Chroma does not support this option.
    */
   trainTextEncoder?: null | boolean;
   /**
@@ -6799,7 +6910,7 @@ export type KohyaTrainingInput = Omit<TrainingInput, 'engine'> & {
    */
   clipLModel?: null | string;
   /**
-   * Optional FLUX or Chroma T5 text encoder resource override.
+   * Optional text encoder resource override: T5 for FLUX or Chroma, Qwen3 for Anima.
    */
   textEncoderModel?: null | string;
   /**
@@ -8859,6 +8970,31 @@ export type NanoBananaProImageGenInput = Omit<GoogleImageGenInput, 'engine' | 'm
   resolution?: '1K' | '2K' | '4K';
   images?: Array<string>;
   engine: 'google';
+};
+
+export type OcrInput = {
+  /**
+   * Image to read. URLs are imported into orchestrator blob storage before the job is queued.
+   */
+  image: string;
+};
+
+export type OcrOutput = {
+  text: string;
+};
+
+export type OcrStep = Omit<WorkflowStep, '$type'> & {
+  input: OcrInput;
+  output?: OcrOutput;
+  $type: 'ocr';
+};
+
+export type OcrStepTemplate = Omit<WorkflowStepTemplate, '$type'> & {
+  /**
+   * Input for the OCRStep step.
+   */
+  input: OcrInput;
+  $type: 'ocr';
 };
 
 export type OmniSvgImageToSvgInput = Omit<ComfyImageToSvgInput, 'engine' | 'ecosystem'> & {
@@ -14325,7 +14461,7 @@ export type Ideogram4AiToolkitTrainingInputWritable = Omit<
 
 export type KohyaTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> & {
   /**
-   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1 or Chroma checkpoint AIR.
+   * Any compatible SD1.5, SDXL (including Pony, Illustrious and NoobAI), FLUX.1, Chroma or Anima checkpoint AIR.
    */
   model: string;
   /**
@@ -14387,7 +14523,7 @@ export type KohyaTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    */
   lrSchedulerNumCycles: number;
   /**
-   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models.
+   * Min-SNR loss weighting; defaults to 5 for SD models and 0 for flow models (FLUX.1, Chroma and Anima).
    */
   minSnrGamma?: null | number;
   /**
@@ -14407,7 +14543,7 @@ export type KohyaTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    */
   optimizerType: 'AdamW' | 'AdamW8bit' | 'Adafactor' | 'Prodigy' | 'Lion' | 'Lion8bit';
   /**
-   * Train text encoder LoRAs; must match ContinueFrom coverage. FLUX supports CLIP-L; Chroma does not support this option.
+   * Train text encoder LoRAs; must match ContinueFrom coverage. Defaults to off for flow models. FLUX supports CLIP-L and Anima its Qwen3 encoder; Chroma does not support this option.
    */
   trainTextEncoder?: null | boolean;
   /**
@@ -14423,7 +14559,7 @@ export type KohyaTrainingInputWritable = Omit<TrainingInputWritable2, 'engine'> 
    */
   clipLModel?: null | string;
   /**
-   * Optional FLUX or Chroma T5 text encoder resource override.
+   * Optional text encoder resource override: T5 for FLUX or Chroma, Qwen3 for Anima.
    */
   textEncoderModel?: null | string;
   /**
@@ -16769,6 +16905,51 @@ export type InvokeEchoStepTemplateResponses = {
 export type InvokeEchoStepTemplateResponse =
   InvokeEchoStepTemplateResponses[keyof InvokeEchoStepTemplateResponses];
 
+export type InvokeGitHubRunnerStepTemplateData = {
+  body?: GitHubRunnerInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+    tags?: Array<string>;
+  };
+  url: '/v2/consumer/recipes/gitHubRunner';
+};
+
+export type InvokeGitHubRunnerStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeGitHubRunnerStepTemplateError =
+  InvokeGitHubRunnerStepTemplateErrors[keyof InvokeGitHubRunnerStepTemplateErrors];
+
+export type InvokeGitHubRunnerStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: GitHubRunnerOutput;
+};
+
+export type InvokeGitHubRunnerStepTemplateResponse =
+  InvokeGitHubRunnerStepTemplateResponses[keyof InvokeGitHubRunnerStepTemplateResponses];
+
 export type InvokeHumanoidImageMaskStepTemplateData = {
   body?: HumanoidImageMaskInput;
   path?: never;
@@ -17809,6 +17990,51 @@ export type InvokeMultimodalEmbeddingStepTemplateResponses = {
 
 export type InvokeMultimodalEmbeddingStepTemplateResponse =
   InvokeMultimodalEmbeddingStepTemplateResponses[keyof InvokeMultimodalEmbeddingStepTemplateResponses];
+
+export type InvokeOcrStepTemplateData = {
+  body?: OcrInput;
+  path?: never;
+  query?: {
+    experimental?: boolean;
+    allowMatureContent?: boolean;
+    whatif?: boolean;
+    ephemeral?: boolean;
+    /**
+     * How a workflow is paid for.
+     */
+    tier?: WorkflowTier;
+    tags?: Array<string>;
+  };
+  url: '/v2/consumer/recipes/ocr';
+};
+
+export type InvokeOcrStepTemplateErrors = {
+  /**
+   * Bad Request
+   */
+  400: ProblemDetails;
+  /**
+   * Unauthorized
+   */
+  401: ProblemDetails;
+  /**
+   * Forbidden
+   */
+  403: ProblemDetails;
+};
+
+export type InvokeOcrStepTemplateError =
+  InvokeOcrStepTemplateErrors[keyof InvokeOcrStepTemplateErrors];
+
+export type InvokeOcrStepTemplateResponses = {
+  /**
+   * OK
+   */
+  200: OcrOutput;
+};
+
+export type InvokeOcrStepTemplateResponse =
+  InvokeOcrStepTemplateResponses[keyof InvokeOcrStepTemplateResponses];
 
 export type InvokePolyGenStepTemplateData = {
   body?: PolyGenInput;
