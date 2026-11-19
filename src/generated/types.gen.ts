@@ -5886,6 +5886,82 @@ export type Ideogram45FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'mode
   engine: 'fal';
 };
 
+export type Ideogram46ContextWindowBox = {
+  xMin: number;
+  yMin: number;
+  xMax: number;
+  yMax: number;
+};
+
+export type Ideogram46CreateFalImageGenInput = Omit<
+  Ideogram46FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  enhancePrompt?: boolean;
+  operation: 'createImage';
+  model: 'ideogram46';
+  engine: 'fal';
+};
+
+export type Ideogram46EditFalImageGenInput = Omit<
+  Ideogram46FalImageGenInput,
+  'engine' | 'model' | 'operation'
+> & {
+  /**
+   * The first image is the source; the remaining images are references.
+   */
+  images: Array<string>;
+  /**
+   * Black edits, white preserves. Must match the source dimensions and contain both regions.
+   */
+  mask?: null | string;
+  /**
+   * high restores unchanged pixels.
+   */
+  editPrecision?: 'regular' | 'high';
+  /**
+   * High-precision edits: auto edits only a region fitted around the mask, at the source resolution.
+   */
+  contextWindow?: 'none' | 'auto';
+  /**
+   * High-precision edits: the region to edit, in source pixels with exclusive xMax and yMax.
+   */
+  contextWindowBox?: Ideogram46ContextWindowBox;
+  operation: 'editImage';
+  model: 'ideogram46';
+  engine: 'fal';
+};
+
+export type Ideogram46FalImageGenInput = Omit<FalImageGenInput, 'engine' | 'model'> & {
+  operation: string;
+  prompt: string;
+  quantity?: number;
+  seed?: null | number;
+  quality?: 'very_low' | 'low' | 'medium' | 'high';
+  /**
+   * auto picks about 2K for text-to-image and keeps the source size for edits.
+   */
+  imageSize?:
+    | 'auto'
+    | 'square_hd'
+    | 'square'
+    | 'portrait_4_3'
+    | 'portrait_16_9'
+    | 'landscape_4_3'
+    | 'landscape_16_9';
+  /**
+   * Custom dimensions override imageSize. Set width and height together.
+   */
+  width?: null | number;
+  height?: null | number;
+  /**
+   * Leave unset for the model default.
+   */
+  background?: null | 'opaque' | 'transparent';
+  model: 'ideogram46';
+  engine: 'fal';
+};
+
 export type Ideogram4AiToolkitTrainingInput = Omit<
   AiToolkitTrainingInput,
   'engine' | 'ecosystem'

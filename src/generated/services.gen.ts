@@ -190,6 +190,8 @@ export const services = {
   HunyuanVdeoGenInput: ['video', 'internal', 'videoGen', { engine: 'hunyuan' }],
   Ideogram45CreateFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'ideogram45', operation: 'createImage' }],
   Ideogram45EditFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'ideogram45', operation: 'editImage' }],
+  Ideogram46CreateFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'ideogram46', operation: 'createImage' }],
+  Ideogram46EditFalImageGenInput: ['image', 'partner', 'imageGen', { engine: 'fal', model: 'ideogram46', operation: 'editImage' }],
   Ideogram4AIToolkitTrainingInput: ['model', 'internal', 'training', { engine: 'ai-toolkit', ecosystem: 'ideogram4' }],
   IdolComfyPolyGenInput: ['3d', 'internal', 'polyGen', { engine: 'comfy', model: 'idol' }],
   ImageBackgroundRemovalInput: ['image', 'internal', 'imageBackgroundRemoval'],

@@ -26469,6 +26469,7 @@
                 "reve": "#/components/schemas/ReveFalImageGenInput",
                 "museImage": "#/components/schemas/MuseImageFalImageGenInput",
                 "ideogram45": "#/components/schemas/Ideogram45FalImageGenInput",
+                "ideogram46": "#/components/schemas/Ideogram46FalImageGenInput",
                 "flux3": "#/components/schemas/Flux3FalImageGenInput"
               }
             }
@@ -33017,6 +33018,275 @@
               "mapping": {
                 "createImage": "#/components/schemas/Ideogram45CreateFalImageGenInput",
                 "editImage": "#/components/schemas/Ideogram45EditFalImageGenInput"
+              }
+            }
+          }
+        ]
+      },
+      "Ideogram46ContextWindowBox": {
+        "required": [
+          "xMax",
+          "xMin",
+          "yMax",
+          "yMin"
+        ],
+        "type": "object",
+        "properties": {
+          "xMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yMin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xMax": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yMax": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Ideogram46CreateFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Ideogram46FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "enhancePrompt": {
+                "type": "boolean",
+                "default": true
+              },
+              "operation": {
+                "enum": [
+                  "createImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "ideogram46"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "Ideogram46EditFalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Ideogram46FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "images",
+              "model",
+              "operation"
+            ],
+            "type": "object",
+            "properties": {
+              "images": {
+                "maxItems": 5,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Either A URL, A DataURL or a Base64 string",
+                  "format": "source-image"
+                },
+                "description": "The first image is the source; the remaining images are references."
+              },
+              "mask": {
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Black edits, white preserves. Must match the source dimensions and contain both regions.",
+                "format": "source-image"
+              },
+              "editPrecision": {
+                "enum": [
+                  "regular",
+                  "high"
+                ],
+                "type": "string",
+                "description": "high restores unchanged pixels.",
+                "default": "regular"
+              },
+              "contextWindow": {
+                "enum": [
+                  "none",
+                  "auto"
+                ],
+                "type": "string",
+                "description": "High-precision edits: auto edits only a region fitted around the mask, at the source resolution.",
+                "default": "none"
+              },
+              "contextWindowBox": {
+                "description": "High-precision edits: the region to edit, in source pixels with exclusive xMax and yMax.",
+                "$ref": "#/components/schemas/Ideogram46ContextWindowBox"
+              },
+              "operation": {
+                "enum": [
+                  "editImage"
+                ],
+                "type": "string"
+              },
+              "model": {
+                "enum": [
+                  "ideogram46"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "x-service": {
+          "category": "image",
+          "hosting": "partner"
+        }
+      },
+      "Ideogram46FalImageGenInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FalImageGenInput"
+          },
+          {
+            "required": [
+              "engine",
+              "model",
+              "operation",
+              "prompt"
+            ],
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 10000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "quantity": {
+                "maximum": 8,
+                "minimum": 1,
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              },
+              "seed": {
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "quality": {
+                "enum": [
+                  "very_low",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string",
+                "default": "medium"
+              },
+              "imageSize": {
+                "enum": [
+                  "auto",
+                  "square_hd",
+                  "square",
+                  "portrait_4_3",
+                  "portrait_16_9",
+                  "landscape_4_3",
+                  "landscape_16_9"
+                ],
+                "type": "string",
+                "description": "auto picks about 2K for text-to-image and keeps the source size for edits.",
+                "default": "auto"
+              },
+              "width": {
+                "maximum": 4096,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "description": "Custom dimensions override imageSize. Set width and height together.",
+                "format": "int32"
+              },
+              "height": {
+                "maximum": 4096,
+                "minimum": 256,
+                "type": [
+                  "null",
+                  "integer"
+                ],
+                "format": "int32"
+              },
+              "background": {
+                "enum": [
+                  null,
+                  "opaque",
+                  "transparent"
+                ],
+                "type": [
+                  "null",
+                  "string"
+                ],
+                "description": "Leave unset for the model default."
+              },
+              "model": {
+                "enum": [
+                  "ideogram46"
+                ],
+                "type": "string"
+              },
+              "engine": {
+                "enum": [
+                  "fal"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "discriminator": {
+              "propertyName": "operation",
+              "mapping": {
+                "createImage": "#/components/schemas/Ideogram46CreateFalImageGenInput",
+                "editImage": "#/components/schemas/Ideogram46EditFalImageGenInput"
               }
             }
           }
